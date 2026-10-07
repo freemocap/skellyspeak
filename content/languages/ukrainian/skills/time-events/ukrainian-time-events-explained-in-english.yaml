@@ -1,60 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: An imperfective present can describe an activity happening now.
+    explanation: A colleague asks what is happening at the repair bench now. `Зараз` fixes the present
+      moment; `ремонтую` is first-person imperfective present and presents the bicycle repair as ongoing.
+      It does not claim the job is finished.
     examples:
       - text: Зараз я ремонтую велосипед.
-        meaning: I am repairing a bicycle now.
-        note: Зараз anchors the activity to the present situation.
+        meaning: I am repairing a bicycle now. `Зараз` anchors the activity to the present situation.
+        note: "Say you are repairing a radio now. Answer: `Зараз я ремонтую радіо.` Change the object; retain
+          `зараз` and imperfective `ремонтую` for an action in progress."
   - subskill_id: past_events
-    explanation: Past forms mark gender and number. A perfective verb can present a bounded repair.
+    explanation: A speaker reports a bicycle repair completed yesterday. `Учора` locates it in the past;
+      perfective `полагодила` presents a bounded repair and its `-ла` form agrees with a feminine
+      singular speaker. A masculine speaker would say `полагодив`.
     examples:
       - text: Учора я полагодила велосипед.
-        meaning: Yesterday I repaired a bicycle.
-        note: Полагодила is feminine singular; a masculine speaker would use полагодив.
+        meaning: Yesterday I repaired a bicycle. `Полагодила` is feminine singular; a masculine speaker would use
+          `полагодив`.
+        note: "For the same feminine speaker, say she repaired a radio yesterday. Answer: `Учора я полагодила
+          радіо.` The object changes, while `полагодила` retains past completion and feminine agreement."
   - subskill_id: future_events
-    explanation: A perfective future can name a later completed action without a separate auxiliary.
+    explanation: You arrange to collect repair parts tomorrow. `Завтра` names the day; `заберу` is
+      first-person singular perfective future, presenting the collection as a single bounded event. It
+      does not need a separate `буду` auxiliary.
     examples:
       - text: Завтра я заберу деталі.
-        meaning: Tomorrow I will collect the parts.
-        note: Заберу is first-person singular; завтра gives the day.
+        meaning: Tomorrow I will collect the parts. `Заберу` is first-person singular; `завтра` gives the day.
+        note: "Say you will collect the bicycle tomorrow. Answer: `Завтра я заберу велосипед.` Change what is
+          collected; retain `заберу` for the planned bounded pickup."
   - subskill_id: duration_frequency
-    explanation: Двічі counts two occurrences and на тиждень gives the recurring interval.
+    explanation: Someone asks about your swimming routine. `Двічі` counts two occurrences, and `на тиждень`
+      states the weekly interval. This is frequency; `дві години` would measure time spent in one
+      session.
     examples:
       - text: Я плаваю двічі на тиждень.
-        meaning: I swim twice a week.
-        note: This gives frequency, not the length of one swimming session.
+        meaning: I swim twice a week. This gives frequency, not the length of one swimming session.
+        note: "Say you swim three times a week. Answer: `Я плаваю тричі на тиждень.` Change the occurrence count
+          to `тричі`; keep the weekly interval."
   - subskill_id: event_sequence
-    explanation: Спочатку and потім establish first and subsequent steps.
+    explanation: The speaker gives a food-preparation order. `Спочатку` puts washing hands first; `потім`
+      introduces preparing vegetables afterward. `Вимийте` is a polite/plural perfective directive to
+      finish washing, while `готуйте` presents the subsequent preparation activity.
     examples:
       - text: Спочатку вимийте руки, потім готуйте овочі.
-        meaning: First wash your hands, then prepare the vegetables.
-        note: The polite or plural imperatives describe a procedure.
+        meaning: First wash your hands, then prepare the vegetables. The polite or plural imperatives describe a
+          procedure.
+        note: "Keep washing first, then ask the listener to cut the vegetables. Answer: `Спочатку вимийте руки,
+          потім наріжте овочі.` `Наріжте` gives a bounded next step; the sequence markers preserve the
+          safe order."
   - subskill_id: event_phase
-    explanation: Дочитати focuses on reading through to the endpoint.
+    explanation: A friend asks whether you have finished the book. `Дочитала` says the reading reached its
+      endpoint, with feminine singular past agreement. It differs from `читала`, which can report reading
+      without by itself guaranteeing the endpoint.
     examples:
       - text: Я дочитала книжку.
-        meaning: I finished reading the book.
-        note: The feminine speaker reports finishing the reading, not simply spending time on it.
+        meaning: I finished reading the book. The feminine speaker reports finishing the reading, not simply
+          spending time on it.
+        note: "For the same feminine speaker, say she finished reading the newspaper. Answer: `Я дочитала
+          газету.` Keep `дочитала` for completion and change the read object to accusative `газету`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - ukma_ukrainian_tenses2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

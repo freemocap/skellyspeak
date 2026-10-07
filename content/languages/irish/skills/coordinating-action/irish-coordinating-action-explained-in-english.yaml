@@ -73,8 +73,8 @@ sections:
     examples:
       - text: Nílim saor Dé hAoine. An mbuailfimid le chéile Dé Sathairn?
         meaning: I am not free on Friday. Shall we meet on Saturday?
-        note: "The second sentence matters because it gives the other person a plan to respond to. Try
-          keeping Friday unavailable but proposing tomorrow. Answer: `Nílim saor Dé hAoine. An
+        note: "Today is Wednesday, so tomorrow is Thursday. The second sentence gives the other
+          person a plan to respond to. Keep Friday unavailable but propose tomorrow. Answer: `Nílim saor Dé hAoine. An
           mbuailfimid le chéile amárach?` The meeting question stays intact; only its proposed time
           changes."
 provenance: &a1

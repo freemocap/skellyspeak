@@ -1,73 +1,78 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 活動前加 bisa，可以表示能力。後面嘅動詞唔會因人稱或者時態而變詞尾。
+    explanation: 有人問你識做邊種維修。`bisa` 喺動作前，呢度表示實際能力；佢本身唔代表有人批准。
     examples:
       - text: Saya bisa memperbaiki sepeda.
-        meaning: 我識整單車。
-        note: 討論實用技能時，bisa 係講能力，唔會自動變成准許。
+        meaning: 我識整單車。 `Saya` 係講者，`bisa` 係能夠，`memperbaiki sepeda` 係修單車；技能話題令佢解能力。
+        note: 試講識修枱。答案：`Saya bisa memperbaiki meja.` 換賓語；喺許可話題 `bisa` 亦可能講機會，要睇語境。
   - subskill_id: permission
-    explanation: Boleh 可以問某個行動獲唔獲准。對方嘅身份同權限，會令問句有請求批准嘅意思。
+    explanation: 共用工作間，你用枱前問負責人。`Boleh saya ...?` 請求批准講者嘅行動，`meja ini` 指呢張枱。
     examples:
       - text: Boleh saya memakai meja ini?
-        meaning: 我可唔可以用呢張枱？
-        note: 問管理工作地方嘅人，為自己想做嘅事請求批准。
+        meaning: 我可唔可以用呢張枱？ `memakai` 係使用，`meja ini` 係呢張枱；句子要聽者決定，唔係問自己有冇體力。
+        note: 試問可唔可以用呢張椅。答案：`Boleh saya memakai kursi ini?` 換物件；負責人可答 `Boleh` 表示批准。
   - subskill_id: obligation
-    explanation: 動詞前面嘅 harus 表示必要；tidak harus 係唔一定要，tidak boleh 先係唔准。
+    explanation: 你同聽者借咗工具，今日到期。`kita` 包括兩個人，`harus` 講必須歸還。
     examples:
       - text: Kita harus mengembalikan alat ini hari ini.
-        meaning: 我哋今日一定要還返呢件工具。
-        note: Kita 包括聽者。Harus 表示歸還係必要嘅，hari ini 交代限期係今日。
+        meaning: 我哋今日一定要還返呢件工具。 `mengembalikan alat ini` 係還呢件工具，`hari ini` 係期限；`harus`
+          講必要，唔係能力。
+        note: 試講今日唔一定要還。答案：`Kita tidak harus mengembalikan alat ini hari ini.` `tidak
+          harus` 取消義務；`tidak boleh` 係禁止還。
   - subskill_id: possibility
-    explanation: Mungkin 表示某個結果有可能發生，唔係肯定會發生。
+    explanation: 你安排戶外工作，天氣未肯定。`Mungkin` 標可能落雨，`nanti` 指稍後。
     examples:
       - text: Mungkin nanti hujan.
-        meaning: 陣間可能落雨。
-        note: Mungkin 限定預測嘅確定程度；nanti 將可能落雨嘅時間放喺稍後。
+        meaning: 陣間可能落雨。 `hujan` 係落雨；句子估一個可能，唔係話而家正落。
+        note: 試講聽日可能落雨。答案：`Mungkin besok hujan.` 換時間詞；`Besok hujan` 係預報，冇明示不確定。
   - subskill_id: certainty
-    explanation: Yakin 描述有信心；加 belum，就表示暫時仲未有把握。
+    explanation: 有人問方法安唔安全，但你未查夠。`belum yakin` 係仍未有把握，`bahwa` 引入待評估說法。
     examples:
       - text: Saya belum yakin bahwa cara ini aman.
-        meaning: 我仲未肯定呢個方法係安全嘅。
-        note: Bahwa 引出要判斷嘅命題；唔肯定嘅係安全性，唔係詞語意思。
+        meaning: 我仲未肯定呢個方法係安全嘅。 `cara ini aman` 係方法安全呢個命題；`Saya belum yakin`
+          限定講者把握，唔係聽唔明字。
+        note: 試講已經肯定安全。答案：`Saya sudah yakin bahwa cara ini aman.` `belum` 換
+          `sudah`，把握程度改變。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/possibilities-constraints/indonesian-possibilities-constraints-explained-in-english.yaml
-    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/possibilities-constraints/indonesian-possibilities-constraints-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
         - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

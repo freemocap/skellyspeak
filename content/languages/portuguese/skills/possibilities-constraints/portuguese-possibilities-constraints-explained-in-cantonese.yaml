@@ -1,46 +1,46 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: Saber加不定式可以表示識做某件事；sei係第一人稱現在式，知道某個事實則係saber另一個用法。
+    explanation: "鄰居問你識唔識整單車。`Sei consertar uma bicicleta` 係話你識得點做：`sei` 係 `saber` 嘅第一身現在式，不定式 `consertar` 指實際技能，`uma bicicleta` 係維修對象。`Sei onde está a bicicleta` 則係知道架車喺邊，屬於事實知識。"
     examples:
       - text: Sei consertar uma bicicleta.
         meaning: 我識整單車。
-        note: Sei後接consertar表示實際技能，唔係知道一個命題。
+        note: "講你識整收音機：`Sei consertar um rádio.`。呢句完整表達能力；`sei` 後面嘅不定式講明識做乜。"
   - subskill_id: permission
-    explanation: Poder加不定式可以問行動獲唔獲准；語境分辨係問許可、身體能力定機會。
+    explanation: "你喺共用工作間，向負責人問張枱可唔可以用。`Posso usar esta mesa?` 用 `posso`（`poder` 嘅第一身現在式）加不定式 `usar`，問「我可唔可以用？」；`esta mesa` 指呢張枱。對方有權批准或拒絕，所以係問許可。換個情境，同一個情態動詞亦可以問實際可行性。"
     examples:
       - text: Posso usar esta mesa?
         meaning: 我可唔可以用呢張枱？
-        note: 向共用工作地方嘅管理者詢問使用許可。
+        note: "問可唔可以用呢張椅：`Posso usar esta cadeira?`。向有權決定嘅人問時，呢句完整；`cadeira` 取代 `mesa`，`esta` 仍配陰性名詞。"
   - subskill_id: obligation
-    explanation: Ter que加不定式表示要求；tenho係第一人稱現在式，que後嘅動詞維持不定式。
+    explanation: "圖書館啲書今日到期。`Tenho que devolver os livros hoje` 表示必須做：`tenho` 係我有，`que` 將佢連到不定式 `devolver`，`hoje` 指今日期限。呢句唔表示已經還咗。`Não preciso devolver hoje` 係今日唔需要還，唔係禁止還。用 `ter que` 呢個結構要保留 `que`。"
     examples:
       - text: Tenho que devolver os livros hoje.
         meaning: 我今日一定要還書。
-        note: Tenho que表示要求，hoje交代時間，唔係話已經還咗。
+        note: "講聽日必須還書：`Tenho que devolver os livros amanhã.`。呢句完整表達要求；`amanhã` 改期限，`tenho que devolver` 保持連住。"
   - subskill_id: possibility
-    explanation: 呢個結構嘅é possível que配合虛擬式引出未確定事件；chova係chover嘅現在虛擬式。
+    explanation: "你安排戶外活動，但唔知會唔會落雨。`É possível que chova amanhã` 係「聽日可能落雨」。`É possível que` 引出未確定事件；`chova` 係呢個結構下 `chover` 嘅現在虛擬式，`amanhã` 指將來時間。`Está chovendo` 係報告而家落緊雨，唔係講可能性。"
     examples:
       - text: É possível que chova amanhã.
         meaning: 聽日可能落雨。
-        note: 落雨只係可能；雖然chova形式係現在虛擬式，amanhã仍然指將來。
+        note: "講圖書館聽日可能關門：`É possível que a biblioteca feche amanhã.`。呢句完整表達可能性；`é possível que` 後面用 `feche` 講未確定嘅關門。"
   - subskill_id: certainty
-    explanation: Não sei se表示唔知命題真唔真；se引出間接是非問句，唔係另一個行動嘅假設條件。
+    explanation: "出門前你唔知圖書館有冇開。`Não sei se a biblioteca está aberta` 講明知識限制：`não sei` 係我唔知道，呢度 `se` 係「是否」，引出間接是非問句，`está aberta` 係開門狀態。未有答案，所以講者唔係斷言已關門。呢個 `se` 同將來條件句 `Se chover, fico em casa` 嘅用法唔同。"
     examples:
       - text: Não sei se a biblioteca está aberta.
         meaning: 我唔知圖書館開咗未。
-        note: 唔肯定嘅係目前開放狀態；間接問句入面嘅está係直陳式。
+        note: "講唔知圖書館係咪關咗：`Não sei se a biblioteca está fechada.`。呢句完整表達未確定；`fechada` 改變被查問嘅狀態。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/possibilities-constraints/portuguese-possibilities-constraints-explained-in-english.yaml
-    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -49,7 +49,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -59,7 +59,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/possibilities-constraints/portuguese-possibilities-constraints-explained-in-english.yaml
-        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -68,6 +68,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

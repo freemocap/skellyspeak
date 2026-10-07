@@ -1,59 +1,59 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: て形加います可以描述進行中活動，但解讀取決於動詞；唔係所有ている都表示動作進行中。
+    explanation: "有人問你而家做緊乜。`今、地図を描いています` 表示畫地圖進行中：`今` 係而家，`地図を` 係畫嘅對象，`描いています` 由 `描く` 嘅 `て` 形接 `います` 組成。問題已指出講者，可省略主語。`地図を描きます` 依語境可以講習慣或之後嘅安排。其他動詞嘅 `ている` 亦可講動作結果留下嘅狀態，所以要睇動詞同情境。"
     examples:
       - text: 今、地図を描いています。
         meaning: 我而家畫緊地圖。
-        note: 今明確指出當前活動；語境已知講者，唔使另加私は。
+        note: "講而家畫緊畫：`今、絵を描いています。`。`絵を` 改對象，`描いています` 保留進行中。"
   - subskill_id: past_events
-    explanation: 禮貌過去式詞尾ました可以報告較早事件，時間詞再明確定位。
+    explanation: "朋友問你尋日整咗乜。`昨日、木の箱を作りました` 報告已完成嘅較早動作：`昨日` 係尋日，`木の箱を` 係所製木箱，`作りました` 係 `作る` 嘅禮貌過去式。`木の` 講材料，唔係話箱屬於棵樹。`作ります` 係非過去式，要靠其他語境講將來或習慣。過去形若放喺 `作ったら` 呢類條件句，就未必報告真實過去事件。"
     examples:
       - text: 昨日、木の箱を作りました。
         meaning: 我尋日整咗個木箱。
-        note: 昨日將事件放喺今日之前；木の描述箱嘅物料。
+        note: "報告尋日整咗木架：`昨日、木の棚を作りました。`。`木の棚を` 改製成品，`作りました` 保留已完成較早事件。"
   - subskill_id: future_events
-    explanation: 非過去式可以描述計劃中嘅將來行動，明日等詞交代時間；日文唔需要獨立將來時詞尾。
+    explanation: "你安排聽日去圖書館。`明日、図書館で本を返します` 用 `明日` 將還書放喺將來；`図書館で` 標示還書動作發生地點，`本を` 係書，非過去式 `返します` 講計劃。呢度唔使另外加將來時詞尾。`図書館に行きます` 用 `に` 標去嘅目的地；主句 `で` 係還書嘅地點。若喺分工對話，同一句亦可能表示接下工作。"
     examples:
       - text: 明日、図書館で本を返します。
         meaning: 我聽日會喺圖書館還書。
-        note: 返します係非過去式；で指出還書活動喺邊度進行。
+        note: "你向圖書館借咗自修室鎖匙，計劃聽日還返去：`明日、図書館で鍵を返します。`。`鍵を` 改對象，`明日` 指定將來時間。"
   - subskill_id: duration_frequency
-    explanation: 毎週表示每星期重複；二時間等數量量度時長，唔使用相當於英文 for 嘅介詞。
+    explanation: "你講自己每星期游水習慣。`毎週、二時間泳ぎます` 同時講頻率同時長：`毎週` 係每星期，`二時間` 係兩個鐘頭，`泳ぎます` 係游水嘅非過去式。時間量度每次游幾耐；`二時` 則係鐘面上兩點。`毎日、二時間泳ぎます` 改為每日游，但每次時長不變。呢句講慣常活動，唔係話而家游緊。"
     examples:
       - text: 毎週、二時間泳ぎます。
         meaning: 我每星期游兩個鐘水。
-        note: 二時間係時長，唔係鐘點；毎週交代固定頻率。
+        note: "講每星期游一個鐘：`毎週、一時間泳ぎます。`。`毎週` 保留頻率，`一時間` 改每次時長。"
   - subskill_id: event_sequence
-    explanation: 動詞て形加から，表示做完呢件事先做下一件，可以交代程序次序。
+    explanation: "你講解點樣安全開始煮食。`手を洗ってから、料理を始めます` 將洗手放喺煮嘢之前：`手を洗って` 係洗手嘅 `て` 形，`から` 係做完之後，`料理を始めます` 係開始煮食。呢個 `てから` 係排序，唔同 `雨だから` 呢種原因。`料理を始めてから、手を洗います` 將先後倒轉，程序都改變。原句係先洗手。"
     examples:
       - text: 手を洗ってから、料理を始めます。
         meaning: 我先洗手，再開始煮飯。
-        note: 洗ってから明確將洗手放喺先；呢個から唔係分句後表示原因嘅用法。
+        note: "講先洗菜，之後開始煮：`野菜を洗ってから、料理を始めます。`。`洗ってから` 放洗菜喺前，`始めます` 係之後開始。"
   - subskill_id: event_phase
-    explanation: 動詞詞幹配合終わる，明確表示完成活動，交代達到嘅階段，唔係只交代過去時間。
+    explanation: "有人問你本書讀完未。`その本を読み終わりました` 係話閱讀已到終點：`その本を` 係嗰本書，`読み` 係 `読む` 嘅連用詞幹，`終わる` 加入完成意思，`ました` 係禮貌過去報告。`その本を読んでいます` 係仲讀緊。單講 `読みました` 係報告過去讀過，但冇 `読み終わりました` 咁明確講完成階段。"
     examples:
       - text: その本を読み終わりました。
         meaning: 我睇完嗰本書喇。
-        note: 読み係読む嘅連用詞幹；読み終わりました表示閱讀已完成。
+        note: "講已寫完嗰封信：`その手紙を書き終わりました。`。`書き` 接 `終わりました`，標明寫作到咗終點。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/time-events/japanese-time-events-explained-in-english.yaml at revision
-    japanese-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained exactly; no
     independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -63,13 +63,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/time-events/japanese-time-events-explained-in-english.yaml at
-        revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

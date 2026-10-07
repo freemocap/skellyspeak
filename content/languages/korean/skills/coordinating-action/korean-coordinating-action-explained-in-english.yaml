@@ -1,70 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: 아 or 어 주세요 asks someone to do an action for the speaker or another beneficiary. The
-      form includes polite 요.
+    explanation: You need a colleague to move a box so the door is clear. `이 상자를` identifies the box; `문 옆으로`
+      is the destination next to the door, and `옮겨 주세요` politely asks the listener to move it. The
+      request is for an action, not a general ability report.
     examples:
       - text: 이 상자를 문 옆으로 옮겨 주세요.
-        meaning: Please move this box next to the door.
-        note: 옮겨 주세요 requests help moving the box. 옆으로 marks the destination.
+        meaning: Please move this box next to the door. 옮겨 주세요 requests help moving the box. 옆으로 marks the
+          destination.
+        note: "Try it: ask them to move the box by the window. Answer: `이 상자를 창문 옆으로 옮겨 주세요`. Change the
+          destination to `창문 옆으로`; keep `옮겨 주세요` as the request."
   - subskill_id: offers_invitations
-    explanation: 을까요 can offer the speaker’s action. 드리다 respectfully frames the offered help as
-      benefiting the listener.
+    explanation: You see someone carrying heavy equipment and offer help. `제가` makes you the proposed helper;
+      `도와드릴까요?` asks whether your help would be welcome. `드리다` respectfully frames your action as
+      benefiting the listener; it does not by itself mean you are already helping.
     examples:
       - text: 제가 도와드릴까요?
-        meaning: Shall I help you?
-        note: 제가 identifies the speaker as helper. The question leaves acceptance of the offer to the
-          listener.
+        meaning: Shall I help you? 제가 identifies the speaker as helper. The question leaves acceptance of the
+          offer to the listener.
+        note: "Try it: offer to carry the box for them. Answer: `제가 상자를 옮겨 드릴까요?`. Name the box and use `옮겨
+          드릴까요?` to offer your action for the listener’s benefit."
   - subskill_id: suggestions
-    explanation: A question in 을까요 with 같이 can propose joint action. Context distinguishes a
-      suggestion from wondering what someone might do.
+    explanation: The group has been working for a while and could pause. `같이` includes speaker and listener;
+      `잠깐` makes the break short, and `쉴까요?` proposes a shared rest. The planning context gives the
+      question its suggestion force.
     examples:
       - text: 같이 잠깐 쉴까요?
-        meaning: Shall we take a short break together?
-        note: 같이 includes both participants in the proposal; 잠깐 limits its duration.
+        meaning: Shall we take a short break together? 같이 includes both participants in the proposal; 잠깐 limits
+          its duration.
+        note: "Try it: suggest taking a brief walk together. Answer: `같이 잠깐 걸을까요?`. Keep `같이 잠깐` and replace rest
+          with `걸을까요?` for a joint walk."
   - subskill_id: commitments
-    explanation: 을게요 can express the speaker’s intention in relation to the listener. It can
-      undertake a task during planning.
+    explanation: The group is dividing repair tasks and needs the tools tomorrow. `제가` stresses that the
+      speaker takes responsibility; `내일` fixes the day, and `가져올게요` undertakes to bring the tools with
+      the listener in mind. It is more than a detached forecast in this exchange.
     examples:
       - text: 제가 내일 공구를 가져올게요.
-        meaning: I will bring the tools tomorrow.
-        note: Use when taking responsibility for the group’s tools. The statement addresses what the
-          listener can expect from the speaker.
+        meaning: I will bring the tools tomorrow. Use when taking responsibility for the group’s tools. The
+          statement addresses what the listener can expect from the speaker.
+        note: "Try it: take responsibility for bringing the radio tomorrow. Answer: `제가 내일 라디오를 가져올게요`. Change
+          the object to `라디오를`; keep `제가` and `-올게요` for your undertaking."
   - subskill_id: accepting_declining
-    explanation: An apology followed by inability can decline an invitation. The invitation supplies
-      what attendance would mean.
+    explanation: A friend invites you to join today, but you cannot. `미안해요` acknowledges the social cost;
+      `오늘은 못 가요` says you cannot go today. `못` marks inability or practical impossibility here, and the
+      invitation supplies the destination.
     examples:
       - text: 미안해요. 오늘은 못 가요.
-        meaning: Sorry. I cannot come today.
-        note: Reply to an invitation for today. 못 expresses inability; the two sentences together
-          decline the invitation.
+        meaning: Sorry. I cannot come today. Reply to an invitation for today. 못 expresses inability; the two
+          sentences together decline the invitation.
+        note: "Try it: decline tomorrow instead. Answer: `미안해요. 내일은 못 가요`. Change the day to `내일은`; keep the
+          apologetic refusal and inability form."
   - subskill_id: negotiating_plans
-    explanation: 어때요 asks how an alternative would suit the participants. State the original
-      conflict to make the adjustment clear.
+    explanation: A partner proposed Friday, but your schedule conflicts. `금요일은 바빠요` explains the constraint;
+      `토요일은 어때요?` proposes Saturday and asks whether it suits them. The topic marker `은` sets the two
+      days against each other in this negotiation.
     examples:
       - text: 금요일은 바빠요. 토요일은 어때요?
-        meaning: I am busy Friday. How about Saturday?
-        note: Reply to a proposed Friday meeting. 은 contrasts the two days in the negotiation.
+        meaning: I am busy Friday. How about Saturday? Reply to a proposed Friday meeting. 은 contrasts the two
+          days in the negotiation.
+        note: "Try it: say Friday is busy and propose Sunday. Answer: `금요일은 바빠요. 일요일은 어때요?`. Keep the conflict
+          and replace the alternative day with `일요일은`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_permission2026
     - htsk_desire2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

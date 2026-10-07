@@ -1,55 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Хочу with an infinitive names a desired action.
+    explanation: At a sewing workshop, the speaker describes a learning goal. `Я хочу` gives the desire;
+      perfective infinitive `навчитися` focuses on acquiring the skill, and `шити` names sewing. Wanting
+      to learn does not assert that the training has begun.
     examples:
       - text: Я хочу навчитися шити.
-        meaning: I want to learn to sew.
-        note: Навчитися concerns acquiring the ability; the sentence expresses desire.
+        meaning: I want to learn to sew. `Навчитися` concerns acquiring the ability; the sentence expresses
+          desire.
+        note: "Say you want to learn to cook. Answer: `Я хочу навчитися готувати.` Keep the desire and learning
+          frame; change the skill infinitive to `готувати`."
   - subskill_id: preferences
-    explanation: Подобається takes a dative experiencer; більше and ніж compare alternatives.
+    explanation: While choosing drinks, the speaker compares tea with coffee. `Мені` is the dative person
+      experiencing the liking; `більше подобається чай` says tea appeals more, and `ніж кава` names the
+      alternative. The preferred item is grammatical subject, not an object after an English-style like
+      verb.
     examples:
       - text: Мені більше подобається чай, ніж кава.
-        meaning: I prefer tea to coffee.
-        note: Мені identifies whose preference is being described.
+        meaning: I prefer tea to coffee. `Мені` identifies whose preference is being described.
+        note: "Prefer coffee to tea instead. Answer: `Мені більше подобається кава, ніж чай.` Swap the two drink
+          nouns while retaining the dative experiencer `мені`."
   - subskill_id: emotions
-    explanation: Рада expresses gladness and agrees with a feminine experiencer.
+    explanation: A feminine speaker has heard welcome news. `Рада` expresses gladness and agrees with her;
+      `цій новині` is dative, naming the news that prompts the feeling. A masculine speaker would use
+      `радий` with the same news phrase.
     examples:
       - text: Я рада цій новині.
-        meaning: I am glad about this news.
-        note: Цій новині is dative; a masculine speaker would use радий.
+        meaning: I am glad about this news. `Цій новині` is dative; a masculine speaker would use `радий`.
+        note: "For a masculine speaker, express the same gladness. Answer: `Я радий цій новині.` Change `рада` to
+          `радий` for the speaker; `цій новині` remains dative."
   - subskill_id: opinions
-    explanation: На мою думку marks the following proposition as a personal assessment.
+    explanation: In a discussion of methods, `На мою думку` marks the assessment as the speaker’s view. `Цей
+      спосіб` is the masculine method being judged; comparative `зручніший` agrees with it and says it is
+      more convenient relative to another option.
     examples:
       - text: На мою думку, цей спосіб зручніший.
-        meaning: In my opinion, this method is more convenient.
-        note: The speaker evaluates a method under discussion.
+        meaning: In my opinion, this method is more convenient. The speaker evaluates a method under discussion.
+        note: "Say this method is less convenient. Answer: `На мою думку, цей спосіб менш зручний.` Keep the
+          viewpoint marker; `менш зручний` reverses the evaluation and agrees with `спосіб`."
   - subskill_id: agreement_disagreement
-    explanation: Погоджуватися з links agreement to a person or proposal; не negates it.
+    explanation: A colleague has proposed a change. `Я не погоджуюся` states disagreement; `з цією
+      пропозицією` names the proposal in the instrumental after `з`. Understanding the proposal would be
+      a separate act from accepting it.
     examples:
       - text: Я не погоджуюся з цією пропозицією.
-        meaning: I disagree with this proposal.
-        note: З цією пропозицією identifies the proposal being rejected.
+        meaning: I disagree with this proposal. `З цією пропозицією` identifies the proposal being rejected.
+        note: "State agreement with the same proposal. Answer: `Я погоджуюся з цією пропозицією.` Remove `не`;
+          keep the instrumental proposal phrase after `з`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - jenkala_ukrainian_infinitives2026
     - ukma_ukrainian_terms2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

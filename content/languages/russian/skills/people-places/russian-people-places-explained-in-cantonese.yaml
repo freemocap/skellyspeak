@@ -1,71 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Это引出身份識別；現在時一般唔需要繫詞。
+    explanation: 你向人介紹一位女鄰居。`Это` 引出要辨認嘅人；`моя соседка` 係陰性單數，所以物主詞 `моя` 配合 `соседка`。呢種直接介紹一般唔加現在式嘅「係」。
     examples:
       - text: Это моя соседка.
         meaning: 呢位係我鄰居。
-        note: Моя配合陰性名詞соседка，介紹嘅係女性鄰居。
+        note: 試吓介紹你嘅姐姐或妹妹。答案：`Это моя сестра.` `Это` 仍用嚟辨認人物；陰性 `моя` 配合 `сестра`。
   - subskill_id: qualities_states
-    explanation: 可以直接用性質作述語，形容詞要同主語配合。
+    explanation: 有人問呢條街點樣。`Эта улица` 係陰性單數，指示詞 `эта` 同形容詞 `узкая` 都配合 `улица`。形容詞直接講目前特質，俄語呢度毋須另加現在式繫詞。
     examples:
       - text: Эта улица узкая.
         meaning: 呢條街好窄。
-        note: Эта同узкая都係陰性單數，配合улица。
+        note: 試吓話呢間房窄。答案：`Эта комната узкая.` `эта` 同 `узкая` 都保持陰性單數，配合 `комната`。
   - subskill_id: location_movement
-    explanation: На加前置格表示鎖匙喺某個表面；動詞描述擺放狀態。
+    explanation: 有人搵放喺架上嘅鎖匙。`Ключ` 係被定位嘅物件；`лежит` 講佢平放嘅狀態。`на полке` 用 `на` 加前置格表示表面上嘅靜態位置；搬上架就要另一種結構，例如
+      `положить на полку`。
     examples:
       - text: Ключ лежит на полке.
         meaning: 鎖匙喺個架上面。
-        note: Полке係полка嘅前置格；表示移動目的地就要另一種結構。
+        note: 試吓話鎖匙平放喺枱面。答案：`Ключ лежит на столе.` `лежит` 仍講靜態位置；`на столе` 改成喺枱面。
   - subskill_id: possession_relations
-    explanation: У加屬格擁有者，再配合есть，可以表示擁有；被數嘅名詞形式隨數量而變。
+    explanation: 你點算手上可用嘅箱。`У меня` 用 `у` 加屬格指出持有人；`есть` 肯定有呢啲箱。`Две` 係「二」嘅陰性形式，配合 `коробка`；數詞後名詞用
+      `коробки`。句式唔係逐字照英文「我有」砌。
     examples:
       - text: У меня есть две коробки.
         meaning: 我有兩個箱。
-        note: Меня跟喺у後；две配合陰性名詞，呢度名詞形式係коробки。
+        note: 試吓話你有三個箱。答案：`У меня есть три коробки.` 持有結構不變；`три коробки` 用相應名詞形式數三個。
   - subskill_id: quantity_comparison
-    explanation: 比較級可以直接用屬格標示比較基準，唔用чем。
+    explanation: 你揀邊個箱容易搬。`Эта коробка` 指被比較嘅箱；`легче` 係較輕。`Той` 係「嗰個」嘅屬格，不用 `чем` 都可以做比較基準。句子比較重量，唔係箱嘅數量。
     examples:
       - text: Эта коробка легче той.
         meaning: 呢個箱比嗰個輕。
-        note: Легче比較重量；той代替另一個箱，唔使重複名詞。
+        note: 試吓話呢個箱比嗰個重。答案：`Эта коробка тяжелее той.` `тяжелее` 將重量判斷反轉；屬格 `той` 仍係比較基準。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/russian/skills/people-places/russian-people-places-explained-in-english.yaml at
-    revision russian-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+    source passages; no independent linguistic review.
   sources:
     - cornell_russian_agreement2026
     - cornell_russian_possession2026
+    - cornell_russian_comparison2026
+    - cornell_russian_numerals2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   russian-russia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/russian/skills/people-places/russian-people-places-explained-in-english.yaml at
-        revision russian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+        source passages; no independent linguistic review.
       sources:
         - cornell_russian_agreement2026
         - cornell_russian_possession2026
+        - cornell_russian_comparison2026
+        - cornell_russian_numerals2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

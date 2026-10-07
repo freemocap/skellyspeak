@@ -1,74 +1,60 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: αυτός、αυτή、αυτό 要按所指對象選擇。είναι 將人物同身分名詞連起嚟；一般介紹人名時通常帶定冠詞。
+    explanation: 向未見過 Nikos 嘅人介紹佢。`Αυτός` 係陽性形式，呢度指「呢位」或「佢」；`είναι` 連接佢同身分，`ο φίλος μου` 講明佢係我朋友。一般介紹人名時，`ο Νίκος` 嘅姓名前有冠詞。
     examples:
       - text: Αυτός είναι ο φίλος μου, ο Νίκος.
-        meaning: 呢位係我朋友 Nikos。
-        note: αυτός 指男性；ο φίλος μου 交代朋友關係，ο Νίκος 係姓名。
+        meaning: 呢位係我朋友 Nikos。`Αυτός` 指男性；`ο φίλος μου` 交代關係，`ο Νίκος` 補充姓名。
+        note: 試吓介紹 Maria 係你朋友。答案：`Αυτή είναι η φίλη μου, η Μαρία`。女性用 `αυτή`、`η φίλη`，姓名前亦用 `η`。
   - subskill_id: qualities_states
-    explanation: 形容詞即使放喺 είναι 後面，亦要配合名詞嘅性同數。學名詞時連冠詞一齊學，有助選對形式。
+    explanation: 有人問座橋好唔好行。`Η γέφυρα` 係陰性單數；形容詞即使放喺 `είναι` 後面，都要配合佢，所以「窄」用 `στενή`。
     examples:
       - text: Η γέφυρα είναι στενή.
-        meaning: 條橋窄。
-        note: γέφυρα 係陰性單數，所以謂語形容詞用 στενή。
+        meaning: 條橋窄。`Η γέφυρα` 係陰性單數，`στενή` 係配合佢嘅陰性單數形式。
+        note: 試吓話條橋闊。答案：`Η γέφυρα είναι φαρδιά`。主語同動詞不變，描述橋嘅形容詞用陰性 `φαρδιά`。
   - subskill_id: location_movement
-    explanation: κοντά σε 表示靠近；σε 同定冠詞合成 στον、στην、στο 等。同一介詞配合移動動詞可講目的地，要睇動詞同語境。
+    explanation: 你要講維修舖喺邊，然後講自己去邊。`κοντά στην πλατεία` 表示喺廣場附近；`στην` 由 `σε` 同 `την` 合成。配合 `πάω`，`στο
+      συνεργείο` 指目的地；動詞同語境決定意思。
     examples:
       - text: Το συνεργείο είναι κοντά στην πλατεία.
-        meaning: 間維修舖喺廣場附近。
-        note: κοντά στην πλατεία 交代位置；στην 係 σε 加 την，名詞用賓格。
+        meaning: 維修舖喺廣場附近。`κοντά στην πλατεία` 交代位置；`στην` 由 `σε` 同陰性賓格冠詞 `την` 合成。
+        note: 試吓話你去廣場。答案：`Πάω στην πλατεία`。`πάω` 表示去，所以 `στην πλατεία` 係目的地。
       - text: Πάω στο συνεργείο.
-        meaning: 我去維修舖。
-        note: 配合 πάω，στο συνεργείο 指目的地，唔係講者而家所在位置。
+        meaning: 我去維修舖。`Πάω` 係我去，所以 `στο συνεργείο` 係目的地；同一介詞配其他動詞亦可描述靜態位置。
+        note: 試吓話單車喺維修舖。答案：`Το ποδήλατο είναι στο συνεργείο`。將移動動詞換成 `είναι`，片語而家表示單車位置。
   - subskill_id: possession_relations
-    explanation: 弱讀屬格物主代名詞跟喺名詞後面，μου 表示我嘅；名詞通常保留冠詞。原本倒數第三音節重讀嘅名詞，喺呢種附着詞前會加另一個重音符號。
+    explanation: 有人問架單車係邊個嘅。`το ποδήλατό μου` 將弱讀物主詞 `μου` 放喺名詞後；後接附着詞時，`ποδήλατό` 加第二個重音符號，冠詞 `το` 仍然保留。
     examples:
       - text: Αυτό είναι το ποδήλατό μου.
-        meaning: 呢架係我嘅單車。
-        note: μου 喺呢度表示我嘅；ποδήλατό 嘅額外重音符號反映同後面附着詞結合後嘅重音安排。
+        meaning: 呢架係我嘅單車。`το ποδήλατό` 係架單車，後面嘅 `μου` 指物主係講者；第二個重音係呢個名詞連附着詞嘅寫法。
+        note: 試吓對一位熟人話係佢嘅單車。答案：`Αυτό είναι το ποδήλατό σου`。將 `μου` 換成 `σου`，保留 `το` 同第二個重音。
   - subskill_id: quantity_comparison
-    explanation: 數詞交代數量；πιο 加形容詞同 από 可同指定標準比較。形容詞配合被描述物，πιο 本身唔變。
+    explanation: 你要揀搬邊個箱。`τρία κουτιά` 數三個中性複數箱；`αυτό το κουτί` 指其中一個。`πιο βαρύ από τα άλλα`
+      將佢同其他箱比較；`βαρύ` 配合中性單數，`πιο` 不變。
     examples:
       - text: Χρειαζόμαστε τρία κουτιά. Αυτό το κουτί είναι πιο βαρύ από τα άλλα.
-        meaning: 我哋需要三個箱。呢個箱比其他嗰啲重。
-        note: τρία、κουτιά 係中性複數；βαρύ 描述中性單數 κουτί，από τα άλλα 指比較組。
-provenance:
+        meaning: 我哋需要三個箱；呢個比其他箱重。`τρία κουτιά` 交代數量，`πιο βαρύ` 係較重，`από τα άλλα` 指比較對象。
+        note: 試吓話呢個箱比其他箱輕。答案：`Αυτό το κουτί είναι πιο ελαφρύ από τα άλλα`。用中性單數 `ελαφρύ`，比較結構保持一樣。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/people-places/greek-people-places-explained-in-english.yaml at revision
-    greek-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/people-places/greek-people-places-explained-in-english.yaml at
-        revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

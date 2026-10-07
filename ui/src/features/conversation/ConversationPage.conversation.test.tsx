@@ -329,6 +329,31 @@ it('opens the conversation list from the chat header and lets the coach cover th
   view.unmount()
   media.mockRestore()
 })
+it('keeps difficulty beside the partner where the header has room, and hands it to the settings sheet on phones', async () => {
+  const wide = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(snapshot()))
+  expect(within(document.querySelector<HTMLElement>('.chat-head')!).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
+  expect(within(screen.getByRole('dialog', { name: 'Conversation settings' })).queryByRole('combobox', { name: 'Difficulty' })).toBeNull()
+  wide.unmount()
+  // Narrow: the header is one row, so the select is the first thing in the sheet.
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    const phone = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(2))
+    await act(async () => watches[1].resolve(snapshot()))
+    expect(within(document.querySelector<HTMLElement>('.chat-head')!).queryByRole('combobox', { name: 'Difficulty' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
+    const sheet = screen.getByRole('dialog', { name: 'Conversation settings' })
+    const group = within(sheet).getByRole('region', { name: 'Difficulty' })
+    expect(within(group).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
+    expect(group.parentElement!.firstElementChild).toBe(group)
+    phone.unmount()
+  } finally {
+    media.mockRestore()
+  }
+})
 it('puts the recording panel’s divider on the panel’s own edge, with the row above it outside the panel', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)

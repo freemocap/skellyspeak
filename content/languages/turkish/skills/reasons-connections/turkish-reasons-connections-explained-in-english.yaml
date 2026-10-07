@@ -1,54 +1,75 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Çünkü introduces an explanation for the preceding situation.
+    explanation: A friend asks why you stayed home. `Evde kaldım` states that you stayed at
+      home; `çünkü yağmur başladı` supplies the reason, that the rain started. `Çünkü`
+      connects an explanation to the earlier decision, not just two events in time order.
     examples:
       - text: Evde kaldım çünkü yağmur başladı.
         meaning: I stayed home because it started raining.
-        note: The rain is presented as the reason for staying home.
+        note: "Explain that you stayed home because a storm started instead. Answer: `Evde kaldım
+          çünkü fırtına başladı.` Replace the cause with `fırtına başladı`; `çünkü` still links it
+          to staying home."
   - subskill_id: consequences
-    explanation: Bu yüzden links a situation to a resulting action.
+    explanation: You explain why you arrived on foot. `Otobüs gelmedi` reports the bus did not
+      come, and `bu yüzden yürüdüm` presents walking as the resulting choice. `Bu yüzden`
+      points back to that problem; it does not merely mark which event happened first.
     examples:
       - text: Otobüs gelmedi, bu yüzden yürüdüm.
         meaning: The bus did not come, so I walked.
-        note: Walking is presented as the consequence.
+        note: "Say the taxi did not come, so you walked. Answer: `Taksi gelmedi, bu yüzden
+          yürüdüm.` Change the missing transport to `Taksi`; `bu yüzden` keeps the
+          consequence relation."
   - subskill_id: conditions
-    explanation: A conditional suffix can establish a dependency without eğer.
+    explanation: You make a weather-dependent plan for tomorrow. `Yarın yağmur yağarsa` means
+      if it rains tomorrow, with the condition carried by `-sa`; `evde kalacağız` is the
+      plan that applies in that case. The sentence does not claim it is already raining.
     examples:
       - text: Yarın yağmur yağarsa evde kalacağız.
         meaning: If it rains tomorrow, we will stay home.
-        note: Yağarsa marks the condition; kalacağız states the dependent plan.
+        note: "Plan to stay home if it snows tomorrow. Answer: `Yarın kar yağarsa evde kalacağız.`
+          Change the possible weather to `kar`; `yağarsa` still makes the home plan
+          conditional."
   - subskill_id: contrast
-    explanation: Ama connects descriptions that contrast in context.
+    explanation: You are choosing a route and weighing two qualities. `Yol kısa` says the road
+      is short, while `ama dik` adds that it is steep. `Ama` contrasts the convenience of
+      short distance with the difficulty of a climb; it does not say one quality causes
+      the other.
     examples:
       - text: Yol kısa ama dik.
         meaning: The road is short but steep.
-        note: Length and steepness pull in different directions when choosing a route.
+        note: "Describe the road as short but narrow. Answer: `Yol kısa ama dar.` Replace the
+          second property with `dar`; `ama` still sets a useful route-choice contrast."
   - subskill_id: supporting_claims
-    explanation: A reason clause can give evidence for an inference.
+    explanation: At night, you see a light turn on in the house and cautiously infer someone
+      may be there. `Sanırım` marks a tentative conclusion, `evde biri var` names it, and
+      `çünkü ışık yanıyor` gives the observed clue. The light supports the inference but
+      does not cause a person to be home.
     examples:
       - text: Sanırım evde biri var çünkü ışık yanıyor.
         meaning: I think someone is home because the light is on.
-        note: The light supports the inference; it does not cause someone to be home.
+        note: "Use voices heard inside as the clue instead. Answer: `Sanırım evde biri var çünkü
+          içeriden sesler geliyor.` The sounds provide evidence for the same cautious
+          claim; `Sanırım` keeps it an inference, not certainty."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_conditions2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

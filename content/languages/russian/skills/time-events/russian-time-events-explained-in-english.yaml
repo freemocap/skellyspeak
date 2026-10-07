@@ -1,64 +1,105 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: An imperfective present can describe an activity happening now.
+    explanation: Someone asks what you are doing right now. `Сейчас` fixes the moment; `я чиню` is an imperfective
+      present form describing repair in progress, and `велосипед` is its object. Imperfective present can also
+      describe habits in other contexts, so the time word and question make the ongoing reading clear here.
     examples:
       - text: Сейчас я чиню велосипед.
         meaning: I am repairing a bicycle now.
-        note: Сейчас anchors чиню to the current activity rather than a general habit.
+        note: "Try saying you are reading a book right now. Answer: `Сейчас я читаю книгу.` `Сейчас` keeps the
+          current-time context; imperfective present `читаю` names the ongoing activity."
   - subskill_id: past_events
-    explanation: A perfective past can present a repair as a completed event. Singular past forms
-      mark gender.
+    explanation: You report a repair finished yesterday. `Вчера` places it in the past; perfective `починила`
+      presents the bicycle repair as a bounded completed event. Final `-ла` is feminine singular past
+      agreement with the speaker in this example; a masculine singular speaker would use `починил`. An
+      imperfective past could report that repair activity occurred without necessarily asserting the same
+      endpoint.
     examples:
       - text: Вчера я починила велосипед.
         meaning: Yesterday I repaired a bicycle.
-        note: The speaker uses feminine починила. A masculine speaker would use починил.
+        note: "Try reporting that the same feminine speaker repaired a watch yesterday. Answer: `Вчера я починила
+          часы.` `Починила` keeps the completed-event view and feminine past form; `часы` changes the repaired
+          item."
   - subskill_id: future_events
-    explanation: A perfective nonpast form can refer to a future event.
+    explanation: You have arranged to collect the repair parts tomorrow. `Завтра` gives future time. `Заберу` is a
+      perfective verb with nonpast endings, so it refers to a future completed collection; `детали` is what
+      you will pick up. An imperfective future can instead use `буду` plus an infinitive when the activity or
+      process is in focus.
     examples:
       - text: Завтра я заберу детали.
         meaning: Tomorrow I will collect the parts.
-        note: Завтра supplies the time; заберу presents the collection as a bounded event.
+        note: "Try saying you will collect the key tomorrow. Answer: `Завтра я заберу ключ.` `Завтра` still sets
+          future time, and perfective `заберу` presents collecting the key as one bounded task."
   - subskill_id: duration_frequency
-    explanation: Раз counts occasions and в неделю establishes a recurring interval.
+    explanation: You are describing a regular swimming habit. `Два раза` counts two occasions, and `в неделю`
+      names the recurring interval of one week. This gives frequency, not the length of each swim; `два часа`
+      would instead measure a two-hour duration.
     examples:
       - text: Я плаваю два раза в неделю.
         meaning: I swim twice a week.
-        note: This describes frequency, not the duration of one swim.
+        note: "Try saying you swim three times a week. Answer: `Я плаваю три раза в неделю.` `Три раза` changes the
+          count of occasions; `в неделю` keeps the weekly interval."
   - subskill_id: event_sequence
-    explanation: Сначала and потом explicitly order actions.
+    explanation: You are giving basic kitchen instructions. `Сначала` puts washing hands first; `потом` introduces
+      the later action, starting to cook. `Вымойте` is a perfective polite imperative for completing the wash;
+      `начинайте` is an imperfective polite imperative focusing on beginning the next activity. The two
+      markers make the order explicit.
     examples:
       - text: Сначала вымойте руки, потом начинайте готовить.
         meaning: First wash your hands, then start cooking.
-        note: The polite or plural instructions give a sequence, not a claim that one event causes the
-          other.
+        note: "Try giving a sensible two-step vegetable-preparation instruction: wash hands, then cut vegetables.
+          Answer: `Сначала вымойте руки, потом нарежьте овощи.` `Сначала` and `потом` preserve the sequence,
+          while `нарежьте овощи` supplies the second action."
   - subskill_id: event_phase
-    explanation: The prefix in дочитать marks reading through to the end.
+    explanation: "A friend asks whether you reached the end of a book. `Дочитала` is feminine singular past
+      perfective from `дочитать`; the `до-` prefix here presents reading through to the endpoint. `Книгу` is
+      the book read. The sentence says more than that you read at some point: it says you finished reading
+      it."
     examples:
       - text: Я дочитала книгу.
         meaning: I finished reading the book.
-        note: The feminine speaker reports reaching the endpoint, rather than merely having read some of
-          it.
-provenance: &a1
+        note: "Try saying, as the same feminine speaker, that you finished reading an article. Answer: `Я дочитала
+          статью.` `Дочитала` keeps the endpoint meaning and feminine past agreement; `статью` replaces the
+          book."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_aspect2026
+    - cornell_russian_past2026
+    - cornell_russian_future2026
+    - cornell_russian_frequency2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_aspect2026
+        - cornell_russian_past2026
+        - cornell_russian_future2026
+        - cornell_russian_frequency2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

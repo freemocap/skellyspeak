@@ -1,47 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: θέλω 後面可接 να 子句表達想做嘅事；後面動詞有自己嘅人稱同數。να μάθω 表示想學嘅人係講者，唔係不變不定式。
+    explanation: 你喺維修舖講自己嘅學習目標。`Θέλω να μάθω` 係我想學；第二個 `να φτιάχνω` 指學識修理單車呢種技能。`να` 後面嘅動詞都有配合講者嘅形式。
     examples:
       - text: Θέλω να μάθω να φτιάχνω ποδήλατα.
-        meaning: 我想學整單車。
-        note: 第一個 να 子句講想學；να φτιάχνω 講要學嘅技能。唔必須明示 εγώ。
+        meaning: 我想學整單車。`Θέλω` 表示願望，`να μάθω` 係學習目標，`να φτιάχνω ποδήλατα` 係希望掌握嘅維修技能。
+        note: 試吓喺維修工場話你想學修理壞咗嘅門。答案：`Θέλω να μάθω να φτιάχνω χαλασμένες πόρτες`。保留兩層學習意思；`χαλασμένες` 配合陰性複數 `πόρτες`，亦講明門係壞咗。
   - subskill_id: preferences
-    explanation: μου αρέσει、μου αρέσουν 入面，鍾意嘅事物先係語法主語；單複數跟事物走，μου 指有喜好嘅人。προτιμώ 亦可比較偏好。
+    explanation: 你揀踩車路線。希臘文 `μου αρέσουν` 將受喜歡嘅複數事物 `οι ήσυχοι δρόμοι` 放喺主語位置；`μου` 指喜歡嘅人。若係一條單數街道，動詞會用
+      `αρέσει`。
     examples:
       - text: Μου αρέσουν οι ήσυχοι δρόμοι.
-        meaning: 我鍾意安靜嘅街道。
-        note: οι ήσυχοι δρόμοι 係複數，所以用 αρέσουν；μου 喺呢度指感受者，唔係物主代名詞。
+        meaning: 我鍾意安靜嘅街道。呢度 `μου` 即係「對我嚟講」；複數 `οι ήσυχοι δρόμοι` 配合複數動詞 `αρέσουν`。
+        note: 試吓話你鍾意嗰條安靜街道。答案：`Μου αρέσει ο ήσυχος δρόμος`。受喜歡嘅主語改成單數，用 `αρέσει`；冠詞同形容詞亦改男性單數。
   - subskill_id: emotions
-    explanation: 實義動詞可以直接講情緒。φοβάμαι 意思係驚，受詞用賓格。雖然形式屬中間／被動，唔代表外人對講者作出行動。
+    explanation: 你解釋點解避開有大狗嘅街。`Φοβάμαι` 直接表達「我驚」；`τα μεγάλα σκυλιά` 指令你驚嘅對象。`μεγάλα` 配合中性複數 `σκυλιά`。
     examples:
       - text: Φοβάμαι τα μεγάλα σκυλιά.
-        meaning: 我驚大隻狗。
-        note: 句子講恐懼，τα μεγάλα σκυλιά 指引起恐懼嘅對象，唔係證明啲狗危險。
+        meaning: 我驚大狗。`Φοβάμαι` 係講者嘅感受；`τα μεγάλα σκυλιά` 指驚嘅對象。
+        note: 試吓話你驚嗰隻大狗。答案：`Φοβάμαι το μεγάλο σκυλί`。一隻狗用中性單數 `το μεγάλο σκυλί`。
   - subskill_id: opinions
-    explanation: νομίζω ότι 引入講者認為成立嘅事；ότι 後面係觀點內容，同 σκέφτομαι 表示諗起或考慮有分別。
+    explanation: 你比較兩條路，但未證實安全程度。`Νομίζω ότι` 引出個人睇法；`αυτή η διαδρομή` 指呢條路，`πιο ασφαλής` 評價佢比已討論嘅另一條更安全。
     examples:
       - text: Νομίζω ότι αυτή η διαδρομή είναι πιο ασφαλής.
-        meaning: 我覺得呢條路安全啲。
-        note: αυτή η διαδρομή 係 είναι 主語；比較對象可由上文提供，安全評價係講者觀點。
+        meaning: 我覺得呢條路安全啲。`Νομίζω ότι` 標示意見；`αυτή η διαδρομή` 係陰性單數，`πιο ασφαλής` 作比較。
+        note: 試吓話你覺得呢條路短啲。答案：`Νομίζω ότι αυτή η διαδρομή είναι πιο σύντομη`。保留意見結構；`σύντομη` 配合陰性
+          `διαδρομή`。
   - subskill_id: agreement_disagreement
-    explanation: συμφωνώ、διαφωνώ 表達同意同不同意；με 可指出相關觀點、提議或人物。係贊同立場定接受安排，要睇內容。
+    explanation: 同伴提議一條你唔贊成嘅路線。`Διαφωνώ` 表示反對；`με αυτή την πρόταση` 指明你反對邊個提議。講明對象，毋須重講整個提議。
     examples:
       - text: Διαφωνώ με αυτή την πρόταση.
-        meaning: 我唔同意呢個建議。
-        note: με αυτή την πρόταση 明確指出反對對象；回應行程提議時，亦可能同時協商計劃。
-provenance:
+        meaning: 我唔同意呢個提議。`Διαφωνώ` 表達立場；`με αυτή την πρόταση` 指特定提議。
+        note: 試吓話你同意呢個提議。答案：`Συμφωνώ με αυτή την πρόταση`。立場動詞改 `Συμφωνώ`，對象片語不變。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/feelings-viewpoints/greek-feelings-viewpoints-explained-in-english.yaml
-    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -49,25 +49,10 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/feelings-viewpoints/greek-feelings-viewpoints-explained-in-english.yaml
-        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-        - triantafyllides_el_agreement2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

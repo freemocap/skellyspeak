@@ -1,63 +1,96 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: An infinitive with आना can express knowing how to do an activity. The experiencer
-      is marked by मुझे, rather than made the subject of an English-style know verb.
+    explanation: At a swimming lesson, you explain an acquired skill. In `मुझे तैरना
+      आता है`, `मुझे` names the person with the skill and the infinitive names
+      the activity.
     examples:
       - text: मुझे तैरना आता है।
-        meaning: I know how to swim.
-        note: तैरना names the skill. This describes practical knowledge, not the arrival of a person.
+        meaning: I know how to swim. `तैरना` means to swim and `आता है` says the skill
+          is known to me. This is about know-how, not a swimmer physically
+          arriving.
+        note: "Say you know how to cook. Answer: `मुझे खाना बनाना आता है।` Put the
+          activity before `आता है`. `मैं तैरना सकता हूँ` is not the ordinary
+          form for I can swim."
   - subskill_id: permission
-    explanation: A first-person subjunctive question can seek permission. The proposed action and
-      the listener’s authority make that reading clear.
+    explanation: Before taking an available seat, ask the person responsible for the
+      space. Initial `क्या` makes a yes or no question, and first-person
+      subjunctive `बैठूँ` proposes your action for approval.
     examples:
       - text: क्या मैं यहाँ बैठूँ?
-        meaning: May I sit here?
-        note: बैठूँ is first-person subjunctive. Ask this of someone responsible for the seat or space.
+        meaning: May I sit here? `मैं` identifies the speaker, `यहाँ` the proposed
+          place, and `बैठूँ` the possible sitting. The listener’s authority and
+          setting make it a permission request.
+        note: "Ask to leave now. Answer: `क्या मैं अब जाऊँ?` Replace the action and
+          time. The same form could seek advice in another setting, so use the
+          situation to interpret it."
   - subskill_id: obligation
-    explanation: A dative experiencer with an infinitive and है can express an action the speaker
-      needs to perform. Context distinguishes obligation from a stated plan.
+    explanation: You are following a prescribed medicine schedule. `मुझे` marks who
+      must act; `लेनी है` expresses a required action and agrees with feminine
+      `दवा`.
     examples:
       - text: मुझे आज दवा लेनी है।
-        meaning: I have to take medicine today.
-        note: In a prescribed treatment schedule, this expresses a requirement. लेनी agrees with
-          feminine दवा.
+        meaning: I have to take medicine today. `आज` sets today’s time, `दवा` is
+          medicine, and `लेनी है` says it has to be taken. The prescription
+          gives the sentence its obligation reading.
+        note: "Say you must take two tablets today. Answer: `मुझे आज दो गोलियाँ लेनी
+          हैं।` The plural feminine item calls for plural `हैं`. `मुझे दवा पसंद
+          है` expresses liking, not a duty."
   - subskill_id: possibility
-    explanation: शायद can present an uncertain proposition with a subjunctive. The speaker leaves
-      its truth open.
+    explanation: You have not checked whether the shop is open. `शायद` marks a
+      tentative claim, and `हो` keeps the state possible rather than confirmed.
     examples:
       - text: शायद दुकान अभी खुली हो।
-        meaning: Perhaps the shop is still open.
-        note: हो is subjunctive; खुली agrees with दुकान. The statement does not assert that the shop is
-          definitely open.
+        meaning: Perhaps the shop is still open. `अभी` means still or now in this
+          context, `खुली` agrees with feminine `दुकान`, and `हो` is a
+          subjunctive form of be. The whole sentence leaves the opening
+          uncertain.
+        note: "Suggest that the shop may be closed. Answer: `शायद दुकान अभी बंद हो।`
+          Replace the state. `दुकान खुली है` states it as a fact instead."
   - subskill_id: certainty
-    explanation: नहीं पता can explicitly mark lack of knowledge. कि introduces what is unknown, and
-      या नहीं gives the alternative.
+    explanation: Someone asks whether the shop is open, but you have no answer.
+      `मुझे नहीं पता` states your lack of knowledge; `कि ... या नहीं` names the
+      unresolved yes or no issue.
     examples:
       - text: मुझे नहीं पता कि दुकान खुली है या नहीं।
-        meaning: I do not know whether the shop is open.
-        note: The uncertainty is about the shop’s status. It does not mean the speaker misunderstood a
-          previous word.
+        meaning: I do not know whether the shop is open. `दुकान खुली है` is the
+          proposition at issue. `या नहीं` adds its alternative, while `मुझे नहीं
+          पता` says the speaker cannot choose between them.
+        note: "Say you do not know whether the shop is closed. Answer: `मुझे नहीं पता कि
+          दुकान बंद है या नहीं।` Change the proposition. This concerns factual
+          uncertainty, not failure to hear a word."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

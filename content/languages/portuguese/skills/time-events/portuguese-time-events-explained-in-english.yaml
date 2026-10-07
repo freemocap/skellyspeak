@@ -1,63 +1,50 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Estar + gerund explicitly presents an activity in progress. The simple present can
-      describe habitual or contextually current activity without this construction.
+    explanation: "Someone asks what you are doing in the kitchen right now. `Estou preparando a massa do pão` presents an activity underway: `estou` is first-person present of `estar`, `preparando` is the gerund of `preparar`, and `a massa do pão` is the bread dough (`do` combines `de` and `o`). `Preparo pão toda semana` would instead describe a habit. The progressive focuses on the current process."
     examples:
       - text: Estou preparando a massa do pão.
         meaning: I am preparing the bread dough.
-        note: Estou is first-person present; preparando is the gerund of preparar. The activity is
-          underway.
+        note: "Say you are baking the bread now. `Estou assando o pão.` is the full ongoing-event sentence; `assando` replaces `preparando` as the activity in progress."
   - subskill_id: past_events
-    explanation: The simple pretérito perfeito reports a completed past action. Its form changes
-      with person and verb class; it need not contain an auxiliary corresponding to English
-      have.
+    explanation: "A friend asks what you did with the bicycle yesterday. `Ontem troquei o pneu da bicicleta` reports a completed past action: `ontem` anchors it to yesterday, `troquei` is I changed, and `o pneu da bicicleta` identifies the bicycle tire. `Troquei` is the first-person preterite of `trocar`; the spelling `qu` keeps the hard consonant before `ei`. Portuguese does not need a have auxiliary for this completed event."
     examples:
       - text: Ontem troquei o pneu da bicicleta.
         meaning: Yesterday I changed the bicycle tire.
-        note: Troquei is the first-person preterite of trocar; the spelling qu preserves the consonant
-          before ei. Ontem anchors the event in the past.
+        note: "Report changing the bicycle chain yesterday. `Ontem troquei a corrente da bicicleta.` gives a complete past event; `troquei` remains the completed action and `a corrente` changes its object."
   - subskill_id: future_events
-    explanation: Present ir + infinitive can express a planned later action. A time expression makes
-      that future reference explicit.
+    explanation: "You are planning tomorrow’s library trip. `Amanhã vou levar os livros à biblioteca` places the action later with `amanhã` and `vou levar`: `vou` is present of `ir` for I, and `levar` stays in the infinitive. `À biblioteca` means to the library; `à` joins directional `a` with feminine article `a`. `Hoje levo os livros` can mean a present-day arrangement instead. A future intention is not automatically a promise to someone else."
     examples:
       - text: Amanhã vou levar os livros à biblioteca.
         meaning: Tomorrow I am going to take the books to the library.
-        note: Vou levar combines the first-person present of ir with levar. À is a + a before
-          biblioteca.
+        note: "Plan to take boxes to the library tomorrow. `Amanhã vou levar as caixas à biblioteca.` is complete; `vou levar` marks the planned later action and `as caixas` names the new object."
   - subskill_id: duration_frequency
-    explanation: A present verb with há + a length of time can measure a situation continuing now.
-      An expression such as toda sexta-feira instead gives its frequency.
+    explanation: "Someone asks how long you have worked at this place. `Trabalho aqui há seis meses` means the work began six months ago and continues now: `trabalho` is present, `aqui` means here, and `há seis meses` measures elapsed duration. The Portuguese compound `tenho trabalhado` often suggests repeated or continuing recent activity; it does not map mechanically to every English have been working sentence. By contrast, `Trabalho aqui toda sexta-feira` tells how often, not how long."
     examples:
       - text: Trabalho aqui há seis meses.
         meaning: I have been working here for six months.
-        note: The work continues now. Há seis meses measures its duration here; with a completed past
-          event, há can instead mean ago.
+        note: "Say you have worked here for two years. `Trabalho aqui há dois anos.` is complete; the present verb shows the situation continues, while `há dois anos` gives its length."
   - subskill_id: event_sequence
-    explanation: Primeiro and depois can put actions in order. They describe succession without
-      themselves asserting a causal explanation.
+    explanation: "You are explaining the steps of a recipe. `Primeiro misturo a farinha, depois acrescento a água` makes their order clear: `primeiro` means first, `misturo` means I mix, `depois` means then, and `acrescento` means I add. Both verbs are present forms used for the procedure. `Depois` says one action follows another; it does not by itself explain why either action happens."
     examples:
       - text: Primeiro misturo a farinha, depois acrescento a água.
         meaning: First I mix the flour, then I add the water.
-        note: The two present verbs describe successive recipe steps; primeiro and depois make their
-          order explicit.
+        note: "Explain a sensible preparation sequence for vegetables. `Primeiro lavo os legumes, depois corto os legumes.` is a full answer: `primeiro` places washing before cutting, and `depois` introduces the next step."
   - subskill_id: event_phase
-    explanation: A verb such as terminar names completion. Ainda with a progressive instead presents
-      the activity as continuing.
+    explanation: "Someone asks whether you are done reading the book. `Já terminei a leitura do livro` says the endpoint has been reached: `já` means already, `terminei` is I finished, and `a leitura do livro` names the reading. Portuguese uses a simple past form here even though English may say I have finished. For reading that is continuing, `Ainda estou lendo o livro` gives the other phase: `ainda` means still and `estou lendo` presents the activity in progress. The two answers describe opposite phases of the same task."
     examples:
       - text: Já terminei a leitura do livro.
         meaning: I have already finished reading the book.
-        note: Terminei states completion of the reading; já indicates that point has been reached. The
-          English perfect meaning is expressed with a Portuguese simple preterite.
+        note: "Say that you have already finished reading the article. `Já terminei a leitura do artigo.` is a complete completion statement; `do artigo` replaces `do livro` while `já terminei` marks the endpoint."
       - text: Ainda estou lendo o livro.
         meaning: I am still reading the book.
-        note: Ainda estou lendo describes continuation and contrasts with the completed reading.
+        note: "Say that you are still reading the article. `Ainda estou lendo o artigo.` is complete for an unfinished activity; `ainda` and `estou lendo` show continuation, not completion."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -69,7 +56,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

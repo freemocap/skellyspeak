@@ -1,61 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Greetings and leave-taking expressions organize contact. Até + a time can close an
-      exchange with an expected next encounter.
+    explanation: "The evening conversation is finished, and you expect to meet again tomorrow. `Até amanhã! Boa noite!` closes contact: `até` points to the next meeting, `amanhã` means tomorrow, and `boa noite` wishes the other person a good night. The words do conversational work at the end of a meeting; they are more than a date and a description of the night. For a meeting next week, `Até a semana que vem!` changes the next encounter. A greeting at the start would open contact instead."
     examples:
       - text: Até amanhã! Boa noite!
         meaning: See you tomorrow! Good night!
-        note: Said at the end of an evening conversation with someone the speaker expects to see the
-          next day. These formulas close contact.
+        note: "Close the meeting when you expect to see the person on Saturday. `Até sábado! Boa noite!` gives the next meeting day and an evening farewell; `sábado` replaces `amanhã`."
   - subskill_id: acknowledging
-    explanation: A short verbal response such as entendi can show that the preceding explanation has
-      been received and understood. Its tense form does not require a separate narrative about
-      yesterday.
+    explanation: "Someone explains how to return the borrowed books. `Entendi` is a short immediate response meaning I understood. It is the first-person completed form of `entender`, but here it signals that the explanation has landed now, without narrating a separate event yesterday. Its subject I is built into the verb. Understanding an explanation does not automatically mean agreeing with an opinion in it; `concordo` would make agreement explicit."
     examples:
       - text: Entendi.
         meaning: I understand.
-        note: Reply immediately after someone explains how to return the borrowed books. This
-          acknowledges comprehension and does not necessarily endorse an opinion.
+        note: "Acknowledge the instructions and thank the speaker. `Entendi, obrigado.` works for a male speaker; `Entendi, obrigada.` works for a female speaker. `Entendi` carries the acknowledgment in either case."
   - subskill_id: clarification
-    explanation: O que você quer dizer com + an expression can ask the partner to explain what they
-      meant by that expression. The preceding wording supplies the trouble being repaired.
+    explanation: "The other person calls the opening schedule provisional, and you do not know what they mean by that word. `O que você quer dizer com provisório?` asks for clarification: `o que` asks what, `você quer dizer` means you mean to say, and `com provisório` points to the troublesome expression. It repairs understanding of wording, rather than checking whether a proposed opening time is true."
     examples:
       - text: O que você quer dizer com provisório?
         meaning: What do you mean by provisional?
-        note: Said after the partner calls the opening schedule provisório. The speaker asks about that
-          word’s intended meaning.
+        note: "Ask about the word temporário instead. `O que você quer dizer com temporário?` is complete after the person uses that word; `com` introduces the expression needing explanation."
   - subskill_id: rephrasing
-    explanation: Em outras palavras can introduce a simpler restatement of an earlier expression. A
-      useful reformulation preserves the relevant meaning; naming the marker alone is
-      insufficient.
+    explanation: "A borrower did not follow your explanation that the loan expires on Friday. `Em outras palavras, você pode ficar com o livro até sexta` restates the same practical limit. `Em outras palavras` signals a new formulation, `você pode ficar com o livro` says the person may keep the book, and `até sexta` gives the endpoint. The restatement is useful because it replaces an abstract expiry rule with what the borrower can do."
     examples:
       - text: Em outras palavras, você pode ficar com o livro até sexta.
         meaning: In other words, you can keep the book until Friday.
-        note: Rephrases an earlier explanation that the loan expires on Friday. Até sexta makes the
-          deadline concrete; the speaker keeps the same permission and endpoint.
+        note: "Rephrase an original Monday deadline in simpler words. `Em outras palavras, você pode ficar com o livro até segunda.` is a full restatement if the earlier rule also ended Monday; `até segunda` makes the endpoint concrete."
   - subskill_id: correcting_misunderstanding
-    explanation: Eu quis dizer can replace a wording or interpretation with the intended one. Quis
-      is the first-person preterite of querer in this repair expression.
+    explanation: "Your partner repeats Friday, but you intended Saturday for the exchange. `Eu quis dizer sábado, não sexta` repairs the misunderstanding: `eu quis dizer` means I meant, `sábado` gives the intended day, and `não sexta` explicitly rejects the mistaken one. `Quis` is a first-person past form of `querer` in this expression. A bare `sábado` might be enough in a close exchange, but the full frame makes the correction clear."
     examples:
       - text: Eu quis dizer sábado, não sexta.
         meaning: I meant Saturday, not Friday.
-        note: Said after the partner interprets the agreed exchange day as Friday. The speaker
-          explicitly replaces that day with Saturday.
+        note: "Correct a partner who heard Thursday instead of Saturday. `Eu quis dizer sábado, não quinta.` names both the intended day and the rejected interpretation."
   - subskill_id: turns_topics
-    explanation: A question with posso falar de can request room for a topic. Its conversational
-      role differs from a detached question about speech ability.
+    explanation: "The group has finished choosing books and is moving to arrangements. `Posso falar dos horários agora?` asks for a turn on the schedule: `posso` means may I, `falar de` means speak about, `dos` combines `de` and plural `os`, and `agora` means now. In this exchange you are asking to take the floor and shift topic, not asking whether you possess the physical ability to speak. The surrounding conversation makes the function clear."
     examples:
       - text: Posso falar dos horários agora?
         meaning: May I talk about the schedule now?
-        note: Said as the discussion moves from book selection to practical arrangements. Dos is de +
-          os; the question requests a topical turn.
+        note: "Ask to discuss prices next. `Posso falar dos preços agora?` is a full request for a topical turn; `dos preços` replaces `dos horários`."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -68,7 +54,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

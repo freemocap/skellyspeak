@@ -1,55 +1,91 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Хочу followed by an infinitive names what the speaker wants to do.
+    explanation: You are describing a skill you hope to acquire. `Я хочу` expresses the speaker’s wish;
+      `научиться` is a perfective infinitive meaning to learn to do something successfully, and `шить` names
+      the activity of sewing. Wanting to learn is a desire, not a promise that the skill has already been
+      acquired.
     examples:
       - text: Я хочу научиться шить.
         meaning: I want to learn to sew.
-        note: Научиться focuses on acquiring the ability; this is desire rather than a commitment.
+        note: "Try expressing a wish to learn to cook. Answer: `Я хочу научиться готовить.` `Хочу` still carries the
+          wish; `научиться` plus `готовить` names the skill to acquire."
   - subskill_id: preferences
-    explanation: Нравится takes the experiencer in the dative. Больше and чем compare preferences.
+    explanation: "You are choosing between tea and coffee. `Мне` is the dative experiencer: the person to whom
+      something is pleasing. `Нравится` agrees here with singular `чай`; `больше` and `чем кофе` make tea the
+      stronger preference and coffee the comparison point. This pattern is different from treating the speaker
+      as the grammatical subject of an English like-verb."
     examples:
       - text: Мне больше нравится чай, чем кофе.
         meaning: I prefer tea to coffee.
-        note: Мне identifies whose preference is expressed. The drinks are alternatives.
+        note: "Try preferring coffee to tea. Answer: `Мне больше нравится кофе, чем чай.` `Мне` stays the experiencer;
+          the two drinks exchange roles around `чем`."
   - subskill_id: emotions
-    explanation: Рад expresses gladness and agrees with the person experiencing it.
+    explanation: You have heard good news and express your own reaction. `Рада` is the feminine singular short
+      form of `рад`, matching the speaker in this example; a speaker using masculine singular would say `рад`.
+      `Этой новости` is dative and identifies the news that prompts the feeling. The form reports gladness
+      rather than a general factual evaluation of the news.
     examples:
       - text: Я рада этой новости.
         meaning: I am glad about this news.
-        note: A feminine speaker uses рада. Этой новости is dative after the adjective.
+        note: "Try saying, as the same feminine speaker, that you are glad about a friend’s arrival. Answer: `Я рада
+          приезду друга.` `Рада` still agrees with the speaker; `приезду друга` identifies the event that
+          prompts gladness."
   - subskill_id: opinions
-    explanation: По-моему frames the following evaluation as the speaker’s view.
+    explanation: You are evaluating a proposed method, not reporting a measured fact. `По-моему` marks the
+      judgment as your own view. `Этот способ` is the method under discussion, while comparative `удобнее`
+      says it is more convenient than an understood alternative; the comparison standard can stay unstated
+      when the conversation supplies it.
     examples:
       - text: По-моему, этот способ удобнее.
         meaning: In my opinion, this method is more convenient.
-        note: The comparison is an evaluation of a method already under discussion.
+        note: "Try giving your view that this route is shorter than the other one under discussion. Answer: `По-моему,
+          этот путь короче.` `По-моему` marks the personal judgment, and `короче` expresses the comparison."
   - subskill_id: agreement_disagreement
-    explanation: Согласен with с plus instrumental expresses agreement; не reverses it.
+    explanation: A colleague proposes a change, and you reject that proposal. `Я не согласна` is feminine singular
+      agreement with the speaker; `не` negates the stance. `С этим предложением` uses `с` plus instrumental to
+      identify what you disagree with. The pattern concerns alignment with a view, not whether a factual
+      answer is correct.
     examples:
       - text: Я не согласна с этим предложением.
         meaning: I disagree with this proposal.
-        note: The speaker uses feminine согласна and identifies the proposal being rejected.
-provenance: &a1
+        note: "Try disagreeing with this plan as the same feminine speaker. Answer: `Я не согласна с этим планом.` The
+          negative stance remains, and `с этим планом` gives the new object of disagreement in the
+          instrumental."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_agreement2026
+    - cornell_russian_past2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_agreement2026
+        - cornell_russian_past2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

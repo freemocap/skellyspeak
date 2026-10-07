@@ -1,77 +1,63 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 向離開嘅人同留低嘅人講嘅道別語唔同，要按情境揀。
+    explanation: 你留喺工場，訪客離開。`안녕히 가세요` 對離開嘅人道別；`다음 주에 봬요` 講下星期再見。如果離開嘅係你、對方留下，改用 `안녕히 계세요`。
     examples:
       - text: 안녕히 가세요. 다음 주에 봬요.
-        meaning: 再見，下星期見。
-        note: 自己留低、訪客離開時用。봬요係呢度表示再見對方嘅禮貌縮約形式。
+        meaning: 再見，下星期見。 自己留低、訪客離開時用。봬요係呢度表示再見對方嘅禮貌縮約形式。
+        note: 試吓同離開嘅訪客道別，並講聽日再見。答案：`안녕히 가세요. 내일 봬요`。保留對離開者嘅道別，改下次見面時間。
   - subskill_id: acknowledging
-    explanation: 알겠어요可以表示明白解釋或指示；含有겠嘅形式唔一定描述將來先知道。
+    explanation: 同事啱啱解釋咗你唔明嘅維修步驟。`네` 回應解釋；`이제 알겠어요` 係而家明白。呢度 `-겠-` 參與確認理解，唔係預測遲啲先知，亦唔代表同意所有意見。
     examples:
       - text: 네, 이제 알겠어요.
-        meaning: 係，我而家明喇。
-        note: 解釋消除疑惑後用；確認理解唔要求同意某個觀點。
+        meaning: 係，我而家明喇。 解釋消除疑惑後用；確認理解唔要求同意某個觀點。
+        note: 試吓唔講「而家」，只確認聽明。答案：`네, 알겠어요`。語境交代你明白乜，`알겠어요` 係接收解釋，唔係表達贊成。
   - subskill_id: clarification
-    explanation: 다시配合말씀해 주세요，有禮貌噉請人再講；前文提供要重複嘅內容。
+    explanation: 你冇聽清對方講乜。`죄송하지만` 緩和打斷；`다시 말씀해 주세요` 禮貌請對方再講一次。呢句修補聽聞或理解問題，唔係核實外在事實。
     examples:
       - text: 죄송하지만 다시 말씀해 주세요.
-        meaning: 唔好意思，唔該再講一次。
-        note: 聽漏或聽唔明時用；말씀해尊敬噉指對方嘅發言。
+        meaning: 唔好意思，唔該再講一次。 聽漏或聽唔明時用；말씀해尊敬噉指對方嘅發言。
+        note: 試吓唔先道歉，只請對方再講一次。答案：`다시 말씀해 주세요`。`다시` 要求重複，`말씀해 주세요` 保留禮貌請求。
   - subskill_id: rephrasing
-    explanation: 다시 말하면引出重新表述，後句應令原意更清楚。
+    explanation: 顧客聽到呢項服務要預先預約，所以即日要求處理唔到。`다시 말하면` 引出較清楚重述；`미리 예약해야 해요` 講明要提前預約，保留原本規則。
     examples:
       - text: 다시 말하면 미리 예약해야 해요.
-        meaning: 即係話，我哋要預先訂位。
-        note: 解釋即日申請安排唔到後，換句話講清楚；미리明確指出要預先。
+        meaning: 即係話，我哋要預先預約。 重述已講明嘅提前預約規則；`미리` 指出時間要求。
+        note: 試吓將「要預先預約」改講成「來之前要預約」。答案：`다시 말하면 방문하기 전에 예약해야 해요`。`다시 말하면` 連接重述，`방문하기 전에` 講清時間。
   - subskill_id: correcting_misunderstanding
-    explanation: 이 아니라對比錯誤名詞解讀同正確選項，應明講真正意思。
+    explanation: 對方以為你講星期五，但你原意係星期六。`제가 말한 날은` 指你講過嘅日子；`금요일이 아니라` 否定星期五，`토요일이었어요` 提供正確日期。兩日都講出嚟，直接修正誤會。
     examples:
       - text: 제가 말한 날은 금요일이 아니라 토요일이었어요.
-        meaning: 我講嗰日係星期六，唔係星期五。
-        note: 對方誤以為星期五時用；말한修飾날，指出更正緊之前邊句話。
+        meaning: 我講嗰日係星期六，唔係星期五。 對方誤以為星期五時用；말한修飾날，指出更正緊之前邊句話。
+        note: 試吓更正對方：佢聽成星期六，但你指星期五。答案：`제가 말한 날은 토요일이 아니라 금요일이었어요`。對調被否定同真正日期，保留對比句式。
   - subskill_id: turns_topics
-    explanation: 請求許可嘅問句可以管理轉話題，新主題或想作嘅改動要清楚。
+    explanation: 小組傾完維修，你想轉話題。`잠깐` 緩和打斷；`다른 이야기를 해도 될까요?` 問可否講另一件事。呢句係管理對話轉場，唔係證明自己識講嘢。
     examples:
       - text: 잠깐 다른 이야기를 해도 될까요?
-        meaning: 我可唔可以暫時轉吓話題？
-        note: 다른 이야기를指另一個話題；問句管理討論，唔係描述說話能力。
-provenance:
+        meaning: 我可唔可以暫時轉吓話題？ 다른 이야기를指另一個話題；問句管理討論，唔係描述說話能力。
+        note: 試吓問可否改講時間安排。答案：`잠깐 일정 이야기를 해도 될까요?`。將 `다른 이야기` 改成具體嘅日程話題，保留詢問許可嘅句式。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/managing-conversation/korean-managing-conversation-explained-in-english.yaml
-    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_permission2026
     - htsk_tense2026
+    - nikl_ko_language_overview2026
+    - nikl_ko_honorific_eusi2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/managing-conversation/korean-managing-conversation-explained-in-english.yaml
-        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_permission2026
-        - htsk_tense2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

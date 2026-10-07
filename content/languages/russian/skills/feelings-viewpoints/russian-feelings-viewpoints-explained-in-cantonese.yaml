@@ -1,69 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Хочу後接不定式，交代講者想做乜。
+    explanation: 你講想學識一項技能。`Я хочу` 表示講者願望；完成體不定式 `научиться` 係學到識做，`шить` 指縫紉活動。想學唔等於已經學識，亦唔係承諾。
     examples:
       - text: Я хочу научиться шить.
         meaning: 我想學縫紉。
-        note: Научиться突出學識呢種能力；呢個係願望，唔係承諾。
+        note: 試吓話想學煮嘢食。答案：`Я хочу научиться готовить.` `хочу` 仍表願望；`научиться` 加 `готовить` 指想習得嘅技能。
   - subskill_id: preferences
-    explanation: Нравится用與格標示有喜好嘅人；больше同чем比較喜好。
+    explanation: 你喺茶同咖啡之間揀。`Мне` 係與格感受者，即覺得某樣嘢討好自己嘅人。`нравится` 喺呢度配合單數 `чай`；`больше` 同 `чем кофе`
+      表示茶更合心意，咖啡係比較基準。呢個句式唔似英文將「我」當喜歡動詞嘅主語。
     examples:
       - text: Мне больше нравится чай, чем кофе.
         meaning: 比起咖啡，我鍾意茶多啲。
-        note: Мне指出邊個嘅喜好；兩種飲品係比較選項。
+        note: 試吓話比起茶更鍾意咖啡。答案：`Мне больше нравится кофе, чем чай.` `Мне` 仍係感受者；兩種飲品喺 `чем` 前後交換角色。
   - subskill_id: emotions
-    explanation: Рад表示高興，要同感受者配合。
+    explanation: 你聽到好消息，講自己嘅反應。`Рада` 係短尾形容詞 `рад` 嘅陰性單數形式，同呢句嘅講者配合；用陽性單數嘅講者會講 `рад`。`этой новости`
+      用與格指出令你高興嘅消息。句子講情緒，唔係純粹評價消息真偽。
     examples:
       - text: Я рада этой новости.
         meaning: 我好高興聽到呢個消息。
-        note: 女性講者用рада；形容詞後嘅этой новости係與格。
+        note: 試吓由同一位女性講者話朋友到來令佢高興。答案：`Я рада приезду друга.` `рада` 仍配合講者；`приезду друга` 指令佢高興嘅事情。
   - subskill_id: opinions
-    explanation: По-моему將後面評價框定為講者觀點。
+    explanation: 你評價討論中嘅方法，唔係報告一個量度結果。`По-моему` 標示係你自己嘅睇法。`этот способ` 指目前方法；比較級 `удобнее` 話佢比語境中另一方法方便，已知比較對象可以唔講出嚟。
     examples:
       - text: По-моему, этот способ удобнее.
         meaning: 我覺得呢個方法方便啲。
-        note: 比較係評價討論緊嘅方法。
+        note: 試吓表示你認為呢條路比另一條短。答案：`По-моему, этот путь короче.` `По-моему` 標示個人判斷；`короче` 講比較。
   - subskill_id: agreement_disagreement
-    explanation: Согласен配合с同工具格，表示同意；加не就反過來。
+    explanation: 同事提出改動，你表明唔同意。`Я не согласна` 喺呢句用陰性單數配合講者；`не` 否定立場。`с этим предложением` 用 `с`
+      加工具格指出反對嘅建議。呢個係對觀點表態，唔係查證答案啱唔啱。
     examples:
       - text: Я не согласна с этим предложением.
         meaning: 我唔同意呢個建議。
-        note: 講者用陰性согласна，並指出反對嘅建議。
+        note: 試吓由同一位女性講者反對呢個計劃。答案：`Я не согласна с этим планом.` 否定立場不變；`с этим планом` 用工具格指出新嘅反對對象。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/russian/skills/feelings-viewpoints/russian-feelings-viewpoints-explained-in-english.yaml
-    at revision russian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+    source passages; no independent linguistic review.
   sources:
     - cornell_russian_agreement2026
+    - cornell_russian_past2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   russian-russia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/russian/skills/feelings-viewpoints/russian-feelings-viewpoints-explained-in-english.yaml
-        at revision russian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+        source passages; no independent linguistic review.
       sources:
         - cornell_russian_agreement2026
+        - cornell_russian_past2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

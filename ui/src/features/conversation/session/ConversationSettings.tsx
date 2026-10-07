@@ -10,15 +10,16 @@ type QuickSetting = 'auto_speak' | 'auto_send' | 'auto_translate' | 'always_roma
 type Toggle = [QuickSetting, string, string]
 
 /// The conversation's own settings: one icon button in the chat header, whose name
-/// and tooltip summarize secondary settings. Difficulty lives in the header.
-/// A phone gets a bottom sheet over a scrim; a desktop
+/// and tooltip summarize secondary settings. Difficulty lives in the header while
+/// the bar has room for it; a narrow bar is one row and hands the select to this
+/// sheet, where it leads. A phone gets a bottom sheet over a scrim; a desktop
 /// window gets a panel on the inline end that leaves the chat readable beside it.
 /// Both render into the body so no clipping or stacking context of the chat
 /// header can hide them.
 ///
 /// The toggles are the same Settings record the Settings modal edits — Rust owns
 /// it, and these are a second VIEW of one variable, not a copy.
-export function ConversationSettings({ summary, open, onOpenChange, settings, saving, onToggle, nativePicker, promptControls, showRomanization, exportDisabled, onExport }: {
+export function ConversationSettings({ summary, open, onOpenChange, settings, saving, onToggle, nativePicker, difficulty, promptControls, showRomanization, exportDisabled, onExport }: {
   /// The current settings in a few words ("Reading aloud"), shown on
   /// the button that changes them.
   summary?: string
@@ -28,6 +29,8 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
   saving: boolean
   onToggle: (key: QuickSetting | 'tts_rate', value?: number) => Promise<void>
   nativePicker: ReactNode
+  /// The difficulty select, when the header has no room for it; it leads the sheet.
+  difficulty?: ReactNode
   promptControls?: ReactNode
   showRomanization: boolean
   exportDisabled: boolean
@@ -90,6 +93,10 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
         </button>
       </div>
       <div className="conversation-settings-body">
+        {difficulty && <section className="conversation-settings-group" aria-label={tr("Difficulty")}>
+          <h3>{tr("Difficulty")}</h3>
+          <div className="conversation-settings-field">{difficulty}</div>
+        </section>}
         <section className="conversation-settings-group" aria-label={tr("Languages")}>
           <h3>{tr("Languages")}</h3>
           <div className="conversation-settings-field">{nativePicker}</div>

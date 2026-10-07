@@ -1,46 +1,46 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Porque連接行動或情況同原因；要同詢問點解嘅問句形式分開。
+    explanation: "朋友問你點解冇出街。`Fiquei em casa porque estava chovendo` 講原因：`fiquei em casa` 係我留喺屋企，`porque` 係因為，`estava chovendo` 表示當時持續落雨。後半句解釋決定，唔只係另一件無關嘅事。問「點解」時寫 `por que`；呢度解釋原因用一個字 `porque`。"
     examples:
       - text: Fiquei em casa porque estava chovendo.
         meaning: 因為落緊雨，我留咗喺屋企。
-        note: Fiquei報告決定；porque連到estava chovendo所表達嘅持續落雨。
+        note: "以生病解釋留喺屋企：`Fiquei em casa porque estava doente.`。`porque` 將行動同原因連起來；`estava doente` 講明原因。"
   - subskill_id: consequences
-    explanation: Por isso將後續行動或結論表達成前述情況嘅結果，比只列下一件事更具體。
+    explanation: "旅途中單車車胎穿咗，你唯有行返去。`O pneu furou, por isso voltei a pé` 講結果：`furou` 係車胎穿咗，`por isso` 係因此，`voltei` 係我返去，`a pé` 係行路。連接詞指返之前嘅爆胎，解釋點解要行。`O pneu furou, depois voltei a pé` 主要講先後，未必明確講因果。`Por isso` 就將後果講清楚。"
     examples:
       - text: O pneu furou, por isso voltei a pé.
         meaning: 個轆爆胎，所以我行路返去。
-        note: Por isso明確連接爆胎同返程方式；voltei係過去事件，a pé係行路。
+        note: "巴士遲咗，解釋點解你遲到：`O ônibus atrasou, por isso cheguei tarde.`。`por isso` 將遲到連到巴士延誤，唔只講先後。"
   - subskill_id: conditions
-    explanation: 預計嘅將來條件可以用se加將來虛擬式；規則動詞chover嘅呢個形式似不定式，語境交代文法作用。
+    explanation: "你計劃聽日換書，地點要睇落唔落雨。`Se chover amanhã, vamos fazer a troca de livros na biblioteca` 有條件同結果：`se` 係如果，`chover` 係 `chover` 嘅將來虛擬式，`vamos fazer` 係落雨時嘅計劃。規則動詞嘅呢個形態剛好似不定式。換成不規則動詞就較清楚：`Se tivermos tempo, vamos fazer a troca` 係如果我哋有時間。兩句都冇話雨已經落、時間已經有。"
     examples:
       - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
         meaning: 如果聽日落雨，我哋就喺圖書館搞換書活動。
-        note: Se chover提出條件，vamos fazer交代計劃結果；落雨係可能，唔係已發生。
+        note: "改為有時間先做：`Se tivermos tempo, vamos fazer a troca de livros na biblioteca.`。呢句係完整將來條件；`tivermos` 係「我哋」用嘅 `ter` 將來虛擬式。"
   - subskill_id: contrast
-    explanation: Mas可以對比原定意圖或預期同障礙或不同結果，兩個分句要真係有呢種關係。
+    explanation: "你想踩單車去，但車胎穿咗。`Quero ir de bicicleta, mas o pneu está furado` 對比意願同障礙：`quero ir` 係想去，`de bicicleta` 係踩單車，`mas` 係但係，`está furado` 講車胎而家嘅狀態。後半句重要，因為佢阻礙前半句。`Mas` 後面隨便加無關事實就唔構成有用對比。"
     examples:
       - text: Quero ir de bicicleta, mas o pneu está furado.
         meaning: 我想踩單車去，但個轆爆咗胎。
-        note: Mas將交通喜好連到阻礙實行嘅問題。
+        note: "對比想行路同落雨：`Quero ir a pé, mas está chovendo.`。呢句對比完整；落雨令原本想做嘅步行較難實行。"
   - subskill_id: supporting_claims
-    explanation: 判斷可以由另一句交代依據嘅陳述支持，唔一定每次都用porque開頭。
+    explanation: "你向人推薦其中一條路。`Acho que este caminho é melhor: é mais curto` 先提出判斷，再講根據。`Acho que` 表示你嘅看法，`este caminho` 係呢條路，`é melhor` 係較好，`é mais curto` 解釋佢較短。第二句同判斷有關，所以就算冇 `porque`，都係支持理由。主張後面隨便加無關事實，就唔算支持。"
     examples:
       - text: "Acho que este caminho é melhor: é mais curto."
         meaning: 我覺得呢條路好啲：短啲。
-        note: 距離短支持melhor嘅評價，兩句係主張同理據嘅關係。
+        note: "以安全支持同一推薦：`Acho que este caminho é melhor: é mais seguro.`。`é mais seguro` 提供同揀路有關嘅理由。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/reasons-connections/portuguese-reasons-connections-explained-in-english.yaml
-    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -49,7 +49,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -59,7 +59,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/reasons-connections/portuguese-reasons-connections-explained-in-english.yaml
-        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -68,6 +68,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

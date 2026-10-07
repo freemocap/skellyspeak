@@ -1,56 +1,86 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: อยาก before an activity expresses desire.
+    explanation: You are describing a skill you hope to acquire. `ฉันอยาก` expresses the speaker’s desire;
+      `เรียนเย็บผ้า` says the desired activity is learning to sew. Thai can put the wanted activity after
+      `อยาก` without an English-style “to.” Wanting to learn does not assert that you can already sew.
     examples:
       - text: ฉันอยากเรียนเย็บผ้า
         meaning: I want to learn to sew.
-        note: เรียนเย็บผ้า names the desired learning activity.
+        note: "Try expressing a desire to learn to cook. Answer: `ฉันอยากเรียนทำอาหาร` `อยาก` still marks desire, and
+          `เรียนทำอาหาร` names the new skill to learn."
   - subskill_id: preferences
-    explanation: ชอบ with มากกว่า compares liking for two alternatives.
+    explanation: You are choosing between tea and coffee. `ฉันชอบชา` identifies tea as what you like; `มากกว่า`
+      then compares that liking with `กาแฟ`. The construction expresses a relative preference, not a claim
+      that you dislike coffee. Thai does not need a comparative ending on the drink names.
     examples:
       - text: ฉันชอบชามากกว่ากาแฟ
         meaning: I prefer tea to coffee.
-        note: Tea is the preferred option.
+        note: "Try saying you prefer coffee to tea. Answer: `ฉันชอบกาแฟมากกว่าชา` The two drinks exchange places
+          around `มากกว่า`; the speaker still reports a preference."
   - subskill_id: emotions
-    explanation: ดีใจ describes gladness and can take a clause identifying its occasion.
+    explanation: You have just heard good news and describe your reaction. `ฉันดีใจ` says the speaker is glad;
+      `ที่ได้ยินข่าวนี้` identifies hearing this news as the occasion for the feeling. `ได้ยิน` here means
+      “hear,” so its `ได้` should not be mistaken for a permission request.
     examples:
       - text: ฉันดีใจที่ได้ยินข่าวนี้
         meaning: I am glad to hear this news.
-        note: The news prompts the feeling; no gender agreement is involved.
+        note: "Try saying you are glad to see this friend. Answer: `ฉันดีใจที่ได้เจอเพื่อนคนนี้` `ดีใจ` keeps the
+          emotion; the `ที่ได้...` clause changes what prompted it."
   - subskill_id: opinions
-    explanation: คิดว่า introduces the content of a personal judgment.
+    explanation: You are evaluating a method under discussion. `ฉันคิดว่า` frames the following statement as your
+      view; `วิธีนี้` names this method. `ง่ายกว่า` says it is easier than an alternative that the
+      conversation already supplies. This is a judgment, rather than an instruction to use the method.
     examples:
       - text: ฉันคิดว่าวิธีนี้ง่ายกว่า
         meaning: I think this method is easier.
-        note: The comparison concerns methods already under discussion.
+        note: "Try giving your view that this route is shorter than the alternative. Answer: `ฉันคิดว่าทางนี้สั้นกว่า`
+          `คิดว่า` still marks an opinion, and `สั้นกว่า` gives the new comparison."
   - subskill_id: agreement_disagreement
-    explanation: เห็นด้วย expresses agreement; ไม่ negates it.
+    explanation: Someone proposes a change and you reject it. `เห็นด้วย` means to agree with a view; `ไม่` before
+      it reverses the stance. `กับข้อเสนอนี้` identifies this proposal as what you disagree with. The sentence
+      concerns alignment with a proposal, not whether you understood the speaker.
     examples:
       - text: ฉันไม่เห็นด้วยกับข้อเสนอนี้
         meaning: I disagree with this proposal.
-        note: กับข้อเสนอนี้ identifies what is rejected.
-provenance: &a1
+        note: "Try disagreeing with this plan. Answer: `ฉันไม่เห็นด้วยกับแผนนี้` `ไม่เห็นด้วย` keeps the dissent;
+          `กับแผนนี้` names the new object of disagreement."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - hartmann_thai_questions2026
     - niu_thai_hai2026
+    - niu_thai_desire2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - hartmann_thai_questions2026
+        - niu_thai_hai2026
+        - niu_thai_desire2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

@@ -1,61 +1,94 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: กำลัง before an activity presents it as ongoing.
+    explanation: Someone asks what you are doing at this moment. `ตอนนี้` fixes the present moment;
+      `ฉันกำลังซ่อมจักรยาน` uses `กำลัง` before the repair activity to show it is in progress. Thai does not
+      change the verb ending to express an English-style continuous tense.
     examples:
       - text: ตอนนี้ฉันกำลังซ่อมจักรยาน
         meaning: I am repairing a bicycle now.
-        note: ตอนนี้ anchors the activity to the present situation.
+        note: "Try saying you are reading a book now. Answer: `ตอนนี้ฉันกำลังอ่านหนังสือ` `ตอนนี้` and `กำลัง` keep
+          the ongoing-now reading; `อ่านหนังสือ` changes the activity."
   - subskill_id: past_events
-    explanation: A past time expression can locate an event without changing the verb.
+    explanation: You report a bicycle repair that happened yesterday. `เมื่อวาน` anchors the event in the past;
+      `ฉันซ่อมจักรยาน` names the activity without a past-tense ending on `ซ่อม`. Whether the repair was
+      completed can depend on the wider context; the time word alone does not encode its endpoint.
     examples:
       - text: เมื่อวานฉันซ่อมจักรยาน
         meaning: Yesterday I repaired a bicycle.
-        note: เมื่อวาน establishes past time; ซ่อม has no tense ending.
+        note: "Try reporting that you repaired the radio yesterday. Answer: `เมื่อวานฉันซ่อมวิทยุ` `เมื่อวาน` still
+          anchors the event in the past; `ซ่อมวิทยุ` changes the item."
   - subskill_id: future_events
-    explanation: จะ can introduce a future action with a time expression.
+    explanation: You have arranged to collect repair parts tomorrow. `พรุ่งนี้` sets the future day;
+      `ฉันจะไปรับอะไหล่` uses `จะ` for the planned action and `ไปรับ` for going to collect the parts. Thai
+      verbs do not acquire a future suffix, and the time word plus plan provide the reference.
     examples:
       - text: พรุ่งนี้ฉันจะไปรับอะไหล่
         meaning: Tomorrow I will go and collect the parts.
-        note: พรุ่งนี้ names the day; ไปรับ combines going with collecting.
+        note: "Try saying you will collect the key tomorrow. Answer: `พรุ่งนี้ฉันจะไปรับกุญแจ` `พรุ่งนี้` and `จะ`
+          keep the future plan; `กุญแจ` changes what you collect."
   - subskill_id: duration_frequency
-    explanation: ละ can establish a per-period rate and ครั้ง counts occasions.
+    explanation: "You are describing a regular swimming habit. `สัปดาห์ละ` establishes a per-week rate; `สองครั้ง`
+      counts two occasions. This gives frequency rather than the duration of a single swim: `สองชั่วโมง` would
+      describe two hours instead."
     examples:
       - text: ฉันว่ายน้ำสัปดาห์ละสองครั้ง
         meaning: I swim twice a week.
-        note: This gives frequency, not the length of a swim.
+        note: "Try saying you swim three times a week. Answer: `ฉันว่ายน้ำสัปดาห์ละสามครั้ง` `สัปดาห์ละ` keeps the
+          weekly rate; `สามครั้ง` changes the number of occasions."
   - subskill_id: event_sequence
-    explanation: ก่อน and แล้วค่อย order steps.
+    explanation: You are giving kitchen preparation instructions. `ล้างมือก่อน` puts washing hands first;
+      `แล้วค่อย` introduces preparing the vegetables only after that step. The sentence orders actions rather
+      than merely listing two tasks.
     examples:
       - text: ล้างมือก่อน แล้วค่อยเตรียมผัก
         meaning: Wash your hands first, then prepare the vegetables.
-        note: The instruction context supplies the addressee.
+        note: "Try instructing someone to wash hands before cutting vegetables. Answer: `ล้างมือก่อน แล้วค่อยหั่นผัก`
+          `ก่อน` and `แล้วค่อย` preserve the order; `หั่นผัก` supplies the second task."
   - subskill_id: event_phase
-    explanation: จบ after reading expresses reaching the endpoint; แล้ว presents the achieved situation.
+    explanation: A friend asks whether you got to the end of this book. `หนังสือเล่มนี้` identifies this
+      particular volume with classifier `เล่ม`; `อ่าน...จบ` presents reading through to the endpoint. Final
+      `แล้ว` presents that completed state as reached. The sentence says more than merely that reading
+      happened sometime.
     examples:
       - text: ฉันอ่านหนังสือเล่มนี้จบแล้ว
         meaning: I have finished reading this book.
-        note: The sentence says the reading is finished, not merely that it happened earlier.
-provenance: &a1
+        note: "Try saying you finished reading this article. Answer: `ฉันอ่านบทความนี้จบแล้ว` `อ่าน...จบแล้ว` keeps
+          the endpoint and achieved-state reading; `บทความนี้` replaces the book."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - fsi_thai_time2026
+    - niu_thai_completion2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - fsi_thai_time2026
+        - niu_thai_completion2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

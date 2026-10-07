@@ -1,53 +1,72 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Ini can introduce a person with a noun phrase. An overt copula is not required in
-      this everyday identification, and the possessor follows the relationship noun.
+    explanation: You introduce Rina to someone meeting her for the first time. `Ini`
+      points to the person and `teman saya` identifies your relationship to her.
+      A noun predicate here needs no `adalah`.
     examples:
       - text: Ini teman saya, Rina.
-        meaning: This is my friend Rina.
-        note: Teman saya means my friend. The sentence identifies Rina without adding adalah.
+        meaning: This is my friend Rina. `Teman` means friend and `saya` after it means
+          my; `Rina` supplies the person’s name. The sentence identifies a
+          person, not a possession inventory.
+        note: "Introduce Budi as your friend. Answer: `Ini teman saya, Budi.` Replace
+          the name; there is no gender agreement to change in `teman saya`."
   - subskill_id: qualities_states
-    explanation: An adjective can serve as the predicate directly. The demonstrative ini follows the
-      noun in the subject phrase.
+    explanation: "A visitor asks what the room is like. The adjective follows the
+      noun phrase: `Kamar ini` names this room and `terang` describes its
+      brightness. No word equivalent to English is is required."
     examples:
       - text: Kamar ini terang.
-        meaning: This room is bright.
-        note: Kamar ini is the thing described; terang supplies its property. No word corresponding to
-          English is is necessary.
+        meaning: This room is bright. `Kamar` is room, `ini` selects this one, and
+          `terang` means bright. It gives a property rather than a location.
+        note: "Describe this room as dark. Answer: `Kamar ini gelap.` Replace `terang`
+          with `gelap`; do not insert a copula just because English uses is."
   - subskill_id: location_movement
-    explanation: Di introduces a location, while ke introduces a destination. These prepositions are
-      written separately from the following words.
+    explanation: Someone cannot find your bag. `di bawah meja` locates it under the
+      table; this separate `di` is a place preposition, unlike attached verbal
+      `di-` in a passive verb.
     examples:
       - text: Tas saya di bawah meja.
-        meaning: My bag is under the table.
-        note: Di bawah meja locates the bag. Di is a preposition here, not a passive prefix.
+        meaning: My bag is under the table. `Tas saya` is my bag, and `di bawah meja`
+          tells where it is. The sentence reports a static position, not a
+          destination.
+        note: "Locate the bag on the table. Answer: `Tas saya di atas meja.` Replace
+          `bawah` with `atas`. `Ke meja` would point toward a destination
+          instead."
   - subskill_id: possession_relations
-    explanation: Punya commonly states possession in conversation. A possessive noun phrase instead
-      places the possessor after the object or relationship noun.
+    explanation: You are checking supplies before packing. `Saya punya` states who
+      has the items, and `tiga kotak` counts three boxes. A numeral before the
+      noun already gives the quantity.
     examples:
       - text: Saya punya tiga kotak.
-        meaning: I have three boxes.
-        note: Saya identifies the possessor. Tiga kotak gives the number of objects without requiring
-          reduplication.
+        meaning: I have three boxes. `Saya` is the holder, `punya` means have in this
+          everyday sentence, and `tiga kotak` means three boxes. The noun is not
+          reduplicated after the number.
+        note: "Say you have two boxes. Answer: `Saya punya dua kotak.` Change `tiga` to
+          `dua`. `Kotak saya` means my box or boxes but does not itself state a
+          count."
   - subskill_id: quantity_comparison
-    explanation: Lebih before an adjective and daripada before the comparison standard express a
-      comparison. The adjective does not acquire an English-style comparative ending.
+    explanation: You compare two boxes before deciding which to carry. `lebih ringan
+      daripada` compares weight, with the box after `daripada` as the standard.
     examples:
       - text: Kotak ini lebih ringan daripada kotak itu.
-        meaning: This box is lighter than that box.
-        note: "Ringan supplies the scale of comparison: weight. The two demonstratives distinguish the
-          boxes."
+        meaning: This box is lighter than that box. `Kotak ini` is this box and `kotak
+          itu` that box. `Lebih ringan` says the first weighs less; the
+          demonstratives follow their nouns.
+        note: "Say this box is heavier than that one. Answer: `Kotak ini lebih berat
+          daripada kotak itu.` Change the quality to `berat`; keep the
+          comparison standard."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
@@ -55,11 +74,25 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

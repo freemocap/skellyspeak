@@ -1,63 +1,102 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A polite or plural imperative with пожалуйста asks the listener to perform an action.
+    explanation: A colleague is loading boxes through the door, and you ask them to bring a particular box near
+      it. `Перенесите` is the completed-action imperative addressed politely to one person or to several
+      people. `Эту коробку` names the object in the accusative; `к двери` gives the destination with `к` plus
+      dative. `Пожалуйста` softens the request; the verb form alone does not determine courtesy.
     examples:
       - text: Перенесите эту коробку к двери, пожалуйста.
         meaning: Please move this box to the door.
-        note: К двери names the destination. The perfective imperative requests a particular completed
-          move.
+        note: "Try asking for that box to be moved to the window instead. Answer: `Перенесите эту коробку к окну,
+          пожалуйста.` The request keeps the same polite imperative and accusative object; `к окну` changes
+          the destination to the window."
   - subskill_id: offers_invitations
-    explanation: An infinitive question can offer the speaker’s help.
+    explanation: Someone is carrying a heavy bag and you offer to help. `Вам` identifies the person who would
+      receive the help; `помочь` is an infinitive, so the question offers an action by the speaker rather than
+      asking whether the other person has the ability. `С сумкой` uses `с` plus instrumental to name what the
+      help concerns.
     examples:
       - text: Вам помочь с сумкой?
         meaning: Shall I help you with the bag?
-        note: Вам identifies the recipient of help; the speaker is offering to act.
+        note: "Try offering help with a box. Answer: `Вам помочь с коробкой?` The infinitive question still offers
+          your own help; `с коробкой` names the new item in the instrumental."
   - subskill_id: suggestions
-    explanation: Давайте with a first-person plural form proposes joint action.
+    explanation: The group has been working for a while, so you propose a shared break. `Давайте` includes the
+      listeners in a proposal; `сделаем` is first-person plural perfective, presenting taking the break as the
+      next bounded action. This is a joint suggestion, not an instruction for the listener alone.
     examples:
       - text: Давайте сделаем перерыв.
         meaning: Let’s take a break.
-        note: The speaker includes themself in the proposed break.
+        note: "Try proposing that the group check the list together. Answer: `Давайте проверим список.` `Давайте`
+          includes everyone, and first-person plural `проверим` names the proposed completed check."
   - subskill_id: commitments
-    explanation: A future statement can undertake a task already being allocated.
+    explanation: The team is dividing tasks, and you take responsibility for bringing the tools. `Я` names the
+      person taking the task; `принесу` is a perfective nonpast form with future reference, and `завтра` fixes
+      the time. The surrounding allocation makes the statement a commitment; the future form by itself can
+      also simply predict an event.
     examples:
       - text: Я принесу инструменты завтра.
         meaning: I will bring the tools tomorrow.
-        note: During planning, this accepts responsibility for bringing the tools.
+        note: "Try taking responsibility for bringing the key tomorrow. Answer: `Я принесу ключ завтра.` `Я` keeps the
+          speaker responsible, and perfective future `принесу` presents the delivery as one completed task."
   - subskill_id: accepting_declining
-    explanation: An inability statement can politely decline an invitation in context.
+    explanation: A colleague has invited you today, but you cannot come. `Извините` acknowledges the social cost of
+      declining; `сегодня` limits the inability to today. `Не могу прийти` expresses that you cannot attend,
+      with `прийти` naming arrival at the event. In context it refuses the invitation, even without an
+      explicit word for no.
     examples:
       - text: Извините, сегодня я не могу прийти.
         meaning: Sorry, I cannot come today.
-        note: Use after an invitation for today; the declined action is explicit.
+        note: "Try declining a visit tomorrow. Answer: `Извините, завтра я не могу прийти.` The apology remains, while
+          `завтра` shifts the relevant invitation to tomorrow."
   - subskill_id: negotiating_plans
-    explanation: State a constraint and propose another time to keep planning moving.
+    explanation: A Friday meeting conflicts with your schedule, but Saturday is free. `В пятницу` names the day of
+      the conflict; `я не могу` leaves the unavailable action recoverable from the invitation. `Давайте
+      встретимся` proposes a shared meeting, and `в субботу` supplies the replacement day. The second sentence
+      moves the plan forward instead of merely refusing.
     examples:
       - text: В пятницу я не могу. Давайте встретимся в субботу.
         meaning: I cannot on Friday. Let’s meet on Saturday.
-        note: The first sentence relies on the proposed meeting; the second supplies a concrete
-          alternative.
-provenance: &a1
+        note: "Try saying Friday is impossible and proposing Sunday instead. Answer: `В пятницу я не могу. Давайте
+          встретимся в воскресенье.` The first sentence preserves the constraint; `в воскресенье` supplies the
+          alternative."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_imperative2026
+    - cornell_russian_future2026
+    - cornell_russian_lets2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_imperative2026
+        - cornell_russian_future2026
+        - cornell_russian_lets2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

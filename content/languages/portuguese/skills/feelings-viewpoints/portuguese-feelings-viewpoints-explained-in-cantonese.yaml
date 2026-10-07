@@ -1,46 +1,46 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Querer加不定式表示主語想做乜；aprender a後接另一個不定式，交代要學嘅技能。
+    explanation: "你想學一種廚藝。`Quero aprender a fazer pão` 有兩個動作：`quero` 表示你想要，`aprender a fazer` 係「學識做」。另一個不定式之前嘅 `a` 屬於 `aprender a` 呢個結構；`quero` 嘅主語係講者。學游水可以同樣講 `Quero aprender a nadar`。表示願望，唔等於已經承諾報班。"
     examples:
       - text: Quero aprender a fazer pão.
         meaning: 我想學整麵包。
-        note: Quero指出講者願望；aprender a fazer交代想學嘅活動。
+        note: "想講學整湯：`Quero aprender a fazer sopa.`。保留 `quero aprender a fazer`，將製作嘅嘢換成 `sopa`。"
   - subskill_id: preferences
-    explanation: Gostar喺喜歡嘅活動或事物前用de；preferir就揀較鍾意嘅選項，prefiro係第一人稱現在式。
+    explanation: "你一般鍾意煮嘢，但有得揀就較想整麵包。`Gosto de cozinhar, mas prefiro fazer pão` 將喜好同選擇連起來。`Gostar` 後面講明鍾意嘅事要用 `de`，呢度接不定式 `cozinhar`；`gosto` 跟鍾意嗰個人配合。`Prefiro` 係「我較鍾意」，直接接 `fazer pão`，唔使 `de`。`Mas` 對比一般興趣同優先選項。亦可以講 `Gosto de ler, mas prefiro escrever`。"
     examples:
       - text: Gosto de cozinhar, mas prefiro fazer pão.
         meaning: 我鍾意煮飯，不過更鍾意整麵包。
-        note: Gosto配合有喜好嘅人；de引出cozinhar，prefiro指出較鍾意嘅活動。
+        note: "仍然鍾意煮嘢，但較想整湯：`Gosto de cozinhar, mas prefiro fazer sopa.`。`gosto` 後面仍有 `de`；`prefiro` 直接接 `fazer`。"
   - subskill_id: emotions
-    explanation: Estar加形容詞可以表達心情；com將心情連到引起感受嘅事物。
+    explanation: "你啱啱睇到計劃結果，覺得開心。`Estou contente com o resultado` 用 `estou`（`estar` 嘅第一身現在式）講當下狀態。`Contente` 係高興，單數男或女講者都用同一形態；`com o resultado` 指出情緒關乎個結果。呢句報告感受，唔係客觀判定結果一定好。轉為擔心可以講 `Estou preocupado com o resultado`；呢個形容詞會因講者而變。"
     examples:
       - text: Estou contente com o resultado.
-        meaning: 我對個結果好滿意。
-        note: 呢個單數例子嘅contente男女講者都適用；com o resultado交代為乜嘢開心。
+        meaning: 我對個結果感到開心。
+        note: "講自己對消息感到高興：`Estou contente com a notícia.`。佢講齊感受同所關心嘅事；`com a notícia` 取代 `com o resultado`。"
   - subskill_id: opinions
-    explanation: Acho que引出個人判斷，本身唔表示聽唔明對方。
+    explanation: "討論圖書館時，你認為要多啲枱。`Acho que a biblioteca precisa de mais mesas` 用 `acho que`（我認為）引出判斷。`que` 後面係主張：`a biblioteca` 係主語，`precisa de` 係需要，`mais mesas` 係更多枱。講明需要乜嘢時，`precisar` 後面有 `de`。呢句係意見，唔係請人重講聽唔明嘅說話。"
     examples:
       - text: Acho que a biblioteca precisa de mais mesas.
         meaning: 我覺得圖書館要多啲枱。
-        note: Acho引出判斷；precisa de交代需要乜嘢。
+        note: "講圖書館需要更多椅：`Acho que a biblioteca precisa de mais cadeiras.`。保留意見句式同必要嘅 `de`，只將枱換成椅。"
   - subskill_id: agreement_disagreement
-    explanation: Concordar com將同意連到人、建議或想法；動詞前加não就表示唔同意。
+    explanation: "有人提議星期六閂圖書館，你反對。`Não concordo com essa ideia` 將 `não` 放喺 `concordo` 前面表示唔同意；`com essa ideia` 指明反對嗰個提議。`Concordar com` 可以將同意連到一個人或主意。`essa ideia` 指返之前提過嘅主意，所以語境重要。"
     examples:
       - text: Não concordo com essa ideia.
         meaning: 我唔同意嗰個想法。
-        note: 回應星期六關閉圖書館嘅提議，明確反對，唔係只確認收到訊息。
+        note: "改為贊成提議：`Concordo com essa ideia.`。已知主意下，呢句係完整回應；刪去 `não` 就改變立場，而 `com` 仍然連到提議。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/feelings-viewpoints/portuguese-feelings-viewpoints-explained-in-english.yaml
-    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -49,7 +49,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -59,7 +59,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/feelings-viewpoints/portuguese-feelings-viewpoints-explained-in-english.yaml
-        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -68,6 +68,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

@@ -1,69 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: यह 引入人物，關係名詞前嘅物主形式交代佢同講者嘅關係，再由繫詞連接。
+    explanation: 介紹朋友畀人識時，`यह` 指住對方，`मेरी सहेली` 交代關係。物主詞配合朋友名詞嘅性，唔係講者嘅性別。
     examples:
       - text: यह मेरी सहेली है।
-        meaning: 呢位係我女性朋友。
-        note: मेरी 配合陰性 सहेली，唔係表示講者性別。
+        meaning: 呢位係我女性朋友。 `यह` 係呢位，`मेरी` 係陰性嘅「我嘅」，`सहेली` 係女性朋友；`है` 完成介紹。
+        note: 試介紹哥哥或弟弟。答案：`यह मेरा भाई है।` `भाई` 係陽性，用 `मेरा`；`मेरी भाई` 配合錯。
   - subskill_id: qualities_states
-    explanation: 可變形形容詞要配合被描述名詞；用 है 描述特徵，唔一定涉及動作。
+    explanation: 有人問條巷點樣。`सँकरी` 講闊窄，因為 `गली` 係陰性，所以用陰性形。
     examples:
       - text: यह गली सँकरी है।
-        meaning: 呢條巷窄。
-        note: सँकरी 配合陰性 गली，交代物理特徵。
+        meaning: 呢條巷窄。 `यह गली` 指呢條巷，`सँकरी है` 講佢窄；形容詞配合巷，唔係講者。
+        note: 試講房間窄。答案：`यह कमरा सँकरा है।` 陽性 `कमरा` 配 `सँकरा`。單講地名冇交代特徵。
   - subskill_id: location_movement
-    explanation: में 跟喺位置詞後面。以 आ 結尾嘅陽性名詞，喺呢個後置詞前通常轉成斜格。
+    explanation: 你要講張椅喺邊。地點先於後置詞：`कमरे में` 係喺房入面；陽性 `कमरा` 喺 `में` 前變 `कमरे`。
     examples:
       - text: कुर्सी कमरे में है।
-        meaning: 張椅喺間房入面。
-        note: कमरा 喺 में 前變成 कमरे；句子交代椅子位置。
+        meaning: 張椅喺間房入面。 `कुर्सी` 係椅，`कमरे में` 係位置，`है` 講佢喺嗰度；呢句冇講移動。
+        note: 試講椅喺房外。答案：`कुर्सी कमरे के बाहर है।` `के बाहर` 係外面。`कमरा में` 少咗呢度要用嘅斜格
+          `कमरे`。
   - subskill_id: possession_relations
-    explanation: 擁有人加 के पास 常表示持有物件；講自己用 मेरे पास。親屬關係亦可用物主短語，唔係每次要 पास。
+    explanation: 喺售票處講自己已有乜。`मेरे पास` 指持有人；`दो टिकट` 係複數，所以句尾用 `हैं`。
     examples:
       - text: मेरे पास दो टिकट हैं।
-        meaning: 我有兩張飛。
-        note: हैं 配合複數 टिकट；मेरे 指擁有人。
+        meaning: 我有兩張飛。 `मेरे पास` 係我有，`दो टिकट` 係兩張票，`हैं` 配合複數票；呢句唔係講親屬關係。
+        note: 試講有一張票。答案：`मेरे पास एक टिकट है।` `दो` 換 `एक`，`हैं` 換單數 `है`。`मेरी बहन`
+          只係親屬關係。
   - subskill_id: quantity_comparison
-    explanation: 比較標準後面加 से，再用配合被比較物嘅形容詞，唔需要英文式比較級詞尾。
+    explanation: 揀路時比較兩條巷。比較基準放喺 `से` 前；形容詞講第一條巷，配合陰性名詞。
     examples:
       - text: यह गली दूसरी गली से सँकरी है।
-        meaning: 呢條巷比另一條窄。
-        note: दूसरी गली से 指比較標準；सँकरी 描述 यह गली。
+        meaning: 呢條巷比另一條窄。 `यह गली` 係要評估嘅巷，`दूसरी गली से` 係比另一條巷，`सँकरी है` 講第一條較窄。
+        note: 試比較兩個房間。答案：`यह कमरा दूसरे कमरे से सँकरा है।` 房間係陽性，相關詞形都改；`से`
+          標比較基準，唔係每次都解「比」。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/people-places/hindi-people-places-explained-in-english.yaml at revision
-    hindi-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/people-places/hindi-people-places-explained-in-english.yaml at
-        revision hindi-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

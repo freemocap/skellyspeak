@@ -62,10 +62,9 @@ sections:
     examples:
       - text: Nigh do lámha ar dtús, ansin ullmhaigh na glasraí.
         meaning: Wash your hands first, then prepare the vegetables.
-        note: "The sequence words can be retained when the actions change places. Try putting vegetable
-          preparation first and hand washing second. Answer: `Ullmhaigh na glasraí ar dtús, ansin
-          nigh do lámha.` This reverses the stated order because the action before `ar dtús` is now
-          preparation."
+        note: "The sequence words also work with two safe preparation steps. Try washing the vegetables
+          first, then preparing them. Answer: `Nigh na glasraí ar dtús, ansin ullmhaigh iad.` `Nigh` and
+          `ullmhaigh` address one person; `iad` refers back to the vegetables, and the order remains clear."
   - subskill_id: event_phase
     explanation: After reaching the end of your reading, `Tá mé críochnaithe ag léamh` says I have
       finished reading. `Tá mé` identifies the speaker’s state, `críochnaithe` means finished, and
@@ -87,6 +86,7 @@ provenance: &a1
     - brasicke_irish_copula2026
     - focloirIrishGrammarTeaching20261007
     - teanglannBiTeaching20261007
+    - teanglannNighTeaching20261007
   generation: null
   review:
     status: needs_review

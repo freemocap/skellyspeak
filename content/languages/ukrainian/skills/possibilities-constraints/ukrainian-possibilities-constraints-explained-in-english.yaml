@@ -1,54 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Уміти with an infinitive names a learned capability.
+    explanation: A friend asks which repairs you know how to do. `Я вмію` presents a learned capability;
+      `лагодити велосипеди` names repairing bicycles as the skill. The imperfective infinitive describes
+      the activity, not a claim that a particular bicycle is now fixed.
     examples:
       - text: Я вмію лагодити велосипеди.
-        meaning: I know how to repair bicycles.
-        note: Вмію states a practical skill, not permission to work on a particular bicycle.
+        meaning: I know how to repair bicycles. `Вмію` states a practical skill, not permission to work on a
+          particular bicycle.
+        note: "Say you know how to repair radios. Answer: `Я вмію лагодити радіо.` Keep `вмію` for learned
+          ability and change the repair object."
   - subskill_id: permission
-    explanation: Можна with an infinitive can ask whether an action is allowed.
+    explanation: At a shared workspace, the speaker asks the person responsible before leaving a bag. `Можна`
+      plus infinitive `залишити` asks whether the action is allowed here; `тут` identifies the place. In
+      a different context `можна` can concern possibility, so the listener’s authority matters.
     examples:
       - text: Можна тут залишити сумку?
-        meaning: May I leave my bag here?
-        note: Ask the person responsible for the space to establish the permission context.
+        meaning: May I leave my bag here? Ask the person responsible for the space to establish the permission
+          context.
+        note: "Ask whether you may leave a bicycle here. Answer: `Можна тут залишити велосипед?` Change the item
+          while keeping the permission question to the person responsible."
   - subskill_id: obligation
-    explanation: Потрібно with an infinitive expresses necessity and can take a dative experiencer.
+    explanation: The borrowed key is due back today. `Мені` is the dative person who needs to act; `потрібно
+      повернути` gives the necessity and the return action. `Сьогодні` sets the deadline without saying
+      the return has already happened.
     examples:
       - text: Мені потрібно повернути ключ сьогодні.
-        meaning: I need to return the key today.
-        note: Мені identifies who must act; сьогодні gives the deadline.
+        meaning: I need to return the key today. `Мені` identifies who must act; `сьогодні` gives the deadline.
+        note: "Say the key need not be returned today. Answer: `Мені не потрібно повертати ключ сьогодні.` `Не
+          потрібно` removes today’s necessity; it does not prohibit returning it."
   - subskill_id: possibility
-    explanation: Можливо qualifies a proposition as possible.
+    explanation: The group is considering an evening outdoor plan. `Можливо` marks the weather proposition as
+      uncertain; `ввечері` places it this evening, and `буде дощ` says rain will occur. The speaker has
+      not asserted that rain is certain.
     examples:
       - text: Можливо, ввечері буде дощ.
-        meaning: It may rain this evening.
-        note: The sentence leaves the weather outcome open.
+        meaning: It may rain this evening. The sentence leaves the weather outcome open.
+        note: "Say it may rain tomorrow. Answer: `Можливо, завтра буде дощ.` Keep `можливо` for uncertainty and
+          change the time word."
   - subskill_id: certainty
-    explanation: Не впевнений expresses lack of confidence in the following proposition.
+    explanation: A feminine speaker has not verified whether the shop is open. `Я не впевнена` limits her
+      confidence; `що крамниця відчинена` names the proposition at issue. Feminine `впевнена` agrees with
+      the speaker, and uncertainty is not a claim that the shop is closed.
     examples:
       - text: Я не впевнена, що крамниця відчинена.
-        meaning: I am not sure that the shop is open.
-        note: The feminine speaker is uncertain; she does not assert that the shop is closed.
+        meaning: I am not sure that the shop is open. The feminine speaker is uncertain; she does not assert that
+          the shop is closed.
+        note: "For the same feminine speaker, express uncertainty about whether the door is open. Answer: `Я не
+          впевнена, що двері відчинені.` Keep the uncertainty frame; plural `двері` takes `відчинені`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - jenkala_ukrainian_infinitives2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

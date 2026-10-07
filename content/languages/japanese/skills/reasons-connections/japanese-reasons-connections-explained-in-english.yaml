@@ -1,48 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: ので can connect a reason to an action or decision. A verb appears in plain form
-      before it in this example.
+    explanation: "It has started raining, so you decide against a walk. `雨が降っているので、歩くのはやめます` gives the reason: `雨が降っている` presents rain now, `ので` connects it to the decision, and `歩くのは` treats walking as the activity under discussion. `やめます` says you will stop or abandon that plan. `降ってから` would place another action after the rain, not by itself give a reason. The rain explains why the planned walk is dropped."
     examples:
       - text: 雨が降っているので、歩くのはやめます。
         meaning: Because it is raining, I will give up walking.
-        note: The rain explains the decision. 歩くの treats walking as the activity being abandoned.
+        note: "Give strong wind as the reason for cancelling the walk. `風が強いので、歩くのはやめます。` is a full explanation: `ので` links the weather condition to the decision."
   - subskill_id: consequences
-    explanation: そのため can present a result of the preceding circumstance. The second clause should
-      follow meaningfully from the first.
+    explanation: "The bridge is closed to passage, so you need another route. `橋が通れません。そのため、別の道を使います` first states the obstacle, then the consequence: `橋が通れません` means the bridge cannot be crossed, `そのため` points back to that fact, and `別の道を使います` says you will use another road. The result is motivated by the obstacle, rather than merely occurring later. `そのあと` would emphasize what happens afterward without necessarily explaining why."
     examples:
       - text: 橋が通れません。そのため、別の道を使います。
         meaning: The bridge cannot be used, so I will take another road.
-        note: The unavailable bridge motivates the route change. その refers back to that circumstance.
+        note: "State that the bridge is unavailable, so you will use the tunnel. `橋が通れません。そのため、トンネルを使います。` gives a full result; `そのため` links the new route to the blocked bridge."
   - subskill_id: conditions
-    explanation: The たら form can establish a possible condition. Its form contains た but need not
-      refer to an event that already happened.
+    explanation: "You are making a plan for rain tomorrow, not reporting that it rained already. `雨が降ったら、中で作業します` sets a condition: `雨が降ったら` means if it rains, with `たら` attached to the past-shaped form, and `中で作業します` gives the action that will follow in that case. The `た` in `たら` does not force the rain into the past. `雨が降ったので` would give actual rain as a reason for a decision. The plan depends on whether the condition occurs."
     examples:
       - text: 雨が降ったら、中で作業します。
         meaning: If it rains, I will work inside.
-        note: 降ったら supplies the condition; the indoor work is the response under that condition.
+        note: "Plan to work outside if it is sunny. `晴れたら、外で作業します。` is a full conditional plan; `晴れたら` gives the condition and `外で作業します` its consequence."
   - subskill_id: contrast
-    explanation: けど can contrast two properties or considerations in conversation. Both sides need
-      enough content to establish the contrast.
+    explanation: "You compare routes before choosing one. `この道は短いですけど、坂が急です` balances a benefit and a drawback: `この道は短い` says this route is short, `けど` means but, and `坂が急` says the slope is steep. The steep climb matters because it may offset the shorter distance. `けど` can also soften an unfinished request in other contexts; here both sides are present and genuinely contrast. `この道は短いです。そして坂が急です` would list facts without explicitly framing the trade-off."
     examples:
       - text: この道は短いですけど、坂が急です。
         meaning: This route is short, but the slope is steep.
-        note: The steep slope is a drawback despite the shorter route. This is an explicit contrast, not
-          just a softening clause ending.
+        note: "Contrast a wide road with heavy traffic. `この道は広いですけど、車が多いです。` is a full contrast: the road’s width is helpful, while the traffic is a drawback."
   - subskill_id: supporting_claims
-    explanation: An observation can support a conclusion with ので and と思います. The observation is
-      evidence for the belief, not necessarily a cause of the event.
+    explanation: "You hear voices coming from inside a building and infer that someone is there. `中から声が聞こえるので、誰かいると思います` gives both evidence and conclusion: `中から` means from inside, `声が聞こえる` means voices can be heard, `ので` connects the observation, and `誰かいると思います` says you think someone is present. The voices support the belief; they do not cause the person to be there. `誰かいます` would assert presence more directly. The inference remains open to correction."
     examples:
       - text: 中から声が聞こえるので、誰かいると思います。
         meaning: I think someone is inside because I can hear voices from within.
-        note: The audible voices support the conclusion that a person is present. The conclusion remains
-          an inference.
+        note: "Use footsteps heard from inside as evidence. `中から足音が聞こえるので、誰かいると思います。` is a full supported inference; the footsteps supply grounds and `と思います` keeps it a judgment."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -52,7 +45,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

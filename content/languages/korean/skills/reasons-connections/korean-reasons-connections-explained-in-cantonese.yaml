@@ -1,69 +1,55 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 아서或어서將原因連到行動或狀態；피곤하다嘅連接形式係피곤해서。
+    explanation: 你解釋點解比平時早瞓。`피곤해서` 將疲倦連到後面 `일찍 잤어요`；禮貌過去標記放喺主句述語。喺呢個語境，前半句係原因，唔係純粹下一步。
     examples:
       - text: 피곤해서 일찍 잤어요.
-        meaning: 因為攰，我早咗瞓。
-        note: 攰解釋早瞓；過去式詞尾喺主句述語잤어요上。
+        meaning: 因為攰，我早咗瞓。 攰解釋早瞓；過去式詞尾喺主句述語잤어요上。
+        note: 試吓話因為攰所以休息。答案：`피곤해서 쉬었어요`。保留原因 `피곤해서`；`쉬었어요` 講過去做咗休息。
   - subskill_id: consequences
-    explanation: 그래서引出前述情況嘅結果，結果要有足夠內容顯示關聯。
+    explanation: 巴士冇嚟，你解釋點解改為行路。`버스가 오지 않았어요` 係先前情況；`그래서 걸어갔어요` 將步行講成結果。`그래서` 比單純列出兩件事更清楚。
     examples:
       - text: 버스가 오지 않았어요. 그래서 걸어갔어요.
-        meaning: 架巴士冇嚟，所以我行咗過去。
-        note: 그래서將行路決定連到巴士冇嚟，唔係淨係列出稍後事件。
+        meaning: 架巴士冇嚟，所以我行咗過去。 그래서將行路決定連到巴士冇嚟，唔係淨係列出稍後事件。
+        note: 試吓話落雨，所以留喺室內。答案：`비가 왔어요. 그래서 안에 있었어요`。第一句係情況，`그래서` 連到留喺室內嘅結果。
   - subskill_id: conditions
-    explanation: 으면或면類條件詞尾接喺述語詞幹後，具體選擇取決於詞幹形式。
+    explanation: 你按天氣決定喺邊工作。`비가 오면` 係如果落雨；`안에서 작업할 거예요` 係發生時嘅計劃。雖然講緊將來，`오면` 毋須另加將來詞尾。
     examples:
       - text: 비가 오면 안에서 작업할 거예요.
-        meaning: 如果落雨，我就喺入面做嘢。
-        note: 오면由오다組成；落雨係條件，唔係斷言已發生。
+        meaning: 如果落雨，我就喺入面做嘢。 오면由오다組成；落雨係條件，唔係斷言已發生。
+        note: 試吓話如果落雨，就喺室內休息。答案：`비가 오면 안에서 쉴 거예요`。保留條件 `오면`，計劃動作改 `쉴 거예요`。
   - subskill_id: contrast
-    explanation: 지만接喺述語詞幹後面，引出有對比嘅命題。
+    explanation: 你揀步行路線。`이 길은 짧지만` 承認路短；`가팔라요` 加上斜呢個缺點。`-지만` 連接兩個相反嘅實際特點，`가파르다` 變成禮貌形式 `가팔라요`。
     examples:
       - text: 이 길은 짧지만 가팔라요.
-        meaning: 呢條路短，但好斜。
-        note: 斜度抵銷咗路短嘅優勢；가팔라요係가파르다嘅變化形式。
+        meaning: 呢條路短，但好斜。 斜度抵銷咗路短嘅優勢；가팔라요係가파르다嘅變化形式。
+        note: 試吓話呢條路長，但坡度平緩。答案：`이 길은 길지만 완만해요`。`-지만` 仍然連接相對特點；`완만해요` 描述坡度平緩。
   - subskill_id: supporting_claims
-    explanation: 原因分句可以支持推論；것 같아요明確令結論帶有保留。
+    explanation: 你聽到房內有聲，推測有人喺入面。`안에서 소리가 들려서` 係觀察證據；`사람이 있는 것 같아요` 係保留餘地嘅結論。聲音支持推測，唔係令嗰個人存在嘅原因。
     examples:
       - text: 안에서 소리가 들려서 사람이 있는 것 같아요.
-        meaning: 我諗入面有人，因為聽到入面有聲。
-        note: 聲音係有人嘅證據，唔係造成有人嘅原因；結論保留不確定性。
-provenance:
+        meaning: 我諗入面有人，因為聽到入面有聲。 聲音係有人嘅證據，唔係造成有人嘅原因；結論保留不確定性。
+        note: 試吓由房內人聲推測有人。答案：`안에서 목소리가 들려서 사람이 있는 것 같아요`。將 `소리` 換成更具體嘅 `목소리`，結論仍留有餘地。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/reasons-connections/korean-reasons-connections-explained-in-english.yaml
-    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_cause2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/reasons-connections/korean-reasons-connections-explained-in-english.yaml
-        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_cause2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

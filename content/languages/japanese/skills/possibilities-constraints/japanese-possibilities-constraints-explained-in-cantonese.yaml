@@ -1,53 +1,53 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 辭書形動詞加ことができます，表示有能力做某件事；亦可以用動詞可能形。
+    explanation: "鄰居問你識唔識修簡單傢俬。`簡単な家具を直すことができます` 表示能力：`簡単な家具を` 係維修對象，辭書形 `直す` 係修理動作，`ことができます` 將動作變成自己做得到嘅事。問題已經指出講者，所以可省略主語。可能形 `直せます` 亦可講能力，但 `直してください` 係請對方做。呢句講自己識做，唔係問許可。"
     examples:
       - text: 簡単な家具を直すことができます。
         meaning: 我識整簡單傢俬。
-        note: 直す交代講者識做嘅活動；句子關乎實際能力。
+        note: "講你識修單車：`自転車を直すことができます。`。`自転車を` 改對象，`直すことができます` 保留能力結構。"
   - subskill_id: permission
-    explanation: 動詞て形加もいいですか，問某個行動獲唔獲准；語境交代向邊個請求許可。
+    explanation: "你喺共用房間，想將行李放喺某處。`ここに荷物を置いてもいいですか` 問許可：`ここに` 指放去邊，`荷物を` 係行李，`置いて` 係 `置く` 嘅 `て` 形，`もいいですか` 問咁做可唔可以。負責間房嘅人可以批准或拒絕。`置くことができますか` 則較似問能力或可行性。另一動作都可用相應 `て` 形接呢個許可句式。"
     examples:
       - text: ここに荷物を置いてもいいですか。
         meaning: 我可唔可以放啲行李喺度？
-        note: 置いて係置く嘅て形；向管理地方嘅人詢問。
+        note: "問可唔可以將箱放呢度：`ここに箱を置いてもいいですか。`。`箱を` 取代行李，`置いてもいいですか` 問行動是否獲准。"
   - subskill_id: obligation
-    explanation: 將否定動詞尾嘅ない換成なければなりません，表示必要。雖然組件有否定，整體意思係必須做。
+    explanation: "借用規則要求今日還鎖匙。`今日、鍵を返さなければなりません` 表義務：`今日` 係期限，`鍵を` 係要還嘅物件，`返さなければなりません` 由否定形 `返さない` 轉成必須做嘅結構。雖然入面有否定部分，整句意思係正面義務。`返さなくてもいいです` 係唔使還；`返してはいけません` 係唔准還，限制並唔一樣。"
     examples:
       - text: 今日、鍵を返さなければなりません。
         meaning: 我今日一定要還鎖匙。
-        note: 返さない提供返さなければ嘅基礎；呢句要求還鎖匙，唔係禁止歸還。
+        note: "講本書今日必須還：`今日、本を返さなければなりません。`。`本を` 改物件，必須還嘅結構保持。"
   - subskill_id: possibility
-    explanation: 普通體命題後加かもしれません，表示可能，結果仍然未肯定。
+    explanation: "你安排下晝活動，但風勢未確定。`午後は風が強くなるかもしれません` 講可能性：`午後は` 係下晝，`風が` 係轉變對象，`強くなる` 係變強，`かもしれません` 將整件事標為可能。`い` 形容詞接 `なる` 前變成 `強く`。`風が強いです` 係直接報告而家風大，唔係講未確定轉變。講者冇斷言預測一定發生。"
     examples:
       - text: 午後は風が強くなるかもしれません。
         meaning: 下晝可能會大風啲。
-        note: 強くなる描述變強；かもしれません將呢個變化表達成可能。
+        note: "講下晝可能會轉冷：`午後は寒くなるかもしれません。`。`寒くなる` 講轉變，`かもしれません` 保留不確定。"
   - subskill_id: certainty
-    explanation: 自信がありません明確表示冇把握；前面可以用疑問分句指出唔肯定乜嘢。
+    explanation: "你已有答案，但唔肯定啱唔啱。`この答えで合っているか、自信がありません` 講信心限制：`この答えで` 係用呢個答案，`合っているか` 將正確與否變成內嵌問題，`自信がありません` 係冇信心。呢句冇斷言答案錯。`この答えは間違っています` 先係聲稱有錯。`か` 前面講清楚到底唔肯定乜嘢。"
     examples:
       - text: この答えで合っているか、自信がありません。
         meaning: 我唔肯定呢個答案啱唔啱。
-        note: か將正確與否嵌入句內；講者表示唔肯定，唔係斷言答案錯。
+        note: "講唔肯定呢個方法啱唔啱：`この方法で合っているか、自信がありません。`。`この方法で` 改待確認對象，`自信がありません` 仍表達不確定。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/possibilities-constraints/japanese-possibilities-constraints-explained-in-english.yaml
-    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -57,13 +57,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/possibilities-constraints/japanese-possibilities-constraints-explained-in-english.yaml
-        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

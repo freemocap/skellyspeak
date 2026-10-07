@@ -1,56 +1,86 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: เพราะ introduces a reason for the preceding situation.
+    explanation: A friend asks why you are staying home during the rain. `ฉันอยู่บ้าน` states the situation;
+      `เพราะ` introduces the reason `ฝนตก`. The sentence explains why you stay, rather than simply listing two
+      events. With no separate past or future marker, the immediate situation supplies the time.
     examples:
       - text: ฉันอยู่บ้านเพราะฝนตก
         meaning: I am staying home because it is raining.
-        note: The current context supplies time; rain is the reason.
+        note: "Try saying you stay home because you are tired. Answer: `ฉันอยู่บ้านเพราะเหนื่อย` `เพราะ` still
+          introduces the reason; `เหนื่อย` changes it to tiredness."
   - subskill_id: consequences
-    explanation: เลย can link an event to a consequence.
+    explanation: The bus never arrived and you explain what you did as a result. `รถเมล์ไม่มา` gives the problem;
+      `ฉันเลยเดินไป` uses `เลย` to present walking there as the consequence. Here `เลย` connects the two
+      events; it is not merely a word meaning “then.”
     examples:
       - text: รถเมล์ไม่มา ฉันเลยเดินไป
         meaning: The bus did not come, so I walked there.
-        note: In an account of a past trip, walking follows as the response to the missing bus.
+        note: "Try saying the bus did not come, so you took a taxi. Answer: `รถเมล์ไม่มา ฉันเลยนั่งแท็กซี่ไป` `เลย`
+          still links the transport problem to the response; the response changes to a taxi ride."
   - subskill_id: conditions
-    explanation: ถ้า introduces a condition whose outcome follows in another clause.
+    explanation: The group is making tomorrow’s plan around the weather. `ถ้า` introduces the possible condition
+      `พรุ่งนี้ฝนตก`. `เราจะอยู่บ้าน` gives the plan if that condition holds; `จะ` points the planned action
+      ahead. Thai does not change the rain verb to a special future form.
     examples:
       - text: ถ้าพรุ่งนี้ฝนตก เราจะอยู่บ้าน
         meaning: If it rains tomorrow, we will stay home.
-        note: The plan depends on the weather condition.
+        note: "Try planning a walk if tomorrow is sunny. Answer: `ถ้าพรุ่งนี้แดดออก เราจะไปเดินเล่น` `ถ้า` still sets
+          the condition, and the second clause gives the dependent plan."
   - subskill_id: contrast
-    explanation: แต่ links descriptions that contrast in the discussion.
+    explanation: "You are comparing routes for a walk. `ทางสั้น` gives an advantage: the route is short. `แต่ชัน`
+      adds the drawback that it is steep. `แต่` connects qualities that pull a decision in opposite
+      directions; both qualities describe the same route."
     examples:
       - text: ทางสั้นแต่ชัน
         meaning: The route is short but steep.
-        note: The two properties matter differently when choosing a route.
+        note: "Try saying the route is long but level. Answer: `ทางยาวแต่ราบ` `แต่` still contrasts practical
+          qualities; `ราบ` says the route is level despite its length."
   - subskill_id: supporting_claims
-    explanation: A reason clause can offer evidence for an inference.
+    explanation: You see a light still on in a house and cautiously infer that someone may be home. `ฉันคิดว่า`
+      marks the claim as an inference; `มีคนอยู่บ้าน` is the proposed conclusion. `เพราะไฟยังเปิดอยู่` offers
+      the visible light as supporting evidence. A light is a clue, not proof of occupancy, and it does not
+      cause a person to be there.
     examples:
       - text: ฉันคิดว่ามีคนอยู่บ้าน เพราะไฟยังเปิดอยู่
         meaning: I think someone is home because the light is still on.
-        note: The light supports the inference rather than causing the person’s presence.
-provenance: &a1
+        note: "Try making the same cautious inference from voices heard inside. Answer: `ฉันคิดว่ามีคนอยู่บ้าน
+          เพราะได้ยินเสียงคนข้างใน` `ฉันคิดว่า` keeps the conclusion tentative; the heard voices provide a
+          stronger clue."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - fsi_thai_time2026
     - niu_thai_hai2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - fsi_thai_time2026
+        - niu_thai_hai2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

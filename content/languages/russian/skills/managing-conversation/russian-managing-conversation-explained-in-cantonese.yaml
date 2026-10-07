@@ -1,77 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 道別可以交代下次預期見面時間。
+    explanation: 你同同事約好下星期再見，依家要離開。`До встречи` 係預期再見嘅道別語；`на следующей неделе` 指下次見面嘅時間。呢句結束目前對話，唔係重新邀約。
     examples:
       - text: До встречи на следующей неделе!
         meaning: 下星期見！
-        note: 結束今次交談，同時提到下次接觸。
+        note: 試吓道別並表示聽日再見。答案：`До встречи завтра!` `До встречи` 仍係道別；`завтра` 改變下次見面時間。
   - subskill_id: acknowledging
-    explanation: Понятно可以確認解釋已經清楚。
+    explanation: 同事啱啱解釋咗一個難明步驟。`А` 表示你突然領會；`теперь понятно` 話而家清楚。明白嘅人由對話可知。表示聽明唔等於同意對方嘅建議。
     examples:
       - text: А, теперь понятно.
         meaning: 哦，我而家明喇。
-        note: 解釋之後用；理解唔一定係同意。
+        note: 試吓唔用開頭感嘆詞，只表示明白。答案：`Теперь понятно.` 呢句仍然話俾同事知解釋已經清楚。
   - subskill_id: clarification
-    explanation: 禮貌命令式可以請講者重複內容。
+    explanation: 你冇聽清或未明白上一個指示。`Повторите` 係可禮貌對一人或向多人講嘅命令式，請對方重複；`пожалуйста` 緩和打斷。呢句修補剛才嘅說話問題，唔係核實外面嘅事實。
     examples:
       - text: Повторите, пожалуйста.
         meaning: 唔該再講一次。
-        note: 之前嘅發言指出要重複乜，唔一定要引述原句。
+        note: 試吓請對方再解釋一次，而唔只係照原話重複。答案：`Объясните ещё раз, пожалуйста.` 禮貌命令式改成 `объясните`；`ещё раз` 要求再次解釋。
   - subskill_id: rephrasing
-    explanation: Другими словами明確引出另一種講法。
+    explanation: 訪客已聽到呢項服務要求到場前預約。`Другими словами` 標示你用另一種講法重述同一規則。`нужно записаться` 講出預約要求，`заранее`
+      表示預先。有效嘅重述要保留原本規則，同時講清實際後果。
     examples:
       - text: Другими словами, нужно записаться заранее.
         meaning: 即係話，你要預先訂位。
-        note: 解釋預約程序後，重述實際要求。
+        note: 試吓將預先預約規則改講成「到訪前要預約」。答案：`Другими словами, нужно записаться до визита.` `Другими словами` 標示重述；`до
+          визита` 清楚指出限期。
   - subskill_id: correcting_misunderstanding
-    explanation: Иметь в виду指出原意，可以同錯誤理解作對比。
+    explanation: 對方聽成星期五，但你原意係星期六。`Я имела в виду` 表示「我指嘅係」；過去式 `имела` 係陰性單數，所以例句由女性講者講。`субботу, не пятницу`
+      用賓格講清真正同誤聽嘅日子，直接修正誤會。
     examples:
       - text: Я имела в виду субботу, не пятницу.
         meaning: 我係指星期六，唔係星期五。
-        note: 女性講者更正聽者理解錯咗嘅日子。
+        note: 試吓由同一位女性講者更正：對方聽成星期六，其實佢指星期日。答案：`Я имела в виду воскресенье, не субботу.` 真正日子先出現；`не субботу` 否定誤聽日子。
   - subskill_id: turns_topics
-    explanation: 許可形式問句可以要求轉換話題。
+    explanation: 小組傾完一件事，你想問另一件。`Можно я` 問可唔可以接住講；`перейду` 係完成體將來式，表示轉到下一話題。`к другому вопросу` 用 `к`
+      加與格指新問題。呢度管理討論，唔係身體移動。
     examples:
       - text: Можно я перейду к другому вопросу?
         meaning: 我可唔可以轉去另一條問題？
-        note: 所請求嘅行動關乎對話本身。
+        note: 試吓問可否轉去講時間表。答案：`Можно я перейду к расписанию?` `Можно я перейду` 仍係請求發言轉場；`к расписанию` 指新話題。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/russian/skills/managing-conversation/russian-managing-conversation-explained-in-english.yaml
-    at revision russian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+    source passages; no independent linguistic review.
   sources:
     - cornell_russian_imperative2026
     - cornell_russian_modality2026
+    - cornell_russian_past2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   russian-russia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/russian/skills/managing-conversation/russian-managing-conversation-explained-in-english.yaml
-        at revision russian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+        source passages; no independent linguistic review.
       sources:
         - cornell_russian_imperative2026
         - cornell_russian_modality2026
+        - cornell_russian_past2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

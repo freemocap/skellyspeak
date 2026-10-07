@@ -1,79 +1,83 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Sampai 配合下次見面嘅時間，係慣常嘅道別講法，唔使講完整句。
+    explanation: 探訪完要走，預期聽日再見。`Sampai besok` 係簡短道別，講下次見面；放喺探訪開始唔係收尾。
     examples:
       - text: Sampai besok!
-        meaning: 聽日見！
-        note: 探訪結束、預計聽日會再見時可以咁講。
+        meaning: 聽日見！ `Sampai` 喺呢句指向下次見面，`besok` 係聽日；喺對話尾先有道別作用。
+        note: 試改成下星期再見。答案：`Sampai minggu depan!` 換下次時間；喺詞彙表引用呢句唔算道別。
   - subskill_id: acknowledging
-    explanation: Mengerti 可以表示明白頭先嘅解釋；加 sekarang，就突出而家先明白。
+    explanation: 有人解釋工具點用。`Oh` 表示收到新資訊，`sekarang saya mengerti` 係而家明白；唔自動代表同意建議。
     examples:
       - text: Oh, sekarang saya mengerti.
-        meaning: 哦，我而家明喇。
-        note: 對方解釋完工具點用之後，咁講係表示理解，唔係承諾會用。
+        meaning: 哦，我而家明喇。 `sekarang` 係而家，`mengerti` 係明白；回應畀對方知解釋已傳到。
+        note: 試唔提時間就確認明白。答案：`Oh, saya mengerti.` 去掉 `sekarang`；`Saya setuju` 係同意。
   - subskill_id: clarification
-    explanation: 用被動式 diulangi 問句請人重複，唔使明講邊個負責再講。要重複嘅內容由上一句提供。
+    explanation: 你聽漏咗對方上一句。`Bisa diulangi?` 請佢重講；連住寫嘅 `di-` 係被動動詞一部分，同分開寫嘅地點 `di` 唔同。
     examples:
       - text: Bisa diulangi?
-        meaning: 可唔可以再講一次？
-        note: 聽漏對方一部分說話時用。呢度 di- 係動詞前綴，要連住寫。
+        meaning: 可唔可以再講一次？ `diulangi` 係重複；簡短問句靠緊接上文知道要重講乜。
+        note: 試改成問意思。答案：`Apa maksudnya?` 呢句處理理解；只係聽漏就用 `Bisa diulangi?`
   - subskill_id: rephrasing
-    explanation: Dengan kata lain 引出同一個意思嘅另一種講法；後面嘅內容應該令之前嘅解釋更清楚。
+    explanation: 對方解釋當日落單做唔切。`Dengan kata lain` 引入實際重述：大家要早啲訂。
     examples:
       - text: Dengan kata lain, kita perlu memesan lebih awal.
-        meaning: 換句話講，我哋要早啲落單。
-        note: 對方解釋活動當日落單會趕唔切，呢句就講出實際含意；lebih awal 表示要提早。
+        meaning: 換句話講，我哋要早啲落單。 `kita` 包括聽者，`perlu` 係需要，`memesan lebih awal`
+          係早啲訂；第二種講法保留原本限制，冇改規則。
+        note: 試將「要預早落單」重述成「我哋要早啲訂」。答案：`Pesanan harus dibuat lebih awal. Dengan kata
+          lain, kita perlu memesan lebih awal.` 第二句保留同一時間要求。
   - subskill_id: correcting_misunderstanding
-    explanation: Maksud saya 指明自己想講嘅意思；bukan 用嚟排除對方誤會咗嘅名詞選項。
+    explanation: 對方以為星期五，但你本意係星期六。`Maksud saya` 講本意，`bukan Jumat` 排除聽錯嗰日。
     examples:
       - text: Maksud saya hari Sabtu, bukan Jumat.
-        meaning: 我係指星期六，唔係星期五。
-        note: 對方誤以為約星期五見面時，用呢句更正。
+        meaning: 我係指星期六，唔係星期五。 `hari Sabtu` 係原意，`Jumat` 係排除嘅日子；對比修正時間，唔使重講全個計劃。
+        note: 試將聽錯嘅星期日更正為星期一。答案：`Maksud saya hari Senin, bukan Minggu.` 先講本意，再講排除嘅日子。
   - subskill_id: turns_topics
-    explanation: Boleh 可以用嚟爭取發言機會。喺討論場景入面，呢個要求係管理發言輪次。
+    explanation: 討論時你想插入發言。`Boleh saya ...?` 請求發言空間，`menambahkan sesuatu` 暫時唔講具體內容。
     examples:
       - text: Boleh saya menambahkan sesuatu?
-        meaning: 我可唔可以補充少少？
-        note: 想加入當前討論時用；sesuatu 暫時唔交代補充乜嘢，等獲得發言機會先講。
+        meaning: 我可唔可以補充少少？ `saya` 係想發言嘅人，`menambahkan` 係補充，`sesuatu` 係一啲嘢；問句管理對話，唔係測體力。
+        note: 試問可唔可以提一條問題。答案：`Boleh saya mengajukan satu pertanyaan?`
+          呢句同樣請求發言，但講明內容；`Saya menambahkan sesuatu` 係宣布，冇請求發言。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/managing-conversation/indonesian-managing-conversation-explained-in-english.yaml
-    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/managing-conversation/indonesian-managing-conversation-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
         - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

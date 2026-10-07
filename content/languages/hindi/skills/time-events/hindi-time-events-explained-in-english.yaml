@@ -1,71 +1,111 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: A verb stem followed by रहा, रही or रहे and a present auxiliary describes ongoing
-      activity. The progressive agrees with its subject.
+    explanation: While someone waits for tea, say what you are doing now. `अभी`
+      anchors the event in the present; verb stem plus `रही हूँ` presents it as
+      ongoing for a female speaker.
     examples:
       - text: मैं अभी चाय बना रही हूँ।
-        meaning: I am making tea now.
-        note: रही marks a female speaker; a male speaker would use रहा. अभी places the activity now.
+        meaning: I am making tea now. `चाय` is tea and `बना रही हूँ` means I am making.
+          `रही` agrees with this female speaker; a male speaker says `बना रहा
+          हूँ`.
+        note: "Say a male speaker is making tea now. Answer: `मैं अभी चाय बना रहा हूँ।`
+          Change `रही` to `रहा`. `मैं चाय बनाती हूँ` describes a habit, not
+          necessarily this moment."
   - subskill_id: past_events
-    explanation: Many transitive perfectives mark the agent with ने and agree with an object that
-      has no blocking case marker. Learn lexical exceptions rather than attaching ने to every
-      past verb.
+    explanation: After cooking yesterday, report one completed action. In this
+      transitive perfective clause, `मैंने` marks the agent and `बनाई` agrees
+      with the unmarked feminine object `खिचड़ी`.
     examples:
       - text: मैंने कल खिचड़ी बनाई।
-        meaning: I made khichdi yesterday.
-        note: बनाई agrees with feminine खिचड़ी. The perfective event makes कल refer to yesterday here,
-          not tomorrow.
+        meaning: I made khichdi yesterday. `कल` means yesterday here because `बनाई`
+          reports a completed past event. `खिचड़ी` is the food made; its
+          feminine gender explains `बनाई`, regardless of the cook’s gender.
+        note: "Say you made tea yesterday. Answer: `मैंने कल चाय बनाई।` Keep `मैंने` and
+          feminine `बनाई` with feminine `चाय`. Do not add `ने` to every past
+          verb; intransitive `मैं गई` works differently."
   - subskill_id: future_events
-    explanation: A future verb can specify person and gender. कल receives its tomorrow reading from
-      the future form and context.
+    explanation: When arranging tomorrow’s visit, `कल` means tomorrow because the
+      verb is future. `आऊँगी` expresses a female speaker’s planned arrival.
     examples:
       - text: मैं कल आऊँगी।
-        meaning: I will come tomorrow.
-        note: आऊँगी is first-person feminine future. A male speaker would say आऊँगा.
+        meaning: I will come tomorrow. `मैं` is I, `कल` the day, and `आऊँगी` I will
+          come. A male speaker uses `आऊँगा`; the contrast is in the future
+          ending.
+        note: "Give the same plan as a male speaker. Answer: `मैं कल आऊँगा।` Change only
+          the gendered ending. `मैं कल आई` instead describes a completed arrival
+          yesterday."
   - subskill_id: duration_frequency
-    explanation: A duration followed by से can measure how long an activity has continued. The
-      ongoing Hindi construction need not copy the English present perfect.
+    explanation: Someone asks whether you are still reading. `दो घंटे से` measures
+      how long the activity has continued up to now; the progressive form shows
+      it is still in progress.
     examples:
       - text: मैं दो घंटे से पढ़ रही हूँ।
-        meaning: I have been reading for two hours.
-        note: दो घंटे से gives elapsed duration; पढ़ रही हूँ says the female speaker is still reading.
+        meaning: I have been reading for two hours. `दो घंटे से` is since two hours ago,
+          and `पढ़ रही हूँ` says I am reading. Together they mean the female
+          speaker started earlier and continues now.
+        note: "Say the reading has lasted three hours. Answer: `मैं तीन घंटे से पढ़ रही
+          हूँ।` Replace the number. `मैं दो घंटे पढ़ी` can report a finished
+          duration instead."
   - subskill_id: event_sequence
-    explanation: पहले and फिर can order steps. Polite imperatives let the speaker present a sequence
-      for the listener to carry out.
+    explanation: Giving cooking directions requires a clear order. `पहले` introduces
+      the first action and `फिर` the next; both verbs are respectful imperatives
+      addressed to the listener.
     examples:
       - text: पहले चावल धोइए, फिर पानी डालिए।
-        meaning: First wash the rice, then add water.
-        note: धोइए and डालिए politely address the listener. The order of steps is explicit.
+        meaning: First wash the rice, then add water. `चावल धोइए` asks the listener to
+          wash the rice; `पानी डालिए` then asks them to add water. The sequence
+          words make the order explicit.
+        note: "Try changing the ingredient to lentils while keeping the order. Answer:
+          `पहले दाल धोइए, फिर पानी डालिए।` Replace `चावल` with `दाल`; `पहले`
+          still marks washing as the first step and `फिर` adding water as the
+          next step."
   - subskill_id: event_phase
-    explanation: चुकना after a verb stem marks having completed an action. Its agreement is with the
-      subject; this construction does not add ने to the agent.
+    explanation: After finishing a book, report completion rather than an ongoing
+      reading. Verb stem plus `चुकी हूँ` presents the action as already finished
+      for a female speaker.
     examples:
       - text: मैं किताब पढ़ चुकी हूँ।
-        meaning: I have finished reading the book.
-        note: चुकी identifies a female speaker and presents the reading as completed, rather than still
-          in progress.
+        meaning: I have finished reading the book. `किताब पढ़` names reading the book.
+          `चुकी हूँ` says that reading is complete and agrees with the female
+          speaker; this construction has no agent `ने`.
+        note: "Give the completed report as a male speaker. Answer: `मैं किताब पढ़ चुका
+          हूँ।` Change `चुकी` to `चुका`. `मैं किताब पढ़ रही हूँ` says the
+          reading is still happening."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
-    - msu_hindi_perfective2026
+    - msu_hindi_tense_aspect2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+        - msu_hindi_tense_aspect2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

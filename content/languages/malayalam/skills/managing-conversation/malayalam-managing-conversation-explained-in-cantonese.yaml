@@ -1,61 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: malayalam-cantonese-teaching-expanded-2026-10-07
 language: malayalam
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 簡短嘅將來取向表達可以結束交談。
+    explanation: 見完面準備走，你簡短講遲啲再見。`പിന്നെ` 係之後，`കാണാം` 喺道別時指將來再見；雙方由現場知道邊個同邊個再見，唔使重複主語。
     examples:
       - text: പിന്നെ കാണാം!
-        meaning: 遲啲見！
-        note: 呢個係對話中嘅道別，唔係純粹預測視覺感知。
+        meaning: 遲啲見！`പിന്നെ` 指之後，`കാണാം` 指再見面；離開時成句用嚟收尾，唔係報告而家見緊人。
+        note: 試道別講聽日見。答案：`നാളെ കാണാം!` 將 `പിന്നെ` 換成 `നാളെ`，下次時間更明確；要喺離開對話時講，先有道別作用。
   - subskill_id: acknowledging
-    explanation: മനസ്സിലായി可以表示理解。
+    explanation: 對方解釋完，你終於明白。`ശരി` 接住對方發言，`ഇപ്പോൾ` 係而家，`മനസ്സിലായി` 表示已經理解；明白內容唔代表你同意嗰個意見。
     examples:
       - text: ശരി, ഇപ്പോൾ മനസ്സിലായി.
-        meaning: 好，我而家明喇。
-        note: 聽完解釋後用，唔一定代表同意觀點。
+        meaning: 好，我而家明喇。`ശരി` 係好，`ഇപ്പോൾ` 係而家；`മനസ്സിലായി` 講理解已達成，理解嘅人可由回應背景得知。
+        note: 試講你冇明白。答案：`മനസ്സിലായില്ല.` 否定形式取代 `മനസ്സിലായി`；`ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നു`
+          係明確同意，唔係單純理解。
   - subskill_id: clarification
-    explanation: 問句配合ഒന്നുകൂടി，請對方再講一次。
+    explanation: 你聽漏對方上一句，請佢重講。`ഒന്നുകൂടി` 係再一次，放喺 `പറയാമോ?` 呢個「可唔可以講」問句前；上句話交代要重複嘅內容。
     examples:
       - text: ഒന്നുകൂടി പറയാമോ?
-        meaning: 可唔可以再講一次？
-        note: 之前嘅發言交代要重複乜嘢。
+        meaning: 可唔可以再講一次？`പറയാമോ` 係講嘅情態問句；`ഒന്നുകൂടി` 要求再一次，唔使重述你冇聽清楚嘅原句。
+        note: 試請對方再讀一次，唔係再講一次。答案：`ഒന്നുകൂടി വായിക്കാമോ?` 將 `പറയാമോ` 換成 `വായിക്കാമോ`；仍然要求重複，但動作改成讀。
   - subskill_id: rephrasing
-    explanation: മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ引出另一種講法。
+    explanation: 你之前已講明要預先預約，依家用另一講法重述同一規定。`മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ` 標示換個講法，`മുൻകൂട്ടി ബുക്ക്
+      ചെയ്യണം` 保留預先訂位嘅要求，冇加入新規則。
     examples:
       - text: മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ, മുൻകൂട്ടി ബുക്ക് ചെയ്യണം.
-        meaning: 即係話，你要預先訂位。
-        note: 解釋訂位程序後用；ബുക്ക്係慣用借詞，用馬拉雅拉姆文字寫。
+        meaning: 即係話，要預先預約。`മറ്റൊരു രീതിയിൽ` 係另一種方式，`പറഞ്ഞാൽ` 係如果咁講；`മുൻകൂട്ടി` 係預先，`ബുക്ക്
+          ചെയ്യണം` 係需要預約。
+        note: 試講明我哋呢一組都要預先預約。答案：`മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ, ഞങ്ങൾ മുൻകൂട്ടി ബുക്ക് ചെയ്യണം.` 加
+          `ഞങ്ങൾ` 指唔包括聽者嘅「我哋」；仍保留預先預約，唔可以改成到埗先訂。
   - subskill_id: correcting_misunderstanding
-    explanation: ഉദ്ദേശിച്ചത്指出講者原意。
+    explanation: 對方聽成星期五，但你本意係星期六。`ഞാൻ ഉദ്ദേശിച്ചത്` 引出你原意，`ശനിയാഴ്ചയാണ്`
+      明講星期六，`വെള്ളിയാഴ്ചയല്ല` 排除星期五；正確日子同錯誤日子都講清楚。
     examples:
       - text: ഞാൻ ഉദ്ദേശിച്ചത് ശനിയാഴ്ചയാണ്, വെള്ളിയാഴ്ചയല്ല.
-        meaning: 我係指星期六，唔係星期五。
-        note: 講者更正聽者理解錯咗嘅日子。
+        meaning: 我係指星期六，唔係星期五。`ശനിയാഴ്ചയാണ്` 將星期六接 `ആണ്` 作正面確認，`വെള്ളിയാഴ്ചയല്ല` 接 `അല്ല` 否定星期五。
+        note: 試糾正對方將星期六聽成星期日。答案：`ഞാൻ ഉദ്ദേശിച്ചത് ശനിയാഴ്ചയാണ്, ഞായറാഴ്ചയല്ല.` 保留本意星期六，將誤會日改成
+          `ഞായറാഴ്ചയല്ല`；只否定星期日仍未講明應該用邊日。
   - subskill_id: turns_topics
-    explanation: 問句可以提議轉去下一個話題。
+    explanation: 目前問題傾完，你問大家可唔可以轉下一條。`അടുത്ത ചോദ്യത്തിലേക്ക്` 係去下一條問題，`കടക്കാമോ?`
+      問可唔可以轉過去；目的地係對話內容，唔係實際行路。
     examples:
       - text: അടുത്ത ചോദ്യത്തിലേക്ക് കടക്കാമോ?
-        meaning: 我哋可唔可以轉去下一條問題？
-        note: 要求嘅轉換關乎討論本身。
+        meaning: 可唔可以轉去下一條問題？`അടുത്ത` 係下一個，`ചോദ്യത്തിലേക്ക്` 用方向形式指出問題，`കടക്കാമോ` 將轉換提出畀小組回應。
+        note: 試提議轉去另一個話題。答案：`മറ്റൊരു വിഷയത്തിലേക്ക് കടക്കാമോ?` `മറ്റൊരു` 係另一個，`വിഷയത്തിലേക്ക്`
+          係去嗰個話題；同一問句仍管理對話轉題。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/malayalam/skills/managing-conversation/malayalam-managing-conversation-explained-in-english.yaml
-    at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
-    - ut_malayalam_dialogues2026
+    - moagMalayalamTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: malayalam-cantonese-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   malayalam-kerala:
     disposition: use_core
@@ -63,13 +72,14 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/malayalam/skills/managing-conversation/malayalam-managing-conversation-explained-in-english.yaml
-        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - ut_malayalam_dialogues2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: malayalam-cantonese-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

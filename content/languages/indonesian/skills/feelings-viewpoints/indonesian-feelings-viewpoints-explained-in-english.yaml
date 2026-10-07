@@ -1,53 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Ingin before an activity expresses a desire. Belajar can then name the skill the
-      speaker wants to learn.
+    explanation: You are discussing a personal learning goal. `ingin` before
+      `belajar menjahit` expresses your desire to learn sewing; it does not
+      promise that you have already begun.
     examples:
       - text: Saya ingin belajar menjahit.
-        meaning: I want to learn to sew.
-        note: Ingin places the desire with saya. The sentence does not promise anyone that the learning
-          will happen.
+        meaning: I want to learn to sew. `Saya` names the person wanting it, `belajar`
+          means learn, and `menjahit` names sewing. The verbs do not take gender
+          endings.
+        note: "Say you want to learn to paint. Answer: `Saya ingin belajar melukis.`
+          Replace the skill. `Saya bisa melukis` would instead assert ability."
   - subskill_id: preferences
-    explanation: Lebih suka compares preferences. Daripada introduces the less preferred alternative.
+    explanation: You are choosing between two activities. `lebih suka ... daripada
+      ...` compares your liking for drawing with writing, rather than ranking
+      either activity objectively.
     examples:
       - text: Saya lebih suka menggambar daripada menulis.
-        meaning: I prefer drawing to writing.
-        note: The comparison concerns what the speaker likes, not an objective ranking of the
-          activities.
+        meaning: I prefer drawing to writing. `Saya` is the person with the preference.
+          `menggambar` follows `lebih suka` as the preferred activity; `menulis`
+          after `daripada` is the comparison option.
+        note: "Prefer writing to drawing. Answer: `Saya lebih suka menulis daripada
+          menggambar.` Exchange the two activities. `Lebih murah` would compare
+          price, not liking."
   - subskill_id: emotions
-    explanation: Senang can describe a positive feeling. Dengan can identify what the speaker is
-      pleased with.
+    explanation: A colleague shows you the finished work and asks how you feel.
+      `senang dengan` links your positive feeling to the result under
+      discussion.
     examples:
       - text: Saya senang dengan hasilnya.
-        meaning: I am happy with the result.
-        note: The ending -nya makes the result refer to the work being discussed. Senang describes the
-          speaker’s reaction.
+        meaning: I am happy with the result. `Saya senang` says the speaker is happy;
+          `hasilnya` is the result being discussed, with `-nya` referring back
+          to that work.
+        note: "Say you are disappointed with the result. Answer: `Saya kecewa dengan
+          hasilnya.` Replace the emotion; the referent of `hasilnya` stays the
+          same."
   - subskill_id: opinions
-    explanation: Menurut saya introduces the speaker’s judgment. The following proposition contains
-      the actual assessment.
+    explanation: While reviewing a design, you judge its colour too dark for the
+      intended use. `Menurut saya` attributes the evaluation to you; `terlalu`
+      marks a degree beyond your acceptable standard.
     examples:
       - text: Menurut saya, warna ini terlalu gelap.
-        meaning: In my opinion, this colour is too dark.
-        note: Terlalu marks excess relative to the speaker’s purpose or standard.
+        meaning: In my opinion, this colour is too dark. `warna ini` is this colour and
+          `gelap` means dark. With `terlalu`, the claim is too dark for the
+          purpose, not just a neutral description.
+        note: "Say you think the colour is too bright. Answer: `Menurut saya, warna ini
+          terlalu terang.` Change the evaluated quality; keep the viewpoint
+          marker."
   - subskill_id: agreement_disagreement
-    explanation: Setuju expresses agreement; tidak negates it. Dengan can identify the position
-      being discussed.
+    explanation: A partner has just proposed a change. `tidak setuju dengan` states
+      that you disagree with that identifiable proposal, rather than saying you
+      failed to understand it.
     examples:
       - text: Saya tidak setuju dengan usulan itu.
-        meaning: I disagree with that proposal.
-        note: Reply to a stated proposal or viewpoint. This opposes it rather than simply failing to
-          understand it.
+        meaning: I disagree with that proposal. `Saya` gives your stance, `usulan itu`
+          points back to that proposal, and `tidak` negates `setuju`.
+        note: "State agreement instead. Answer: `Saya setuju dengan usulan itu.` Remove
+          `tidak`. `Saya mengerti` would only state understanding."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
@@ -55,11 +75,25 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

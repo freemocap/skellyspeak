@@ -1,51 +1,57 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Πότε asks when something happens. A question can keep an ordinary verb construction
-      without an English-style auxiliary. Use the Greek question mark ; at the end of a written
-      question.
+    explanation: You need tomorrow’s opening time before taking a bicycle in. `Πότε` asks when;
+      `ανοίγει` means opens and agrees with singular `το συνεργείο`. `αύριο` fixes the day, leaving
+      the clock time for the answer. Greek uses a semicolon-shaped question mark.
     examples:
       - text: Πότε ανοίγει το συνεργείο αύριο;
-        meaning: When does the repair shop open tomorrow?
-        note: Πότε requests a time; αύριο identifies the day. Ανοίγει is third person singular, with το
-          συνεργείο as its subject.
+        meaning: When does the repair shop open tomorrow? `Πότε` requests the time; `αύριο` says which day,
+          and `το συνεργείο` is the shop whose opening is in question.
+        note: "Try it: ask when the shop closes tomorrow. Answer: `Πότε κλείνει το συνεργείο αύριο;`.
+          Replace `ανοίγει` with `κλείνει`; keep `Πότε` because the missing information is still a
+          time."
   - subskill_id: answering_information
-    explanation: An answer can consist of the information requested. Clock times use στις with the
-      stated hour. You need not repeat the question’s entire clause when its event and day
-      remain clear.
+    explanation: When the question already names the shop and the day, you can answer with the clock
+      time alone. `στις` introduces a time such as `στις εννέα`; `το πρωί` makes clear that it is
+      morning. The earlier question supplies the omitted verb and subject.
     examples:
       - text: Στις εννέα το πρωί.
-        meaning: At nine in the morning.
-        note: Use this after someone asks what time the repair shop opens tomorrow. The phrase supplies
-          the requested time; it is not a standalone claim about an unidentified event.
+        meaning: At nine in the morning. `Στις εννέα` gives the clock time and `το πρωί` distinguishes
+          morning from evening. This short answer is complete in the opening-time exchange.
+        note: "Try it: answer that it opens at eight in the morning. Answer: `Στις οκτώ το πρωί`. Only the
+          hour changes; the shop and opening action remain understood from the question."
   - subskill_id: checking_facts
-    explanation: A yes/no question can present a specific proposition for confirmation. Its wording
-      may resemble a statement; punctuation or spoken intonation signals the question. Use it
-      when checking the proposed fact rather than asking for a new time.
+    explanation: You heard an opening time and want to verify it before travelling. State the proposed
+      fact, then add `σωστά;` to ask whether it is right. This checks the time itself; asking what a
+      word means would be a different question.
     examples:
       - text: Το συνεργείο ανοίγει στις εννέα, σωστά;
-        meaning: The repair shop opens at nine, right?
-        note: Σωστά; requests confirmation of the opening time. If the problem is that the listener did
-          not hear a word, the same topic can instead become a repair question.
+        meaning: The repair shop opens at nine, right? `Το συνεργείο ανοίγει στις εννέα` states the time you
+          think you heard; `σωστά;` invites confirmation or correction.
+        note: "Try it: check whether the shop closes at six. Answer: `Το συνεργείο κλείνει στις έξι,
+          σωστά;`. State the specific closing time and use `σωστά;` to verify it."
   - subskill_id: useful_detail
-    explanation: Add a detail that helps someone identify the intended place or use the information.
-      An identifying noun phrase and a spatial phrase can be sufficient; no special “detail”
-      tense or discourse formula is required.
+    explanation: An address may get someone to the building but not to its entrance. `Η είσοδος είναι`
+      introduces the location of the entrance; `στην πίσω πλευρά` narrows it to the rear side, and
+      `του κτιρίου` links that side to the building.
     examples:
       - text: Η είσοδος είναι στην πίσω πλευρά του κτιρίου.
-        meaning: The entrance is at the back of the building.
-        note: After giving the shop’s address, this locates its entrance more precisely. Του κτιρίου is
-          genitive and identifies which building’s back is meant.
+        meaning: The entrance is at the back of the building. `στην πίσω πλευρά` locates the entrance on the
+          back side; genitive `του κτιρίου` specifies which building.
+        note: "Try it: tell someone the entrance is at the front of the building. Answer: `Η είσοδος είναι
+          στην μπροστινή πλευρά του κτιρίου`. Change the side description; keep `του κτιρίου` to
+          identify the building."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -53,10 +59,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

@@ -1,63 +1,59 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Во сколько問事件喺幾點發生。
+    explanation: 出發去工場前，你要知道幾點關門。`Во сколько` 問鐘點，唔係問持續幾耐。`закрывается` 用現在式講工場平常關門，`мастерская` 係主語。俄語唔使英文式助動詞嚟組成呢條資訊問句。
     examples:
       - text: Во сколько закрывается мастерская?
         meaning: 間工場幾點閂門？
-        note: 未知資料係關門時間，唔係有冇工場。
+        note: 試吓問工場幾點開門。答案：`Во сколько открывается мастерская?` `Во сколько` 仍問未知鐘點；`открывается` 將事件改成開門。
   - subskill_id: answering_information
-    explanation: 介詞時間短語可以直接回答上句。
+    explanation: 對方啱啱問工場幾點關門。`В пять часов` 直接填入欠缺嘅時間；`в` 引出鐘點，`пять часов` 係五點。關門動作由上一句承接，所以毋須重複全句；冇先前問題時，片語就需要更多語境。
     examples:
       - text: В пять часов.
         meaning: 五點鐘。
-        note: 回應關門時間問題，前文提供省略咗嘅事件。
+        note: 試吓答六點關門。答案：`В шесть часов.` 同一種時間片語交代所問鐘點；因為問題已提供動作，仍可以省略動詞。
   - subskill_id: checking_facts
-    explanation: 命題後加верно，邀請確認所提供資料。
+    explanation: 你以為工場五點關門，想核實。`Мастерская закрывается в пять` 先提出待查嘅說法；句尾 `верно?` 請對方確認。呢個同 `во сколько` 問完全未知嘅時間唔同。
     examples:
       - text: Мастерская закрывается в пять, верно?
         meaning: 間工場五點閂門，係咪？
-        note: 提出五點作待核實資料。
+        note: 試吓核實係咪六點關門。答案：`Мастерская закрывается в шесть, верно?` 待查鐘點改為 `в шесть`；`верно?` 仍係求證，唔係重新問未知時間。
   - subskill_id: useful_detail
-    explanation: 位置描述可以幫聽者分辨所需入口。
+    explanation: 訪客見到棟樓，但搵唔到入口。`Вход` 指要搵嘅入口；`со стороны двора` 話佢喺庭院嗰邊。呢個位置細節有用，因為佢將入口同向街嗰邊分開，唔係因為句子更長。
     examples:
       - text: Вход со стороны двора.
         meaning: 入口喺庭院嗰邊。
-        note: 回應點搵入口嘅問題，提供有用地標。
+        note: 試吓話入口喺街嗰邊。答案：`Вход со стороны улицы.` `со стороны` 仍指出應該行去邊邊；`улицы` 取代庭院。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/russian/skills/information-exchange/russian-information-exchange-explained-in-english.yaml
-    at revision russian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+    source passages; no independent linguistic review.
   sources:
     - cornell_russian_agreement2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   russian-russia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/russian/skills/information-exchange/russian-information-exchange-explained-in-english.yaml
-        at revision russian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+        source passages; no independent linguistic review.
       sources:
         - cornell_russian_agreement2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

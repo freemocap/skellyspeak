@@ -1,62 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A farewell can specify the next expected contact.
+    explanation: At the end of a visit, the speakers expect to see each other next week. `До зустрічі` is the
+      leave-taking, and `наступного тижня` locates the next meeting. The same words quoted in a
+      vocabulary list would not themselves close an exchange.
     examples:
       - text: До зустрічі наступного тижня!
-        meaning: See you next week!
-        note: The utterance closes the current exchange.
+        meaning: See you next week! The utterance closes the current exchange.
+        note: "Close with a meeting tomorrow. Answer: `До зустрічі завтра!` Keep the farewell and change the
+          next-contact time."
   - subskill_id: acknowledging
-    explanation: Зрозуміло can acknowledge that an explanation has become clear.
+    explanation: A partner has just explained the instructions. `А` registers the new information; `тепер
+      зрозуміло` says it is clear now without naming an experiencer. This receives an explanation but
+      does not necessarily agree with the partner’s opinion.
     examples:
       - text: А, тепер зрозуміло.
-        meaning: Ah, now I understand.
-        note: Use after an explanation; understanding does not necessarily mean agreement.
+        meaning: Ah, now I understand. Use after an explanation; understanding does not necessarily mean
+          agreement.
+        note: "Acknowledge understanding without the now-word. Answer: `А, зрозуміло.` The preceding explanation
+          supplies what has become clear; no endorsement is implied."
   - subskill_id: clarification
-    explanation: A polite imperative asks the other speaker to repeat something.
+    explanation: You did not catch the last sentence. `Повторіть` is a polite/plural imperative asking the
+      partner to repeat it; `будь ласка` softens the request. The preceding utterance supplies what needs
+      repeating.
     examples:
       - text: Повторіть, будь ласка.
-        meaning: Please repeat that.
-        note: The preceding contribution supplies what needs repeating.
+        meaning: Please repeat that. The preceding contribution supplies what needs repeating.
+        note: "Ask for the last word to be repeated. Answer: `Повторіть останнє слово, будь ласка.` Name the
+          unclear part while keeping the polite imperative and request marker."
   - subskill_id: rephrasing
-    explanation: Іншими словами introduces a restatement.
+    explanation: The appointment procedure requires advance booking, and a listener needs a simpler
+      restatement. `Іншими словами` signals that the next clause expresses the same requirement;
+      `потрібно записатися заздалегідь` says to book beforehand.
     examples:
       - text: Іншими словами, потрібно записатися заздалегідь.
-        meaning: In other words, you need to book in advance.
-        note: Use after explaining an appointment procedure.
+        meaning: In other words, you need to book in advance. Use after explaining an appointment procedure.
+        note: "The listener has just explained that this booking rule applies to you. Restate it as your own
+          need. Answer: `Іншими словами, мені потрібно записатися заздалегідь.` Dative `мені` identifies you as
+          the person who must book; the advance-booking requirement remains."
   - subskill_id: correcting_misunderstanding
-    explanation: Мати на увазі identifies what was intended and can replace a mistaken interpretation.
+    explanation: A listener thought you meant Friday, but the intended day was Saturday. `Мала на увазі` is
+      the feminine speaker’s past expression of intended meaning; `суботу, не п’ятницю` supplies the
+      intended and rejected days in the relevant object form.
     examples:
       - text: Я мала на увазі суботу, не п’ятницю.
-        meaning: I meant Saturday, not Friday.
-        note: The feminine speaker corrects the day understood by the listener.
+        meaning: I meant Saturday, not Friday. The feminine speaker corrects the day understood by the listener.
+        note: "For the same feminine speaker, correct Sunday to Monday. Answer: `Я мала на увазі понеділок, не
+          неділю.` Name the intended Monday first and reject the misunderstood Sunday."
   - subskill_id: turns_topics
-    explanation: A permission-shaped question can request movement to another topic.
+    explanation: During a shared discussion, the speaker wants to move to another issue. `Можна` asks whether
+      the transition is allowed; `перейти до іншого питання` names the new topic. The group context
+      supplies who will move on.
     examples:
       - text: Можна перейти до іншого питання?
-        meaning: May we move on to another question?
-        note: The omitted actor is recoverable in a shared discussion; the requested transition concerns
-          the conversation.
+        meaning: May we move on to another question? The omitted actor is recoverable in a shared discussion; the
+          requested transition concerns the conversation.
+        note: "Ask to move to the schedule instead. Answer: `Можна перейти до розкладу?` Replace the new topic
+          after `до`; keep the permission-shaped conversational transition."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - jenkala_ukrainian_infinitives2026
     - ukma_ukrainian_tenses2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

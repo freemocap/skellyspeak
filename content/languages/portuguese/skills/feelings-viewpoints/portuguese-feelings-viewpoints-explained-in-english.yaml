@@ -1,49 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Querer + infinitive expresses what the subject wants to do. Aprender a introduces
-      the skill being learned with another infinitive.
+    explanation: "You want to learn a new kitchen skill. `Quero aprender a fazer pão` has two actions: `quero` says what you want, and `aprender a fazer` means learn to make. The `a` belongs to the pattern `aprender a` before another infinitive. The speaker is the unstated subject of `quero`. `Quero aprender a nadar` uses the same structure for learning to swim. A wish alone is not a promise that you will actually take a lesson."
     examples:
       - text: Quero aprender a fazer pão.
         meaning: I want to learn to make bread.
-        note: Quero identifies the speaker’s desire; aprender a fazer specifies the desired learning.
+        note: "Say that you want to learn to make soup. `Quero aprender a fazer sopa.` keeps `quero aprender a fazer` and changes the thing made to `sopa`."
   - subskill_id: preferences
-    explanation: Gostar takes de before an expressed activity or thing that is liked. Preferir can
-      instead select a favored option; prefiro is its first-person present form.
+    explanation: "You enjoy cooking generally but choose bread-making when given a choice. `Gosto de cozinhar, mas prefiro fazer pão` joins a liking to a preference. `Gostar` takes `de` before its expressed object, here the infinitive `cozinhar`; `gosto` agrees with the person who likes it. `Prefiro` means I prefer and directly introduces `fazer pão`; it does not need `de`. `Mas` marks the contrast between broad enjoyment and the favored activity. `Gosto de ler, mas prefiro escrever` follows the same pattern."
     examples:
       - text: Gosto de cozinhar, mas prefiro fazer pão.
         meaning: I like cooking, but I prefer making bread.
-        note: Gosto agrees with the person who likes the activity. De introduces cozinhar; prefiro
-          identifies the favored activity.
+        note: "Prefer making soup while still liking cooking. `Gosto de cozinhar, mas prefiro fazer sopa.` is complete; `de` stays after `gosto`, while `prefiro` directly precedes `fazer`."
   - subskill_id: emotions
-    explanation: Estar with an adjective can express how the speaker feels. Com can link the feeling
-      to the thing giving rise to it.
+    explanation: "You have just seen the result of a project and feel pleased. `Estou contente com o resultado` uses `estou`, the first-person present of `estar`, to report your current state. `Contente` means pleased and has the same form for a singular male or female speaker; `com o resultado` names what the feeling concerns. This reports an emotion, not a judgment that the result is objectively good. `Estou preocupado com o resultado` changes the feeling to worry; that adjective may change for the speaker."
     examples:
       - text: Estou contente com o resultado.
         meaning: I am happy with the result.
-        note: Contente works with either a male or female speaker in this singular example. Com o
-          resultado identifies what the happiness concerns.
+        note: "Say that you are happy with the news. `Estou contente com a notícia.` gives a full feeling and its cause; `com a notícia` replaces `com o resultado`."
   - subskill_id: opinions
-    explanation: Acho que can introduce a personal judgment. It does not by itself mean that the
-      speaker has failed to understand the partner.
+    explanation: "In a discussion about the library, you think more tables would help. `Acho que a biblioteca precisa de mais mesas` introduces your judgment with `acho que` (I think that). The clause after `que` gives the claim: `a biblioteca` is the subject, `precisa de` means needs, and `mais mesas` means more tables. The `de` belongs to `precisar de` before the needed thing. This is your view, rather than a request to repeat something unclear."
     examples:
       - text: Acho que a biblioteca precisa de mais mesas.
         meaning: I think the library needs more tables.
-        note: Acho introduces the speaker’s judgment; precisa de names what is needed.
+        note: "State that the library needs more chairs. `Acho que a biblioteca precisa de mais cadeiras.` keeps the opinion frame and the required `de`, replacing tables with chairs."
   - subskill_id: agreement_disagreement
-    explanation: Concordar com relates agreement to a person, proposal or idea. Add não before the
-      verb to express disagreement.
+    explanation: "Someone proposes closing the library on Saturdays, and you object. `Não concordo com essa ideia` places `não` before `concordo` to deny agreement; `com essa ideia` identifies the proposal you reject. `Concordar com` can relate agreement to a person or an idea. The context matters because `essa ideia` points back to an idea already raised."
     examples:
       - text: Não concordo com essa ideia.
         meaning: I do not agree with that idea.
-        note: Said in response to a proposal to close the library on Saturdays. The speaker rejects that
-          identified idea; this is stronger than merely acknowledging receipt.
+        note: "Agree with the proposal instead. `Concordo com essa ideia.` is a complete response to the known idea; removing `não` reverses the stance while `com` still links it to the proposal."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -55,7 +47,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

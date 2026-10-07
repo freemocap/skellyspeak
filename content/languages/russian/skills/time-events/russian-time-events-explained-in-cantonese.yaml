@@ -1,75 +1,81 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 未完成體現在式可以描述目前進行中嘅活動。
+    explanation: 有人問你而家做緊乜。`Сейчас` 指此刻；`я чиню` 係未完成體現在式，喺度表示維修進行中，`велосипед` 係物件。未完成體現在式喺其他語境亦可講習慣；時間詞同問題令呢度讀成正在做。
     examples:
       - text: Сейчас я чиню велосипед.
         meaning: 我而家整緊單車。
-        note: Сейчас將чиню定位為當前活動，唔係一般習慣。
+        note: 試吓話而家睇緊本書。答案：`Сейчас я читаю книгу.` `Сейчас` 保留當下語境；未完成體現在式 `читаю` 講正在進行嘅活動。
   - subskill_id: past_events
-    explanation: 完成體過去式可以將維修表達成已完成事件；單數過去式會標示性別。
+    explanation: 你講尋日完成嘅維修。`Вчера` 將事件放喺過去；完成體 `починила` 將整單車講成有終點嘅完成事件。字尾 `-ла` 係陰性單數過去式，配合呢句講者；陽性單數會用
+      `починил`。未完成體過去式可以講曾經做維修，未必同樣強調完成點。
     examples:
       - text: Вчера я починила велосипед.
         meaning: 我尋日整好咗架單車。
-        note: 講者用陰性починила；男性講者會用починил。
+        note: 試吓由同一位女性講者話尋日整好手錶。答案：`Вчера я починила часы.` `Починила` 保留完成事件角度同陰性過去式；`часы` 換咗物件。
   - subskill_id: future_events
-    explanation: 完成體非過去式可以指將來事件。
+    explanation: 你安排聽日去拎維修零件。`Завтра` 指將來時間。`Заберу` 係完成體動詞配非過去式字尾，所以指將來完成一次領取；`детали` 係要拎嘅零件。若重點係過程或活動，未完成體將來式可用
+      `буду` 加不定式。
     examples:
       - text: Завтра я заберу детали.
         meaning: 我聽日會攞零件。
-        note: Завтра提供時間；заберу將領取表達成有界限嘅事件。
+        note: 試吓話聽日會拎鎖匙。答案：`Завтра я заберу ключ.` `Завтра` 仍指將來；完成體 `заберу` 將領取視為一項有終點嘅任務。
   - subskill_id: duration_frequency
-    explanation: Раз數次數，в неделю設定重複周期。
+    explanation: 你講固定游水習慣。`Два раза` 數兩次活動，`в неделю` 指每星期呢個重複週期。句子講頻率，唔係每次游幾耐；`два часа` 先係兩個鐘嘅時長。
     examples:
       - text: Я плаваю два раза в неделю.
         meaning: 我一個星期游兩次水。
-        note: 呢個描述頻率，唔係一次游幾耐。
+        note: 試吓話每星期游三次。答案：`Я плаваю три раза в неделю.` `Три раза` 改活動次數；`в неделю` 保留每星期嘅週期。
   - subskill_id: event_sequence
-    explanation: Сначала同потом明確排列動作。
+    explanation: 你畀人基本廚房指示。`Сначала` 將洗手放先；`потом` 引出之後開始煮食。`Вымойте` 係完成體禮貌命令式，要求洗手完成；`начинайте`
+      係未完成體禮貌命令式，重點係開始下一項活動。兩個時間詞講明次序。
     examples:
       - text: Сначала вымойте руки, потом начинайте готовить.
         meaning: 先洗手，再開始煮飯。
-        note: 禮貌或複數指令提供次序，唔係斷言一件事造成另一件。
+        note: 試吓講合理嘅兩步備菜程序：先洗手，再切菜。答案：`Сначала вымойте руки, потом нарежьте овощи.` `Сначала` 同 `потом` 保留先後；`нарежьте
+          овощи` 提供第二步。
   - subskill_id: event_phase
-    explanation: Дочитать入面嘅前綴表示一直讀到完。
+    explanation: 朋友問你本書睇完未。`Дочитала` 係 `дочитать` 嘅陰性單數完成體過去式；呢度前綴 `до-` 將閱讀帶到終點。`Книгу` 係被閱讀嘅書。句子唔只係話曾經睇過，而係話睇完。
     examples:
       - text: Я дочитала книгу.
         meaning: 我睇完本書喇。
-        note: 女性講者報告讀到終點，唔係淨係讀過一部分。
+        note: 試吓由同一位女性講者話篇文章睇完咗。答案：`Я дочитала статью.` `Дочитала` 保留完成點同陰性過去式；`статью` 換咗本書。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/russian/skills/time-events/russian-time-events-explained-in-english.yaml at revision
-    russian-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+    source passages; no independent linguistic review.
   sources:
     - cornell_russian_aspect2026
+    - cornell_russian_past2026
+    - cornell_russian_future2026
+    - cornell_russian_frequency2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   russian-russia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/russian/skills/time-events/russian-time-events-explained-in-english.yaml at
-        revision russian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Russian examples and the cited
+        source passages; no independent linguistic review.
       sources:
         - cornell_russian_aspect2026
+        - cornell_russian_past2026
+        - cornell_russian_future2026
+        - cornell_russian_frequency2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

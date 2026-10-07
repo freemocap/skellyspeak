@@ -1,71 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: irish-teaching-cantonese-2026-10-07
 language: irish
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Mar 可以引出原因。
+    explanation: 解釋點解留喺屋企時，`D’fhan mé sa bhaile mar bhí sé ag cur báistí` 先講 `D’fhan mé sa bhaile`，再用 `mar`
+      引出落雨呢個原因。`bhí sé ag cur báistí` 表示當時落緊雨，唔係另一個冇關係嘅事件。
     examples:
       - text: D’fhan mé sa bhaile mar bhí sé ag cur báistí.
-        meaning: 因為落雨，我留咗喺屋企。
-        note: 落雨被表達成留喺屋企嘅原因。
+        meaning: 因為落雨，我留咗喺屋企。 落雨被表達成留喺屋企嘅原因。
+        note: 試講因為自己病咗而留家。答案：`D’fhan mé sa bhaile mar bhí mé tinn.` 留家事件不變；`mar` 後改用病咗做原因。
   - subskill_id: consequences
-    explanation: Mar sin 可以引出結果。
+    explanation: 講旅程受阻時，`Níor tháinig an bus, mar sin shiúil mé` 先話巴士冇嚟；`mar sin` 將行路標成結果。`tháinig`
+      係不規則過去動詞形式，`shiúil mé` 係我行咗路；呢度唔只係先後兩件事。
     examples:
       - text: Níor tháinig an bus, mar sin shiúil mé.
-        meaning: 架巴士冇嚟，所以我行路。
-        note: 行路被表達成等唔到巴士之後嘅應對。
+        meaning: 架巴士冇嚟，所以我行路。 行路被表達成等唔到巴士之後嘅應對。
+        note: 試講巴士冇嚟，所以改為留喺屋企。答案：`Níor tháinig an bus, mar sin d’fhan mé sa bhaile.` 同一件事引出新結果；`mar sin` 保留因果連接。
   - subskill_id: conditions
-    explanation: Má 引出尚未確定嘅條件，後面交代條件成立時嘅結果。
+    explanation: 安排視乎天氣嘅計劃時，`Má bhíonn sé ag cur báistí amárach, fanfaimid sa bhaile` 用 `Má`
+      引入未確定嘅條件，後面係落雨時大家會留家。`bhíonn` 係 `bí` 喺呢個條件結構嘅形式；`fanfaimid` 已包括我哋。呢句冇斷言聽日一定落雨。
     examples:
       - text: Má bhíonn sé ag cur báistí amárach, fanfaimid sa bhaile.
-        meaning: 如果聽日落雨，我哋就留喺屋企。
-        note: Bíonn 喺 má 後面變成弱化形式 bhíonn；fanfaimid 交代結果。
+        meaning: 如果聽日落雨，我哋就留喺屋企。 `Bíonn` 喺 `má` 後面變成弱化形式 `bhíonn`；`fanfaimid` 交代結果。
+        note: 試保留落雨條件，但改成自己留家。答案：`Má bhíonn sé ag cur báistí amárach, fanfaidh mé sa bhaile.` 條件不變；`fanfaidh mé`
+          將計劃主體改為我。
   - subskill_id: contrast
-    explanation: Ach 將討論中有對比嘅描述連起來。
+    explanation: 比較行路路線時，`Tá an bealach gearr ach géar` 用 `gearr` 講短，`géar` 喺路線語境係陡峭；`ach` 指出短路都可以難行。兩種性質都描述同一條路。
     examples:
       - text: Tá an bealach gearr ach géar.
-        meaning: 條路短，但好斜。
-        note: 揀路線時，呢兩個特點可能有唔同影響。
+        meaning: 條路短，但好斜。 揀路線時，呢兩個特點可能有唔同影響。
+        note: 試中性噉列出兩個性質。答案：`Tá an bealach gearr agus géar.` `agus` 係加上一個性質，唔再用 `ach` 突出對比。
   - subskill_id: supporting_claims
-    explanation: 原因分句可以為推論提供證據。
+    explanation: 見到屋內有燈，`Ceapaim go bhfuil duine sa teach mar tá solas ar siúl` 用 `Ceapaim` 標示推測，`go bhfuil
+      duine sa teach` 係有人喺屋內嘅判斷，`mar tá solas ar siúl` 係見到嘅根據。燈光支持推論，唔會證明係邊個，更唔係令嗰人存在嘅成因。
     examples:
       - text: Ceapaim go bhfuil duine sa teach mar tá solas ar siúl.
-        meaning: 我諗屋入面有人，因為有盞燈開咗。
-        note: 開燈係支持推論嘅線索，唔係造成有人喺屋內嘅原因。
-provenance:
+        meaning: 我諗屋入面有人，因為有盞燈開咗。 開燈係支持推論嘅線索，唔係造成有人喺屋內嘅原因。
+        note: 試用門開住支持同一推測。答案：`Ceapaim go bhfuil duine sa teach mar tá an doras oscailte.` 證據由燈光換成開門；`Ceapaim`
+          仍保留推測性。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/irish/skills/reasons-connections/irish-reasons-connections-explained-in-english.yaml
-    at revision irish-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the completed English guide; principal
+    Irish target examples preserved. Independent Irish and Cantonese review pending.
   sources:
     - brasicke_irish_copula2026
     - teanglann_deisigh2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
+    - teanglannGlacTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: irish-teaching-cantonese-2026-10-07
+    scope: All Cantonese contextual explanations, meanings and practice answers for irish-ireland. Source
+      passages support scoped forms, not linguistic certification.
 varieties:
   irish-ireland:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/irish/skills/reasons-connections/irish-reasons-connections-explained-in-english.yaml
-        at revision irish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - brasicke_irish_copula2026
-        - teanglann_deisigh2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

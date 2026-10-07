@@ -1,71 +1,55 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 人稱用法 μπορώ 隨有能力嘅人變化，後接 να 子句；第二個動詞亦有人稱。呢句講實際能力，唔係求人幫忙。
+    explanation: 朋友問你整車使唔使幫手。`Μπορώ` 係「我能夠」，`να` 後嘅 `αλλάξω το λάστιχο` 講可做嘅動作。`μόνος μου` 表示自己做，呢個形式配合男性講者。
     examples:
       - text: Μπορώ να αλλάξω το λάστιχο μόνος μου.
-        meaning: 我可以自己換車胎。
-        note: μπορώ 同 αλλάξω 係第一人稱單數；男性講者用 μόνος μου，女性會用 μόνη μου。
+        meaning: 我可以自己換輪胎。`Μπορώ να αλλάξω` 指講者同佢做到嘅動作；`μόνος μου` 係唔使人幫手。
+        note: 試吓以男性講者身分話自己可以開門。答案：`Μπορώ να ανοίξω την πόρτα μόνος μου`。保留 `μπορώ να`，新動作用第一人稱 `ανοίξω`。
   - subskill_id: permission
-    explanation: 第一人稱 να 問句可問許可，唔必須明示 μπορώ。對方權責同情境先能確定功能，唔係所有 να 問句都問許可。
+    explanation: 喺維修舖，你想問可唔可以將單車放呢度。第一人稱 `να` 問句 `Να αφήσω…;` 提出自己想做嘅動作，徵求負責人准許；`εδώ` 指呢個位置。
     examples:
       - text: Να αφήσω το ποδήλατο εδώ;
-        meaning: 我可唔可以將單車留喺呢度？
-        note: 問負責地方嘅人；αφήσω 指自己要做嘅事，εδώ 指位置。
+        meaning: 我可唔可以將單車放喺呢度？`Να αφήσω` 問自己可否放低，`το ποδήλατο` 係單車，`εδώ` 係呢度。
+        note: 試吓問可唔可以開門。答案：`Να ανοίξω την πόρτα;`。由你做動作，所以用第一人稱 `ανοίξω`，並問有權決定嘅人。
   - subskill_id: obligation
-    explanation: πρέπει 係無人稱形式，唔跟有義務嘅人變化；να 子句用動詞詞尾交代行動者。某啲語境亦可以係推論，要睇整句。
+    explanation: 你同同事準備關舖。無人稱 `Πρέπει` 表示必須；後面第一人稱複數 `να κλείσουμε` 表示你哋一齊關門。`πριν φύγουμε` 將離開放喺關門之後。
     examples:
       - text: Πρέπει να κλείσουμε την πόρτα πριν φύγουμε.
-        meaning: 我哋離開之前一定要閂門。
-        note: κλείσουμε、φύγουμε 係第一人稱複數；喺收舖程序入面，係對大家嘅要求。
+        meaning: 我哋離開前必須關門。`Πρέπει` 表示需要；`κλείσουμε` 同 `φύγουμε` 都係第一人稱複數，包含講者同同事。
+        note: 試吓話離開前必須開門。答案：`Πρέπει να ανοίξουμε την πόρτα πριν φύγουμε`。`πρέπει` 不變，必須做嘅動作用複數 `ανοίξουμε`。
   - subskill_id: possibility
-    explanation: 無人稱 μπορεί 保持第三人稱單數，即使可能做事嘅係講者。να 子句先帶相應人稱，同人稱用法 μπορώ 講能力不同。
+    explanation: 你未確定到達時間。無人稱 `Μπορεί` 表示可能發生；`να έρθω` 指「我可能嚟」。雖然嚟嘅人係我，第一個詞仍係第三人稱單數。
     examples:
       - text: Μπορεί να έρθω αργότερα.
-        meaning: 我可能遲啲嚟。
-        note: μπορεί 表示可能，έρθω 係第一人稱單數；唔係承諾一定到。
+        meaning: 我可能遲啲嚟。`Μπορεί` 表示可能，`έρθω` 係我嚟，`αργότερα` 係遲啲。
+        note: 試吓話你可能聽日嚟。答案：`Μπορεί να έρθω αύριο`。無人稱 `μπορεί` 同第一人稱 `έρθω` 不變，只改時間。
   - subskill_id: certainty
-    explanation: σίγουρα 等副詞可以表達有把握，要同足夠內容一齊用，講清楚肯定乜。呢個係講者立場，唔係客觀證明。
+    explanation: 有人唔肯定會議定咗邊日。`σίγουρα` 令整句 `Η συνάντηση είναι … αύριο` 表示你肯定日期；講嘅係把握，唔係義務或許可。
     examples:
       - text: Η συνάντηση είναι σίγουρα αύριο.
-        meaning: 個會議肯定係聽日。
-        note: σίγουρα 將日期表達為肯定；單純附和可能有唔同對話功能。
-provenance:
+        meaning: 會議肯定喺聽日。`Η συνάντηση` 係會議；`σίγουρα` 加強對 `αύριο` 呢個日期嘅肯定。
+        note: 試吓肯定咁話會議喺今日。答案：`Η συνάντηση είναι σίγουρα σήμερα`。日期改 `σήμερα`，保留 `σίγουρα` 表示肯定。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/possibilities-constraints/greek-possibilities-constraints-explained-in-english.yaml
-    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/possibilities-constraints/greek-possibilities-constraints-explained-in-english.yaml
-        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

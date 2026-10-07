@@ -1,61 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A farewell can refer to the next expected meeting.
+    explanation: You are ending a visit and expect to see the person again next week. `Gelecek
+      hafta` sets that future meeting time and `görüşürüz` says you will see one another.
+      Said while leaving, it closes contact rather than reporting a timetable fact.
     examples:
       - text: Gelecek hafta görüşürüz!
         meaning: See you next week!
-        note: This closes the current exchange.
+        note: "Close the visit by saying you will see them tomorrow. Answer: `Yarın görüşürüz!`
+          Replace the next-contact time with `Yarın`; the farewell still closes the
+          exchange."
   - subskill_id: acknowledging
-    explanation: Anladım can acknowledge successful comprehension.
+    explanation: After a partner explains the procedure, you show that you now follow it.
+      `Tamam` acknowledges the turn, `şimdi` means now, and `anladım` says you understood.
+      None of these words by itself commits you to agreeing with the proposal.
     examples:
       - text: Tamam, şimdi anladım.
         meaning: Okay, now I understand.
-        note: Use after an explanation; comprehension is not necessarily agreement.
+        note: "Acknowledge understanding without the time word. Answer: `Tamam, anladım.` Remove
+          `şimdi`; `anladım` still confirms comprehension, not necessarily agreement."
   - subskill_id: clarification
-    explanation: An aorist question can politely ask for repetition.
+    explanation: You missed the previous sentence and need it repeated. `Tekrar` means again,
+      `söyler` supplies the saying action, and `misiniz?` makes a polite question to the
+      listener. The preceding utterance supplies what should be repeated.
     examples:
       - text: Tekrar söyler misiniz?
         meaning: Could you say that again?
-        note: The prior contribution supplies what should be repeated.
+        note: "Politely ask the person to say the word again. Answer: `Kelimeyi tekrar söyler
+          misiniz?` Add `Kelimeyi` to specify the word; the question still requests
+          repetition."
   - subskill_id: rephrasing
-    explanation: Başka bir deyişle introduces a restatement.
+    explanation: You have already explained that visitors must book an appointment in
+      advance. `Başka bir deyişle` signals another way of saying that same rule;
+      `önceden randevu almak gerekiyor` restates the advance-booking requirement.
     examples:
       - text: Başka bir deyişle, önceden randevu almak gerekiyor.
         meaning: In other words, you need to make an appointment in advance.
-        note: Use after explaining how the booking procedure works.
+        note: "Restate the same requirement with another marker. Answer: `Yani önceden randevu
+          almak gerekiyor.` `Yani` introduces the reformulation while `önceden` preserves
+          the original advance-booking requirement."
   - subskill_id: correcting_misunderstanding
-    explanation: Demek istemek can clarify what the speaker intended.
+    explanation: You said Saturday, but the listener heard Friday. `Cuma değil` rejects the
+      mistaken day; `cumartesi demek istedim` supplies what you intended to say. The
+      contrast repairs an actual misunderstanding rather than simply naming two days.
     examples:
       - text: Cuma değil, cumartesi demek istedim.
         meaning: I meant Saturday, not Friday.
-        note: The speaker replaces the mistaken day with the intended one.
+        note: "Correct someone who heard Sunday when you meant Saturday. Answer: `Pazar değil,
+          cumartesi demek istedim.` Put the mistaken day before `değil` and keep the
+          intended day after it."
   - subskill_id: turns_topics
-    explanation: A modal question can request a transition within the discussion.
+    explanation: The current question has been discussed and you want to change the
+      conversational agenda. `Başka bir soruya` means to another question, `geçebilir
+      miyiz?` asks whether we can move to it. The requested change concerns the talk
+      itself, not permission to enter a place.
     examples:
       - text: Başka bir soruya geçebilir miyiz?
         meaning: Can we move on to another question?
-        note: The requested action concerns the conversation itself.
+        note: "Ask to move to the next topic. Answer: `Sonraki konuya geçebilir miyiz?` Change the
+          destination of the discussion to `Sonraki konuya`; the modal question still
+          manages the floor."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_modality2026
     - tt_turkish_optative2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

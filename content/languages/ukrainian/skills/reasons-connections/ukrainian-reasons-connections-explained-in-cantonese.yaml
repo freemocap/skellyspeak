@@ -1,69 +1,60 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: ukrainian-teaching-cantonese-2026-10-07
 language: ukrainian
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Тому що引出前述情況原因。
+    explanation: 女性講者解釋點解留喺屋企。`Я залишилася вдома` 係行動，`тому що пішов дощ` 係原因：開始落雨。`залишилася` 配合講者，`пішов`
+      配合陽性名詞 `дощ`。
     examples:
       - text: Я залишилася вдома, тому що пішов дощ.
-        meaning: 因為開始落雨，我留咗喺屋企。
-        note: 女性講者指出原因係落雨。
+        meaning: 因為開始落雨，我留咗喺屋企。 女性講者指出原因係落雨。
+        note: 試講佢因為開始落雪而留家。答案：`Я залишилася вдома, тому що пішов сніг.` 保留原因連接同女性講者形式；陽性 `сніг` 亦用 `пішов`。
   - subskill_id: consequences
-    explanation: Тому可以引出由此而起嘅結果。
+    explanation: 巴士冇嚟，講者於是行路。`Автобус не приїхав` 係前因，`тому` 將步行講成結果。`пішла` 係女性講者嘅過去形式。
     examples:
       - text: Автобус не приїхав, тому я пішла пішки.
-        meaning: 架巴士冇嚟，所以我行路。
-        note: 女性講者將行路表達成結果。
+        meaning: 架巴士冇嚟，所以我行路。 女性講者將行路表達成結果。
+        note: 試講巴士冇嚟，所以佢留喺屋企。答案：`Автобус не приїхав, тому я залишилася вдома.` 同一前因改成留家結果；`залишилася` 保留女性配合。
   - subskill_id: conditions
-    explanation: Якщо引出可能實現嘅條件，結果可以用將來形式表達。
+    explanation: 大家安排聽日戶外活動。`Якщо завтра піде дощ` 係將來落雨條件；`ми залишимося вдома` 係條件成立時留家嘅計劃。`піде` 同
+      `залишимося` 都係將來形式，唔係斷言已經落雨。
     examples:
       - text: Якщо завтра піде дощ, ми залишимося вдома.
-        meaning: 如果聽日落雨，我哋就留喺屋企。
-        note: 兩個分句都用將來形式；留家取決於條件。
+        meaning: 如果聽日落雨，我哋就留喺屋企。 兩個分句都用將來形式；留家取決於條件。
+        note: 試講聽日落雨就喺屋企做嘢。答案：`Якщо завтра піде дощ, ми працюватимемо вдома.` 保留將來落雨條件；`працюватимемо`
+          講未完成體將來工作計劃。
   - subskill_id: contrast
-    explanation: Але連接討論中有不同方向嘅描述。
+    explanation: 你比較行路路線。`Дорога коротка` 係路短嘅優點，`але крута` 加入陡峭嘅缺點。`коротка` 同 `крута` 都係配合 `дорога` 嘅陰性單數形容詞。
     examples:
       - text: Дорога коротка, але крута.
-        meaning: 條路短，但好斜。
-        note: 比較路線時，呢個對比有實際作用。
+        meaning: 條路短，但好斜。 比較路線時，呢個對比有實際作用。
+        note: 試講條路長但平緩。答案：`Дорога довга, але полога.` 保留對比同陰性形容詞形式，改變兩種路況。
   - subskill_id: supporting_claims
-    explanation: 可觀察事實可以支持帶保留嘅結論。
+    explanation: 你見到屋企窗口有燈，推測入面有人。`Думаю` 標判斷，`тому що у вікні горить світло` 係觀察到嘅根據。燈光支持相信有人，唔係造成有人嘅原因。
     examples:
       - text: Думаю, хтось є вдома, тому що у вікні горить світло.
-        meaning: 我諗有人喺屋企，因為窗口有燈光。
-        note: 燈光係推論證據，唔係實際成因。
-provenance:
+        meaning: 我諗有人喺屋企，因為窗口有燈光。 燈光係推論證據，唔係實際成因。
+        note: 試改用屋內人聲做證據。答案：`Думаю, хтось є вдома, тому що з дому чути голос.` 聽到嘅人聲支持同一個有人喺屋企嘅推測。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/ukrainian/skills/reasons-connections/ukrainian-reasons-connections-explained-in-english.yaml
-    at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese Ukrainian teaching paired with the English guide; original principal
+    target text preserved. Independent linguistic and Cantonese review pending.
   sources:
     - jenkala_ukrainian_conditions2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: ukrainian-teaching-cantonese-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/ukrainian/skills/reasons-connections/ukrainian-reasons-connections-explained-in-english.yaml
-        at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - jenkala_ukrainian_conditions2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

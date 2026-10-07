@@ -1,62 +1,68 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 道別可以提及預期下次見面。
+    explanation: 探訪完準備走，預期下星期再見。`Gelecek hafta` 交代下次時間，`görüşürüz` 表示彼此再見。離開時講，係收尾道別，唔單係報時間表。
     examples:
       - text: Gelecek hafta görüşürüz!
         meaning: 下星期見！
-        note: 結束今次交談。
+        note: 試道別講聽日見。答案：`Yarın görüşürüz!` 將下次見面時間換成 `Yarın`；道別仍然結束對話。
   - subskill_id: acknowledging
-    explanation: Anladım可以確認成功理解。
+    explanation: 對方解釋流程後，你表示而家明白。`Tamam` 接住對方發言，`şimdi` 係而家，`anladım` 係明白。呢啲詞本身唔等於同意建議。
     examples:
       - text: Tamam, şimdi anladım.
         meaning: 好，我而家明喇。
-        note: 解釋後用，明白唔一定係同意。
+        note: 試唔提時間，確認自己明白。答案：`Tamam, anladım.` 去掉 `şimdi`；`anladım` 仍然確認理解，唔一定係同意。
   - subskill_id: clarification
-    explanation: 一般時問句可以有禮貌噉請人重複。
+    explanation: 你聽漏上一句，想對方重講。`Tekrar` 係再一次，`söyler` 表示講，`misiniz?` 向對方構成禮貌問句。上句話交代要重講乜。
     examples:
       - text: Tekrar söyler misiniz?
         meaning: 可唔可以再講一次？
-        note: 前面發言交代要重複乜。
+        note: 試禮貌噉請對方重講個字。答案：`Kelimeyi tekrar söyler misiniz?` 加 `Kelimeyi` 指定嗰個字；問句仍然請求重複。
   - subskill_id: rephrasing
-    explanation: Başka bir deyişle引出重述。
+    explanation: 你已解釋訪客必須預先預約。`Başka bir deyişle` 標示用另一講法講同一規則；`önceden randevu almak
+      gerekiyor` 重述預先預約嘅要求。
     examples:
       - text: Başka bir deyişle, önceden randevu almak gerekiyor.
         meaning: 即係話，你要預先預約。
-        note: 解釋預約程序後用。
+        note: 試改用另一個標記重述同一要求。答案：`Yani önceden randevu almak gerekiyor.` `Yani` 引出重述，`önceden`
+          保留原本要預先預約嘅要求。
   - subskill_id: correcting_misunderstanding
-    explanation: Demek istemek可以澄清講者原意。
+    explanation: 你原本講星期六，對方聽成星期五。`Cuma değil` 否定聽錯嘅日子；`cumartesi demek istedim`
+      講出本意。呢個對比修正真正誤會，唔係單純列兩日。
     examples:
       - text: Cuma değil, cumartesi demek istedim.
         meaning: 我係指星期六，唔係星期五。
-        note: 講者用原定日子取代對方誤會咗嘅日子。
+        note: 試糾正對方將星期六聽成星期日。答案：`Pazar değil, cumartesi demek istedim.` 將聽錯嘅日子放 `değil` 前，原意放後面。
   - subskill_id: turns_topics
-    explanation: 情態問句可以要求討論轉到另一部分。
+    explanation: 目前問題討論完，你想轉對話議程。`Başka bir soruya` 係去另一條問題，`geçebilir miyiz?`
+      問我哋可唔可以轉過去。要求改變嘅係傾偈內容，唔係入場許可。
     examples:
       - text: Başka bir soruya geçebilir miyiz?
         meaning: 我哋可唔可以轉去另一條問題？
-        note: 請求嘅行動關乎對話本身。
+        note: 試問可唔可以轉下一個話題。答案：`Sonraki konuya geçebilir miyiz?` 將討論目的地換成 `Sonraki
+          konuya`；情態問句仍然係管理話題。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/turkish/skills/managing-conversation/turkish-managing-conversation-explained-in-english.yaml
-    at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision turkish-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
     - tt_turkish_modality2026
     - tt_turkish_optative2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: turkish-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   turkish-turkiye:
     disposition: use_core
@@ -64,14 +70,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/turkish/skills/managing-conversation/turkish-managing-conversation-explained-in-english.yaml
-        at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision turkish-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - tt_turkish_modality2026
         - tt_turkish_optative2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: turkish-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

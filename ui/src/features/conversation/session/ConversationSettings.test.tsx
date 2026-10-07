@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { I18nProvider } from '../../../components/localization/i18n'
@@ -7,12 +7,25 @@ import { LOCALES, t } from '../../../domain/localization'
 import type { Settings } from '../../../types'
 import { ConversationSettings } from './ConversationSettings'
 
-function Fixture({ settings = null, onToggle = vi.fn(), saving = false }: { settings?: Settings | null; onToggle?: (key: string) => Promise<void>; saving?: boolean }) {
+function Fixture({ settings = null, onToggle = vi.fn(), saving = false, difficulty }: { settings?: Settings | null; onToggle?: (key: string) => Promise<void>; saving?: boolean; difficulty?: ReactNode }) {
   const [open, setOpen] = useState(false)
   return <ConversationSettings open={open} onOpenChange={setOpen} settings={settings} saving={saving}
-    onToggle={onToggle} nativePicker={null} showRomanization
+    onToggle={onToggle} nativePicker={null} showRomanization difficulty={difficulty}
     exportDisabled onExport={vi.fn()} />
 }
+
+it('leads with the difficulty control a narrow header hands over, and has no Difficulty group otherwise', () => {
+  const view = render(<Fixture />)
+  fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
+  expect(screen.queryByRole('region', { name: 'Difficulty' })).toBeNull()
+  view.unmount()
+  render(<Fixture difficulty={<select aria-label="Difficulty"><option>Beginner</option></select>} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
+  const group = screen.getByRole('region', { name: 'Difficulty' })
+  expect(within(group).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
+  // The conversation's level comes before its reading, speech and reward toggles.
+  expect(group.parentElement!.firstElementChild).toBe(group)
+})
 
 it.each(Object.keys(LOCALES))('opens and closes conversation settings in %s without missing messages', locale => {
   render(<I18nProvider locale={locale}><Fixture /></I18nProvider>)

@@ -1,65 +1,51 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 몇 시問鐘點，에接喺時間後面；禮貌句唔使額外疑問助動詞都可以做問句。
+    explanation: 去舖頭前，講者需要知道幾點關門。`가게가` 指間舖；`몇 시에` 問幾點，`닫아요?` 係禮貌問關門。韓語時間片語放喺句尾述語前，唔使英文式助動詞。
     examples:
       - text: 가게가 몇 시에 닫아요?
-        meaning: 間舖頭幾點閂門？
-        note: 問句想知關門時間；問號標示疑問解讀。
+        meaning: 間舖頭幾點閂門？ 問句想知關門時間；問號標示疑問解讀。
+        note: 試吓問舖頭幾點開。答案：`가게가 몇 시에 열어요?`。保留 `몇 시에` 問未知鐘點，將 `닫아요` 換成 `열어요`。
   - subskill_id: answering_information
-    explanation: 時間表達加禮貌요，可以直接回答，唔使重複成個分句。
+    explanation: 對方啱啱問間舖幾點關。`다섯 시에요` 喺呢段問答可分析為 `다섯 시에`（五點時）加禮貌 `요`，關門動作由問題承接。呢個係時間短答；獨立講「而家係五點」通常用 `다섯 시예요`。
     examples:
       - text: 다섯 시에요.
-        meaning: 五點鐘。
-        note: 回應舖頭幾點閂門；呢度係다섯 시에加요，唔係將繫詞예요寫錯。
+        meaning: 五點鐘。回應舖頭幾點閂門；呢度係 `다섯 시에` 加禮貌 `요`，關門動作由問題承接，唔係獨立報時嘅 `다섯 시예요`。
+        note: 試吓答六點關。答案：`여섯 시에요`。喺同一條「幾點關門」問題後，`에` 標示時間，`요` 令簡短答案禮貌；省略嘅動作仍然清楚。
   - subskill_id: checking_facts
-    explanation: 지요常縮成죠，可以請對方確認假定或之前提過嘅命題。
+    explanation: 你以為舖頭五點關，但想核實。`가게가 다섯 시에 닫죠?` 先提出你認為嘅事實，再用 `죠?` 請對方確認。`몇 시에` 則係問未知鐘點。
     examples:
       - text: 가게가 다섯 시에 닫죠?
-        meaning: 間舖頭五點閂門，係咪？
-        note: 講者核實提出咗嘅時間；呢度죠尋求確認，唔係問完全未知嘅鐘點。
+        meaning: 間舖頭五點閂門，係咪？ 講者核實提出咗嘅時間；呢度죠尋求確認，唔係問完全未知嘅鐘點。
+        note: 試吓核實舖頭係咪六點關。答案：`가게가 여섯 시에 닫죠?`。提出六點關門呢個說法，再用 `죠?` 求證。
   - subskill_id: useful_detail
-    explanation: 名詞前嘅分句可以識別物件；있다用있는將位置描述連到名詞。
+    explanation: 對方見到幾張椅，問用邊張。`창문 옆에 있는` 放喺 `의자` 前，指定窗旁嗰張；`쓰세요` 請對方用佢。位置細節消除選擇含糊。
     examples:
       - text: 창문 옆에 있는 의자를 쓰세요.
-        meaning: 用窗口隔籬嗰張凳。
-        note: 對方問用邊張凳時，창문 옆에 있는提供分辨位置。
-provenance:
+        meaning: 用窗口隔籬嗰張凳。 對方問用邊張凳時，창문 옆에 있는提供分辨位置。
+        note: 試吓叫佢用門旁嗰張椅。答案：`문 옆에 있는 의자를 쓰세요`。地標由 `창문` 換成 `문`；`있는` 仍放喺被識別嘅名詞前。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/information-exchange/korean-information-exchange-explained-in-english.yaml
-    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_predicates2026
     - htsk_permission2026
+    - nikl_ko_language_overview2026
+    - nikl_ko_time_fragment2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/information-exchange/korean-information-exchange-explained-in-english.yaml
-        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_predicates2026
-        - htsk_permission2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

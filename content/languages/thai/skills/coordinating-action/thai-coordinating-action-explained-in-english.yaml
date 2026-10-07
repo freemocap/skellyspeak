@@ -1,63 +1,97 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: ช่วย with an action and หน่อย can ask for help.
+    explanation: You need a colleague to bring a particular box near the door for loading. `ช่วย` before `ย้าย`
+      asks for the listener’s help with moving it; `กล่องนี้` identifies this box, and `ไปที่ประตู` gives the
+      destination. Final `หน่อย` makes the request less abrupt. The sentence asks the other person to act,
+      rather than asking whether moving boxes is possible.
     examples:
       - text: ช่วยย้ายกล่องนี้ไปที่ประตูหน่อย
         meaning: Please help move this box to the door.
-        note: Suitable in a cooperative context; additional polite particles depend on the speaker and
-          relationship.
+        note: "Try asking for this box to be moved to the window. Answer: `ช่วยย้ายกล่องนี้ไปที่หน้าต่างหน่อย` The
+          request frame stays; `ไปที่หน้าต่าง` changes the destination."
   - subskill_id: offers_invitations
-    explanation: A near-future statement with ให้ can offer a helpful action.
+    explanation: A companion is holding a heavy bag and you offer to carry it. `เดี๋ยว` places your action shortly
+      ahead; `ฉันถือกระเป๋า` says who will carry what. Final `ให้` marks the action as done for the other
+      person. In this context the statement functions as an offer, not just a prediction about the future.
     examples:
       - text: เดี๋ยวฉันถือกระเป๋าให้
         meaning: I’ll carry the bag for you.
-        note: The listener is the understood beneficiary; the speaker volunteers the action.
+        note: "Try offering to hold the box for the companion. Answer: `เดี๋ยวฉันถือกล่องให้` `ถือกล่อง` changes the
+          item; final `ให้` keeps the helpful offer."
   - subskill_id: suggestions
-    explanation: กัน can mark joint participation, and ไหม can invite uptake of a proposal.
+    explanation: The team has worked for a while and could pause. `พัก` names the proposed action; `กัน` includes
+      speaker and listeners in doing it together. `สักครู่` limits the break to a short time, and final `ไหม`
+      invites a response. The question proposes a shared next step rather than asking only whether rest is
+      physically possible.
     examples:
       - text: พักกันสักครู่ไหม
         meaning: Shall we take a short break?
-        note: The proposed break includes the speaker and listener.
+        note: "Try proposing that everyone talk briefly. Answer: `คุยกันสักครู่ไหม` `กัน` keeps the action shared, and
+          `ไหม` invites the group to accept or decline."
   - subskill_id: commitments
-    explanation: A future statement can take responsibility for an agreed task.
+    explanation: The group is allocating tools for tomorrow and you take that task. `พรุ่งนี้` sets the day; `ฉัน`
+      names the responsible speaker. `จะเอาเครื่องมือมา` presents bringing the tools as a future action, with
+      `มา` oriented toward the meeting place. The allocation context makes this an undertaking; `จะ` alone
+      does not turn every future statement into a promise.
     examples:
       - text: พรุ่งนี้ฉันจะเอาเครื่องมือมา
         meaning: I will bring the tools tomorrow.
-        note: Use while allocating tasks; the speaker undertakes to bring them.
+        note: "Try taking responsibility for bringing the key tomorrow. Answer: `พรุ่งนี้ฉันจะเอากุญแจมา` The speaker
+          and future frame stay, while `กุญแจ` replaces the tools."
   - subskill_id: accepting_declining
-    explanation: An inability statement can decline an invitation.
+    explanation: A friend invites you today, but you cannot go. `ขอโทษ` acknowledges the refusal; `วันนี้` limits
+      the problem to today. `ฉันไปไม่ได้` places `ไม่ได้` after the going action to say it cannot be done. In
+      an invitation exchange this declines attendance without requiring a separate explicit no.
     examples:
       - text: ขอโทษ วันนี้ฉันไปไม่ได้
         meaning: Sorry, I cannot go today.
-        note: The preceding invitation identifies the event being declined.
+        note: "Try declining an invitation for tomorrow. Answer: `ขอโทษ พรุ่งนี้ฉันไปไม่ได้` `พรุ่งนี้` changes the
+          relevant day; `ไปไม่ได้` still explains why you cannot accept."
   - subskill_id: negotiating_plans
-    explanation: State a scheduling constraint and propose an alternative.
+    explanation: Friday conflicts with your schedule, so you propose Saturday. `วันศุกร์ฉันไม่ว่าง` gives the
+      constraint. `เจอกันวันเสาร์` proposes meeting together on Saturday; `แทน` marks it as a replacement, and
+      `ได้ไหม` asks whether that plan works. The second part keeps negotiation open instead of merely refusing
+      Friday.
     examples:
       - text: วันศุกร์ฉันไม่ว่าง เจอกันวันเสาร์แทนได้ไหม
         meaning: I am not free on Friday. Can we meet on Saturday instead?
-        note: แทน marks Saturday as the replacement day.
-provenance: &a1
+        note: "Try saying Friday is unavailable and proposing Sunday instead. Answer: `วันศุกร์ฉันไม่ว่าง
+          เจอกันวันอาทิตย์แทนได้ไหม` `แทนได้ไหม` still offers a replacement and seeks agreement."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - niu_thai_hai2026
     - hartmann_thai_questions2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - niu_thai_hai2026
+        - hartmann_thai_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

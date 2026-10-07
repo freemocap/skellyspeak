@@ -1,59 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 아서 or 어서 can link a reason to an action or state. With 피곤하다, the connective form is 피곤해서.
+    explanation: You explain why you went to bed earlier than usual. `피곤해서` links being tired to the later
+      action `일찍 잤어요`; the polite past marking is on the main predicate. In this context the first clause
+      is a reason, not merely the next step in a sequence.
     examples:
       - text: 피곤해서 일찍 잤어요.
-        meaning: I went to bed early because I was tired.
-        note: The tiredness explains going to bed early. The past ending is on the main predicate 잤어요.
+        meaning: I went to bed early because I was tired. The tiredness explains going to bed early. The past
+          ending is on the main predicate 잤어요.
+        note: "Try it: say you rested because you were tired. Answer: `피곤해서 쉬었어요`. Keep the reason `피곤해서`; `쉬었어요`
+          states the resulting rest in the past."
   - subskill_id: consequences
-    explanation: 그래서 can introduce a consequence of a preceding circumstance. State enough of the
-      result to establish the connection.
+    explanation: You waited for a bus that never came and explain why you walked. `버스가 오지 않았어요` gives the
+      earlier circumstance; `그래서 걸어갔어요` presents walking as its consequence. `그래서` makes the link clearer
+      than simply listing two events.
     examples:
       - text: 버스가 오지 않았어요. 그래서 걸어갔어요.
-        meaning: The bus did not come, so I walked there.
-        note: 그래서 links the decision to walk to the absent bus, rather than merely listing a later
-          event.
+        meaning: The bus did not come, so I walked there. 그래서 links the decision to walk to the absent bus,
+          rather than merely listing a later event.
+        note: "Try it: say it rained, so you stayed inside. Answer: `비가 왔어요. 그래서 안에 있었어요`. The first sentence
+          supplies the circumstance; `그래서` connects it to remaining indoors."
   - subskill_id: conditions
-    explanation: 으면 or 면 attaches to a predicate stem to introduce a condition. The choice follows
-      the stem’s form.
+    explanation: You are planning where to work depending on the weather. `비가 오면` presents rain as a
+      condition; `안에서 작업할 거예요` is the plan if it occurs. `오면` has no separate future suffix even though
+      the situation is anticipated.
     examples:
       - text: 비가 오면 안에서 작업할 거예요.
-        meaning: If it rains, I will work inside.
-        note: 오면 is formed from 오다. The rain is a condition, not an asserted past event.
+        meaning: If it rains, I will work inside. 오면 is formed from 오다. The rain is a condition, not an asserted
+          past event.
+        note: "Try it: say that if it rains you will rest inside. Answer: `비가 오면 안에서 쉴 거예요`. Keep `오면` for the
+          condition; change the planned action to `쉴 거예요`."
   - subskill_id: contrast
-    explanation: 지만 attaches to a predicate stem and links it to a contrasting proposition.
+    explanation: You are choosing a walking route. `이 길은 짧지만` grants that the route is short; `가팔라요` adds the
+      drawback that it is steep. `-지만` joins the two opposing properties, and `가파르다` changes to `가팔라요` in
+      the polite ending.
     examples:
       - text: 이 길은 짧지만 가팔라요.
-        meaning: This route is short but steep.
-        note: The steepness offsets the advantage of a shorter route. 가팔라요 is an inflected form of 가파르다.
+        meaning: This route is short but steep. The steepness offsets the advantage of a shorter route. 가팔라요 is
+          an inflected form of 가파르다.
+        note: "Try it: say this route is long but gentle. Answer: `이 길은 길지만 완만해요`. `-지만` still links opposing
+          practical qualities; `완만해요` describes a gentle slope."
   - subskill_id: supporting_claims
-    explanation: A reason clause can supply evidence for an inference. 것 같아요 can make the conclusion
-      explicitly tentative.
+    explanation: You hear sounds inside a room and infer that someone is there. `안에서 소리가 들려서` supplies
+      observed evidence; `사람이 있는 것 같아요` states a tentative conclusion. The sound supports the inference,
+      but does not cause the person to exist.
     examples:
       - text: 안에서 소리가 들려서 사람이 있는 것 같아요.
-        meaning: I think someone is inside because I can hear a sound from within.
-        note: The sound is evidence for someone’s presence, not claimed to be its cause. The conclusion
-          is qualified.
+        meaning: I think someone is inside because I can hear a sound from within. The sound is evidence for
+          someone’s presence, not claimed to be its cause. The conclusion is qualified.
+        note: "Try it: infer that someone is inside because you hear a voice. Answer: `안에서 목소리가 들려서 사람이 있는 것
+          같아요`. Replace `소리` with the more specific `목소리`; keep the tentative conclusion."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_cause2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

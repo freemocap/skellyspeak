@@ -1,59 +1,72 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: 이분 politely refers to a person being introduced. A noun ending in a vowel takes 예요
-      in this polite identification.
+    explanation: At a first meeting, the speaker introduces a colleague respectfully. `이분은` makes this person
+      the topic, and `제` presents my modestly. `동료예요` identifies the relationship; the vowel-final noun
+      takes `예요`.
     examples:
       - text: 이분은 제 동료예요.
-        meaning: This person is my colleague.
-        note: 제 is the modest possessive my; 동료예요 identifies the relationship.
+        meaning: This person is my colleague. 제 is the modest possessive my; 동료예요 identifies the relationship.
+        note: "Try it: introduce a teacher instead. Answer: `이분은 제 선생님이에요`. `선생님` ends in a consonant, so the
+          polite noun ending is `이에요`, not `예요`."
   - subskill_id: qualities_states
-    explanation: A descriptive predicate takes a sentence ending directly. 넓다 becomes 넓어요 without an
-      additional copula.
+    explanation: Someone asks what this room is like. `이 방은` sets the room as topic; `넓어요` directly says it
+      is spacious. This descriptive predicate already has a polite ending and needs no separate word for
+      is.
     examples:
       - text: 이 방은 넓어요.
-        meaning: This room is spacious.
-        note: 은 marks the room as topic; 넓어요 supplies its physical property.
+        meaning: This room is spacious. 은 marks the room as topic; 넓어요 supplies its physical property.
+        note: "Try it: say this room is small. Answer: `이 방은 작아요`. Keep the topic phrase and use the descriptive
+          predicate `작아요`; do not attach a copula."
   - subskill_id: location_movement
-    explanation: A place expression with 에 and 있다 locates an object. The noun 위 identifies the top
-      of another object.
+    explanation: You are helping someone find a key. `열쇠가` marks the key as the item located; `책상 위에` says on
+      top of the desk, and `있어요` says it is there. `에` marks the static place; an action performed at a
+      desk would usually use `에서`.
     examples:
       - text: 열쇠가 책상 위에 있어요.
-        meaning: The key is on the desk.
-        note: 책상 위에 is the location. 있어요 states presence there, rather than an action performed there.
+        meaning: The key is on the desk. 책상 위에 is the location. 있어요 states presence there, rather than an action
+          performed there.
+        note: "Try it: locate the key under the desk. Answer: `열쇠가 책상 아래에 있어요`. Replace `위에` with `아래에`; `있어요`
+          still describes presence at a place."
   - subskill_id: possession_relations
-    explanation: 제 can modify a possessed noun. 것 can stand for an object already identified, with
-      거예요 as its common contracted polite form.
+    explanation: Someone asks whose umbrella this is. `이 우산은` sets this umbrella as topic; `제 거예요` means it
+      is mine. `거` is the everyday contracted form of `것` and avoids repeating umbrella; `제` does not
+      mark the speaker’s gender.
     examples:
       - text: 이 우산은 제 거예요.
-        meaning: This umbrella is mine.
-        note: 제 거 identifies ownership without repeating 우산. It does not indicate the speaker’s gender.
+        meaning: This umbrella is mine. 제 거 identifies ownership without repeating 우산. It does not indicate the
+          speaker’s gender.
+        note: "Try it: identify this bag as yours. Answer: `이 가방은 제 거예요`. Change the item to `가방`; keep `제 거예요`
+          because the owner is unchanged."
   - subskill_id: quantity_comparison
-    explanation: 보다 follows the comparison standard, and 더 can mark the greater degree. Descriptive
-      predicates still use their normal sentence endings.
+    explanation: You are deciding which box to carry. `저 상자보다` puts that box in the comparison-standard
+      position; `이 상자가` is the box being described. `더 가벼워요` says it is lighter, with `가볍다` taking its
+      inflected polite form.
     examples:
       - text: 이 상자가 저 상자보다 더 가벼워요.
-        meaning: This box is lighter than that box.
-        note: 가벼워요 is the inflected form of 가볍다. 보다 relates the two boxes on the weight scale.
+        meaning: This box is lighter than that box. 가벼워요 is the inflected form of 가볍다. 보다 relates the two boxes
+          on the weight scale.
+        note: "Try it: say that this box is heavier than that box. Answer: `이 상자가 저 상자보다 더 무거워요`. Keep the
+          comparison frame and change the weight predicate to `무거워요`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_predicates2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

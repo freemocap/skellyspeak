@@ -1,50 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Attach たい to the verb stem used before ます to express a desired action. Polite です
-      can follow it.
+    explanation: "You are telling a friend what you hope to learn. `自転車の修理を習いたいです` says you want to learn bicycle repair: `自転車の修理` names the skill, `を` marks what is learned, and `習いたい` joins the stem `習い` to `たい`, want to learn. `です` gives a polite ending. A wish is not yet a plan or a promise to enrol. `自転車を修理したいです` means you want to repair a bicycle yourself, which is a different desired action."
     examples:
       - text: 自転車の修理を習いたいです。
         meaning: I want to learn bicycle repair.
-        note: 習い is the stem of 習う. The speaker expresses a wish, not a promise to take a course.
+        note: "Say you want to learn cooking. `料理を習いたいです。` is a full desire statement; `料理を` changes the skill while `習いたい` still means want to learn."
   - subskill_id: preferences
-    explanation: 好き describes liking, often with が for the liked item. のほうが can select a favored
-      alternative in a comparison.
+    explanation: "You are choosing between coffee and black tea. `コーヒーより、紅茶のほうが好きです` makes black tea the preferred choice: `より` marks coffee as the comparison standard, `紅茶のほうが` singles out the tea side, and `好きです` describes liking. The speaker can be omitted when the choice is clearly yours. `コーヒーが好きです` merely says you like coffee; it does not compare the two. Reversing the preference exchanges the two drink names around `より` and `のほうが`."
     examples:
       - text: コーヒーより、紅茶のほうが好きです。
         meaning: I prefer black tea to coffee.
-        note: より introduces coffee as the comparison standard. The contrast concerns the speaker’s
-          preference.
+        note: "Prefer coffee instead. `紅茶より、コーヒーのほうが好きです。` is complete; tea becomes the comparison standard, and coffee becomes the preferred side before `のほうが`."
   - subskill_id: emotions
-    explanation: 安心する describes becoming or feeling relieved. Its polite past form can report the
-      emotional response to news just received.
+    explanation: "You have just heard that people arrived safely. `無事だと聞いて、安心しました` reports your reaction: `無事だ` is the plain proposition that they are safe, `と聞いて` means on hearing it, and `安心しました` means you felt relieved. The omitted person whose safety matters must come from the conversation. This is the speaker’s emotion after receiving news, not independent proof that everyone is safe."
     examples:
       - text: 無事だと聞いて、安心しました。
         meaning: I was relieved to hear that everyone was safe.
-        note: The preceding exchange must identify who was safe. 安心しました names the speaker’s relief, not
-          a claim about someone else’s private feelings.
+        note: "Say you were happy to hear they were safe. `無事だと聞いて、うれしかったです。` is a full emotional response; the news stays the same, and `うれしかったです` changes the feeling."
   - subskill_id: opinions
-    explanation: A plain proposition followed by と思います states what the speaker thinks. An
-      い-adjective retains its plain form before と.
+    explanation: "In a discussion of a proposal, you judge it favorably. `この案はいいと思います` means I think this proposal is good: `この案は` sets the proposal as topic, `いい` is the plain judgment, and `と思います` marks it as what you think. The quoted content before `と` stays plain, so `いいですと思います` is not this ordinary pattern. A bare `この案はいいです` evaluates the proposal without explicitly framing it as your thought. The sentence offers a viewpoint, not a request for clarification."
     examples:
       - text: この案はいいと思います。
         meaning: I think this proposal is good.
-        note: いい is quoted as part of the judgment. It does not become いいです before と in this ordinary
-          construction.
+        note: "State that you think the proposal is difficult. `この案は難しいと思います。` is a full opinion; `難しい` replaces the judgment while `と思います` still locates it with the speaker."
   - subskill_id: agreement_disagreement
-    explanation: そう can refer back to a position already expressed. も aligns the speaker with
-      another person’s view.
+    explanation: "A partner has just said the proposed route is good, and you share that view. `私もそう思います` says I think so too: `私` identifies the speaker, `も` adds them to the earlier thinker, and `そう` points back to the stated opinion. The prior view must be recoverable; without it, `そう` has no clear target. `なるほど` can acknowledge understanding without taking the same position."
     examples:
       - text: 私もそう思います。
         meaning: I think so too.
-        note: Reply to an identifiable opinion about the proposal. This expresses shared judgment, not
-          merely that the words were heard.
+        note: "Disagree with the stated view instead. `私はそう思いません。` is a full response when the earlier opinion is known; negative `思いません` changes the stance."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -54,7 +45,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

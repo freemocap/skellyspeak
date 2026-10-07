@@ -1,54 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: An ability suffix with progressive marking can describe current capability.
+    explanation: A team asks what repairs you know how to do. `Bisiklet` names the thing
+      repaired; `tamir etmek` is the compound verb for repairing, with `edebiliyorum`
+      carrying ability and a current first-person form. Here the context makes it a
+      practical skill claim, not permission to repair this particular bicycle.
     examples:
       - text: Bisiklet tamir edebiliyorum.
         meaning: I can repair bicycles.
-        note: In a discussion of practical skills, this states the speaker’s capability.
+        note: "State that you can repair a radio instead. Answer: `Radyo tamir edebiliyorum.`
+          Change the repair object to `Radyo`; `edebiliyorum` still presents your
+          capability."
   - subskill_id: permission
-    explanation: A first-person modal question can request authorization.
+    explanation: At a staffed counter, you ask whether you may leave your bag there. `Çantamı`
+      marks your specific bag as the object, `burada` is here, and `bırakabilir miyim?`
+      asks whether you can leave it. Addressed to the person controlling the space, this
+      is a permission request; `mi` is written separately.
     examples:
       - text: Çantamı burada bırakabilir miyim?
         meaning: May I leave my bag here?
-        note: Ask the person responsible for the space. The question particle remains separate.
+        note: "Ask permission to leave your coat here instead. Answer: `Montumu burada bırakabilir
+          miyim?` Replace the possessed object with `Montumu`; the same modal question
+          asks the person in charge for authorization."
   - subskill_id: obligation
-    explanation: A nominalized action with gerekiyor expresses necessity.
+    explanation: You borrowed a key and it must be returned today. `Anahtarı` identifies the
+      key, `bugün` sets the deadline, and `geri vermem gerekiyor` combines my returning
+      action with necessity. It states a requirement; removing a requirement with `gerek
+      yok` would not forbid the return.
     examples:
       - text: Anahtarı bugün geri vermem gerekiyor.
         meaning: I need to return the key today.
-        note: Vermem identifies the speaker’s returning action; bugün gives the deadline.
+        note: "Say you need to return the book today. Answer: `Kitabı bugün geri vermem
+          gerekiyor.` Change the object to `Kitabı`; `vermem gerekiyor` keeps the
+          speaker’s required action."
   - subskill_id: possibility
-    explanation: The modal suffix can present an event as possible.
+    explanation: You are deciding whether an evening event should be indoors. `Akşam` locates
+      the possible event in the evening, and `yağmur yağabilir` says rain may fall. Here
+      the modal ending expresses uncertainty about weather, not anyone’s ability.
     examples:
       - text: Akşam yağmur yağabilir.
         meaning: It may rain this evening.
-        note: This is a weather possibility, not a claim about someone’s ability.
+        note: "Say it may snow in the evening instead. Answer: `Akşam kar yağabilir.` Replace
+          `yağmur` with `kar`; `yağabilir` still presents a possible weather event."
   - subskill_id: certainty
-    explanation: Emin değilim denies certainty about the supplied proposition.
+    explanation: Someone asks whether the shop is open, and you have not checked. `Dükkânın
+      açık olduğundan` supplies the proposition about its being open; `emin değilim`
+      denies confidence in that proposition. This does not assert the shop is closed.
     examples:
       - text: Dükkânın açık olduğundan emin değilim.
         meaning: I am not sure that the shop is open.
-        note: The speaker is uncertain about opening, rather than asserting closure.
+        note: "Say you are sure the shop is open. Answer: `Dükkânın açık olduğundan eminim.`
+          Remove `değil` to affirm confidence; the proposition about opening stays the
+          same."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_modality2026
+    - tt_turkish_need2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

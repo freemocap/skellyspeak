@@ -1,61 +1,90 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A polite or plural imperative can request a concrete action.
+    explanation: In a shared workspace, you need someone to move a particular box. `Bu kutuyu`
+      marks this box as the object and `kapıya` gives the destination. `taşıyın` addresses
+      several people or one person politely; `lütfen` softens the request, while the
+      action remains an instruction.
     examples:
       - text: Bu kutuyu kapıya taşıyın, lütfen.
         meaning: Please move this box to the door.
-        note: Kutuyu marks the specific object and kapıya the destination.
+        note: "Ask the same listener to move the box to the shelf. Answer: `Bu kutuyu rafa
+          taşıyın, lütfen.` Replace the destination `kapıya` with `rafa`; the polite
+          instruction still requests an action."
   - subskill_id: offers_invitations
-    explanation: A first-person optative question can offer the speaker’s action.
+    explanation: A visitor is carrying a heavy bag, and you offer to help. `Çantanızı` means
+      the bag of the politely addressed listener. `taşıyayım mı?` asks whether the speaker
+      should carry it; the first-person optative makes this an offer rather than an order.
     examples:
       - text: Çantanızı taşıyayım mı?
         meaning: Shall I carry your bag?
-        note: The speaker offers to carry it for the politely addressed listener.
+        note: "Offer to carry the listener’s box instead. Answer: `Kutunuzu taşıyayım mı?` Change
+          the owned object to `kutunuzu`; `taşıyayım mı?` still offers the speaker’s
+          action."
   - subskill_id: suggestions
-    explanation: A first-person plural optative proposes joint action.
+    explanation: After working together for a while, you propose a pause. `Biraz` makes the
+      break short; `ara verelim` uses a first-person plural proposal, including the
+      speaker and listener. It suggests a shared action rather than asking the listener to
+      take a break alone.
     examples:
       - text: Biraz ara verelim.
         meaning: Let’s take a short break.
-        note: Verelim includes the speaker in the proposal.
+        note: "Propose a short walk together instead. Answer: `Biraz yürüyelim.` The first-person
+          plural `yürüyelim` includes both people, just as `verelim` does in the break
+          proposal."
   - subskill_id: commitments
-    explanation: A future statement can take responsibility for an agreed task.
+    explanation: A team is dividing tomorrow’s repair jobs, and you take charge of the tools.
+      `Aletleri` is the particular set of tools, `yarın` fixes the day, and `getireceğim`
+      marks the speaker’s future action. In this task-allocation exchange, the future
+      statement functions as a commitment.
     examples:
       - text: Aletleri yarın getireceğim.
         meaning: I will bring the tools tomorrow.
-        note: Use while allocating tasks; the speaker undertakes this one.
+        note: "Undertake to bring the parts tomorrow instead. Answer: `Parçaları yarın
+          getireceğim.` Replace the object with `parçaları`; the same future first-person
+          form commits you to that assigned job."
   - subskill_id: accepting_declining
-    explanation: An inability statement can decline an invitation.
+    explanation: Someone has invited you to come today, but you cannot. `Üzgünüm` gives an
+      apology, `bugün` identifies the day, and `gelemem` says you cannot come. The earlier
+      invitation supplies what is being declined; by itself the form only states
+      inability.
     examples:
       - text: Üzgünüm, bugün gelemem.
         meaning: Sorry, I cannot come today.
-        note: The previous invitation supplies the event being declined.
+        note: "A different friend invites you to an event tomorrow, but you cannot go. Answer:
+          `Üzgünüm, yarın gelemem.` Change the day to `yarın`; the new invitation makes
+          the inability a refusal."
   - subskill_id: negotiating_plans
-    explanation: A constraint followed by a proposal supplies an alternative plan.
+    explanation: A partner proposes meeting Friday, but that day does not work for you. `Cuma
+      günü uygun değilim` states the conflict; `Cumartesi buluşalım` proposes a Saturday
+      meeting that includes both people. The second sentence repairs the plan instead of
+      merely rejecting it.
     examples:
       - text: Cuma günü uygun değilim. Cumartesi buluşalım.
         meaning: I am not available on Friday. Let’s meet on Saturday.
-        note: The second sentence makes a concrete replacement proposal.
+        note: "Counter with Sunday after ruling out Friday. Answer: `Cuma günü uygun değilim.
+          Pazar buluşalım.` Keep the reason Friday fails and replace the proposed meeting
+          day with `Pazar`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_optative2026
     - tt_turkish_modality2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

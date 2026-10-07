@@ -1,59 +1,59 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 動詞て形加ください，請對方做一件事。加埋賓語同目的地，要求會更清楚。
+    explanation: "你需要同事將箱搬到入口。`この箱を入口まで運んでください` 係請對方做事：`この箱` 係呢個箱，`を` 標搬運對象，`入口まで` 係搬到入口為止，`運んでください` 係 `運ぶ` 嘅請求式。動詞嘅 `て` 形連到 `ください`；`まで` 講終點，唔係邊個搬。某啲場合 `運んでもらえませんか` 更婉轉，`運びます` 則係陳述會搬。"
     examples:
       - text: この箱を入口まで運んでください。
         meaning: 唔該搬呢個箱去入口。
-        note: 運んで係運ぶ嘅て形；まで交代要搬到邊度。
+        note: "改請同事將呢個袋搬到入口：`このかばんを入口まで運んでください。`。`このかばんを` 改咗物件，`入口まで` 保留同一終點。"
   - subskill_id: offers_invitations
-    explanation: ましょうか可以主動提出幫忙，問句將接唔接受嘅決定交畀對方。
+    explanation: "對方拎住太多嘢。`荷物を持ちましょうか` 係主動幫忙：`荷物を` 係要拎嘅行李，`持ち` 係 `持つ` 嘅詞幹，`ましょうか` 問對方想唔想由你做。情境已經清楚係你提供幫手，所以可以省略主語。`荷物を持ってください` 反而係請對方拎。問句畀對方接受或婉拒嘅空間。"
     examples:
       - text: 荷物を持ちましょうか。
         meaning: 要唔要我幫你拎行李？
-        note: 對方拎住袋時用。持ちましょうか係提出幫忙，唔係宣布已經講好嘅承諾。
+        note: "改為主動拎箱：`箱を持ちましょうか。`。講者仍然提出自己幫手，`箱を` 取代行李做對象。"
   - subskill_id: suggestions
-    explanation: ましょう可以提議講者同聽者一齊行動，參與者唔一定要明講。
+    explanation: "大家做咗一陣嘢，需要休息。`ここで少し休みましょう` 提議一齊行動：`ここで` 係喺呢度休息，`少し` 係一陣，`休みましょう` 係「我哋休息啦」。大家知道參與者係邊個，就唔使講出主語。`休みます` 可以只係報告安排或個人動作；`ましょう` 先將其他人帶入建議。`休みましょうか` 則可以問係咪休息。"
     examples:
       - text: ここで少し休みましょう。
         meaning: 不如我哋喺度抖一陣。
-        note: 休みましょう提議休息；で標示活動地點。
+        note: "提議去外面休息一陣：`外で少し休みましょう。`。`外で` 改地點，`休みましょう` 保留共同提議。"
   - subskill_id: commitments
-    explanation: 非過去式可以表示承擔獲分配嘅工作。明講私が，可以指出由自己負責。
+    explanation: "隊伍分配用品，有人問邊個帶工具。`私が道具を持ってきます` 接受工作：`私が` 特別指出由講者負責，`道具を` 係工具，`持ってきます` 係帶嚟共同目的地。日語非過去 `ます` 可以講之後嘅安排；分工語境令呢句成為承諾，唔只係預測。大家已知邊個時可以省略 `私が`，但明講就回應「邊個」。"
     examples:
       - text: 私が道具を持ってきます。
         meaning: 我會帶工具。
-        note: 活動分工時用；が指出負責人。如果只係中性報告將來事件，對話作用就唔同。
+        note: "改為負責帶地圖：`私が地図を持ってきます。`。共同安排下呢句係完整承擔；`私が` 指邊個負責，`地図を` 改用品。"
   - subskill_id: accepting_declining
-    explanation: 禮貌道歉加否定能力句，可以拒絕邀請。邀請本身交代咗建議嘅行程。
+    explanation: "朋友請你今日一齊去，但你去唔到。`すみません、今日は行けません` 用道歉同原因婉拒：`すみません` 緩和語氣，`今日は` 限定今日，`行けません` 係 `行く` 嘅禮貌否定可能形，表示去唔到。邀請已講咗目的地同活動，所以可以省略。`今日は行きません` 只講唔去，語氣同「去唔到」有別；上文邀請先顯示回應係拒絕。"
     examples:
       - text: すみません、今日は行けません。
         meaning: 唔好意思，我今日嚟唔到。
-        note: 回應今日嘅邀請。行けません係行く嘅否定可能形，唔係話個目的地不存在。
+        note: "改為婉拒聽日嘅探訪：`すみません、明日は行けません。`。`明日は` 改咗原定日子，`行けません` 仍表示無法參與。"
   - subskill_id: negotiating_plans
-    explanation: 將唔合適嘅日子同可行日子作對比；なら將替代方案框定為可以接受安排嘅條件。
+    explanation: "對方提議星期五見面，但你星期六得。`金曜日は難しいですが、土曜日なら大丈夫です` 先講星期五有困難，再提出星期六可行。`は` 將兩日列為話題，`ですが` 有禮貌噉接對比，`なら` 係「如果係星期六」或「至於星期六」。呢度 `大丈夫です` 係個安排得。因為正回應原有計劃，所以係協商；冇上文可能只係講空閒時間。`金曜日は難しいですが` 係婉轉拒絕星期五，唔係話呢日天生困難。"
     examples:
       - text: 金曜日は難しいですが、土曜日なら大丈夫です。
         meaning: 星期五唔係咁方便，但星期六就得。
-        note: 回應星期五見面嘅提議。難しい委婉表示有困難；土曜日なら提供可行選擇。
+        note: "星期五唔得，改提星期日：`金曜日は難しいですが、日曜日なら大丈夫です。`。前半婉拒星期五，`日曜日なら` 提出可行替代。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/coordinating-action/japanese-coordinating-action-explained-in-english.yaml
-    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -63,13 +63,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/coordinating-action/japanese-coordinating-action-explained-in-english.yaml
-        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

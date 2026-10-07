@@ -1,74 +1,115 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Sampai with a future encounter time is a conventional leave-taking expression. It
-      can close the exchange without a full clause.
+    explanation: You are leaving after a visit and expect to meet again tomorrow.
+      `Sampai besok` is a short leave-taking that names the next encounter; at
+      the start of a visit it would not close the exchange.
     examples:
       - text: Sampai besok!
-        meaning: See you tomorrow!
-        note: Say this at the end of a visit when another meeting is expected tomorrow.
+        meaning: See you tomorrow. `Sampai` in this expression points toward the next
+          meeting and `besok` means tomorrow. Its conversational position gives
+          it a closing role.
+        note: "Close with a meeting next week. Answer: `Sampai minggu depan!` Replace
+          the next-meeting time. A quoted phrase in a vocabulary list would not
+          itself take leave."
   - subskill_id: acknowledging
-    explanation: Mengerti can mark understanding of the preceding explanation. Adding sekarang can
-      indicate that it has become clear.
+    explanation: Someone explains how a tool works. `Oh` registers the new
+      information, and `sekarang saya mengerti` says you understand it now. This
+      is receipt, not automatic agreement with a recommendation.
     examples:
       - text: Oh, sekarang saya mengerti.
-        meaning: Oh, now I understand.
-        note: Use after someone explains how the tool works. This acknowledges comprehension without
-          promising to use it.
+        meaning: Oh, now I understand. `sekarang` means now and `mengerti` means
+          understand. The reply tells the partner their explanation reached you.
+        note: "Acknowledge without the time word. Answer: `Oh, saya mengerti.` Remove
+          `sekarang`. `Saya setuju` would express agreement instead."
   - subskill_id: clarification
-    explanation: A passive question with diulangi can request repetition without specifying the
-      person who will repeat. The preceding utterance supplies what needs repeating.
+    explanation: You missed part of the partner’s last sentence. `Bisa diulangi?`
+      requests another utterance; the attached `di-` is part of the passive verb
+      form, unlike separate location `di`.
     examples:
       - text: Bisa diulangi?
-        meaning: Could you repeat that?
-        note: Use after missing part of what the partner said. Di- belongs to the verb here and is
-          written attached.
+        meaning: Could you repeat that? `diulangi` means be repeated. The short question
+          relies on the immediately preceding speech for what should be
+          repeated.
+        note: "Ask about the meaning instead. Answer: `Apa maksudnya?` That repairs
+          interpretation. If you simply did not hear the words, keep `Bisa
+          diulangi?`"
   - subskill_id: rephrasing
-    explanation: Dengan kata lain introduces another way of expressing the same point. Its following
-      content should clarify the earlier explanation.
+    explanation: "The partner has explained that same-day orders cannot be filled.
+      `Dengan kata lain` introduces the practical restatement: the group must
+      order earlier."
     examples:
       - text: Dengan kata lain, kita perlu memesan lebih awal.
-        meaning: In other words, we need to order earlier.
-        note: Rephrases an explanation that orders placed on the day of the event cannot be fulfilled.
-          Lebih awal makes the practical consequence clear.
+        meaning: In other words, we need to order earlier. `kita` includes the listener
+          in the group, `perlu` says need, and `memesan lebih awal` means order
+          earlier. The second wording preserves the earlier constraint rather
+          than changing the rule.
+        note: "Restate “Orders must be placed in advance” as “We need to order earlier.”
+          Answer: `Pesanan harus dibuat lebih awal. Dengan kata lain, kita perlu
+          memesan lebih awal.` The second sentence keeps the same timing
+          requirement."
   - subskill_id: correcting_misunderstanding
-    explanation: Maksud saya identifies the intended meaning. Bukan contrasts the mistaken nominal
-      alternative.
+    explanation: The partner heard Friday, but you intended Saturday. `Maksud saya`
+      identifies your intended meaning and `bukan Jumat` excludes the mistaken
+      day.
     examples:
       - text: Maksud saya hari Sabtu, bukan Jumat.
-        meaning: I mean Saturday, not Friday.
-        note: Use after the partner interprets the proposed meeting day as Friday. The sentence replaces
-          that interpretation.
+        meaning: I mean Saturday, not Friday. `hari Sabtu` is the intended day and
+          `Jumat` the rejected one. The contrast repairs the schedule without
+          needing to retell the whole plan.
+        note: "Correct a mistaken Sunday to Monday. Answer: `Maksud saya hari Senin,
+          bukan Minggu.` State the intended day before the rejected day."
   - subskill_id: turns_topics
-    explanation: Boleh can ask for a turn or an opportunity to contribute. The setting establishes
-      that the request manages the discussion.
+    explanation: During a discussion, you want a turn to contribute. `Boleh saya
+      ...?` seeks permission to speak, while `menambahkan sesuatu` leaves the
+      point unspecified until you get the floor.
     examples:
       - text: Boleh saya menambahkan sesuatu?
-        meaning: May I add something?
-        note: Use when seeking a turn to contribute to the current discussion. Sesuatu leaves the
-          addition unspecified until the turn is granted.
+        meaning: May I add something? `saya` is the prospective speaker, `menambahkan`
+          means add, and `sesuatu` means something. The question manages the
+          exchange rather than testing physical ability.
+        note: "Ask to pose one question. Answer: `Boleh saya mengajukan satu
+          pertanyaan?` This also seeks a turn but names the contribution. `Saya
+          menambahkan sesuatu` announces an act without asking for the floor."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

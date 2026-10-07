@@ -1,63 +1,102 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A farewell can name the next expected meeting.
+    explanation: You are leaving a colleague after arranging to meet again next week. `До встречи` is a farewell
+      that anticipates another meeting; `на следующей неделе` fixes when that meeting is expected. The phrase
+      closes the current exchange rather than asking for a new appointment.
     examples:
       - text: До встречи на следующей неделе!
         meaning: See you next week!
-        note: This closes the current exchange while referring to the planned next contact.
+        note: "Try closing the conversation with an expected meeting tomorrow. Answer: `До встречи завтра!` `До
+          встречи` remains the farewell, while `завтра` changes the next meeting time."
   - subskill_id: acknowledging
-    explanation: Понятно can acknowledge that an explanation has become clear.
+    explanation: A colleague has just explained a confusing step. `А` marks your moment of recognition, and
+      `теперь понятно` says the explanation is clear now. The person who understands is supplied by the
+      conversation. Acknowledging understanding does not by itself mean you agree with the explanation’s
+      recommendation.
     examples:
       - text: А, теперь понятно.
         meaning: Ah, now I understand.
-        note: Use after an explanation; comprehension does not necessarily mean agreement.
+        note: "Try acknowledging comprehension without the opening interjection. Answer: `Теперь понятно.` The phrase
+          still tells the colleague that the explanation has become clear."
   - subskill_id: clarification
-    explanation: A polite imperative can ask the speaker to repeat a contribution.
+    explanation: You did not hear or understand the previous instruction. `Повторите` is a polite singular-address
+      or plural imperative asking the other person to repeat it; `пожалуйста` softens the interruption. This
+      repairs trouble with what was said, rather than checking whether an external fact is true.
     examples:
       - text: Повторите, пожалуйста.
         meaning: Please repeat that.
-        note: The prior contribution identifies what needs repeating; no quotation is required.
+        note: "Try asking the speaker to explain once more rather than simply repeat. Answer: `Объясните ещё раз,
+          пожалуйста.` The polite imperative changes to `объясните`, while `ещё раз` requests another
+          explanation."
   - subskill_id: rephrasing
-    explanation: Другими словами explicitly introduces an alternative formulation.
+    explanation: A visitor heard that this service requires a booking made before arrival. `Другими словами`
+      signals that you are restating the same rule. `Нужно записаться` gives the practical requirement to
+      register or book, and `заранее` specifies in advance. A useful rephrasing keeps the prior rule intact
+      while making its consequence clearer.
     examples:
       - text: Другими словами, нужно записаться заранее.
         meaning: In other words, you need to book in advance.
-        note: Use after explaining an appointment procedure; this restates its practical implication.
+        note: "Try restating the advance-booking rule as booking before the visit. Answer: `Другими словами, нужно
+          записаться до визита.` `Другими словами` signals a restatement; `до визита` makes the deadline
+          explicit."
   - subskill_id: correcting_misunderstanding
-    explanation: Иметь в виду identifies the intended meaning and can contrast it with a mistaken
-      interpretation.
+    explanation: A listener thought you said Friday, but you meant Saturday. `Я имела в виду` means “I meant”;
+      `имела` is feminine singular past, so this example is voiced by a feminine speaker. `Субботу, не
+      пятницу` gives both the intended day and the mistaken one in the accusative, making the repair
+      unambiguous.
     examples:
       - text: Я имела в виду субботу, не пятницу.
         meaning: I meant Saturday, not Friday.
-        note: The feminine speaker corrects the day understood by the listener.
+        note: "Try correcting someone who heard Saturday when this same feminine speaker meant Sunday. Answer: `Я
+          имела в виду воскресенье, не субботу.` The intended day comes first; `не субботу` rejects the
+          mistaken day."
   - subskill_id: turns_topics
-    explanation: A permission-shaped question can request a topic transition.
+    explanation: The group has finished one issue and you want to ask about another. `Можно я` asks permission to
+      take the next conversational move; `перейду` is perfective future for moving to the next topic. `К
+      другому вопросу` names that topic with `к` plus dative. The question manages the discussion, not
+      physical movement.
     examples:
       - text: Можно я перейду к другому вопросу?
         meaning: May I move on to another question?
-        note: The requested action concerns the conversation itself.
-provenance: &a1
+        note: "Try asking to move on to the schedule. Answer: `Можно я перейду к расписанию?` `Можно я перейду` still
+          requests the floor; `к расписанию` names the new topic."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_imperative2026
     - cornell_russian_modality2026
+    - cornell_russian_past2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_imperative2026
+        - cornell_russian_modality2026
+        - cornell_russian_past2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

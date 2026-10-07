@@ -1,49 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: こちら can politely introduce someone. の links the colleague relationship to the
-      person named, and さん respectfully follows that person’s name.
+    explanation: "You are introducing Tanaka to someone who has not met them. `こちらは同僚の田中さんです` identifies the person respectfully: `こちら` points to the person, `は` sets them as topic, `同僚の田中さん` names Tanaka as a colleague, and `さん` is a respectful name suffix. The speaker’s relationship to Tanaka comes from the introduction context; an explicit `私の` is often unnecessary. `こちらは田中さんです` still identifies Tanaka but does not say how you know them."
     examples:
       - text: こちらは同僚の田中さんです。
         meaning: This is my colleague Tanaka.
-        note: The introduction supplies whose colleague is meant through the situation. It does not need
-          an explicit 私の.
+        note: "Introduce Sato as your colleague. `こちらは同僚の佐藤さんです。` is a full introduction; `佐藤さん` changes the person, while `同僚の` keeps the relationship."
   - subskill_id: qualities_states
-    explanation: An い-adjective can describe a property. In polite speech, です follows the adjective;
-      it does not require an additional だ.
+    explanation: "A visitor asks what this road is like. `この道は狭いです` says it is narrow: `この道` means this road, `は` marks it as topic, and `狭い` is the property. Polite `です` follows the full `い` adjective; adding `だ` before it would be malformed in this ordinary pattern. This is an attribute of the road, not a direction or an identification of who owns it."
     examples:
       - text: この道は狭いです。
         meaning: This road is narrow.
-        note: 狭い is the adjective. は marks この道 as the topic being described.
+        note: "Describe the road as wide. `この道は広いです。` is complete; `広い` replaces `狭い` while the road remains the topic."
   - subskill_id: location_movement
-    explanation: Use に with あります to locate an inanimate object. A relational noun such as 上
-      identifies the location relative to another object.
+    explanation: "You have misplaced a key and someone tells you where it is. `鍵は棚の上にあります` locates an inanimate object: `鍵は` sets the key as topic, `棚の上` means the top of the shelf, `に` marks that place, and `あります` says it is there. The relational noun `上` needs `棚の` to say what it is above. For a person, `います` would normally replace `あります`. An activity on the shelf would be marked differently, often with `で`, while this sentence reports location."
     examples:
       - text: 鍵は棚の上にあります。
         meaning: The key is on the shelf.
-        note: 棚の上 means the top of the shelf; に marks that as the key’s location.
+        note: "Locate the key under the shelf instead. `鍵は棚の下にあります。` is a full location statement; `下に` changes the relation from on top to underneath."
   - subskill_id: possession_relations
-    explanation: の after a person can form a possessive expression. When the possessed item is
-      already identified, の can stand without repeating its noun.
+    explanation: "Someone asks whose umbrella this is. `この傘は姉のです` answers that it is your older sister’s: `この傘は` names the item, `姉` is older sister from the speaker’s perspective, and final `の` stands for the already mentioned umbrella after naming the owner. `姉の傘です` repeats the item explicitly. Japanese does not need an English-style apostrophe. If the owner is your younger sister, `妹のです` changes the relation but keeps the possessive pattern."
     examples:
       - text: この傘は姉のです。
         meaning: This umbrella is my older sister’s.
-        note: 姉 refers to the speaker’s older sister here. の indicates possession and leaves 傘
-          understood.
+        note: "Say it belongs to your younger sister. `この傘は妹のです。` is a full answer to whose umbrella; `妹の` changes the owner while the umbrella stays understood."
   - subskill_id: quantity_comparison
-    explanation: Comparisons can put the standard before より and the preferred side of the scale
-      before のほうが. The final adjective supplies the property being compared.
+    explanation: "You need to choose which of two boxes is easier to carry. `あの箱より、この箱のほうが軽いです` compares weight: `あの箱より` marks that box as the standard, `この箱のほうが` picks this box as the side being judged, and `軽い` means light. Together they mean this one is lighter than that one. `この箱が好きです` would express preference rather than a weight comparison. Reversing the two boxes changes which one is lighter."
     examples:
       - text: あの箱より、この箱のほうが軽いです。
         meaning: This box is lighter than that box.
-        note: 軽い compares weight. The statement does not itself express a preference about which box to
-          choose.
+        note: "State that the other box is lighter. `この箱より、あの箱のほうが軽いです。` is a full comparison; this box becomes the standard and that box the lighter one."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -53,7 +45,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

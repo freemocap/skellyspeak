@@ -1,56 +1,67 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: malayalam-cantonese-teaching-expanded-2026-10-07
 language: malayalam
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 與格感受者配合ആഗ്രഹമുണ്ട്，可以表達想做某件事。
+    explanation: 你對縫紉班有興趣，想學呢門技能。`എനിക്ക്` 指有願望嘅人；`തയ്യൽ പഠിക്കാൻ` 講想學縫紉，`ആഗ്രഹമുണ്ട്`
+      講有呢個願望。想學唔等於答應完成某項工作。
     examples:
       - text: എനിക്ക് തയ്യൽ പഠിക്കാൻ ആഗ്രഹമുണ്ട്.
-        meaning: 我想學縫紉。
-        note: പഠിക്കാൻ指出想學嘅行動，冇作出承諾。
+        meaning: 我想學縫紉。`തയ്യൽ` 係縫紉，`പഠിക്കാൻ` 係去學；`ആഗ്രഹമുണ്ട്` 由願望 `ആഗ്രഹം` 同有 `ഉണ്ട്` 組成。
+        note: 試講你想學游水。答案：`എനിക്ക് നീന്തൽ പഠിക്കാൻ ആഗ്രഹമുണ്ട്.` 將 `തയ്യൽ` 換成 `നീന്തൽ`；想學唔等於
+          `എനിക്ക് നീന്താൻ കഴിയും` 所講嘅已經識游。
   - subskill_id: preferences
-    explanation: ഇഷ്ടം配合與格感受者同另一個比較選項，可以表達喜好。
+    explanation: 茶同咖啡都有，你講邊樣較鍾意。`എനിക്ക്` 指有喜好嘅人；`കാപ്പിയെക്കാൾ` 將咖啡放喺比較基準，後面突出 `ചായയാണ്` 呢個較鍾意嘅茶。
     examples:
       - text: എനിക്ക് കാപ്പിയെക്കാൾ ചായയാണ് ഇഷ്ടം.
-        meaning: 比起咖啡，我鍾意茶多啲。
-        note: ചായയാണ്將茶突出為較鍾意嘅選項。
+        meaning: 比起咖啡，我鍾意茶多啲。`കാപ്പിയെക്കാൾ` 係比咖啡，`ചായയാണ്` 將茶同 `ആണ്` 接埋突出，`ഇഷ്ടം` 係喜歡。
+        note: 試改成較鍾意咖啡。答案：`എനിക്ക് ചായയെക്കാൾ കാപ്പിയാണ് ഇഷ്ടം.` 交換飲品，`ചായയെക്കാൾ`
+          成為比較基準，`കാപ്പിയാണ്` 突出咖啡；單講鍾意茶就冇呢個比較。
   - subskill_id: emotions
-    explanation: 感受結構可以描述聽到消息後嘅情緒反應。
+    explanation: 聽到消息之後，你講自己當時變得開心。`ഈ വാർത്ത കേട്ടപ്പോൾ` 先講聽到呢個消息嘅時候；`എനിക്ക്`
+      標感受者，`സന്തോഷമായി` 報告情緒變化。唔係單單話有聽到消息。
     examples:
       - text: ഈ വാർത്ത കേട്ടപ്പോൾ എനിക്ക് സന്തോഷമായി.
-        meaning: 聽到呢個消息，我好開心。
-        note: എനിക്ക്指出感到開心嘅人。
+        meaning: 聽到呢個消息，我好開心。`ഈ വാർത്ത` 係呢個消息，`കേട്ടപ്പോൾ` 係聽到嗰陣；`സന്തോഷമായി` 表達變得開心。
+        note: 試講聽到嗰個消息時好開心。答案：`ആ വാർത്ത കേട്ടപ്പോൾ എനിക്ക് സന്തോഷമായി.` 將 `ഈ` 換成 `ആ`；仍有
+          `സന്തോഷമായി` 講反應，單講聽到消息唔會表達感受。
   - subskill_id: opinions
-    explanation: തോന്നുന്നു可以將前面或後面嘅命題表達成個人印象。
+    explanation: 大家討論一個做事方法，你覺得佢容易。`ഈ രീതി` 係呢種方法；`എളുപ്പമാണെന്ന്` 將「容易」呢個判斷接到 `എനിക്ക്
+      തോന്നുന്നു`「我覺得」，令句子係個人印象。
     examples:
       - text: ഈ രീതി എളുപ്പമാണെന്ന് എനിക്ക് തോന്നുന്നു.
-        meaning: 我覺得呢個方法容易。
-        note: എന്ന്連接印象嘅具體內容。
+        meaning: 我覺得呢個方法容易。`എളുപ്പമാണെന്ന്` 將容易同連接成分 `എന്ന്` 接埋；`എനിക്ക്` 係對我，`തോന്നുന്നു` 係似乎。
+        note: 試講你覺得呢個方法難。答案：`ഈ രീതി ബുദ്ധിമുട്ടാണെന്ന് എനിക്ക് തോന്നുന്നു.` 將容易嘅判斷換成
+          `ബുദ്ധിമുട്ടാണെന്ന്`；保留 `എനിക്ക് തോന്നുന്നു`，仍係你嘅印象。
   - subskill_id: agreement_disagreement
-    explanation: യോജിക്കുക配合適當補語表示同意，加否定就係反對。
+    explanation: 同事提出建議，你唔支持。`ഈ നിർദ്ദേശത്തോട്` 標明係對呢個建議，`യോജിക്കുന്നില്ല` 否定同意；呢個係明確立場，唔同
+      `മനസ്സിലായി` 單講明白。
     examples:
       - text: ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നില്ല.
-        meaning: 我唔同意呢個建議。
-        note: നിർദ്ദേശത്തോട്指出反對嘅建議。
+        meaning: 我唔同意呢個建議。`ഞാൻ` 係我，`ഈ നിർദ്ദേശത്തോട്` 係對呢個建議；句尾 `യോജിക്കുന്നില്ല` 係唔同意。
+        note: 試改成同意。答案：`ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നു.` 將否定 `യോജിക്കുന്നില്ല` 換成肯定
+          `യോജിക്കുന്നു`；保留建議嘅關係形式，仍講明同意乜。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/malayalam/skills/feelings-viewpoints/malayalam-feelings-viewpoints-explained-in-english.yaml
-    at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
+    - moagMalayalamTeaching20261007
     - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
+    - utMalayalamSandhiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: malayalam-cantonese-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   malayalam-kerala:
     disposition: use_core
@@ -58,14 +69,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/malayalam/skills/feelings-viewpoints/malayalam-feelings-viewpoints-explained-in-english.yaml
-        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - nizar_malayalam_dative2010
         - ut_malayalam_dialogues2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: malayalam-cantonese-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

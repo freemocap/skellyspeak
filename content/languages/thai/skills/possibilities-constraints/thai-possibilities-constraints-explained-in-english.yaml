@@ -1,56 +1,87 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: เป็น after an activity can indicate knowing how to perform it.
+    explanation: A friend asks whether swimming is a skill you have learned. `ฉันว่ายน้ำ` names the activity;
+      final `เป็น` says you know how to do it. This differs from `ได้`, which may concern practical ability or
+      permission in context, and from `ไหว`, which can concern physical capacity.
     examples:
       - text: ฉันว่ายน้ำเป็น
         meaning: I know how to swim.
-        note: เป็น here expresses acquired ability, not an identifying copula.
+        note: "Try saying you know how to ride a bicycle. Answer: `ฉันขี่จักรยานเป็น` `เป็น` still marks a learned
+          skill; `ขี่จักรยาน` changes the activity."
   - subskill_id: permission
-    explanation: An action followed by ได้ไหม can request permission.
+    explanation: You are in a shared room and ask the person responsible whether you may leave a bag here.
+      `ฉันวางกระเป๋าไว้ตรงนี้` describes leaving the bag here; final `ได้ไหม` asks whether that action is
+      allowed. The social setting makes permission the relevant reading, though the same form can concern
+      practical feasibility elsewhere.
     examples:
       - text: ฉันวางกระเป๋าไว้ตรงนี้ได้ไหม
         meaning: May I leave my bag here?
-        note: Address the person responsible for the space to establish the permission context.
+        note: "Try asking whether you may leave the key here. Answer: `ฉันวางกุญแจไว้ตรงนี้ได้ไหม` `ได้ไหม` still
+          seeks permission; `กุญแจ` replaces the bag."
   - subskill_id: obligation
-    explanation: ต้อง before an action states a requirement.
+    explanation: You borrowed a key and it is due back today. `ฉันต้อง` identifies the speaker’s requirement;
+      `คืนกุญแจ` is the action of returning the key, and `วันนี้` gives the deadline. `ไม่ต้อง` would remove
+      the requirement; it would not mean that returning the key is forbidden.
     examples:
       - text: ฉันต้องคืนกุญแจวันนี้
         meaning: I must return the key today.
-        note: วันนี้ gives the deadline and ต้อง makes returning necessary.
+        note: "Try saying you must return the book today. Answer: `ฉันต้องคืนหนังสือวันนี้` `ต้อง` keeps the
+          obligation; `คืนหนังสือ` names the new item to return."
   - subskill_id: possibility
-    explanation: อาจจะ can qualify an event as possible.
+    explanation: You are deciding whether an evening outdoor plan is sensible. `เย็นนี้` sets the time;
+      `ฝนอาจจะตก` says rain may fall. `อาจจะ` leaves the weather outcome open rather than asserting that rain
+      is certain. The sentence concerns event possibility, not a person’s skill.
     examples:
       - text: เย็นนี้ฝนอาจจะตก
         meaning: It may rain this evening.
-        note: The weather outcome remains uncertain.
+        note: "Try saying it may rain tomorrow. Answer: `พรุ่งนี้ฝนอาจจะตก` `อาจจะ` retains uncertainty; `พรุ่งนี้`
+          changes the time."
   - subskill_id: certainty
-    explanation: ไม่แน่ใจ expresses uncertainty about a following proposition.
+    explanation: Someone asks whether the shop is still open, and you do not know. `ฉันไม่แน่ใจ` states the
+      speaker’s uncertainty; `ว่า` introduces what is uncertain. `ร้านยังเปิดอยู่` says the shop remains open.
+      The sentence limits confidence and does not assert that the shop has closed.
     examples:
       - text: ฉันไม่แน่ใจว่าร้านยังเปิดอยู่
         meaning: I am not sure the shop is still open.
-        note: The speaker does not assert that the shop has closed.
-provenance: &a1
+        note: "Try saying you are not sure the door is still open. Answer: `ฉันไม่แน่ใจว่าประตูยังเปิดอยู่`
+          `ไม่แน่ใจว่า` keeps the uncertain stance; the clause changes to the door."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - niu_thai_hai2026
     - fsi_thai_time2026
+    - niu_thai_skill2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - niu_thai_hai2026
+        - fsi_thai_time2026
+        - niu_thai_skill2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

@@ -1,69 +1,57 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: ukrainian-teaching-cantonese-2026-10-07
 language: ukrainian
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Це引出識別名詞短語，唔需要現在時繫詞。
+    explanation: 介紹住喺附近嘅女性時，`Це` 指向呢個人；`моя сусідка` 講佢同你嘅關係。`моя` 同 `сусідка` 都係陰性單數，呢種現在時身份句唔使明講「係」。
     examples:
       - text: Це моя сусідка.
-        meaning: 呢位係我鄰居。
-        note: Моя配合陰性сусідка；鄰居係女性。
+        meaning: 呢位係我鄰居。 `Моя`配合陰性`сусідка`；鄰居係女性。
+        note: 試改為介紹女性朋友。答案：`Це моя подруга.` `Подруга` 仍係陰性，所以保留 `моя`；名詞轉換人物關係。
   - subskill_id: qualities_states
-    explanation: 述語形容詞要同描述嘅主語配合。
+    explanation: 訪客問前面條街點樣。`Ця вулиця` 係呢條街，`вузька` 係窄；`ця` 同 `вузька` 都用陰性單數，配合 `вулиця`，唔使現在時繫詞。
     examples:
       - text: Ця вулиця вузька.
-        meaning: 呢條街好窄。
-        note: Ця同вузька都係陰性單數，配合вулиця。
+        meaning: 呢條街好窄。 `Ця`同`вузька`都係陰性單數，配合`вулиця`。
+        note: 試講呢條街闊。答案：`Ця вулиця широка.` 保留陰性主語，用陰性 `широка` 講相反性質。
   - subskill_id: location_movement
-    explanation: На配合位置格，將物件定位喺表面。
+    explanation: 有人搵鎖匙。`Ключ` 係要搵嘅物件，`лежить` 講佢放喺度，`на полиці` 係架上面。靜態位置嘅 `на` 後，`полиця` 變 `полиці`；移上去係另一種關係。
     examples:
       - text: Ключ лежить на полиці.
-        meaning: 鎖匙喺個架上面。
-        note: 呢個結構嘅полиці係полиця嘅位置格。
+        meaning: 鎖匙喺個架上面。 呢個結構嘅`полиці`係`полиця`嘅位置格。
+        note: 試講鎖匙喺枱面。答案：`Ключ лежить на столі.` 靜態 `на` 同 `лежить` 保留；新表面用位置格 `столі`。
   - subskill_id: possession_relations
-    explanation: У加屬格擁有者，配合є，表示擁有。
+    explanation: 點算傢俬時，講者話自己有兩張凳。`У мене є` 指物主同物件存在，`два стільці` 講數量。`у` 後用 `мене`，唔係主格 `я`。
     examples:
       - text: У мене є два стільці.
-        meaning: 我有兩張凳。
-        note: Мене指出擁有者；два стільці交代物件數量。
+        meaning: 我有兩張凳。 `Мене`指出擁有者；`два стільці`交代物件數量。
+        note: 試改成有兩張枱。答案：`У мене є два столи.` 保留物主結構，兩張枱用 `два столи`。
   - subskill_id: quantity_comparison
-    explanation: 比較級可以用за引出基準。
+    explanation: 揀搬邊個箱時，`Ця коробка` 係被比較嘅箱；陰性比較級 `легша` 配合佢。`за ту` 用陰性形式指出另一個箱做基準，毋須重複 `коробка`。
     examples:
       - text: Ця коробка легша за ту.
-        meaning: 呢個箱比嗰個輕。
-        note: Легша配合коробка；ту指另一個箱，唔重複名詞。
-provenance:
+        meaning: 呢個箱比嗰個輕。 `Легша`配合`коробка`；`ту`指另一個箱，唔重複名詞。
+        note: 試講呢個箱比嗰個重。答案：`Ця коробка важча за ту.` 保留比較基準，用陰性 `важча` 講較重。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/ukrainian/skills/people-places/ukrainian-people-places-explained-in-english.yaml at
-    revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese Ukrainian teaching paired with the English guide; original principal
+    target text preserved. Independent linguistic and Cantonese review pending.
   sources:
     - ukma_ukrainian_terms2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: ukrainian-teaching-cantonese-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/ukrainian/skills/people-places/ukrainian-people-places-explained-in-english.yaml
-        at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - ukma_ukrainian_terms2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

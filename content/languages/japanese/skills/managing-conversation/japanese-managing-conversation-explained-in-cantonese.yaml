@@ -1,59 +1,59 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: では可以帶入結束對話嘅話語；また加時間，表示期待下次見面。
+    explanation: "會議要完，你預計下星期再見。`では、また来週` 用嚟道別：`では` 帶出轉往離開，`また` 係再，`来週` 係下星期再接觸。因為情境清楚，可以省略「見面」個動詞。喺會議開頭，單提下星期可能只係講日期；呢度整句係結束對話。"
     examples:
       - text: では、また来週。
         meaning: 咁下星期見喇。
-        note: 聚會完結時用。来週已經交代下次時間，唔使明講見面動詞。
+        note: "預計聽日再見時道別：`では、また明日。`。喺呢個情境已經完整；`明日` 改下一次見面時間。"
   - subskill_id: acknowledging
-    explanation: なるほど表示聽者覺得解釋講得通，唔一定係認同意見。
+    explanation: "有人解釋咗之前唔明嘅地方。`なるほど、そういうことですね` 表示而家明白：`なるほど` 係「原來如此」，`そういうこと` 指對方意思，`ですね` 核實大家理解一致。呢句唔一定贊成對方意見，亦唔一定接受工作。`わかりました` 都可以表示明白，但仍要睇前文嘅對話作用。先前解釋提供 `そういう` 所指嘅內容。"
     examples:
       - text: なるほど、そういうことですね。
         meaning: 原來係咁，你係呢個意思。
-        note: 解釋消除咗疑惑後，講者確認理解內容。
+        note: "簡短回應解釋：`なるほど、わかりました。`。聽完解釋後，呢句完整表示明白，唔會自動表達同意。"
   - subskill_id: clarification
-    explanation: もう一度係再一次，配合お願いします可以請人重複頭先聽唔清嘅說話。
+    explanation: "你冇聽清楚上一句，想再聽一次。`すみません、もう一度お願いします` 有禮貌噉請人重講：`すみません` 緩和打斷，`もう一度` 係再一次，`お願いします` 係請對方做。省略嘅對象就係啱啱講過嘅句子。呢句修補聽漏；聽到字但唔明意思，就可以問 `どういう意味ですか`。唔使重複自己冇聽到嘅句子，請人再講已經完整。"
     examples:
       - text: すみません、もう一度お願いします。
         meaning: 唔好意思，可唔可以再講一次？
-        note: 要重複嘅內容由上句提供，唔係核實已經聽明嘅事實真唔真。
+        note: "改問意思而唔係重講：`すみません、どういう意味ですか。`。已聽清字但唔明時，`どういう意味` 問字句意思。"
   - subskill_id: rephrasing
-    explanation: つまり引出前述重點嘅清楚總結，新講法要保留相關意思。
+    explanation: "訪客聽咗要預早預約嘅規則，但想知實際意思。`つまり、予約が必要ということです` 係重述：`つまり` 帶出總結，`予約が必要` 係必須預約，`ということです` 表示呢個係前述規則嘅意思。有用改述要保留原本要求，同時講得更清楚。若原規則唔使預約，呢句就係改政策，唔係解釋。單講 `つまり` 冇實際改述內容。"
     examples:
       - text: つまり、予約が必要ということです。
         meaning: 即係話，要預約。
-        note: 之前解釋訪客要提早安排，呢句簡化重點；ということです交代實際意思。
+        note: "原規則話訪客要電話預約，簡單重述為：`つまり、電話で予約する必要があるということです。`。`電話で` 保留方法，`予約する必要がある` 保留必須預約。"
   - subskill_id: correcting_misunderstanding
-    explanation: ではなく將誤解同真正意思作對比；つもりでした可以解釋原本想點。
+    explanation: "對方以為約星期六，但你原意係星期日。`土曜日ではなく、日曜日のつもりでした` 清楚修正：`土曜日ではなく` 排除星期六，`日曜日の` 指星期日先係原定選項，`つもりでした` 係我本來打算。呢句修正自己意思，唔係討論星期六一般好唔好。若上文清楚，單講 `日曜日のつもりでした` 亦可能夠，但兩個日子都講出更明確。"
     examples:
       - text: 土曜日ではなく、日曜日のつもりでした。
         meaning: 我係指星期日，唔係星期六。
-        note: 對方以為約星期六見面，用呢句明確更正原定安排。
+        note: "將對方誤聽嘅星期五改正為星期日：`金曜日ではなく、日曜日のつもりでした。`。前半排除聽錯嘅日子，後半講明你本意。"
   - subskill_id: turns_topics
-    explanation: 話は変わりますが宣布轉話題，後面要講新主題，唔好只留低過場句。
+    explanation: "大家傾完一個議題，你想轉去下星期安排。`話は変わりますが、来週の予定を確認してもいいですか` 管理轉話題：`話は変わりますが` 預告話題改變，`来週の予定を` 指新主題，`確認してもいいですか` 問可唔可以核對。前半令聽者有準備，唔係突然轉話題。`てもいいですか` 呢度請求做呢件事嘅空間，亦管理發言次序。若冇真正轉話題，開頭就冇同樣作用。"
     examples:
       - text: 話は変わりますが、来週の予定を確認してもいいですか。
         meaning: 講開另一件事，我可唔可以確認吓下星期嘅安排？
-        note: 開場處理話題轉換，問句就引出下一個討論內容。
+        note: "改為轉去聽日時間表：`話は変わりますが、明日の予定を確認してもいいですか。`。`明日の予定` 係新主題，句尾請求發言。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/managing-conversation/japanese-managing-conversation-explained-in-english.yaml
-    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -63,13 +63,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/managing-conversation/japanese-managing-conversation-explained-in-english.yaml
-        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

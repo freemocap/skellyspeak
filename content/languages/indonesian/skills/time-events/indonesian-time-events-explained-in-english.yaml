@@ -1,71 +1,117 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Sedang before a verb makes an ongoing activity explicit. The verb is not conjugated
-      for the speaker’s person.
+    explanation: A colleague asks what you are doing now. `sedang` before
+      `menggambar` presents drawing as in progress. The verb does not acquire an
+      English-style present tense ending.
     examples:
       - text: Saya sedang menggambar peta.
-        meaning: I am drawing a map.
-        note: Sedang presents drawing as in progress. It does not say the map is finished.
+        meaning: I am drawing a map. `Saya` is the speaker, `sedang menggambar` the
+          ongoing drawing, and `peta` the map. The sentence does not say the map
+          is finished.
+        note: "Say you are drawing a poster now. Answer: `Saya sedang menggambar
+          poster.` Replace the object; keep `sedang` for an ongoing activity.
+          `Saya menggambar poster` could be habitual in another context."
   - subskill_id: past_events
-    explanation: A time expression such as kemarin can locate an event in the past. The verb itself
-      does not need a past-tense ending.
+    explanation: You report yesterday’s printing. `Kemarin` places the event in the
+      past; `mencetak` itself has no past-tense ending. The surrounding time
+      word supplies the temporal reading.
     examples:
       - text: Kemarin saya mencetak poster.
-        meaning: Yesterday I printed posters.
-        note: Kemarin anchors the printing yesterday; mencetak remains the same verb form used in other
-          time contexts.
+        meaning: Yesterday I printed posters. `Saya mencetak poster` says the speaker
+          printed posters, and initial `Kemarin` says when. It reports an event
+          rather than merely naming a poster.
+        note: "Move the printing to tomorrow. Answer: `Besok saya mencetak poster.`
+          Replace `kemarin` with `besok`; the verb form can remain the same when
+          the time context changes."
   - subskill_id: future_events
-    explanation: Akan can mark an anticipated action, and besok specifies tomorrow. Future reference
-      is also possible from a time expression and context without akan.
+    explanation: You tell the team about tomorrow’s poster work. `Besok` fixes the
+      day, `akan` presents the plan as later, and `kami` includes the speaker’s
+      group but excludes the listener.
     examples:
       - text: Besok kami akan memasang poster.
-        meaning: Tomorrow we will put up posters.
-        note: Kami excludes the listener from we. Akan and besok place the installation later.
+        meaning: Tomorrow we will put up posters. `memasang poster` means putting up
+          posters. The future reading comes from `besok` and `akan`, not an
+          ending on `memasang`.
+        note: "Include the listener in the plan. Answer: `Besok kita akan memasang
+          poster.` Replace `kami` with `kita`; the action and time stay the same
+          but the participants change."
   - subskill_id: duration_frequency
-    explanation: Selama with a time quantity states duration. A separate expression such as setiap
-      Jumat gives recurrence.
+    explanation: You are explaining a weekly practice schedule. `selama dua jam`
+      measures each session’s duration, while `setiap Jumat` says how often it
+      repeats.
     examples:
       - text: Kami berlatih selama dua jam setiap Jumat.
-        meaning: We practise for two hours every Friday.
-        note: Dua jam measures each practice period, not an hour on the clock. Setiap Jumat gives the
-          schedule.
+        meaning: We practise for two hours every Friday. `Kami berlatih` names the
+          group’s practice and excludes the listener from that group. `dua jam`
+          is two hours of duration, unlike clock time `jam dua`.
+        note: "Make each Friday session three hours. Answer: `Kami berlatih selama tiga
+          jam setiap Jumat.` Change only `dua` to `tiga`; keep the weekly
+          marker."
   - subskill_id: event_sequence
-    explanation: Pertama and lalu order steps in a procedure. Imperatives can state what to do at each step.
+    explanation: You are giving the order for preparing paint. `Pertama` labels the
+      first step; `Lalu` leads to the next. These markers order actions without
+      claiming the first causes the second.
     examples:
       - text: Pertama, pilih warna. Lalu, campurkan cat.
-        meaning: First, choose a colour. Then mix the paint.
-        note: The markers order the actions without claiming that choosing a colour causes the mixing.
+        meaning: First, choose a colour. Then mix the paint. `Pilih warna` tells the
+          listener to choose a colour, then `campurkan cat` asks them to mix the
+          paint. The command forms address the listener directly.
+        note: "Choose green, then mix blue and yellow paint to make it. Answer:
+          `Pertama, pilih warna hijau. Lalu, campurkan cat biru dan kuning.`
+          The chosen colour guides the following paint-mixing step; `Pertama`
+          and `Lalu` retain the order."
   - subskill_id: event_phase
-    explanation: Selesai can explicitly mark finishing an activity. Sudah presents that completion
-      as achieved.
+    explanation: A colleague asks whether the posters are ready. `sudah selesai
+      mencetak` explicitly says printing is finished; `sudah` alone can mark a
+      changed state in other sentences, so name the finished task.
     examples:
       - text: Saya sudah selesai mencetak poster.
-        meaning: I have finished printing the posters.
-        note: Selesai mencetak names the completed task; this says more than simply locating some
-          printing yesterday.
+        meaning: I have finished printing the posters. `Saya` identifies the speaker and
+          `mencetak poster` the task. `selesai` is the completion word; the
+          sentence goes beyond merely saying the printing happened yesterday.
+        note: "Say the printing is not finished yet. Answer: `Saya belum selesai
+          mencetak poster.` Replace `sudah` with `belum`; `belum` means not yet,
+          not a timeless no."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

@@ -1,70 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: "Γεια σας is an everyday greeting with respectful or plural address. Its
-      conversational place matters: it opens the encounter here. A brief greeting can be a
-      complete social contribution without a separate verb or self-introduction."
+    explanation: You meet a person at the repair shop for the first time. `Γεια σας` greets one person
+      respectfully or several people; `Τι κάνετε;` follows with the matching second-person plural
+      verb. With a familiar single person, the corresponding forms are `Γεια σου` and `Τι κάνεις;`.
     examples:
       - text: Γεια σας! Τι κάνετε;
-        meaning: Hello! How are you?
-        note: Use this on meeting a new acquaintance. Σας and κάνετε maintain respectful address; the
-          question has Greek ; punctuation.
+        meaning: Hello! How are you? `σας` and `κάνετε` maintain respectful or plural address throughout the
+          greeting.
+        note: "Try it: greet one familiar friend and ask how they are. Answer: `Γεια σου! Τι κάνεις;`.
+          Switch both the greeting pronoun and verb to singular familiar address."
   - subskill_id: acknowledging
-    explanation: Κατάλαβα can show that you have understood what the other person explained. It is a
-      first-person past form used here as a present conversational response. Understanding an
-      explanation does not necessarily mean agreeing with its opinion.
+    explanation: The mechanic has just explained where to leave the bicycle. `Κατάλαβα` acknowledges
+      that you understood the explanation; `ευχαριστώ` thanks them. This does not mean you agree
+      with an opinion or authorize a plan.
     examples:
       - text: Κατάλαβα, ευχαριστώ.
-        meaning: I understand, thank you.
-        note: Use this after the other person explains where to leave the bicycle. It acknowledges
-          receipt and understanding rather than promising to perform another task.
+        meaning: I understand, thank you. `Κατάλαβα` reports comprehension of the instruction and
+          `ευχαριστώ` responds politely.
+        note: "Try it: acknowledge the instruction without adding thanks. Answer: `Κατάλαβα`. This works
+          because the preceding explanation makes clear what you understood."
   - subskill_id: clarification
-    explanation: Ask τι εννοείτε με to identify a word or expression whose meaning you need
-      clarified. Respectful εννοείτε addresses the listener. Quoting the troublesome expression
-      focuses the repair on that part of the prior utterance.
+    explanation: The mechanic mentions a back entrance, but you are unsure which doorway they mean. `Τι
+      εννοείτε με` asks what they mean by the quoted expression; `εννοείτε` uses respectful or
+      plural address. This seeks meaning, not whether the entrance exists.
     examples:
       - text: Τι εννοείτε με «πίσω είσοδο»;
-        meaning: What do you mean by “back entrance”?
-        note: Use this after the other person mentions a back entrance and you do not know which
-          entrance that means. The question repairs understanding; it does not just check an
-          opening time.
+        meaning: What do you mean by “back entrance”? `Τι εννοείτε με` asks for an explanation of the quoted
+          words `πίσω είσοδο`.
+        note: "Try it: ask what they mean by “side entrance.” Answer: `Τι εννοείτε με «πλαϊνή είσοδο»;`.
+          Keep the clarification frame and replace only the expression needing explanation."
   - subskill_id: rephrasing
-    explanation: Δηλαδή can introduce a clearer explanation of what you just said. The new
-      formulation should help the listener understand the previous one rather than silently
-      change its meaning. It can also request clarification when used as a question.
+    explanation: "A customer may not understand “it needs more work.” `Δηλαδή` introduces a plainer
+      restatement: the repair is not ready. The second sentence explains the first; it does not
+      report a second unrelated problem."
     examples:
       - text: Χρειάζεται ακόμα δουλειά. Δηλαδή, η επισκευή δεν είναι έτοιμη.
-        meaning: It still needs work. In other words, the repair is not ready.
-        note: The second sentence explains the repair’s unfinished state more explicitly. Both sentences
-          belong to the same speaker; this is not a two-person dialogue.
+        meaning: It still needs work. In other words, the repair is not ready. `Δηλαδή` signals that `η
+          επισκευή δεν είναι έτοιμη` restates the unfinished state.
+        note: "Try it: rephrase “The shop is closed” as “It is not open.” Answer: `Το συνεργείο είναι
+          κλειστό. Δηλαδή, δεν είναι ανοιχτό`. Use `Δηλαδή` only because the second clause explains
+          the first."
   - subskill_id: correcting_misunderstanding
-    explanation: Εννοώ can name what you intend to say, and όχι can contrast it with the mistaken
-      interpretation. State both referents when that makes the correction easier to follow; no
-      particular past tense is required to perform this repair.
+    explanation: The other person thinks you said Friday, but you meant Saturday. `Εννοώ` introduces the
+      intended day; `όχι` directly rejects the mistaken one. Both day expressions are accusative
+      time phrases.
     examples:
       - text: Εννοώ το Σάββατο, όχι την Παρασκευή.
-        meaning: I mean Saturday, not Friday.
-        note: Use this after the listener takes the proposed visit to be on Friday. The sentence
-          explicitly corrects the intended day.
+        meaning: I mean Saturday, not Friday. `το Σάββατο` is the corrected day; `όχι την Παρασκευή`
+          explicitly removes Friday from the plan.
+        note: "Try it: correct someone who thought you meant Saturday when you meant Friday. Answer: `Εννοώ
+          την Παρασκευή, όχι το Σάββατο`. Swap the days and keep each day’s article."
   - subskill_id: turns_topics
-    explanation: "A question with μπορώ να can ask for a turn to speak, while σχετικά με names the
-      topic. The physical ability to speak is not the point: the speaker is managing
-      participation and focus in the exchange."
+    explanation: During a group discussion, you want a turn to discuss the route. `Μπορώ να πω κάτι`
+      asks to say something; `σχετικά με τη διαδρομή` identifies the topic. The question seeks the
+      floor rather than testing your physical ability to speak.
     examples:
       - text: Μπορώ να πω κάτι σχετικά με τη διαδρομή;
-        meaning: May I say something about the route?
-        note: Use this during a group discussion when seeking a turn. Να πω names the proposed
-          contribution, and σχετικά με τη διαδρομή introduces its subject.
+        meaning: May I say something about the route? `Μπορώ να πω κάτι` requests a turn; `σχετικά με τη
+          διαδρομή` says what the comment concerns.
+        note: "Try it: ask to say something about the repair. Answer: `Μπορώ να πω κάτι σχετικά με την
+          επισκευή;`. Keep the turn request; change the topic phrase to feminine accusative `την
+          επισκευή`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -75,10 +82,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

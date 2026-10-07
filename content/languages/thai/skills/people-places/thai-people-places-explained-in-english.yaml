@@ -1,57 +1,86 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: นี่คือ introduces an identification, and ของ can connect a person to the speaker.
+    explanation: You are introducing a neighbour to a visitor. `นี่คือ` points out and identifies the person;
+      `เพื่อนบ้าน` names the relationship, and `ของฉัน` connects that neighbour to the speaker. The sentence
+      identifies a person, not a place or a property of the visitor.
     examples:
       - text: นี่คือเพื่อนบ้านของฉัน
         meaning: This is my neighbour.
-        note: ฉัน is one first-person choice; speakers may use other socially appropriate self-reference
-          terms.
+        note: "Try introducing your teacher. Answer: `นี่คือครูของฉัน` `นี่คือ` still identifies the person;
+          `ครูของฉัน` changes the relationship."
   - subskill_id: qualities_states
-    explanation: An adjective can directly predicate a property.
+    explanation: Someone asks what this road is like. `ถนนสายนี้` identifies this particular road; `แคบ` directly
+      describes it as narrow. Thai can use a quality word as the predicate here without inserting `เป็น` as an
+      English-style “is.”
     examples:
       - text: ถนนสายนี้แคบ
         meaning: This road is narrow.
-        note: สายนี้ identifies this road; แคบ supplies the property without เป็น.
+        note: "Try describing this road as wide. Answer: `ถนนสายนี้กว้าง` The road reference stays; `กว้าง` gives the
+          opposite quality."
   - subskill_id: location_movement
-    explanation: อยู่ with a positional phrase locates an object.
+    explanation: A friend is looking for a key. `กุญแจ` names the item; `อยู่` places it at a location, and
+      `บนโต๊ะ` specifies on the table. This is a static where-answer; a direction toward the table would
+      require a movement construction.
     examples:
       - text: กุญแจอยู่บนโต๊ะ
         meaning: The key is on the table.
-        note: บนโต๊ะ identifies the supporting surface.
+        note: "Try saying the key is under the table. Answer: `กุญแจอยู่ใต้โต๊ะ` `อยู่` keeps the location reading;
+          `ใต้โต๊ะ` changes the position."
   - subskill_id: possession_relations
-    explanation: มี can state possession, with a classifier after a counted noun’s number.
+    explanation: You are counting folding chairs available for guests. `ฉันมี` states that the speaker has them;
+      `เก้าอี้พับ` is the item. `สองตัว` places the number before classifier `ตัว`, used with chairs as legged
+      furniture. It counts two chairs, not chair model number two.
     examples:
       - text: ฉันมีเก้าอี้พับสองตัว
         meaning: I have two folding chairs.
-        note: สองตัว counts the chairs; no plural ending is added.
+        note: "Try saying you have three folding chairs. Answer: `ฉันมีเก้าอี้พับสามตัว` `มี` keeps possession;
+          `สามตัว` changes the count while retaining the chair classifier."
   - subskill_id: quantity_comparison
-    explanation: กว่า introduces the standard in a comparison.
+    explanation: You are deciding which box is easier to carry. `กล่องนี้` is this box, the item being evaluated;
+      `เบา` describes it as light. `กว่า` introduces `กล่องนั้น` as the comparison standard. The sentence
+      compares weight rather than the number of boxes.
     examples:
       - text: กล่องนี้เบากว่ากล่องนั้น
         meaning: This box is lighter than that box.
-        note: เบา concerns weight, and กว่า links it to the other box.
-provenance: &a1
+        note: "Try saying this box is heavier than that box. Answer: `กล่องนี้หนักกว่ากล่องนั้น` `หนัก` reverses the
+          weight property, while `กว่า` keeps the comparison."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - hartmann_thai_questions2026
     - niu_thai_hai2026
+    - niu_thai_classifiers2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - hartmann_thai_questions2026
+        - niu_thai_hai2026
+        - niu_thai_classifiers2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

@@ -1,41 +1,39 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: πότε 問幾時；問句可以沿用一般動詞結構，唔需要英文式助動詞。希臘文問號寫作 ;。
+    explanation: 送單車維修前，你要知聽日開門時間。`Πότε` 問幾時，`ανοίγει` 係開門，配合單數 `το συνεργείο`；`αύριο` 限定日子，留下鐘點畀對方答。希臘文問號外形似分號。
     examples:
       - text: Πότε ανοίγει το συνεργείο αύριο;
-        meaning: 間維修舖聽日幾點開門？
-        note: πότε 問時間，αύριο 指日子；ανοίγει 係第三人稱單數，主語係 το συνεργείο。
+        meaning: 問維修舖聽日幾點開。`Πότε` 問時間；`αύριο` 指聽日，`το συνεργείο` 係被問嘅維修舖。
+        note: 試吓問聽日幾點關門。答案：`Πότε κλείνει το συνεργείο αύριο;`。將 `ανοίγει` 換成 `κλείνει`；仍然用 `Πότε` 問時間。
   - subskill_id: answering_information
-    explanation: 回答可以只提供被問資訊。鐘點用 στις 加時間；事件同日子清楚時唔使重複成句。
+    explanation: 對方已經問咗維修舖聽日幾點開，回答可以只講鐘點。`στις` 引出時間，例如 `στις εννέα`；`το πρωί` 講明係朝早。主語同動詞由前一句補足。
     examples:
       - text: Στις εννέα το πρωί.
-        meaning: 朝早九點。
-        note: 回答維修舖聽日幾點開；冇問題語境時，呢個短語唔會自動交代邊件事。
+        meaning: 朝早九點。`Στις εννέα` 係鐘點，`το πρωί` 分清朝早同夜晚；喺呢段對話中，簡短答案已經完整。
+        note: 試吓答朝早八點開。答案：`Στις οκτώ το πρωί`。只改鐘點；維修舖同開門呢件事由問題承接。
   - subskill_id: checking_facts
-    explanation: 是非問句可以提出具體說法供確認。措辭似陳述句時，標點或語調標示疑問；用嚟核實候選事實。
+    explanation: 出發前想核實聽到嘅開門時間，可以先講你認為正確嘅資料，再加 `σωστά;` 問係咪啱。呢度核實事實；問某個詞係咩意思係另一種問題。
     examples:
       - text: Το συνεργείο ανοίγει στις εννέα, σωστά;
-        meaning: 間維修舖九點開門，啱唔啱？
-        note: σωστά; 請對方確認時間；如果問題係聽漏詞語，就可能要改為釐清問題。
+        meaning: 維修舖九點開，啱唔啱？`Το συνεργείο ανοίγει στις εννέα` 講出待核實嘅時間；`σωστά;` 請對方確認或改正。
+        note: 試吓核實維修舖係咪六點關門。答案：`Το συνεργείο κλείνει στις έξι, σωστά;`。講明待核實嘅關門時間，再用 `σωστά;`。
   - subskill_id: useful_detail
-    explanation: 補充能幫對方識別地方或使用資訊嘅細節。名詞短語同位置短語已可能足夠，唔需要特定「細節時態」。
+    explanation: 地址可能只帶人去到大樓，未必搵到入口。`Η είσοδος είναι` 引出入口位置；`στην πίσω πλευρά` 縮窄到後面，`του κτιρίου` 指明係嗰棟樓。
     examples:
       - text: Η είσοδος είναι στην πίσω πλευρά του κτιρίου.
-        meaning: 入口喺棟樓後面。
-        note: 畀咗地址之後，再精確交代入口；του κτιρίου 係屬格，指出邊棟樓。
-provenance:
+        meaning: 入口喺大樓後面。`στην πίσω πλευρά` 交代後側位置；屬格 `του κτιρίου` 指明係邊棟樓。
+        note: 試吓話入口喺大樓前面。答案：`Η είσοδος είναι στην μπροστινή πλευρά του κτιρίου`。改前後位置，保留 `του κτιρίου` 指大樓。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/information-exchange/greek-information-exchange-explained-in-english.yaml
-    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -43,25 +41,10 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/information-exchange/greek-information-exchange-explained-in-english.yaml
-        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-        - tsaggalidis_el_person2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

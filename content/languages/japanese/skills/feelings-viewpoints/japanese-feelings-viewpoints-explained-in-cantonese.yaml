@@ -1,53 +1,53 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 喺ます前面嗰個動詞詞幹加たい，表達想做嘅事，後面可加です表示禮貌。
+    explanation: "你同朋友講自己想學乜。`自転車の修理を習いたいです` 係想學單車維修：`自転車の修理` 係技能，`を` 標學習對象，`習いたい` 由 `習い` 詞幹加 `たい` 組成，表示想學；`です` 令句尾有禮貌。想學唔等於已經安排報班或承諾。`自転車を修理したいです` 則係想自己修單車，所想做嘅事唔同。"
     examples:
       - text: 自転車の修理を習いたいです。
         meaning: 我想學整單車。
-        note: 習い係習う嘅詞幹；講者表達願望，唔係承諾報班。
+        note: "講想學煮食：`料理を習いたいです。`。`料理を` 改學習項目，`習いたい` 仍表示想學。"
   - subskill_id: preferences
-    explanation: 好き表達鍾意，喜歡嘅對象常用が標示；のほうが可以喺比較入面指出較鍾意嗰個。
+    explanation: "你喺咖啡同紅茶之間揀。`コーヒーより、紅茶のほうが好きです` 係較鍾意紅茶：`より` 將咖啡設為比較基準，`紅茶のほうが` 指較鍾意嘅一邊，`好きです` 講喜好。若大家知道係你揀飲品，就可省略講者。`コーヒーが好きです` 只講鍾意咖啡，冇比較。要反轉喜好，就要交換 `より` 同 `のほうが` 兩邊嘅飲品。"
     examples:
       - text: コーヒーより、紅茶のほうが好きです。
         meaning: 比起咖啡，我鍾意紅茶多啲。
-        note: より引出咖啡作比較基準；呢個對比關乎講者喜好。
+        note: "改為較鍾意咖啡：`紅茶より、コーヒーのほうが好きです。`。紅茶變比較基準，咖啡放喺 `のほうが` 前成為較鍾意嗰樣。"
   - subskill_id: emotions
-    explanation: 安心する描述放心或鬆一口氣；禮貌過去式可以報告啱啱收到消息後嘅心情。
+    explanation: "你啱啱聽到大家安全到達。`無事だと聞いて、安心しました` 講自己嘅反應：`無事だ` 係「平安」嘅普通形說法，`と聞いて` 係聽到之後，`安心しました` 係鬆咗口氣。邊個平安，要靠前文知道。呢句講聽消息之後嘅情緒，唔係獨立證明所有人真係平安。"
     examples:
       - text: 無事だと聞いて、安心しました。
         meaning: 聽到大家都平安，我鬆咗一口氣。
-        note: 前文要交代邊啲人平安。安心しました講自己放心，唔係斷言他人內心感受。
+        note: "講聽到平安消息後覺得開心：`無事だと聞いて、うれしかったです。`。消息冇變，`うれしかったです` 改咗感受。"
   - subskill_id: opinions
-    explanation: 普通體命題加と思います，表達自己嘅想法；い形容詞喺と前保留普通體形式。
+    explanation: "討論提案時，你覺得佢好。`この案はいいと思います` 係「我認為呢個提案好」：`この案は` 將提案設為話題，`いい` 係普通形判斷，`と思います` 表示呢個係你嘅想法。`と` 前面保留普通形，所以一般唔寫成 `いいですと思います`。單講 `この案はいいです` 係評價提案，但冇明示「我認為」。呢句係觀點，唔係請人澄清。"
     examples:
       - text: この案はいいと思います。
         meaning: 我覺得呢個建議好。
-        note: いい係判斷內容一部分；一般呢個結構唔會喺と前改成いいです。
+        note: "講你認為提案有難度：`この案は難しいと思います。`。`難しい` 改判斷，`と思います` 仍表明係講者嘅看法。"
   - subskill_id: agreement_disagreement
-    explanation: そう指返之前提出嘅立場；も表示自己同另一個人睇法一致。
+    explanation: "對方啱啱話某條路好，你同意。`私もそう思います` 係「我都咁諗」：`私` 指講者，`も` 將你加到原先持意見嘅人，`そう` 指返之前講嘅觀點。前一個觀點要清楚，否則 `そう` 冇明確對象。`なるほど` 可以只表示明白，未必同意。"
     examples:
       - text: 私もそう思います。
         meaning: 我都係咁諗。
-        note: 回應關於建議嘅具體意見，表示相同判斷，唔係淨係表示聽到。
+        note: "改為唔同意之前嗰個觀點：`私はそう思いません。`。已知前文意見時，呢句完整；否定形 `思いません` 改變立場。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/feelings-viewpoints/japanese-feelings-viewpoints-explained-in-english.yaml
-    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -57,13 +57,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/feelings-viewpoints/japanese-feelings-viewpoints-explained-in-english.yaml
-        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

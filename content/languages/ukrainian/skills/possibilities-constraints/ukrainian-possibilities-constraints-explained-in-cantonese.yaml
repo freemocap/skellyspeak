@@ -1,69 +1,57 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: ukrainian-teaching-cantonese-2026-10-07
 language: ukrainian
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: Уміти加不定式交代學識嘅能力。
+    explanation: 朋友問你識做邊種維修。`Я вмію` 講學識咗嘅能力，`лагодити велосипеди` 指修單車技能。未完成體不定式講活動，唔係話某架單車而家整好。
     examples:
       - text: Я вмію лагодити велосипеди.
-        meaning: 我識整單車。
-        note: Вмію陳述實際技能，唔係整某架單車嘅許可。
+        meaning: 我識整單車。 `Вмію`陳述實際技能，唔係整某架單車嘅許可。
+        note: 試講識修收音機。答案：`Я вмію лагодити радіо.` 保留 `вмію` 表學識嘅能力，換維修對象。
   - subskill_id: permission
-    explanation: Можна加不定式可以問行動獲唔獲准。
+    explanation: 喺共用工作間，講者放袋前問負責人。`Можна` 加不定式 `залишити` 問喺度可唔可以放，`тут` 指地點。`можна` 喺其他語境亦可講可能性，所以聽者有冇管理權重要。
     examples:
       - text: Можна тут залишити сумку?
-        meaning: 我可唔可以放個袋喺度？
-        note: 向管理地方嘅人詢問，確立許可語境。
+        meaning: 我可唔可以放個袋喺度？ 向管理地方嘅人詢問，確立許可語境。
+        note: 試問可唔可以喺度放單車。答案：`Можна тут залишити велосипед?` 換物件，仍向負責人問許可。
   - subskill_id: obligation
-    explanation: Потрібно加不定式表示必要，可以帶與格感受者。
+    explanation: 借返嚟嘅鎖匙今日要還。`Мені` 係與格行動者，`потрібно повернути` 講必要同歸還動作。`Сьогодні` 係限期，唔表示已經還咗。
     examples:
       - text: Мені потрібно повернути ключ сьогодні.
-        meaning: 我今日要還鎖匙。
-        note: Мені指出邊個要做，сьогодні交代限期。
+        meaning: 我今日要還鎖匙。 `Мені`指出邊個要做，`сьогодні`交代限期。
+        note: 試講今日唔一定要還鎖匙。答案：`Мені не потрібно повертати ключ сьогодні.` `Не потрібно` 取消今日義務，唔係禁止歸還。
   - subskill_id: possibility
-    explanation: Можливо將命題限定為可能。
+    explanation: 大家考慮今晚戶外安排。`Можливо` 標天氣未肯定，`ввечері` 係今晚，`буде дощ` 講將會落雨。講者冇斷言一定落。
     examples:
       - text: Можливо, ввечері буде дощ.
-        meaning: 今晚可能落雨。
-        note: 句子保留天氣結果嘅不確定性。
+        meaning: 今晚可能落雨。 句子保留天氣結果嘅不確定性。
+        note: 試講聽日可能落雨。答案：`Можливо, завтра буде дощ.` 保留 `можливо` 表不確定，換時間詞。
   - subskill_id: certainty
-    explanation: Не впевнений表達對後面命題冇把握。
+    explanation: 女性講者未查清間舖開唔開。`Я не впевнена` 限定把握，`що крамниця відчинена` 係待核實說法。陰性 `впевнена` 配合講者；唔肯定唔等於斷言已關門。
     examples:
       - text: Я не впевнена, що крамниця відчинена.
-        meaning: 我唔肯定間舖頭開咗未。
-        note: 女性講者表示唔肯定，冇斷言間舖頭閂咗。
-provenance:
+        meaning: 我唔肯定間舖頭開咗未。 女性講者表示唔肯定，冇斷言間舖頭閂咗。
+        note: 同一位女性講者試講唔肯定道門開唔開。答案：`Я не впевнена, що двері відчинені.` 保留不確定結構；複數 `двері` 配 `відчинені`。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/ukrainian/skills/possibilities-constraints/ukrainian-possibilities-constraints-explained-in-english.yaml
-    at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese Ukrainian teaching paired with the English guide; original principal
+    target text preserved. Independent linguistic and Cantonese review pending.
   sources:
     - jenkala_ukrainian_infinitives2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: ukrainian-teaching-cantonese-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/ukrainian/skills/possibilities-constraints/ukrainian-possibilities-constraints-explained-in-english.yaml
-        at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - jenkala_ukrainian_infinitives2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

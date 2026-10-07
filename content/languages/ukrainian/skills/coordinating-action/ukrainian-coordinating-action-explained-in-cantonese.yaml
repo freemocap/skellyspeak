@@ -1,77 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: ukrainian-teaching-cantonese-2026-10-07
 language: ukrainian
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 禮貌或複數命令式配合будь ласка，請人做具體行動。
+    explanation: 個箱準備好畀人提走，講者想搬佢去門旁。`Перенесіть` 係向聽者用嘅禮貌／複數命令式；`цю коробку` 係陰性賓格物件，`до дверей` 係目的地。`Будь ласка` 緩和請求。
     examples:
       - text: Перенесіть цю коробку до дверей, будь ласка.
-        meaning: 唔該搬呢個箱去門口。
-        note: До дверей交代目的地。
+        meaning: 唔該搬呢個箱去門口。 `До дверей`交代目的地。
+        note: 試請對方搬呢個箱去窗邊。答案：`Перенесіть цю коробку до вікна, будь ласка.` 換 `до` 後目的地，保留禮貌命令式同物件。
   - subskill_id: offers_invitations
-    explanation: 不定式問句可以向與格所指對象提供幫助。
+    explanation: 有人拎住個袋，可能需要幫手。`Вам` 標受助嘅敬稱／複數對象；不定式問句 `допомогти` 提出由講者幫，`із сумкою` 指要幫忙處理嘅物件，唔係問聽者有冇能力幫。
     examples:
       - text: Вам допомогти із сумкою?
-        meaning: 要唔要我幫你拎個袋？
-        note: 講者提出自己行動；вам指出受助者。
+        meaning: 要唔要我幫你拎個袋？ 講者提出自己行動；`вам`指出受助者。
+        note: 試改成幫手處理個箱。答案：`Вам допомогти з коробкою?` 保留提議同與格受助者，幫忙對象改成箱。
   - subskill_id: suggestions
-    explanation: 第一人稱複數命令式，可以提議包括講者嘅行動。
+    explanation: 大家做咗一陣，可以休息。`Зробімо` 係第一人稱複數命令式，提議共同做；`перерву` 係休息呢個動作嘅對象。講者都包括喺內，唔係只命令聽者。
     examples:
       - text: Зробімо перерву.
-        meaning: 不如我哋抖吓。
-        note: Зробімо邀請共同參與，唔係只命令聽者。
+        meaning: 不如我哋抖吓。 `Зробімо`邀請共同參與，唔係只命令聽者。
+        note: 試提議一齊檢查。答案：`Зробімо перевірку.` 保留包括講者嘅第一人稱複數形式，換共同動作。
   - subskill_id: commitments
-    explanation: 將來陳述可以喺約定計劃中承擔責任。
+    explanation: 分配維修工作時，講者負責帶工具。`Я принесу` 係第一人稱完成體將來式，講將工具帶嚟；`завтра` 指聽日。分工語境令佢成為承擔，單靠將來形式亦可只係預測。
     examples:
       - text: Я принесу інструменти завтра.
-        meaning: 聽日我會帶工具嚟。
-        note: 分工時用，講者負責工具。
+        meaning: 聽日我會帶工具嚟。 分工時用，講者負責工具。
+        note: 試承擔聽日帶收音機。答案：`Я принесу радіо завтра.` 換物件，保留第一人稱將來式同分工語境。
   - subskill_id: accepting_declining
-    explanation: 禮貌噉講自己出席唔到，可以拒絕之前嘅邀請。
+    explanation: 有人邀請講者今日去，但去唔到。`Перепрошую` 係禮貌道歉；`сьогодні я не можу прийти` 講今日嘅限制。回應邀請時係婉拒，冇邀請上文則可能只係報時間安排。
     examples:
       - text: Перепрошую, сьогодні я не можу прийти.
-        meaning: 唔好意思，我今日嚟唔到。
-        note: 明確拒絕出席，之前邀請交代活動背景。
+        meaning: 唔好意思，我今日嚟唔到。 明確拒絕出席，之前邀請交代活動背景。
+        note: 而家有人邀請你聽日去另一個活動。試婉拒呢個新邀請。答案：`Перепрошую, завтра я не можу прийти.` 換日子；新邀請令「去唔到」成為拒絕。
   - subskill_id: negotiating_plans
-    explanation: 先講時間限制，再提可行替代方案。
+    explanation: 對方提議星期五見，但講者嗰日去唔到。`У п’ятницю я не можу` 講同已知約會衝突；`Зустріньмося в суботу` 提議大家星期六見。後句修訂安排，唔係淨係講個日子。
     examples:
       - text: У п’ятницю я не можу. Зустріньмося в суботу.
-        meaning: 我星期五唔得。不如星期六見。
-        note: 第一個分句依賴之前嘅見面提議，第二個分句建議替代日子。
-provenance:
+        meaning: 我星期五唔得。不如星期六見。 第一個分句依賴之前嘅見面提議，第二個分句建議替代日子。
+        note: 試拒絕星期五，改提星期日。答案：`У п’ятницю я не можу. Зустріньмося в неділю.` 保留衝突，換新會面日子。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/ukrainian/skills/coordinating-action/ukrainian-coordinating-action-explained-in-english.yaml
-    at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese Ukrainian teaching paired with the English guide; original principal
+    target text preserved. Independent linguistic and Cantonese review pending.
   sources:
     - jenkala_ukrainian_infinitives2026
     - ukma_ukrainian_tenses2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: ukrainian-teaching-cantonese-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/ukrainian/skills/coordinating-action/ukrainian-coordinating-action-explained-in-english.yaml
-        at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - jenkala_ukrainian_infinitives2026
-        - ukma_ukrainian_tenses2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

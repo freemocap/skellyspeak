@@ -1,61 +1,66 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: "Θέλω can take a να clause for a wanted action. The following verb expresses its
-      own person and number: here να μάθω says that the speaker wants to learn. This
-      construction is not a bare, invariant infinitive."
+    explanation: You are explaining a personal learning goal at the repair shop. `Θέλω να μάθω` says I
+      want to learn; the second `να φτιάχνω` names the skill of repairing bicycles. Both verbs after
+      `να` have forms appropriate to the speaker; `να` is not an unchanging English infinitive.
     examples:
       - text: Θέλω να μάθω να φτιάχνω ποδήλατα.
-        meaning: I want to learn to repair bicycles.
-        note: The first να clause names the desired learning; να φτιάχνω names the skill to be learned.
-          No overt εγώ is needed.
+        meaning: I want to learn to repair bicycles. `Θέλω` expresses my wish, `να μάθω` the learning goal,
+          and `να φτιάχνω ποδήλατα` the repeated skill I hope to acquire.
+        note: "Try it: at the repair workshop, say you want to learn to fix damaged doors. Answer: `Θέλω να μάθω να φτιάχνω χαλασμένες πόρτες`. Keep
+          the two learning layers; `χαλασμένες` makes the repair reading explicit and agrees with plural feminine `πόρτες`."
   - subskill_id: preferences
-    explanation: With μου αρέσει or μου αρέσουν, the liked thing is the grammatical subject. The
-      verb is singular or plural according to that thing, while μου identifies the person who
-      likes it. Προτιμώ can instead state a choice between alternatives.
+    explanation: You are choosing a cycling route. Greek `μου αρέσουν` puts the liked plural thing, `οι
+      ήσυχοι δρόμοι`, in subject position; `μου` identifies the person who likes it. With one
+      singular street, the verb would be `αρέσει`.
     examples:
       - text: Μου αρέσουν οι ήσυχοι δρόμοι.
-        meaning: I like quiet streets.
-        note: Οι ήσυχοι δρόμοι is plural, so the verb is αρέσουν. Μου identifies the speaker as
-          experiencer; it is not a possessive pronoun here.
+        meaning: I like quiet streets. `μου` means to me here; plural `οι ήσυχοι δρόμοι` controls plural
+          `αρέσουν`.
+        note: "Try it: say you like the quiet street. Answer: `Μου αρέσει ο ήσυχος δρόμος`. The liked
+          subject is now singular, so use `αρέσει`; the adjective and article also become masculine
+          singular."
   - subskill_id: emotions
-    explanation: A lexical verb can express an emotion directly. Φοβάμαι means I am afraid of or
-      fear something, with its object in the accusative. It uses a middle/passive form but does
-      not describe an external agent acting on the speaker.
+    explanation: You explain why you avoid a street with large dogs. `Φοβάμαι` directly expresses I am
+      afraid; `τα μεγάλα σκυλιά` names what frightens you. The adjective `μεγάλα` agrees with neuter
+      plural `σκυλιά`.
     examples:
       - text: Φοβάμαι τα μεγάλα σκυλιά.
-        meaning: I am afraid of large dogs.
-        note: The sentence states the speaker’s fear. Τα μεγάλα σκυλιά identifies what causes it; it
-          does not make a claim that those dogs are actually dangerous.
+        meaning: I am afraid of large dogs. `Φοβάμαι` names the speaker’s feeling; `τα μεγάλα σκυλιά`
+          identifies its object, not another person’s fear.
+        note: "Try it: say you are afraid of the large dog. Answer: `Φοβάμαι το μεγάλο σκυλί`. Use singular
+          neuter `το μεγάλο σκυλί` for one dog."
   - subskill_id: opinions
-    explanation: Νομίζω ότι introduces what the speaker thinks is the case. The proposition after
-      ότι supplies the viewpoint. This differs from σκέφτομαι used for thinking about a person
-      or considering an action.
+    explanation: You are comparing two routes but have not confirmed their safety. `Νομίζω ότι`
+      introduces your view; `αυτή η διαδρομή` is the route you mean, and `πιο ασφαλής` evaluates it
+      as safer than a route already in discussion.
     examples:
       - text: Νομίζω ότι αυτή η διαδρομή είναι πιο ασφαλής.
-        meaning: I think this route is safer.
-        note: Αυτή η διαδρομή is the subject of είναι. The comparison can use a route already mentioned
-          as its standard; the sentence marks the safety judgement as the speaker’s view.
+        meaning: I think this route is safer. `Νομίζω ότι` marks an opinion; `αυτή η διαδρομή` is feminine
+          singular and `πιο ασφαλής` gives the comparison.
+        note: "Try it: say you think this route is shorter. Answer: `Νομίζω ότι αυτή η διαδρομή είναι πιο
+          σύντομη`. Keep the opinion frame; `σύντομη` agrees with feminine `διαδρομή`."
   - subskill_id: agreement_disagreement
-    explanation: Συμφωνώ and διαφωνώ express agreement and disagreement. Με can specify the opinion,
-      proposal or person involved. The object or preceding claim makes clear whether you are
-      aligning with a viewpoint or agreeing to a practical arrangement.
+    explanation: A companion proposes a route that you do not support. `Διαφωνώ` states disagreement;
+      `με αυτή την πρόταση` identifies the proposal you disagree with. Naming the target makes your
+      position clear without needing to repeat the proposal.
     examples:
       - text: Διαφωνώ με αυτή την πρόταση.
-        meaning: I disagree with this proposal.
-        note: Με αυτή την πρόταση explicitly identifies the target of disagreement. A reply to a
-          proposed itinerary might also negotiate a plan; context determines that additional
-          role.
+        meaning: I disagree with this proposal. `Διαφωνώ` states the stance; `με αυτή την πρόταση` names the
+          particular proposal.
+        note: "Try it: say you agree with this proposal. Answer: `Συμφωνώ με αυτή την πρόταση`. Change the
+          stance verb to `Συμφωνώ`; the target phrase remains."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -63,10 +68,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

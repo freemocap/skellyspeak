@@ -1,53 +1,51 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: Μπορείτε να 後接行動，可以有禮貌咁請人做事。複數形式可對多人，亦可尊稱一人。後面動詞仍要配合人稱，唔係英文式不變不定式。
+    explanation: 你雙手拎滿嘢，要請人開門。`Μπορείτε να ανοίξετε` 用第二人稱複數作禮貌請求，可尊稱一個人；`παρακαλώ` 加上「唔該」。呢度請對方做事，唔係問佢有冇能力。
     examples:
       - text: Μπορείτε να ανοίξετε την πόρτα, παρακαλώ;
-        meaning: 唔該，你可唔可以開門？
-        note: Μπορείτε 同 ανοίξετε 喺呢度尊稱對方；重點係請求行動，唔係測試能力。
+        meaning: 可唔可以幫手開門？`Μπορείτε` 同 `ανοίξετε` 禮貌稱呼對方；`την πόρτα` 係要開嘅門。
+        note: 試吓禮貌地請對方關門。答案：`Μπορείτε να κλείσετε την πόρτα, παρακαλώ;`。保留尊稱請求句式，動作改 `κλείσετε`。
   - subskill_id: offers_invitations
-    explanation: Θέλετε να 可以邀請參與；後面動詞交代邊個參與。尊稱問題問對方，μαζί μας 則將講者一行人包括在內。
+    explanation: 你哋去散步，想邀請另一個人同行。`Θέλετε να έρθετε` 問佢想唔想嚟；兩個動詞都用禮貌或複數稱呼。`μαζί μας` 表示同我哋一齊。
     examples:
       - text: Θέλετε να έρθετε μαζί μας στη βόλτα;
-        meaning: 你想唔想同我哋一齊去郊遊？
-        note: έρθετε 係第二人稱複數，亦可尊稱一人；μαζί μας 表明邀請加入。
+        meaning: 你想唔想同我哋去散步？`έρθετε` 指對方嚟，`μαζί μας` 係同我哋一齊，`στη βόλτα` 指散步。
+        note: 試吓邀請對方同你哋去維修舖。答案：`Θέλετε να έρθετε μαζί μας στο συνεργείο;`。保留邀請句式，目的地改 `στο συνεργείο`。
   - subskill_id: suggestions
-    explanation: 第一人稱複數 να 問句可以提議共同行動。詞尾包括講者同同行者；語境令佢成為建議，唔係獨自行動許可。
+    explanation: 你同朋友揀路。第一人稱複數 `Να πάμε…;` 提議大家一齊做。`από τον πιο ήσυχο δρόμο` 指要行嘅路；`πιο ήσυχο` 按語境表示較安靜。
     examples:
       - text: Να πάμε από τον πιο ήσυχο δρόμο;
-        meaning: 我哋行條靜啲嘅街，好唔好？
-        note: πάμε 提議「我哋」嘅行動；από τον πιο ήσυχο δρόμο 指較靜路線，比較對象來自討論。
+        meaning: 我哋行比較靜嗰條街，好唔好？`Να πάμε` 係提議我哋去，`από τον πιο ήσυχο δρόμο` 指路線。
+        note: 試吓建議行較短嗰條街。答案：`Να πάμε από τον πιο σύντομο δρόμο;`。保留第一人稱複數 `Να πάμε`，改路線描述。
   - subskill_id: commitments
-    explanation: 第一人稱將來表達可以喺計劃中承擔責任。θα 本身唔等於承諾，仍要睇講者行動同分工語境。
+    explanation: 分配維修工作時，你負責工具。`Θα φέρω` 係第一人稱將來動作；額外嘅 `εγώ` 強調由你帶，唔係另一個人。喺呢個安排語境中，佢係承諾。
     examples:
       - text: Θα φέρω εγώ τα εργαλεία.
-        meaning: 由我帶工具嚟。
-        note: 維修分工時用；明示 εγώ 強調自己負責，一般將來陳述可以省略。
+        meaning: 我會帶工具。`Θα φέρω` 係將來動作，`εγώ` 強調責任喺講者，`τα εργαλεία` 指要帶嘅工具。
+        note: 試吓承擔帶單車嘅責任。答案：`Θα φέρω εγώ το ποδήλατο`。保留強調講者嘅形式，賓語改單車。
   - subskill_id: accepting_declining
-    explanation: 簡短 ναι 加道謝可以接受已有提議；冇提議語境時，同一講法亦可能只係確認資訊。
+    explanation: 有人提出幫你拎袋。`Ναι, ευχαριστώ πολύ` 接受呢個具體幫忙並道謝；前面嘅提議令簡短 `Ναι` 有明確對象。若無提議，句子唔會講明接受乜。
     examples:
       - text: Ναι, ευχαριστώ πολύ.
-        meaning: 好呀，多謝晒。
-        note: 對方提出幫你拎袋之後用，係接受協助，唔係贊同觀點。
+        meaning: 好，多謝晒。呢度 `Ναι` 接受幫手拎袋，`ευχαριστώ πολύ` 向對方道謝。
+        note: 試吓有禮貌地婉拒。答案：`Όχι, ευχαριστώ πολύ`。`Όχι` 拒絕已知提議，道謝仍然表示感謝對方好意。
   - subskill_id: negotiating_plans
-    explanation: 交代限制再提出替代，留空間畀對方同意。να 問句可提出新行動或日子；日子作時間短語時通常用賓格。
+    explanation: 朋友提議星期五，但你嗰日嚟唔到。`Την Παρασκευή δεν μπορώ` 交代衝突；`Να έρθω το Σάββατο;` 提議星期六，並問對方可唔可以。兩句一齊協商替代時間。
     examples:
       - text: Την Παρασκευή δεν μπορώ. Να έρθω το Σάββατο;
-        meaning: 星期五我唔得。改為星期六嚟，好唔好？
-        note: 第一句拒絕原定時間，第二句問替代安排；το Σάββατο 交代到訪日期。
-provenance:
+        meaning: 星期五我唔得；星期六嚟得唔得？`δεν μπορώ` 表示嗰日無法赴約；第一人稱 `Να έρθω` 問替代安排可否。
+        note: 試吓話星期六唔得，提議星期日。答案：`Το Σάββατο δεν μπορώ. Να έρθω την Κυριακή;`。兩個日期都要改，仍先講限制再提新方案。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/coordinating-action/greek-coordinating-action-explained-in-english.yaml
-    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -57,27 +55,10 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/coordinating-action/greek-coordinating-action-explained-in-english.yaml
-        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-        - tsaggalidis_el_person2026
-        - archakis_el_politeness2026
-        - triantafyllides_el_agreement2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

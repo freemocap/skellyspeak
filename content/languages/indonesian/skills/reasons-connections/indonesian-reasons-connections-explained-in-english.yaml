@@ -1,66 +1,104 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Karena introduces an explanation for a situation or action. The clause after it
-      states the reason.
+    explanation: You explain why you stopped a print job. `karena` introduces the
+      reason after the action; `tintanya habis` says its ink has run out.
     examples:
       - text: Saya berhenti mencetak karena tintanya habis.
-        meaning: I stopped printing because the ink had run out.
-        note: The depleted ink explains stopping. The past reading comes from the situation, not a tense
-          ending.
+        meaning: I stopped printing because the ink had run out. `Saya berhenti
+          mencetak` is the stopped action, and `karena tintanya habis` explains
+          it. The past interpretation comes from the reported situation, not a
+          changed verb form.
+        note: "Say you stopped because the paper ran out. Answer: `Saya berhenti
+          mencetak karena kertasnya habis.` Replace the depleted material; it
+          must still explain the stop."
   - subskill_id: consequences
-    explanation: Jadi can introduce the consequence of a preceding circumstance in conversation. It
-      does not merely mark the next event in time.
+    explanation: The ink ran out, and you bought a replacement. `jadi` presents the
+      purchase as a result of the earlier shortage rather than merely the next
+      event.
     examples:
       - text: Tintanya habis, jadi saya membeli tinta baru.
-        meaning: The ink ran out, so I bought new ink.
-        note: Buying ink is presented as a response to its depletion. Baru modifies tinta here.
+        meaning: The ink ran out, so I bought new ink. `Tintanya habis` states the
+          problem. `saya membeli tinta baru` states the response, with `baru`
+          modifying `tinta` after the noun.
+        note: "Make the result a trip to the shop. Answer: `Tintanya habis, jadi saya
+          pergi ke toko.` Keep the depleted ink as the premise and change the
+          consequence."
   - subskill_id: conditions
-    explanation: Kalau can link a possible circumstance to what follows under that circumstance.
-      Indonesian does not require an English-style conditional tense sequence.
+    explanation: You plan where to work depending on the weather. `Kalau hujan`
+      makes rain a condition, and `kita bekerja di dalam` gives the indoor plan
+      if it occurs. No special subjunctive verb ending is needed.
     examples:
       - text: Kalau hujan, kita bekerja di dalam.
-        meaning: If it rains, we will work inside.
-        note: Rain is the condition for the indoor work. The sentence need not assert that rain is
-          already occurring.
+        meaning: If it rains, we will work inside. `kita` includes the listener in the
+          work group. The sentence does not assert that rain is already
+          happening; the indoor work depends on it.
+        note: "Plan to work outside if it does not rain. Answer: `Kalau tidak hujan,
+          kita bekerja di luar.` Negate the condition and change the location."
   - subskill_id: contrast
-    explanation: Tetapi connects opposing considerations. Each clause contributes a proposition that
-      makes the contrast intelligible.
+    explanation: You describe paper that is inexpensive but has a drawback. `tetapi`
+      connects the favorable price to its tendency to tear.
     examples:
       - text: Kertas ini murah, tetapi mudah robek.
-        meaning: This paper is cheap, but it tears easily.
-        note: The low price is contrasted with a drawback. Mudah robek describes susceptibility to
-          tearing.
+        meaning: This paper is cheap, but it tears easily. `Kertas ini murah` says this
+          paper is cheap. `mudah robek` says it tears easily; that contrasts
+          with the possible appeal of the low price.
+        note: "Try a different drawback: the paper wrinkles easily. Answer: `Kertas ini
+          murah, tetapi mudah kusut.` Keep the low price and contrast it with a
+          property of the paper."
   - subskill_id: supporting_claims
-    explanation: Karena can supply grounds for a judgment. The reason should bear on the claimed
-      advantage or conclusion.
+    explanation: In a design discussion, you prefer one design because the lettering
+      can be read more clearly. `Menurut saya` marks a judgment; `karena`
+      introduces a reason supporting it.
     examples:
       - text: Menurut saya, desain ini lebih baik karena tulisannya lebih jelas.
-        meaning: I think this design is better because its lettering is clearer.
-        note: Clearer lettering is offered as evidence for the design judgment, not merely as an
-          unrelated extra fact.
+        meaning: I think this design is better because its lettering is clearer. `desain
+          ini lebih baik` is the evaluation and `tulisannya lebih jelas` is the
+          stated basis. The clearer lettering supports the judgment rather than
+          causing the design to exist.
+        note: "Support the judgment with larger lettering instead. Answer: `Menurut
+          saya, desain ini lebih baik karena hurufnya lebih besar.` Larger
+          letters can support a readability judgment; merely repeating the
+          preference gives no reason."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

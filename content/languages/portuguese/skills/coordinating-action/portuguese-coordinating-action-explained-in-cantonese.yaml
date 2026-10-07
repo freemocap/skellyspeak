@@ -1,52 +1,52 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: Você pode加不定式問句，可以有禮貌噉請人行動；por favor喺合作情境下明確表達請求。
+    explanation: "你將書交畀同事，想請佢收好。`Você pode guardar estes livros, por favor?` 入面，`você` 指對方，`pode` 係「可唔可以」，不定式 `guardar` 係要對方做嘅事；`estes livros` 指眼前呢啲書。喺呢個情境，成句係有禮貌嘅請求，雖然 `poder` 亦可以講能力。換動作就可以講 `Você pode fechar a porta, por favor?`，請對方閂門。"
     examples:
       - text: Você pode guardar estes livros, por favor?
         meaning: 唔該可唔可以收好呢啲書？
-        note: 交啲書畀同事時講，係請佢行動，唔係測試佢有冇能力。
+        note: "改為請同事收好呢啲箱：`Você pode guardar estas caixas, por favor?`。`estas caixas` 取代 `estes livros`，指示詞轉成陰性複數，配合 `caixas`。"
   - subskill_id: offers_invitations
-    explanation: 講者有嘢可以提供時，quer加物品可以招待人；單靠動詞分唔到係招待定純粹問意願。
+    explanation: "你手上有新鮮麵包，可以分畀對方。`Quer uma fatia de pão?` 係問「想唔想要一塊麵包」；`quer` 係對對方用嘅「想要」，`uma fatia` 係一塊，`de pão` 講明係麵包。因為你可以即刻提供，呢句係招待；離開呢個情境，亦可能只係問喜好。招待飲水可以用 `Quer um pouco de água?`。"
     examples:
       - text: Quer uma fatia de pão?
         meaning: 你想唔想食塊麵包？
-        note: 有啱啱焗好嘅麵包同人分享時講；語境令佢成為招待，quer指一個人。
+        note: "改為招待一杯水：`Quer um copo de água?`。你可以提供水時，呢句係完整招待；`um copo de` 講明份量同內容。"
   - subskill_id: suggestions
-    explanation: Vamos加不定式可以提議共同行動，亦可以描述將會發生嘅事，所以安排事情嘅語境好重要。
+    explanation: "大家正揀換書日子。`Vamos organizar a troca de livros no sábado?` 提議一齊做：`vamos` 指「我哋」，`organizar` 保持不定式，`no sábado` 係星期六（`em` 加 `o`）。問句係請其他人考慮安排。`Vamos organizar ...` 亦可以陳述計劃；討論緊日子嘅語境先顯示佢係提議。想改日子可以講 `Vamos organizar a troca no domingo?`。"
     examples:
       - text: Vamos organizar a troca de livros no sábado?
         meaning: 不如我哋星期六搞換書活動？
-        note: 討論換書日子時提出建議；no sábado交代建議時間。
+        note: "改提議星期日：`Vamos organizar a troca de livros no domingo?`。共同安排嘅句式保留，`no sábado` 換成 `no domingo`。"
   - subskill_id: commitments
-    explanation: 安排事情時，現在式加將來時間可以承擔工作；承諾在於接受責任，唔係只提到將來。
+    explanation: "大家要搵人帶箱。你講 `Eu levo as caixas amanhã`，就接咗呢件事：`eu` 明確指出由你負責，`levo` 係 `levar` 嘅現在式，`amanhã` 將動作放喺聽日。葡語可以用現在式講已安排嘅將來行動。同一句離開共同安排可能只係報告時間表；喺呢度係回應「邊個帶」。"
     examples:
       - text: Eu levo as caixas amanhã.
         meaning: 我聽日會帶啲箱嚟。
-        note: 大家問邊個負責帶箱時用；eu承擔責任，amanhã將送到時間放喺之後。
+        note: "答應聽日帶書：`Eu levo os livros amanhã.`。`eu levo` 接受工作，`amanhã` 指定之後嘅時間。"
   - subskill_id: accepting_declining
-    explanation: 拒絕可以直接講自己參與唔到；não放喺限定動詞前面否定參與，唔使重複成個邀請。
+    explanation: "有人請你今日幫手搞換書，但你去唔到。`Não posso ir hoje` 係切合邀請嘅拒絕：`não` 放喺限定動詞 `posso` 前，`ir` 係去，`hoje` 限定今日。邀請已經交代目的地，所以唔使重複。已知工作亦可以用簡短嘅 `Posso, sim` 接受。"
     examples:
       - text: Não posso ir hoje.
         meaning: 我今日去唔到。
-        note: 回應今日換書活動嘅幫手邀請，係拒絕已知邀請，唔係報告無關能力限制。
+        note: "改為拒絕聽日：`Não posso ir amanhã.`。回應邀請時已經完整；`hoje` 換成 `amanhã`，改變去唔到嘅時間。"
   - subskill_id: negotiating_plans
-    explanation: 協商時間時，先講原定日子嘅限制，再問替代時間；podemos加不定式提出可能嘅共同安排。
+    explanation: "朋友提議星期五，但你唔得。`Na sexta não posso. Podemos combinar no sábado?` 先講限制，再提替代日子。`Na sexta` 係星期五（`em` 加 `a`）；`não posso` 省略咗大家已經講緊嘅見面。`Podemos` 係「我哋可唔可以」，`combinar` 係約定，`no sábado` 提議星期六。因為佢回應原有安排，所以係協商。改提星期日就用 `Podemos combinar no domingo?`。"
     examples:
       - text: Na sexta não posso. Podemos combinar no sábado?
         meaning: 我星期五唔得。可唔可以約星期六？
-        note: 回應星期五見面；não posso省略嘅活動由原提議提供，講者再建議另一日。
+        note: "保留星期五唔得，改提星期日：`Na sexta não posso. Podemos combinar no domingo?`。第一句否定原定時間，第二句提供替代安排。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/coordinating-action/portuguese-coordinating-action-explained-in-english.yaml
-    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -55,7 +55,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -65,7 +65,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/coordinating-action/portuguese-coordinating-action-explained-in-english.yaml
-        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -74,6 +74,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

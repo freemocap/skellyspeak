@@ -1,44 +1,35 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: A que horas asks for a time. In an ordinary Brazilian Portuguese question, the
-      subject can stay before the finite verb; no auxiliary corresponding to English do is
-      added.
+    explanation: "You need the library opening time before visiting tomorrow. `A que horas a biblioteca abre amanhã?` asks for an hour: `a que horas` means at what time, `a biblioteca` is the subject, `abre` means opens, and `amanhã` means tomorrow. The subject may stay before the verb in this Brazilian Portuguese question; English-style do is not added. By contrast, `A biblioteca abre às oito?` proposes eight o’clock for confirmation rather than requesting an unknown time."
     examples:
       - text: A que horas a biblioteca abre amanhã?
         meaning: What time does the library open tomorrow?
-        note: A que horas requests the opening time. A biblioteca precedes abre without preventing the
-          sentence from being a question.
+        note: "Ask for closing time tomorrow. `A que horas a biblioteca fecha amanhã?` is a full open question; `fecha` replaces `abre` while `a que horas` still requests the missing hour."
   - subskill_id: answering_information
-    explanation: A relevant answer may be a phrase rather than a complete sentence. The exchange
-      must supply the question that makes its information clear.
+    explanation: "Someone has just asked when the library opens. `Às oito` answers at eight without repeating the whole clause. `Às` is the contraction of the time preposition `a` and plural article `as` before `oito horas`; the hour word can be omitted when understood. This short reply works because the earlier question supplies what happens at that time. On its own, it would not identify whose opening time it is."
     examples:
       - text: Às oito.
         meaning: At eight.
-        note: Reply to a question about what time the library opens. Às combines a + as in the time
-          expression; the phrase supplies the requested hour.
+        note: "Answer that it opens at nine. `Às nove.` is enough after the opening-time question; `nove` replaces `oito` and the shared question supplies the rest."
   - subskill_id: checking_facts
-    explanation: A proposition followed by não é? can ask the listener to confirm it. The intended
-      proposition should be recoverable from the words and context.
+    explanation: "You heard that the library opens at eight and want to verify that before leaving. `A biblioteca abre às oito, não é?` first states the proposed fact; `não é?` then invites confirmation, roughly right? `Às oito` supplies the time, with `às` formed from `a` plus `as`. The listener can confirm or correct eight. This differs from `A que horas a biblioteca abre?`, which asks for a time without proposing one."
     examples:
       - text: A biblioteca abre às oito, não é?
         meaning: The library opens at eight, right?
-        note: Said when eight o’clock has already been suggested. The speaker checks that proposed
-          opening time.
+        note: "Check a proposed nine o’clock opening. `A biblioteca abre às nove, não é?` gives the proposed fact and asks for confirmation; `nove` is the only changed hour."
   - subskill_id: useful_detail
-    explanation: A further spatial expression can narrow a location that the listener needs. Ao
-      combines a with o, while do combines de with o.
+    explanation: "A visitor knows the building but cannot find its entrance. `A entrada fica na lateral, ao lado do jardim` gives two useful landmarks: `fica` locates the entrance, `na lateral` means on the side (`em` + `a`), and `ao lado do jardim` means beside the garden (`a` + `o`; `de` + `o`). The second phrase narrows which side to look at. `A entrada fica na lateral` may still leave the visitor searching; `ao lado do jardim` makes the direction practical. More words help only when they remove a real ambiguity."
     examples:
       - text: A entrada fica na lateral, ao lado do jardim.
         meaning: The entrance is at the side, next to the garden.
-        note: The second location phrase identifies which side-area contains the entrance. It helps
-          someone looking for the way in.
+        note: "Make the garden the sole landmark. `A entrada fica ao lado do jardim.` still locates the entrance; `ao lado do` specifies the relation to the garden without the broader side description."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -49,7 +40,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

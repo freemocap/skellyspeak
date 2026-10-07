@@ -1,56 +1,91 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Потому что introduces the reason for the preceding situation.
+    explanation: A friend asks why you stayed home. `Я осталась дома` reports the result using feminine singular
+      past `осталась`; `потому что` introduces the reason. `Пошёл дождь` says rain began, with masculine past
+      agreement to `дождь`. The connector answers why you stayed, not what you did next.
     examples:
       - text: Я осталась дома, потому что пошёл дождь.
         meaning: I stayed home because it started raining.
-        note: The feminine speaker gives rain as the reason for staying home.
+        note: "Try explaining that you stayed home because snow began. Answer: `Я осталась дома, потому что пошёл
+          снег.` The first clause stays the same; `потому что` still introduces the reason, now `пошёл снег`."
   - subskill_id: consequences
-    explanation: Поэтому links a situation to its consequence.
+    explanation: The bus failed to arrive and you explain your response. `Автобус не пришёл` gives the situation;
+      `поэтому` marks what followed as a consequence. `Я пошла пешком` means the feminine speaker went on
+      foot. Unlike `потому что`, which introduces a reason after a claim, `поэтому` introduces the resulting
+      action.
     examples:
       - text: Автобус не пришёл, поэтому я пошла пешком.
         meaning: The bus did not come, so I walked.
-        note: The feminine speaker presents walking as a consequence of the missing bus.
+        note: "Try saying you took the metro because the bus did not arrive. Answer: `Автобус не пришёл, поэтому я
+          поехала на метро.` `Поэтому` still links the failed bus to your response; `поехала на метро` gives a
+          different means of travel."
   - subskill_id: conditions
-    explanation: Если introduces a condition; both clauses can refer to future events.
+    explanation: The group is deciding tomorrow’s plan around the weather. `Если` introduces the condition;
+      `завтра пойдёт дождь` treats rain starting tomorrow as a possible future event. `Мы останемся дома` is
+      the resulting plan if that condition holds. Russian can use future reference in both clauses; the
+      English “if” rule does not transfer mechanically.
     examples:
       - text: Если завтра пойдёт дождь, мы останемся дома.
         meaning: If it rains tomorrow, we will stay home.
-        note: Staying home is conditional, not announced as an unconditional plan.
+        note: "Try planning a walk if tomorrow is warm. Answer: `Если завтра будет тепло, мы пойдём гулять.` `Если`
+          still sets the condition; the second clause states what the group will do if it is met."
   - subskill_id: contrast
-    explanation: Но connects descriptions that contrast in the present discussion.
+    explanation: "You are choosing a route. `Дорога короткая` gives an advantage: it is short. `Но крутая` adds a
+      drawback: it is steep. `Но` connects two qualities that pull the decision in different directions; the
+      adjective after it still describes the same road."
     examples:
       - text: Дорога короткая, но крутая.
         meaning: The road is short but steep.
-        note: The contrast concerns length and steepness, which may matter differently when choosing a
-          route.
+        note: "Try describing a route that is long but level. Answer: `Дорога длинная, но ровная.` `Но` still
+          contrasts practical qualities; `ровная` says the road is level despite its length."
   - subskill_id: supporting_claims
-    explanation: An observation can be presented as evidence for an inference.
+    explanation: You see a light in a home’s window and cautiously infer that somebody may be inside. `Думаю`
+      marks the conclusion as your inference; `кто-то есть дома` is the tentative claim. `Потому что в окне
+      горит свет` supplies the observation supporting it. A light is evidence, not proof; it does not cause
+      the person to be there.
     examples:
       - text: Думаю, кто-то есть дома, потому что в окне горит свет.
         meaning: I think someone is home because there is a light on in the window.
-        note: The light supports the inference; it does not cause someone to be home.
-provenance: &a1
+        note: "Try making the same cautious inference from audible voices inside. Answer: `Думаю, кто-то есть дома,
+          потому что слышны голоса.` `Думаю` keeps the claim tentative, while `слышны голоса` gives stronger
+          observable support."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_condition2026
+    - cornell_russian_past2026
+    - cornell_russian_future2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_condition2026
+        - cornell_russian_past2026
+        - cornell_russian_future2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

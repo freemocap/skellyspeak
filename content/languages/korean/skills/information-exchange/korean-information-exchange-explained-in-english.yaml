@@ -1,55 +1,68 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 몇 시 asks a clock time. 에 follows the time expression, and the polite sentence can
-      serve as a question without an extra interrogative auxiliary.
+    explanation: Before visiting a shop, the speaker needs its closing time. `가게가` identifies the shop; `몇
+      시에` asks at what hour, and `닫아요?` is the polite closing question. Korean keeps the time phrase
+      before the final predicate; no English-style auxiliary is needed.
     examples:
       - text: 가게가 몇 시에 닫아요?
-        meaning: What time does the shop close?
-        note: The question seeks a closing hour. The question mark represents the interrogative reading.
+        meaning: What time does the shop close? The question seeks a closing hour. The question mark represents
+          the interrogative reading.
+        note: "Try it: ask when the shop opens. Answer: `가게가 몇 시에 열어요?`. Keep `몇 시에` for the unknown hour and
+          replace closing `닫아요` with opening `열어요`."
   - subskill_id: answering_information
-    explanation: A time expression with polite 요 can answer a specific question without restating
-      its whole clause.
+    explanation: The other person has just asked when the shop closes. `다섯 시에요` can be heard as `다섯 시에` (at
+      five) plus polite `요`, with the closing action understood. It is a time-answer fragment; a
+      standalone predication “it is five” is normally `다섯 시예요`.
     examples:
       - text: 다섯 시에요.
-        meaning: At five o’clock.
-        note: Reply to a question about when the shop closes. This is 다섯 시에 plus 요, not an attempt to
-          write the copula 예요.
+        meaning: "At five o’clock. This answers when the shop closes: `다섯 시에` plus polite `요`, with closing
+          understood from the question. It is a time fragment, not the standalone clock-time statement
+          `다섯 시예요`."
+        note: "Try it: answer that it closes at six. Answer: `여섯 시에요`. In this same when-question context, `에`
+          marks the closing time and `요` makes the short answer polite; the omitted action remains
+          recoverable."
   - subskill_id: checking_facts
-    explanation: 지요, often contracted to 죠, can ask the listener to confirm a proposition assumed or
-      previously mentioned.
+    explanation: You think the shop closes at five but want confirmation. `가게가 다섯 시에 닫죠?` states the proposed
+      fact, then `죠?` invites the listener to verify it. This differs from `몇 시에`, which asks for an
+      unknown hour.
     examples:
       - text: 가게가 다섯 시에 닫죠?
-        meaning: The shop closes at five, right?
-        note: The speaker checks a proposed closing time. 죠 here seeks confirmation rather than
-          introducing an entirely unknown hour.
+        meaning: The shop closes at five, right? The speaker checks a proposed closing time. 죠 here seeks
+          confirmation rather than introducing an entirely unknown hour.
+        note: "Try it: check whether the shop closes at six. Answer: `가게가 여섯 시에 닫죠?`. State the six-o’clock
+          proposition and use `죠?` for confirmation."
   - subskill_id: useful_detail
-    explanation: A clause before a noun can identify which item is meant. With 있다, 있는 links a
-      location description to that noun.
+    explanation: A person can see several chairs and asks which one to use. `창문 옆에 있는` is a clause before
+      `의자` that picks out the chair next to the window. `쓰세요` then asks the listener to use that chair;
+      the location detail resolves the choice.
     examples:
       - text: 창문 옆에 있는 의자를 쓰세요.
-        meaning: Use the chair next to the window.
-        note: When the listener asks which chair to use, 창문 옆에 있는 supplies the distinguishing location.
+        meaning: Use the chair next to the window. When the listener asks which chair to use, 창문 옆에 있는 supplies
+          the distinguishing location.
+        note: "Try it: direct them to the chair by the door. Answer: `문 옆에 있는 의자를 쓰세요`. Replace the landmark `창문`
+          with `문`; keep `있는` before the noun it identifies."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_predicates2026
     - htsk_permission2026
+    - nikl_ko_language_overview2026
+    - nikl_ko_time_fragment2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

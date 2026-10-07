@@ -1,69 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: क्योंकि 引入原因，後面內容應解釋之前行動或情況。
+    explanation: 朋友問點解留喺屋企。先講冇出門，`क्योंकि` 再引入落雨呢個原因。
     examples:
       - text: मैं बाहर नहीं गई क्योंकि बारिश हो रही थी।
-        meaning: 我冇出街，因為落緊雨。
-        note: गई 表明女性講者；落雨係留喺室內嘅原因。
+        meaning: 我冇出街，因為落緊雨。 `बाहर नहीं गई` 係冇出去，亦顯示女性講者；`बारिश हो रही थी` 係當時落緊雨，解釋決定。
+        note: 試改成因為病咗。答案：`मैं बाहर नहीं गई क्योंकि मैं बीमार थी।` `क्योंकि` 後面要能解釋前句；加
+          `और` 只係並列。
   - subskill_id: consequences
-    explanation: इसलिए 標示結果，唔止係將兩件事依次排列。
+    explanation: 解釋點解大家要行路。`इसलिए` 指返架巴士冇嚟，標示步行係後果。
     examples:
       - text: बस नहीं आई, इसलिए हमें पैदल जाना पड़ा।
-        meaning: 巴士冇嚟，所以我哋要行路。
-        note: इसलिए 連結巴士冇嚟同要行路；जाना पड़ा 表達由此產生嘅必要。
+        meaning: 巴士冇嚟，所以我哋要行路。 `बस नहीं आई` 係巴士冇嚟；`हमें पैदल जाना पड़ा` 係我哋被迫行路；`इसलिए`
+          將兩者接成因果。
+        note: 試將後果改成要等。答案：`बस नहीं आई, इसलिए हमें इंतज़ार करना पड़ा।` 改結果；`फिर` 可能只講先後。
   - subskill_id: conditions
-    explanation: अगर 引入假設條件，常配合 तो。呢類結構嘅完成體動詞可以講將來可能，唔一定講過去。
+    explanation: 你係定落雨預案，唔係話已經落過雨。`अगर` 帶條件，`तो` 帶條件成立後嘅行動。
     examples:
       - text: अगर बारिश हुई तो हम घर पर रहेंगे।
-        meaning: 如果落雨，我哋就留喺屋企。
-        note: हुई 喺條件內，冇斷言已落雨；रहेंगे 交代結果。
+        meaning: 如果落雨，我哋就留喺屋企。 `बारिश हुई` 喺如果子句入面，呢度完成形唔斷言過去落咗雨；`हम घर पर रहेंगे`
+          係將來結果。
+        note: 試講冇落雨就出門。答案：`अगर बारिश नहीं हुई तो हम बाहर जाएँगे।` 否定條件並改結果。冇條件句就只係一個計劃。
   - subskill_id: contrast
-    explanation: लेकिन 連接對比，聽者應能從內容理解分別或出乎預期之處。
+    explanation: 講間房細，但仍有優點。`लेकिन` 表示光猛同細小可能引起嘅預期相反。
     examples:
       - text: यह कमरा छोटा है, लेकिन बहुत रोशन है।
-        meaning: 間房細，但好光猛。
-        note: 光猛嘅優點同面積細形成對比。
+        meaning: 間房細，但好光猛。 `छोटा है` 係細，`बहुत रोशन है` 係好光猛；`लेकिन` 將兩項接成對比，唔係純列舉。
+        note: 試講房大但暗。答案：`यह कमरा बड़ा है, लेकिन अँधेरा है।` 改兩個性質；`और` 只係加多項描述。
   - subskill_id: supporting_claims
-    explanation: क्योंकि 可以引入支持結論嘅證據，唔單止解釋事件原因。
+    explanation: 你見到舖內有人，推斷間舖開咗。呢度 `क्योंकि` 提供支持說法嘅證據，唔係令舖頭開門嘅原因。
     examples:
       - text: दुकान खुली है, क्योंकि अंदर लोग हैं।
-        meaning: 間舖開緊，因為入面有人。
-        note: 有人係判斷開門嘅依據，唔係聲稱有人導致開門。
+        meaning: 間舖開緊，因為入面有人。 `दुकान खुली है` 係結論，`अंदर लोग हैं` 係觀察根據；入面有人本身唔係開門原因。
+        note: 你見到門上有鎖，推斷舖頭關咗。答案：`दुकान बंद है, क्योंकि दरवाज़े पर ताला लगा है।`
+          門鎖係判斷根據，唔係令舖頭關門嘅事件；日頭冇開燈會係較弱證據。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/reasons-connections/hindi-reasons-connections-explained-in-english.yaml
-    at revision hindi-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/reasons-connections/hindi-reasons-connections-explained-in-english.yaml
-        at revision hindi-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

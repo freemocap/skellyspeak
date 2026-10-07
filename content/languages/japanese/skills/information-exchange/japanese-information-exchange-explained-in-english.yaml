@@ -1,43 +1,35 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 何時 asks for a clock time, and に attaches to that time expression. Polite か marks
-      the question at the end.
+    explanation: "You need the library closing time before going there. `図書館は何時に閉まりますか` asks for an unknown hour: `図書館は` sets the library as topic, `何時に` asks at what time, `閉まります` means closes, and final `か` makes this a polite question. `閉まる` describes the library closing; `閉める` would mean someone shuts it. `図書館は五時に閉まりますか` instead offers five as a candidate and asks for confirmation."
     examples:
       - text: 図書館は何時に閉まりますか。
         meaning: What time does the library close?
-        note: The question seeks a closing hour. 閉まります describes the library closing, not someone
-          shutting an object.
+        note: "Ask when the library opens. `図書館は何時に開きますか。` is a full information question: `何時に` still asks for an unknown hour, and `開きます` changes the event to opening."
   - subskill_id: answering_information
-    explanation: A time followed by です can answer the question directly. The event being timed
-      remains understood.
+    explanation: "Someone has asked when the library closes. `五時です` gives the requested time without repeating the whole event: `五時` means five o’clock, and `です` completes a polite short answer. The earlier question identifies what happens at five. `五時間です` would mean a duration of five hours, not a clock time. A different closing hour can be answered by replacing the number while keeping `時です`."
     examples:
       - text: 五時です。
         meaning: At five.
-        note: Reply to a question about the library’s closing time. Five is an hour here, not a count of
-          books.
+        note: "Answer that it closes at six. `六時です。` is complete after the closing-time question; `六時` supplies the missing hour, and the library event remains understood."
   - subskill_id: checking_facts
-    explanation: A question with a stated time can verify a proposed fact. ですね can also seek
-      confirmation of something just learned or inferred.
+    explanation: "After hearing a schedule, you think the library closes at five and check your understanding. `図書館は五時に閉まるんですね` first gives the proposition and then seeks alignment: `五時に` locates closing at five, `閉まる` is the plain form inside `んです`, and final `ね` invites the other person to confirm the inference. It can also register newly understood information, so the prior exchange matters. `図書館は何時に閉まりますか` asks for an unknown hour instead. A proposed six o’clock closing uses `六時に`."
     examples:
       - text: 図書館は五時に閉まるんですね。
         meaning: So the library closes at five, right?
-        note: Use after hearing a schedule explanation. んですね checks the speaker’s understanding of that
-          concrete time.
+        note: "Check a newly heard six o’clock closing time. `図書館は六時に閉まるんですね。` is complete in that exchange; `六時に` is the proposed fact, and `んですね` checks that you understood it."
   - subskill_id: useful_detail
-    explanation: A noun phrase with ほう can distinguish one side or option from another. A preceding
-      description identifies which one.
+    explanation: "A visitor sees more than one entrance and asks which one to use. `入口は、公園に近いほうです` narrows the choice: `入口は` sets the entrance as topic, `公園に近い` means near the park, and `ほう` means the one or side among alternatives. The park is a useful landmark because it distinguishes this entrance from another. `入口は公園に近いです` says only that the entrance is near the park; `ほう` helps select among known options. Extra detail is useful only when it solves the visitor’s actual choice."
     examples:
       - text: 入口は、公園に近いほうです。
         meaning: The entrance is the one nearer the park.
-        note: After giving a building’s location, this distinguishes the usable entrance from another
-          entrance.
+        note: "Identify the entrance nearer the station instead. `入口は、駅に近いほうです。` is a full direction when there are alternatives; `駅に近いほう` selects the one near the station."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -47,7 +39,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

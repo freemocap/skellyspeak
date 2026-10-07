@@ -1,62 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A polite or plural imperative with будь ласка asks for a specific action.
+    explanation: A box is ready for pickup, and the speaker needs it brought near the door. `Перенесіть` is a polite/plural
+      imperative addressed to the listener; `цю коробку` is its feminine accusative object, and `до
+      дверей` gives the destination. `Будь ласка` softens the request.
     examples:
       - text: Перенесіть цю коробку до дверей, будь ласка.
-        meaning: Please move this box to the door.
-        note: До дверей gives the destination.
+        meaning: Please move this box to the door. `До дверей` gives the destination.
+        note: "Ask them to move this box to the window. Answer: `Перенесіть цю коробку до вікна, будь ласка.`
+          Change the destination after `до`; retain the polite imperative and object."
   - subskill_id: offers_invitations
-    explanation: An infinitive question can offer help to a dative recipient.
+    explanation: Someone is carrying a bag and could use help. `Вам` marks the respectful/plural person who
+      would benefit; infinitive question `допомогти` offers the speaker’s action, and `із сумкою` names
+      what they need help with. It does not ask whether the listener is able to help.
     examples:
       - text: Вам допомогти із сумкою?
-        meaning: Shall I help you with the bag?
-        note: The speaker offers to act; вам identifies the recipient.
+        meaning: Shall I help you with the bag? The speaker offers to act; `вам` identifies the recipient.
+        note: "Offer to help with the box instead. Answer: `Вам допомогти з коробкою?` Keep the offer and dative
+          recipient; change the item in the help phrase."
   - subskill_id: suggestions
-    explanation: A first-person plural imperative can propose an action including the speaker.
+    explanation: The group has worked for a while and could pause. `Зробімо` is a first-person plural
+      imperative proposing a joint action; `перерву` names a break as its object. It includes the
+      speaker, rather than commanding only the listener.
     examples:
       - text: Зробімо перерву.
-        meaning: Let’s take a break.
-        note: Зробімо invites joint action rather than ordering only the listener.
+        meaning: Let’s take a break. `Зробімо` invites joint action rather than ordering only the listener.
+        note: "Suggest doing the check together. Answer: `Зробімо перевірку.` Keep the inclusive first-person
+          plural directive and change the shared action."
   - subskill_id: commitments
-    explanation: A future statement can undertake responsibility in an agreed plan.
+    explanation: While dividing repair tasks, the speaker takes responsibility for the tools. `Я принесу` is
+      first-person perfective future for bringing them; `завтра` fixes the day. The task-allocation
+      exchange makes this an undertaking, whereas future form alone could simply predict an event.
     examples:
       - text: Я принесу інструменти завтра.
-        meaning: I will bring the tools tomorrow.
-        note: Use while assigning tasks; the speaker takes responsibility for the tools.
+        meaning: I will bring the tools tomorrow. Use while assigning tasks; the speaker takes responsibility for
+          the tools.
+        note: "Undertake to bring the radio tomorrow. Answer: `Я принесу радіо завтра.` Change the item while
+          retaining the first-person future and responsibility context."
   - subskill_id: accepting_declining
-    explanation: A polite inability statement can decline a prior invitation.
+    explanation: Someone invited the speaker to come today, but attendance is impossible. `Перепрошую` marks
+      the social apology; `сьогодні я не можу прийти` states today’s constraint. In reply to that
+      invitation it declines, while without the invitation it could merely report availability.
     examples:
       - text: Перепрошую, сьогодні я не можу прийти.
-        meaning: Sorry, I cannot come today.
-        note: The declined attendance is explicit; the previous invitation supplies its setting.
+        meaning: Sorry, I cannot come today. The declined attendance is explicit; the previous invitation
+          supplies its setting.
+        note: "Someone now invites you to a different event tomorrow. Decline that invitation. Answer:
+          `Перепрошую, завтра я не можу прийти.` Change the day; the new invitation makes the inability a refusal."
   - subskill_id: negotiating_plans
-    explanation: State a scheduling constraint and propose a workable alternative.
+    explanation: A meeting was proposed for Friday, but the speaker cannot attend then. `У п’ятницю я не
+      можу` states the conflict with an understood meeting; `Зустріньмося в суботу` proposes a shared
+      meeting on Saturday. The second clause repairs the plan rather than merely naming a day.
     examples:
       - text: У п’ятницю я не можу. Зустріньмося в суботу.
-        meaning: I cannot on Friday. Let’s meet on Saturday.
-        note: The first clause relies on the proposed meeting, and the second proposes a replacement
-          day.
+        meaning: I cannot on Friday. Let’s meet on Saturday. The first clause relies on the proposed meeting, and
+          the second proposes a replacement day.
+        note: "Reject Friday and propose Sunday. Answer: `У п’ятницю я не можу. Зустріньмося в неділю.` Retain
+          the conflict and change the proposed meeting day."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - jenkala_ukrainian_infinitives2026
     - ukma_ukrainian_tenses2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

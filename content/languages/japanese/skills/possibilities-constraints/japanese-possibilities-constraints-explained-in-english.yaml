@@ -1,49 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: A dictionary-form verb followed by ことができます expresses being able to perform the
-      activity. It is one option alongside potential verb forms.
+    explanation: "A neighbor asks whether you can repair simple furniture. `簡単な家具を直すことができます` expresses ability: `簡単な家具を` names the objects, dictionary-form `直す` names the action, and `ことができます` treats that action as something you can do. The speaker is omitted because the question identifies them. Potential `直せます` is another way to express ability, but a request such as `直してください` asks someone else to act. Here the skill is yours, and the sentence does not ask for permission."
     examples:
       - text: 簡単な家具を直すことができます。
         meaning: I can repair simple furniture.
-        note: 直す names the activity that the speaker can perform. The sentence concerns practical
-          ability.
+        note: "Say you can repair bicycles. `自転車を直すことができます。` is a full ability statement; `自転車を` changes the object, while `直すことができます` retains the can-do construction."
   - subskill_id: permission
-    explanation: Attach もいいですか to a verb’s て-form to ask whether an action is allowed. Context
-      identifies whose permission is sought.
+    explanation: "You are in a shared room and need to leave luggage in one spot. `ここに荷物を置いてもいいですか` asks permission: `ここに` gives the destination, `荷物を` names the luggage, `置いて` is the `て` form of `置く`, and `もいいですか` asks whether doing that is acceptable. The person responsible for the room can grant or refuse. `置くことができますか` would ask about capability or feasibility instead. The same permission frame works with another action after its `て` form."
     examples:
       - text: ここに荷物を置いてもいいですか。
         meaning: May I put my luggage here?
-        note: 置いて is the て-form of 置く. Ask the person responsible for the space.
+        note: "Ask whether you may put a box here. `ここに箱を置いてもいいですか。` is a full permission request; `箱を` replaces the luggage, and `置いてもいいですか` asks if the action is allowed."
   - subskill_id: obligation
-    explanation: Replace the final ない in a negative verb form with なければなりません to state necessity. Its
-      combined meaning is positive obligation despite the negative components.
+    explanation: "The key must be returned today under a borrowing rule. `今日、鍵を返さなければなりません` states that duty: `今日` is the deadline, `鍵を` is what must be returned, and `返さなければなりません` is the necessity form from negative `返さない`. Although the construction contains negative pieces, its whole meaning is positive obligation. `返さなくてもいいです` removes the need to return it; `返してはいけません` would prohibit returning it. These are different constraints."
     examples:
       - text: 今日、鍵を返さなければなりません。
         meaning: I must return the key today.
-        note: 返さない supplies the stem for 返さなければ. The statement requires returning the key; it does not
-          forbid it.
+        note: "State that the book must be returned today. `今日、本を返さなければなりません。` is a full obligation; `本を` changes the item while the necessity form keeps the duty."
   - subskill_id: possibility
-    explanation: A plain proposition followed by かもしれません marks a possibility. The speaker leaves the
-      outcome uncertain.
+    explanation: "You are planning an afternoon activity and the wind forecast is uncertain. `午後は風が強くなるかもしれません` presents a possibility: `午後は` sets the afternoon, `風が` names what changes, `強くなる` means become strong, and `かもしれません` qualifies the whole event as possible. An `い` adjective changes to `強く` before `なる`. `風が強いです` would report strong wind as a current fact, not uncertainty about a change. The speaker does not claim the forecast will certainly occur."
     examples:
       - text: 午後は風が強くなるかもしれません。
         meaning: The wind may get stronger in the afternoon.
-        note: 強くなる describes becoming stronger. かもしれません qualifies that event as possible.
+        note: "Say it may become cold in the afternoon. `午後は寒くなるかもしれません。` is a full possibility statement; `寒くなる` names the change, and `かもしれません` leaves it uncertain."
   - subskill_id: certainty
-    explanation: 自信がありません can explicitly limit confidence. A preceding question clause can identify
-      what the speaker is unsure about.
+    explanation: "You have an answer but cannot tell whether it is right. `この答えで合っているか、自信がありません` marks the limit of your confidence: `この答えで` means with this answer, `合っているか` embeds the question of correctness, and `自信がありません` says you lack confidence. It does not assert that the answer is wrong. `この答えは間違っています` would claim an error. The clause before `か` tells the listener exactly what you are uncertain about."
     examples:
       - text: この答えで合っているか、自信がありません。
         meaning: I am not sure this answer is correct.
-        note: か embeds the issue of correctness. The speaker expresses uncertainty rather than declaring
-          the answer false.
+        note: "Say you are unsure whether this method is correct. `この方法で合っているか、自信がありません。` is complete; `この方法で` changes the issue, and `自信がありません` retains uncertainty."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -53,7 +45,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

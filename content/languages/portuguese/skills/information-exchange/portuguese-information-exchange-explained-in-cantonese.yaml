@@ -1,40 +1,40 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: A que horas問時間。一般巴西葡文問句嘅主語可以留喺限定動詞前，唔使加英文do類助動詞。
+    explanation: "你想聽日去圖書館，要先知開門時間。`A que horas a biblioteca abre amanhã?` 問幾點：`a que horas` 係「喺幾點」，`a biblioteca` 係主語，`abre` 係開門，`amanhã` 係聽日。巴西葡語問句入面主語可以留喺動詞前，唔使加英文 do。相反，`A biblioteca abre às oito?` 提出八點，係請人確認。"
     examples:
       - text: A que horas a biblioteca abre amanhã?
         meaning: 圖書館聽日幾點開門？
-        note: A que horas問開門時間；a biblioteca喺abre前面，句子仍然可以係問句。
+        note: "問聽日幾點關門：`A que horas a biblioteca fecha amanhã?`。呢句完整地問未知時間；`fecha` 取代 `abre`，`a que horas` 仍然問缺少嘅鐘點。"
   - subskill_id: answering_information
-    explanation: 相關回答可以只係短語，但前文要交代佢回答乜問題。
+    explanation: "對方啱啱問圖書館幾點開。`Às oito` 唔使重複全句，已經答到八點。`Às` 係表示時間嘅 `a` 同複數冠詞 `as` 合成；大家明白係鐘點時可以唔講 `horas`。短答之所以完整，係因為前一句問題已講明邊件事喺嗰個時間發生；單獨一句就唔知講緊邊度開門。"
     examples:
       - text: Às oito.
         meaning: 八點。
-        note: 回應圖書館幾點開門；às喺時間表達入面結合a同as。
+        note: "答九點開：`Às nove.`。喺開門時間問題後已經足夠；`nove` 取代 `oito`，其他意思由共同問題提供。"
   - subskill_id: checking_facts
-    explanation: 命題後加não é?，可以請聽者確認；要確認嘅內容應該喺句子同語境中辨認到。
+    explanation: "你聽講圖書館八點開，出門前想核實。`A biblioteca abre às oito, não é?` 先提出你相信嘅事實；`não é?` 再請對方確認，近似「係咪？」。`Às oito` 係八點，`às` 由 `a` 加 `as` 合成。對方可以確認，亦可以糾正八點。`A que horas a biblioteca abre?` 就冇先提出時間，而係開放式發問。"
     examples:
       - text: A biblioteca abre às oito, não é?
         meaning: 圖書館八點開門，係咪？
-        note: 之前有人提出八點，講者再核實呢個開門時間。
+        note: "核實係咪九點開：`A biblioteca abre às nove, não é?`。先提出九點呢個事實，再請對方確認；改變嘅係鐘點 `nove`。"
   - subskill_id: useful_detail
-    explanation: 補充空間表達可以縮窄所需位置；ao係a加o，do係de加o。
+    explanation: "訪客知道棟樓，但搵唔到入口。`A entrada fica na lateral, ao lado do jardim` 畀兩個有用地標：`fica` 表示位置，`na lateral` 係側面（`em` 加 `a`），`ao lado do jardim` 係花園旁邊（`a` 加 `o`；`de` 加 `o`）。第二段令訪客知道應該搵邊一側。只講 `A entrada fica na lateral` 可能仲要四圍搵；加上花園先真正收窄位置。詳情有助消除實際含糊先有用。"
     examples:
       - text: A entrada fica na lateral, ao lado do jardim.
         meaning: 入口喺側邊，花園隔籬。
-        note: 第二個位置短語指出邊一側有入口，幫對方搵路入去。
+        note: "只用花園作地標：`A entrada fica ao lado do jardim.`。仍然講明入口位置；`ao lado do` 指明同花園嘅空間關係，唔再講較籠統嘅側面。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/information-exchange/portuguese-information-exchange-explained-in-english.yaml
-    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -42,7 +42,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -52,7 +52,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/information-exchange/portuguese-information-exchange-explained-in-english.yaml
-        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -60,6 +60,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

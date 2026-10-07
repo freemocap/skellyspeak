@@ -803,6 +803,10 @@ export default function ConversationPage({
       </section>
   )
 
+  // The difficulty select sits beside the partner while the header has room for
+  // it. A narrow header is one row, so there it leads the settings sheet instead.
+  const difficultyControl = details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />
+
   return (
     <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider enabled={settings?.xp_effects !== false} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
     <div className="guided-workspace">
@@ -827,11 +831,11 @@ export default function ConversationPage({
             aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}><ToolbarIcon name="menu" size={17} /></button>}
           persona={<PersonaPicker choices={contactChoices} currentId={activeContactId} open={partnerMenuOpen} onOpenChange={setPartnerMenuOpen}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}
-          difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />}>
+          difficulty={isMobile ? undefined : difficultyControl}>
           <div className="chat-heading-actions">
           <XpChip chatId={currentChatId} onOpen={openProgress} />
           <ConversationSettings summary={settings?.auto_speak ? tr("Reading aloud") : undefined} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
-            nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
+            nativePicker={nativePicker} difficulty={isMobile ? difficultyControl : undefined} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
             promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />} />
           <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /></button>
           </div>

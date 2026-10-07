@@ -1,56 +1,63 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: malayalam-cantonese-teaching-expanded-2026-10-07
 language: malayalam
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 不定式配合കഴിയും，可以表示能力。
+    explanation: 大家決定邊個可以去游水，你講自己識游。`എനിക്ക്` 指有能力嘅人，`നീന്താൻ` 係去游水；活動放喺
+      `കഴിയും`「能夠」之前。呢句報告技能，唔係問准唔准游。
     examples:
       - text: എനിക്ക് നീന്താൻ കഴിയും.
-        meaning: 我識游水。
-        note: എനിക്ക്指出有呢種能力嘅人。
+        meaning: 我識游水。`എനിക്ക്` 係對我，`നീന്താൻ` 係游水呢個動作，`കഴിയും` 表示有能力做到。
+        note: 試講你唔識游水。答案：`എനിക്ക് നീന്താൻ കഴിയില്ല.` 將肯定能力 `കഴിയും` 換成否定 `കഴിയില്ല`；保留有能力嘅人同要做嘅動作。
   - subskill_id: permission
-    explanation: ആമോ結尾問句，可以問某個行動獲唔獲准。
+    explanation: 喺別人管理嘅地方，你想將袋放低，先問可唔可以。`ഇവിടെ` 係呢度，`ബാഗ്` 係袋；句尾 `വെക്കാമോ?` 問放袋呢個行動可唔可以，管理人係被問嘅對象。
     examples:
       - text: ഇവിടെ ബാഗ് വെക്കാമോ?
-        meaning: 我可唔可以放個袋喺度？
-        note: 向管理地方嘅人詢問；行動者由語境辨認。
+        meaning: 我可唔可以將袋放喺度？`വെക്കാമോ` 係放置動作嘅情態問句；邊個放袋由你向負責人發問嘅情境知道。
+        note: 試問可唔可以將袋放喺嗰度。答案：`അവിടെ ബാഗ് വെക്കാമോ?` 將 `ഇവിടെ` 換成 `അവിടെ`；對方喺呢個許可情境答 `വെക്കാം`
+          可以表示批准，唔係任何場合都同義。
   - subskill_id: obligation
-    explanation: കൊടുക്കണം入面嘅詞尾可以表達必要行動。
+    explanation: 借咗鎖匙，今日係歸還限期。`ഞാൻ` 指負責人，`ഇന്ന്` 係今日；`തിരികെ കൊടുക്കണം` 係必須還返去，強過只講將來會還。
     examples:
       - text: ഞാൻ ഇന്ന് താക്കോൽ തിരികെ കൊടുക്കണം.
-        meaning: 我今日一定要還鎖匙。
-        note: 語境係歸還限期，所以係義務，唔係願望。
+        meaning: 我今日一定要還鎖匙。`താക്കോൽ` 係鎖匙，`തിരികെ` 係返去，`കൊടുക്കണം` 令歸還成為必要行動。
+        note: 試將歸還限期改到聽日。答案：`ഞാൻ നാളെ താക്കോൽ തിരികെ കൊടുക്കണം.` 將 `ഇന്ന്` 換成 `നാളെ`；`വെക്കേണ്ട`
+          單獨出現可按背景解作唔使放或叫人唔好放，唔好硬當成唯一否定規則。
   - subskill_id: possibility
-    explanation: 含有ഏക്കാം嘅形式可以表達可能事件。
+    explanation: 考慮晚間戶外活動時，你提到未確定嘅雨勢。`വൈകുന്നേരം` 係傍晚，`മഴ` 係雨；`പെയ്തേക്കാം` 將落雨講成可能發生，冇斷言一定會落。
     examples:
       - text: വൈകുന്നേരം മഴ പെയ്തേക്കാം.
-        meaning: 夜晚可能落雨。
-        note: 天氣結果仍然未肯定。
+        meaning: 傍晚可能落雨。`മഴ പെയ്തേക്കാം` 係雨可能落；英文天氣句嘅 it 唔使照搬入馬拉雅拉姆文。
+        note: 試改成聽日可能落雨。答案：`നാളെ മഴ പെയ്തേക്കാം.` 將時間換成 `നാളെ`；`പെയ്തേക്കാം` 保留不確定，`നാളെ മഴ
+          പെയ്യും` 就係較直接嘅預報。
   - subskill_id: certainty
-    explanation: ഉറപ്പില്ല表示對命題冇把握。
+    explanation: 去舖頭之前，你唔肯定佢有冇開門。`കട തുറന്നിട്ടുണ്ടോ` 先提出關於開門狀態嘅問句，`എന്ന്` 將佢連到 `എനിക്ക്
+      ഉറപ്പില്ല`「我冇把握」。唔肯定唔等於話舖頭閂咗。
     examples:
       - text: കട തുറന്നിട്ടുണ്ടോ എന്ന് എനിക്ക് ഉറപ്പില്ല.
-        meaning: 我唔肯定間舖頭開咗未。
-        note: 嵌入問句指出唔肯定乜嘢，冇斷言舖頭閂咗。
+        meaning: 我唔肯定間舖頭開咗未。`കട` 係舖頭，`തുറന്നിട്ടുണ്ടോ` 問係咪開住；`എന്ന്` 將未解決嘅問題連到句尾 `എനിക്ക്
+          ഉറപ്പില്ല`。
+        note: 練習分辨：`എനിക്ക് ഉറപ്പില്ല` 係咪話舖頭閂咗？答案：唔係。佢只講講者唔肯定開門狀態；`കട തുറന്നിട്ടില്ല` 先係斷言舖頭冇開。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/malayalam/skills/possibilities-constraints/malayalam-possibilities-constraints-explained-in-english.yaml
-    at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
+    - moagMalayalamTeaching20261007
     - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: malayalam-cantonese-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   malayalam-kerala:
     disposition: use_core
@@ -58,14 +65,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/malayalam/skills/possibilities-constraints/malayalam-possibilities-constraints-explained-in-english.yaml
-        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - nizar_malayalam_dative2010
         - ut_malayalam_dialogues2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: malayalam-cantonese-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

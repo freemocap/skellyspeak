@@ -1,54 +1,75 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Тому що introduces the reason for the preceding situation.
+    explanation: A feminine speaker explains why she stayed home. `Я залишилася вдома` reports that choice;
+      `тому що пішов дощ` gives the reason, the start of rain. `Залишилася` agrees with the speaker,
+      while `пішов` agrees with masculine `дощ`.
     examples:
       - text: Я залишилася вдома, тому що пішов дощ.
-        meaning: I stayed home because it started raining.
-        note: The feminine speaker identifies rain as the reason.
+        meaning: I stayed home because it started raining. The feminine speaker identifies rain as the reason.
+        note: "Say she stayed home because snow began. Answer: `Я залишилася вдома, тому що пішов сніг.` Keep the
+          reason link and feminine speaker form; masculine `сніг` also takes `пішов`."
   - subskill_id: consequences
-    explanation: Тому can introduce what followed as a result.
+    explanation: A bus failed to arrive, so the speaker walked. `Автобус не приїхав` supplies the
+      circumstance; `тому` marks walking as its consequence. `Пішла` is feminine past, describing the
+      speaker’s movement on foot in this account.
     examples:
       - text: Автобус не приїхав, тому я пішла пішки.
-        meaning: The bus did not come, so I walked.
-        note: The feminine speaker presents walking as a consequence.
+        meaning: The bus did not come, so I walked. The feminine speaker presents walking as a consequence.
+        note: "Say the bus did not arrive, so she stayed home. Answer: `Автобус не приїхав, тому я залишилася
+          вдома.` The same failed arrival now leads to staying home; `залишилася` keeps feminine speaker
+          agreement."
   - subskill_id: conditions
-    explanation: Якщо introduces a real condition whose outcome can be expressed in the future.
+    explanation: The group has an outdoor plan for tomorrow. `Якщо завтра піде дощ` makes rain a future
+      condition; `ми залишимося вдома` states the plan if that condition occurs. Both `піде` and
+      `залишимося` are future forms; this real condition is not a claim that rain already happened.
     examples:
       - text: Якщо завтра піде дощ, ми залишимося вдома.
-        meaning: If it rains tomorrow, we will stay home.
-        note: Both clauses use future forms; staying home depends on the condition.
+        meaning: If it rains tomorrow, we will stay home. Both clauses use future forms; staying home depends on
+          the condition.
+        note: "Say that if it rains tomorrow, the group will work at home. Answer: `Якщо завтра піде дощ, ми
+          працюватимемо вдома.` Keep the future rain condition; `працюватимемо` gives an imperfective
+          future work plan."
   - subskill_id: contrast
-    explanation: Але connects descriptions that pull in different directions in the discussion.
+    explanation: You compare routes for a walk. `Дорога коротка` gives the advantage of a short route; `але
+      крута` adds the drawback that it is steep. `Коротка` and `крута` are feminine singular properties
+      of `дорога`.
     examples:
       - text: Дорога коротка, але крута.
-        meaning: The road is short but steep.
-        note: The contrast matters when weighing routes.
+        meaning: The road is short but steep. The contrast matters when weighing routes.
+        note: "Say the road is long but gentle instead. Answer: `Дорога довга, але полога.` Keep the contrast and
+          feminine adjective forms; the two route qualities now change."
   - subskill_id: supporting_claims
-    explanation: An observable fact can support a tentative conclusion.
+    explanation: You see a light in a home’s window and infer someone may be inside. `Думаю` marks a
+      judgment; `тому що у вікні горить світло` gives the observed basis. The light supports the belief;
+      it does not cause a person to be home.
     examples:
       - text: Думаю, хтось є вдома, тому що у вікні горить світло.
-        meaning: I think someone is home because there is a light on in the window.
-        note: The light is evidence for the inference, not its physical cause.
+        meaning: I think someone is home because there is a light on in the window. The light is evidence for the
+          inference, not its physical cause.
+        note: "Use a voice heard inside as the evidence instead. Answer: `Думаю, хтось є вдома, тому що з дому
+          чути голос.` The heard voice supports the same tentative occupancy inference."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - jenkala_ukrainian_conditions2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

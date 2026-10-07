@@ -1,71 +1,68 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: เพราะ引出前述情況嘅原因。
+    explanation: 朋友問落雨時你點解留喺屋企。`ฉันอยู่บ้าน` 講情況；`เพราะ` 引出原因 `ฝนตก`。句子解釋點解留低，唔係只列兩件事。冇另加過去或將來標記時，眼前語境提供時間。
     examples:
       - text: ฉันอยู่บ้านเพราะฝนตก
         meaning: 因為落緊雨，我留喺屋企。
-        note: 當前語境交代時間；落雨係原因。
+        note: 試吓話因為攰而留喺屋企。答案：`ฉันอยู่บ้านเพราะเหนื่อย`。`เพราะ` 仍引出原因；`เหนื่อย` 將原因改成疲倦。
   - subskill_id: consequences
-    explanation: เลย可以連接事件同結果。
+    explanation: 巴士一直冇嚟，你解釋結果點做。`รถเมล์ไม่มา` 交代問題；`ฉันเลยเดินไป` 用 `เลย` 將步行講成後果。呢度 `เลย` 連接因果，唔只係表示「跟住」。
     examples:
       - text: รถเมล์ไม่มา ฉันเลยเดินไป
         meaning: 架巴士冇嚟，所以我行咗過去。
-        note: 講述過去行程時，行路係巴士冇嚟之後嘅應對。
+        note: 試吓話巴士冇嚟，所以你搭的士去。答案：`รถเมล์ไม่มา ฉันเลยนั่งแท็กซี่ไป`。`เลย` 仍連接交通問題同應對；應對改為搭的士。
   - subskill_id: conditions
-    explanation: ถ้า引出條件，另一個分句交代相應結果。
+    explanation: 大家按聽日天氣定安排。`ถ้า` 引出可能條件 `พรุ่งนี้ฝนตก`。`เราจะอยู่บ้าน` 講條件成立時嘅計劃，`จะ` 指向之後嘅行動。泰語唔使將落雨動詞變成特殊將來詞形。
     examples:
       - text: ถ้าพรุ่งนี้ฝนตก เราจะอยู่บ้าน
         meaning: 如果聽日落雨，我哋就留喺屋企。
-        note: 計劃取決於天氣條件。
+        note: 試吓話如果聽日出太陽，就去散步。答案：`ถ้าพรุ่งนี้แดดออก เราจะไปเดินเล่น`。`ถ้า` 仍設條件；第二句講依賴條件嘅安排。
   - subskill_id: contrast
-    explanation: แต่連接討論中有對比嘅描述。
+    explanation: 你揀散步路線。`ทางสั้น` 講優點：路短；`แต่ชัน` 加上缺點：斜。`แต่` 將影響選擇方向相反嘅特質連起來；兩個特質都講同一條路。
     examples:
       - text: ทางสั้นแต่ชัน
         meaning: 條路短，但好斜。
-        note: 揀路線時，兩個性質有唔同影響。
+        note: 試吓話條路長，但平坦。答案：`ทางยาวแต่ราบ`。`แต่` 仍對比實際特質；`ราบ` 話雖然長，但路面平。
   - subskill_id: supporting_claims
-    explanation: 原因分句可以為推論提供證據。
+    explanation: 你見到屋內仍有燈，審慎推測可能有人。`ฉันคิดว่า` 標示係推斷；`มีคนอยู่บ้าน` 係結論。`เพราะไฟยังเปิดอยู่`
+      用燈光做支持線索。燈光唔係有人嘅證明，亦唔係令嗰個人喺屋企嘅原因。
     examples:
       - text: ฉันคิดว่ามีคนอยู่บ้าน เพราะไฟยังเปิดอยู่
         meaning: 我諗有人喺屋企，因為盞燈仲開住。
-        note: 燈光支持推論，唔係造成有人嘅原因。
+        note: 試吓由屋內傳出人聲作同樣審慎推斷。答案：`ฉันคิดว่ามีคนอยู่บ้าน เพราะได้ยินเสียงคนข้างใน`。`ฉันคิดว่า` 保留推測；聽到人聲提供更強線索。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/thai/skills/reasons-connections/thai-reasons-connections-explained-in-english.yaml at
-    revision thai-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - fsi_thai_time2026
     - niu_thai_hai2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   thai-thailand:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/thai/skills/reasons-connections/thai-reasons-connections-explained-in-english.yaml
-        at revision thai-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
       sources:
         - fsi_thai_time2026
         - niu_thai_hai2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

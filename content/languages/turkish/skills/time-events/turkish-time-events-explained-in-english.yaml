@@ -1,60 +1,89 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: The progressive form can present an activity as underway.
+    explanation: Someone calls while you are working on a bicycle. `Şimdi` locates the action
+      now, `bisikleti` marks the particular bicycle as object, and `tamir ediyorum` is the
+      speaker’s ongoing repair. The time word and context support the current reading; the
+      form alone can occur with other time references.
     examples:
       - text: Şimdi bisikleti tamir ediyorum.
         meaning: I am repairing the bicycle now.
-        note: Ediyorum identifies the first-person activity; şimdi anchors it to now.
+        note: "Say you are repairing the radio now. Answer: `Şimdi radyoyu tamir ediyorum.`
+          Replace the object with `radyoyu`; `şimdi` and `ediyorum` still present an
+          ongoing action."
   - subskill_id: past_events
-    explanation: The past suffix combines with a person ending.
+    explanation: A colleague asks what you did yesterday. `Dün` gives yesterday, `bisikleti`
+      identifies the bicycle, and `tamir ettim` gives the completed repair in the
+      speaker’s direct-past first-person form. The verb ending does not mark the speaker’s
+      gender.
     examples:
       - text: Dün bisikleti tamir ettim.
         meaning: Yesterday I repaired the bicycle.
-        note: Ettim is the past first-person form of etmek in tamir etmek; it has no gender marking.
+        note: "Report that you repaired the radio yesterday. Answer: `Dün radyoyu tamir ettim.`
+          Change the object to `radyoyu`; `ettim` still reports your past action."
   - subskill_id: future_events
-    explanation: The future suffix and person ending can express a later plan.
+    explanation: You are planning tomorrow’s repair and need parts. `Yarın` sets tomorrow,
+      `parçaları` refers to the particular parts, and `alacağım` expresses the speaker’s
+      later action. In this plan it means you will obtain or collect them; the future
+      first-person form is carried by `alacağım`.
     examples:
       - text: Yarın parçaları alacağım.
         meaning: Tomorrow I will collect the parts.
-        note: Alacağım marks the future first-person action; yarın gives the day.
+        note: "Say you will collect the tools tomorrow instead. Answer: `Yarın aletleri alacağım.`
+          Replace the object with `aletleri`; `alacağım` keeps the first-person future
+          action."
   - subskill_id: duration_frequency
-    explanation: A locative time unit and occurrence count can express frequency.
+    explanation: Someone asks how often you swim. `Haftada` means in each week, `iki kez`
+      counts two occasions, and `yüzüyorum` names the recurring swimming activity. The
+      phrase gives frequency, not a two-hour duration.
     examples:
       - text: Haftada iki kez yüzüyorum.
         meaning: I swim twice a week.
-        note: Haftada sets the recurring interval and iki kez counts occasions.
+        note: "Say you swim three times a week. Answer: `Haftada üç kez yüzüyorum.` Change the
+          count to `üç`; `haftada` still gives the weekly interval and `kez` counts
+          occasions."
   - subskill_id: event_sequence
-    explanation: Önce and sonra specify ordered steps.
+    explanation: You give food-preparation instructions. `Önce` sets handwashing as the first
+      step; `sonra` introduces preparing vegetables next. `ellerinizi` politely refers to
+      the listener’s hands, and both `yıkayın` and `hazırlayın` address the listener
+      politely or as a group. The markers order steps, not a logical cause.
     examples:
       - text: Önce ellerinizi yıkayın, sonra sebzeleri hazırlayın.
         meaning: First wash your hands, then prepare the vegetables.
-        note: The polite or plural instructions establish order, not causation.
+        note: "Tell the same listener to wash hands first and then cut vegetables. Answer: `Önce
+          ellerinizi yıkayın, sonra sebzeleri kesin.` Keep the first step and `sonra`, but
+          replace preparation with the concrete second action `kesin`."
   - subskill_id: event_phase
-    explanation: Bitirmek with a nominalized action names its completion.
+    explanation: A friend asks whether you have finished a book. `Kitabı` is the particular
+      book, `okumayı` makes reading an action noun and marks it as the object of
+      `bitirdim`, I finished. The whole expression says the reading is complete, not
+      merely that it happened sometime.
     examples:
       - text: Kitabı okumayı bitirdim.
         meaning: I finished reading the book.
-        note: Okumayı names the reading activity that has ended.
+        note: "Say you finished writing the letter instead. Answer: `Mektubu yazmayı bitirdim.`
+          Replace the book and reading with `Mektubu yazmayı`; `bitirdim` still marks
+          completion of the named activity."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_past2026
+    - tt_turkish_progressive2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

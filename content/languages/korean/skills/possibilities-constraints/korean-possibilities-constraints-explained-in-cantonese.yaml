@@ -1,71 +1,56 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 動詞詞幹配合을 수 있어요，可以表示能力；依存名詞수喺正常書寫要分開。
+    explanation: 朋友問你識唔識處理簡單故障。`간단한 고장은` 限定能力範圍；`고칠 수 있어요` 表示有能力修理。`수` 係分開寫嘅依存名詞，做事嘅人由對話可知。
     examples:
       - text: 간단한 고장은 고칠 수 있어요.
-        meaning: 簡單故障我識整。
-        note: 고칠 수 있어요描述實際能力；은將簡單故障標示為話題或能力範圍。
+        meaning: 簡單故障我識整。 고칠 수 있어요描述實際能力；은將簡單故障標示為話題或能力範圍。
+        note: 試吓話你識整小故障。答案：`작은 고장은 고칠 수 있어요`。能力範圍改 `작은 고장`，保留 `고칠 수 있어요` 表能力。
   - subskill_id: permission
-    explanation: 아도或어도後接돼요，可以問某個行動獲唔獲准；聽者身份提供批准權限。
+    explanation: 喺共用地方泊車前，先問負責人。`여기에` 指呢度；`자전거를 세워도 돼요?` 問可否將單車停喺呢個位置。喺呢段對話，`-어도 돼요?` 係問許可，唔係身體能力。
     examples:
       - text: 여기에 자전거를 세워도 돼요?
-        meaning: 我可唔可以泊架單車喺度？
-        note: 세워도來自세우다；向管理地方嘅人詢問。
+        meaning: 我可唔可以泊架單車喺度？ 세워도來自세우다；向管理地方嘅人詢問。
+        note: 試吓問可否喺外面泊單車。答案：`밖에 자전거를 세워도 돼요?`。位置改 `밖에`，保留 `세워도 돼요?` 問准許。
   - subskill_id: obligation
-    explanation: 아야或어야配合해요，表示必須做嘅行動，要求有別於願望。
+    explanation: 借書今日到期。`오늘` 指期限；`이 책을` 標示本書，`돌려줘야 해요` 表示必須還。呢句講義務，唔係已經還咗。`안 해도 돼요` 係唔使做；`하면 안 돼요` 係唔准做。
     examples:
       - text: 오늘 이 책을 돌려줘야 해요.
-        meaning: 我今日一定要還呢本書。
-        note: 돌려줘야 해요表示責任，오늘交代時間；唔係話已經還咗。
+        meaning: 我今日一定要還呢本書。 돌려줘야 해요表示責任，오늘交代時間；唔係話已經還咗。
+        note: 試吓話聽日必須還呢本書。答案：`내일 이 책을 돌려줘야 해요`。`오늘` 改 `내일`，保留表示義務嘅形式。
   - subskill_id: possibility
-    explanation: 을 수도 있어요可以將事件表達為可能結果之一，唔一定講實際技能。
+    explanation: 你決定下晝戶外活動好唔好。`오후에` 指時間；`비가 올 수도 있어요` 將落雨視為其中一個可能結果。呢度 `수도 있어요` 講事件可能性，唔係修理技能。
     examples:
       - text: 오후에 비가 올 수도 있어요.
-        meaning: 下晝可能落雨。
-        note: 비가 올交代可能事件；도幫助將佢表達成多種可能之一。
+        meaning: 下晝可能落雨。 비가 올交代可能事件；도幫助將佢表達成多種可能之一。
+        note: 試吓話聽日可能落雨。答案：`내일 비가 올 수도 있어요`。時間改 `내일`，保留可能事件形式 `올 수도 있어요`。
   - subskill_id: certainty
-    explanation: 확실하지 않아요明確否定確定性；話題短語可以指出邊件事未肯定。
+    explanation: 有人問活動確實日期，但仲未定。`정확한 날짜는` 將確實日期設為話題；`아직 확실하지 않아요` 表示仍未肯定。呢句唔係斷言某個提議日期錯。
     examples:
       - text: 정확한 날짜는 아직 확실하지 않아요.
-        meaning: 確實日期仲未定。
-        note: 아직表示仍然未肯定，唔係話建議日期一定錯。
-provenance:
+        meaning: 確實日期仲未定。 아직表示仍然未肯定，唔係話建議日期一定錯。
+        note: 試吓話確實時間仲未肯定。答案：`정확한 시간은 아직 확실하지 않아요`。話題名詞改 `시간`，保留 `아직` 同否定肯定性嘅述語。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/possibilities-constraints/korean-possibilities-constraints-explained-in-english.yaml
-    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_permission2026
     - htsk_tense2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/possibilities-constraints/korean-possibilities-constraints-explained-in-english.yaml
-        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_permission2026
-        - htsk_tense2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

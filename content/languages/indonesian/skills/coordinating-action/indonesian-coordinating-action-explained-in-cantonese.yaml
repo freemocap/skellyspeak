@@ -1,79 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: Tolong 配合命令式，可以請人幫手做一件事。命令式動詞未必保留陳述句用嘅主動前綴。
+    explanation: 張椅擋住工作位，你請對方搬走。`Tolong` 表示請幫忙，`pindahkan` 叫聽者移動後面嗰件物件。
     examples:
       - text: Tolong pindahkan kursi ini.
-        meaning: 唔該幫手搬開張凳。
-        note: Pindahkan 叫對方搬張凳；tolong 將呢個要求表達成請人幫忙。
+        meaning: 唔該幫手搬開張凳。 `kursi ini` 係呢張椅；請求要改位置，唔係問對方有冇能力搬。
+        note: 試請對方搬呢張枱。答案：`Tolong pindahkan meja ini.` 換物件；`Meja ini di sini` 只係報位置。
   - subskill_id: offers_invitations
-    explanation: 招待人嗰陣，可以用 mau 加提供嘅物品問對方想唔想要。語境會交代接受招待嘅人係邊個。
+    explanation: 訪客到，你請佢飲茶。喺呢個對話，簡短 `Mau ...?` 問聽者要唔要提供嘅嘢；聽者可省略。
     examples:
       - text: Mau secangkir teh?
-        meaning: 你想唔想飲杯茶？
-        note: 主人招呼客人飲茶時講。Secangkir 指一杯。
+        meaning: 你想唔想飲杯茶？ `secangkir teh` 係一杯茶；問句係提供飲品，唔係查訪客有乜財物。
+        note: 試提供一杯咖啡。答案：`Mau secangkir kopi?` 換飲品；`Saya mau teh` 係講自己想飲，唔係請訪客。
   - subskill_id: suggestions
-    explanation: Mari 可以提出一齊做嘅事。Kita 明確包括聽緊嘅對方。
+    explanation: 你同聽者要核對顏色。`Mari kita` 提議共同做，明確包括聽者；`bersama` 再強調一齊。
     examples:
       - text: Mari kita periksa warnanya bersama.
-        meaning: 不如我哋一齊檢查吓隻色。
-        note: 講者提議大家一齊檢查；bersama 再強調共同參與。
+        meaning: 不如我哋一齊檢查吓隻色。 `periksa warnanya` 係檢查顏色；`kita` 包括雙方，`kami` 則唔包括聽者。
+        note: 試提議一齊檢查尺寸。答案：`Mari kita periksa ukurannya bersama.` 換被檢查嘅性質；`Mari kami`
+          同邀請聽者參與相衝。
   - subskill_id: commitments
-    explanation: 安排分工時，將來嘅陳述可以表示願意負責一件事。究竟係承諾定預測，要睇成段對話。
+    explanation: 分工時你自願聽日帶工具。`Saya akan membawa` 講自己稍後行動；分工語境令佢成為承諾，唔只係預測。
     examples:
       - text: Saya akan membawa alatnya besok.
-        meaning: 聽日我會帶嗰啲器材嚟。
-        note: 約好活動後，自願負責帶器材時可以咁講。-nya 指返嗰啲器材。
+        meaning: 聽日我會帶嗰啲器材嚟。 `besok` 指聽日，`alatnya` 指大家已談及嘅工具；`-nya` 指返已知物件。
+        note: 試承擔聽日帶顏料。答案：`Saya akan membawa catnya besok.` 換物件，保留任務；單靠 `akan` 唔保證係承諾。
   - subskill_id: accepting_declining
-    explanation: Maaf 可以令拒絕冇咁生硬。收到邀請後，講自己做唔到，就可以婉拒邀請。
+    explanation: 有人約你今晚見，但你去唔到。`Maaf` 緩和答覆，`tidak bisa datang malam ini` 講限制，婉拒嗰次邀請。
     examples:
       - text: Maaf, saya tidak bisa datang malam ini.
-        meaning: 唔好意思，我今晚嚟唔到。
-        note: 用嚟回應今晚嘅邀請，表示唔會出席。
+        meaning: 唔好意思，我今晚嚟唔到。 `malam ini` 限定今晚；冇上文邀請，同一句亦可能只係講可唔可以出席。
+        note: 試改成因今晚忙而婉拒。答案：`Maaf, saya sibuk malam ini.` 回應邀請時係拒絕理由；`Ya, saya datang`
+          係接受。
   - subskill_id: negotiating_plans
-    explanation: Bagaimana kalau 用嚟提出另一個方案。先講清楚原定安排撞咗乜嘢，對方就容易明白點解要改。
+    explanation: 對方提議星期五，但你忙。先講衝突，再用 `Bagaimana kalau ...?` 提星期六畀雙方考慮。
     examples:
       - text: Jumat saya sibuk. Bagaimana kalau kita bertemu Sabtu?
-        meaning: 我星期五冇時間。不如星期六見？
-        note: 回應星期五見面嘅建議；改另一日，正好處理頭先講嘅時間衝突。
+        meaning: 我星期五冇時間。不如星期六見？ `Jumat saya sibuk` 排除星期五，`kita bertemu Sabtu`
+          將聽者包括喺新會面；問句徵求同意。
+        note: 試改提星期日。答案：`Jumat saya sibuk. Bagaimana kalau kita bertemu Minggu?`
+          換新日期，保留原衝突。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/coordinating-action/indonesian-coordinating-action-explained-in-english.yaml
-    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/coordinating-action/indonesian-coordinating-action-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
         - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

@@ -1,73 +1,80 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Karena 引出情況或者行動嘅原因；後面嗰個分句交代理由。
+    explanation: 你解釋點解停印。`karena` 喺行動後面引入原因，`tintanya habis` 係墨用晒。
     examples:
       - text: Saya berhenti mencetak karena tintanya habis.
-        meaning: 因為啲墨用晒，我停咗印嘢。
-        note: 冇墨解釋咗點解停印。過去嘅意思來自語境，唔係動詞時態詞尾。
+        meaning: 因為啲墨用晒，我停咗印嘢。 `Saya berhenti mencetak` 係停印，`karena tintanya habis`
+          係解釋；過去意思來自事件情境，唔係動詞變形。
+        note: 試改成因為紙用晒。答案：`Saya berhenti mencetak karena kertasnya habis.`
+          換耗盡嘅物資，仍要能解釋停印。
   - subskill_id: consequences
-    explanation: 口語 jadi 可以引出前述情況嘅結果，唔係只表示下一件事。
+    explanation: 墨用晒，所以你買新墨。`jadi` 將購買講成前面缺墨嘅結果，唔係單純下一件事。
     examples:
       - text: Tintanya habis, jadi saya membeli tinta baru.
-        meaning: 啲墨用晒，所以我買咗新墨。
-        note: 買墨被表達成用晒墨之後嘅應對；呢度 baru 修飾 tinta。
+        meaning: 啲墨用晒，所以我買咗新墨。 `Tintanya habis` 係問題，`saya membeli tinta baru` 係回應；`baru`
+          放 `tinta` 後，修飾墨。
+        note: 試將結果改成去舖頭。答案：`Tintanya habis, jadi saya pergi ke toko.` 保留缺墨前提，換後果。
   - subskill_id: conditions
-    explanation: Kalau 將一個可能情況同喺嗰種情況下嘅結果連起來。印尼文唔需要套用英文式嘅條件句時態配搭。
+    explanation: 你按天氣安排喺邊度做嘢。`Kalau hujan` 係落雨條件，`kita bekerja di dalam`
+      係成立後嘅室內計劃；唔使特殊虛擬式詞尾。
     examples:
       - text: Kalau hujan, kita bekerja di dalam.
-        meaning: 如果落雨，我哋就喺入面做嘢。
-        note: 落雨係改喺室內做嘢嘅條件，唔代表而家已經落緊雨。
+        meaning: 如果落雨，我哋就喺入面做嘢。 `kita` 包括聽者；句子冇斷言而家落雨，室內工作取決於佢。
+        note: 試講冇落雨就出面做。答案：`Kalau tidak hujan, kita bekerja di luar.` 否定條件並換地點。
   - subskill_id: contrast
-    explanation: Tetapi 連接互相對照嘅考慮因素；兩邊都要有足夠內容，先睇得出對比。
+    explanation: 你講張紙平，但有缺點。`tetapi` 將低價同容易破連成對比。
     examples:
       - text: Kertas ini murah, tetapi mudah robek.
-        meaning: 呢種紙平，但好容易爛。
-        note: 價錢平同一個缺點形成對比；mudah robek 表示容易撕爛。
+        meaning: 呢種紙平，但好容易爛。 `Kertas ini murah` 係呢種紙平，`mudah robek` 係易破，同低價可能帶來嘅吸引力相反。
+        note: 試改成另一缺點：紙容易皺。答案：`Kertas ini murah, tetapi mudah kusut.` 保留低價，再用紙本身嘅性質做對比。
   - subskill_id: supporting_claims
-    explanation: Karena 可以為判斷提供理據；理由應該支持所講嘅優點或者結論。
+    explanation: 討論設計時，你覺得一款較好，因為文字較清楚。`Menurut saya` 標個人判斷，`karena` 引入支持理由。
     examples:
       - text: Menurut saya, desain ini lebih baik karena tulisannya lebih jelas.
-        meaning: 我覺得呢個設計好啲，因為啲字清楚啲。
-        note: 字體較清楚係支持設計評價嘅證據，唔係加一個無關事實。
+        meaning: 我覺得呢個設計好啲，因為啲字清楚啲。 `desain ini lebih baik` 係評價，`tulisannya lebih jelas`
+          係依據；文字較清楚支持評價，唔係令設計存在嘅原因。
+        note: 試改用字體較大作理由。答案：`Menurut saya, desain ini lebih baik karena hurufnya lebih
+          besar.` 大字可支持易讀嘅判斷；只重複自己鍾意邊款唔算理由。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/reasons-connections/indonesian-reasons-connections-explained-in-english.yaml
-    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/reasons-connections/indonesian-reasons-connections-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
         - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

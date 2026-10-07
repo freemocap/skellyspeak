@@ -1,69 +1,55 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: 이분禮貌噉指介紹緊嘅人；元音結尾名詞喺呢類禮貌識別句用예요。
+    explanation: 初次見面時禮貌噉介紹同事。`이분은` 將呢位人士設為話題，`제` 謙遜噉表示「我嘅」；`동료예요` 指同事關係。元音結尾名詞接 `예요`。
     examples:
       - text: 이분은 제 동료예요.
-        meaning: 呢位係我同事。
-        note: 제係謙遜嘅「我嘅」；동료예요識別同事關係。
+        meaning: 呢位係我同事。 제係謙遜嘅「我嘅」；동료예요識別同事關係。
+        note: 試吓改為介紹老師。答案：`이분은 제 선생님이에요`。`선생님` 以輔音結尾，所以名詞後用禮貌句尾 `이에요`，唔係 `예요`。
   - subskill_id: qualities_states
-    explanation: 描述性述語直接接句尾形式；넓다變넓어요，唔使加繫詞。
+    explanation: 有人問呢間房點樣。`이 방은` 將房間設為話題；`넓어요` 直接講房間闊落。描述性述語已經有禮貌句尾，毋須另加「係」。
     examples:
       - text: 이 방은 넓어요.
-        meaning: 呢間房好闊落。
-        note: 은將房間標示為話題；넓어요交代物理特徵。
+        meaning: 呢間房好闊落。 은將房間標示為話題；넓어요交代物理特徵。
+        note: 試吓話間房細。答案：`이 방은 작아요`。保留話題片語，直接用描述性述語 `작아요`，唔加繫詞。
   - subskill_id: location_movement
-    explanation: 位置表達配合에同있다，交代物件喺邊；위指另一件物件上面。
+    explanation: 你幫人搵鎖匙。`열쇠가` 標示要搵嘅鎖匙；`책상 위에` 係書枱上面，`있어요` 話佢喺嗰度。`에` 標示靜態位置；喺書枱做動作通常用 `에서`。
     examples:
       - text: 열쇠가 책상 위에 있어요.
-        meaning: 鎖匙喺書枱上面。
-        note: 책상 위에係位置；있어요表示喺嗰度，唔係喺嗰度做某個動作。
+        meaning: 鎖匙喺書枱上面。 책상 위에係位置；있어요表示喺嗰度，唔係喺嗰度做某個動作。
+        note: 試吓話鎖匙喺書枱下面。答案：`열쇠가 책상 아래에 있어요`。將 `위에` 換成 `아래에`；`있어요` 仍表示位於某處。
   - subskill_id: possession_relations
-    explanation: 제修飾所擁有名詞；것可以代替已知物件，거예요係常見嘅禮貌縮約形式。
+    explanation: 有人問把遮係邊個嘅。`이 우산은` 將呢把遮設為話題；`제 거예요` 係我嘅。`거` 係 `것` 嘅日常縮約形式，毋須重複「遮」；`제` 唔表示講者性別。
     examples:
       - text: 이 우산은 제 거예요.
-        meaning: 呢把遮係我嘅。
-        note: 제 거識別物主，唔使重複우산，亦唔表示講者性別。
+        meaning: 呢把遮係我嘅。 제 거識別物主，唔使重複우산，亦唔表示講者性別。
+        note: 試吓話呢個袋係你嘅。答案：`이 가방은 제 거예요`。物件換成 `가방`，物主不變，所以保留 `제 거예요`。
   - subskill_id: quantity_comparison
-    explanation: 보다接喺比較基準後面，더可以標示更高程度；描述性述語仍用正常句尾形式。
+    explanation: 你要揀搬邊個箱。`저 상자보다` 將嗰個箱作比較基準；`이 상자가` 係被描述嘅箱。`더 가벼워요` 表示較輕，`가볍다` 變成禮貌形式。
     examples:
       - text: 이 상자가 저 상자보다 더 가벼워요.
-        meaning: 呢個箱比嗰個箱輕。
-        note: 가벼워요係가볍다嘅變化形式；보다就重量比較兩個箱。
-provenance:
+        meaning: 呢個箱比嗰個箱輕。 가벼워요係가볍다嘅變化形式；보다就重量比較兩個箱。
+        note: 試吓話呢個箱比嗰個重。答案：`이 상자가 저 상자보다 더 무거워요`。保留比較結構，重量述語改做 `무거워요`。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/people-places/korean-people-places-explained-in-english.yaml at revision
-    korean-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_predicates2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/people-places/korean-people-places-explained-in-english.yaml at
-        revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_predicates2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

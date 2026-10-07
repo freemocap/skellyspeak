@@ -1,55 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: İstemek can follow an infinitive naming a desired action.
+    explanation: You are discussing skills you hope to learn. `Dikiş dikmeyi` names sewing as
+      the activity being learned, `öğrenmek` is to learn, and `istiyorum` expresses your
+      wish. A wish to learn does not promise when you will complete it.
     examples:
       - text: Dikiş dikmeyi öğrenmek istiyorum.
         meaning: I want to learn to sew.
-        note: The desired action is learning; this does not promise to complete a task.
+        note: "Say you want to learn to cook instead. Answer: `Yemek yapmayı öğrenmek istiyorum.`
+          Replace the activity with `yemek yapmayı`; `istiyorum` still marks desire, not
+          an assigned commitment."
   - subskill_id: preferences
-    explanation: Tercih etmek can compare an accusative preferred option with a dative alternative.
+    explanation: A friend offers tea and coffee, and you choose between them. `Çayı` has the
+      object ending for the preferred drink; `kahveye` has the dative ending for the
+      alternative. The case pattern with `tercih ediyorum` identifies which drink wins.
     examples:
       - text: Çayı kahveye tercih ediyorum.
         meaning: I prefer tea to coffee.
-        note: Çayı is the preferred drink and kahveye names the alternative.
+        note: "Reverse the preference. Answer: `Kahveyi çaya tercih ediyorum.` Put coffee in the
+          preferred-object position `kahveyi` and tea in the alternative position `çaya`."
   - subskill_id: emotions
-    explanation: Sevinmek with a dative complement expresses being glad about something.
+    explanation: Someone tells you the result of an event, and you react positively. `Bu
+      habere` marks this news as the trigger with a dative ending; `sevindim` reports your
+      glad response in the past. This states a feeling, not an evaluation of the news’s
+      accuracy.
     examples:
       - text: Bu habere sevindim.
         meaning: I was glad to hear this news.
-        note: Habere identifies what caused the emotional response.
+        note: "Say you were glad about this result instead. Answer: `Bu sonuca sevindim.` Change
+          the dative trigger from `habere` to `sonuca`; `sevindim` still reports the
+          emotional response."
   - subskill_id: opinions
-    explanation: Bence frames the proposition as the speaker’s view.
+    explanation: Two repair methods are under discussion, and you judge one easier. `Bence`
+      marks this as your view; `bu yöntem` is this method, and `daha kolay` compares its
+      ease with the alternative already in context. Without that comparison, `daha` has no
+      clear standard.
     examples:
       - text: Bence bu yöntem daha kolay.
         meaning: I think this method is easier.
-        note: The speaker evaluates a method already being compared.
+        note: "Judge this method faster instead. Answer: `Bence bu yöntem daha hızlı.` Keep the
+          opinion marker `Bence` and replace the comparative property `kolay` with
+          `hızlı`."
   - subskill_id: agreement_disagreement
-    explanation: Katılmak with a dative complement can express agreement; negation rejects it.
+    explanation: A colleague proposes a change, and you reject that proposal. `Bu öneriye`
+      marks the proposal as the target of `katılmak`; `katılmıyorum` negates joining or
+      agreeing with it. `Anladım` would only say you understood, so it would not convey
+      this disagreement.
     examples:
       - text: Bu öneriye katılmıyorum.
         meaning: I disagree with this proposal.
-        note: The negative verb and öneriye identify the rejected proposal.
+        note: "Agree with the same proposal instead. Answer: `Bu öneriye katılıyorum.` Remove the
+          negative element in `katılmıyorum`; the dative `öneriye` still identifies what
+          you agree with."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_possession2026
     - tt_turkish_optative2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

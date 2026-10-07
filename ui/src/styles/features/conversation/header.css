@@ -73,9 +73,15 @@
 }
 
 @media (max-width: 860px) {
-  /* min-width lets the row resolve at the width it has, instead of growing to
-     its content and pushing the control row over the name. */
-  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-3); min-width: 0; }
+  /* One row, as tall as the top bar above it and with its inline padding, so the
+     two rows' first and last controls share edges. The difficulty select is in
+     the settings sheet at this width (see ConversationSettings), so the identity
+     is one line and never wraps. min-width lets the row resolve at the width it
+     has, instead of growing to its content and pushing the control row over
+     the name. */
+  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-2); min-width: 0; }
+  .conversation-identity { flex-wrap: nowrap; }
+  .chat-conversations { margin-inline-end: 0; }
   /* The partner name is what gives up room, by shortening, and it may shrink to
      nothing. The control row keeps its natural width: squeezed, its own buttons
      would clip and overlap the name. */

@@ -1,62 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: 을 수 있어요 with a verb stem can express ability. The bound noun 수 is spaced separately
-      in ordinary writing.
+    explanation: A friend asks whether you can handle a simple fault. `간단한 고장은` gives the scope of the claim;
+      `고칠 수 있어요` says fixing it is within your capability. `수` is a bound noun written separately, and
+      the omitted fixer is understood from the conversation.
     examples:
       - text: 간단한 고장은 고칠 수 있어요.
-        meaning: I can fix simple faults.
-        note: 고칠 수 있어요 describes practical capability. 은 makes simple faults the topic or scope of that
-          claim.
+        meaning: I can fix simple faults. 고칠 수 있어요 describes practical capability. 은 makes simple faults the
+          topic or scope of that claim.
+        note: "Try it: say you can fix small faults. Answer: `작은 고장은 고칠 수 있어요`. Change the scope to `작은 고장`;
+          retain `고칠 수 있어요` for capability."
   - subskill_id: permission
-    explanation: 아도 or 어도 followed by 돼요 can ask whether an action is allowed. The listener’s role
-      supplies the authority to grant it.
+    explanation: At a shared space, ask the person responsible before parking. `여기에` names this place; `자전거를
+      세워도 돼요?` asks whether leaving the bicycle standing there is allowed. `-어도 돼요?` concerns permission
+      in this exchange, not your physical ability.
     examples:
       - text: 여기에 자전거를 세워도 돼요?
-        meaning: May I park my bicycle here?
-        note: 세워도 comes from 세우다. Ask the person responsible for the space.
+        meaning: May I park my bicycle here? 세워도 comes from 세우다. Ask the person responsible for the space.
+        note: "Try it: ask if you may park the bicycle outside. Answer: `밖에 자전거를 세워도 돼요?`. Change the location to
+          `밖에`; keep `세워도 돼요?` to seek permission."
   - subskill_id: obligation
-    explanation: 아야 or 어야 with 해요 states an action that is required. The requirement is distinct
-      from a desire.
+    explanation: Your borrowed book is due today. `오늘` fixes the deadline; `이 책을` marks the book, and `돌려줘야
+      해요` says returning it is required. This reports a duty, not that the return has already happened.
+      `안 해도 돼요` would remove a need; `하면 안 돼요` would prohibit an action.
     examples:
       - text: 오늘 이 책을 돌려줘야 해요.
-        meaning: I have to return this book today.
-        note: 돌려줘야 해요 states the duty; 오늘 supplies its timing. It does not say the book has already been
-          returned.
+        meaning: I have to return this book today. 돌려줘야 해요 states the duty; 오늘 supplies its timing. It does not
+          say the book has already been returned.
+        note: "Try it: say you must return this book tomorrow. Answer: `내일 이 책을 돌려줘야 해요`. Change `오늘` to `내일`;
+          keep the requirement form."
   - subskill_id: possibility
-    explanation: 을 수도 있어요 can present an event as one possible outcome. It is not always a statement
-      of someone’s practical skill.
+    explanation: You are deciding whether an afternoon outdoor activity is sensible. `오후에` gives the time;
+      `비가 올 수도 있어요` presents rain as one possible outcome. Here `수도 있어요` concerns an event, not a
+      person’s repair skill.
     examples:
       - text: 오후에 비가 올 수도 있어요.
-        meaning: It may rain in the afternoon.
-        note: 비가 올 supplies the possible event. 도 helps present it as a possibility among alternatives.
+        meaning: It may rain in the afternoon. 비가 올 supplies the possible event. 도 helps present it as a
+          possibility among alternatives.
+        note: "Try it: say it may rain tomorrow. Answer: `내일 비가 올 수도 있어요`. Replace the time with `내일`; keep the
+          possible-event form `올 수도 있어요`."
   - subskill_id: certainty
-    explanation: 확실하지 않아요 explicitly denies certainty. A topic phrase can identify which fact is uncertain.
+    explanation: Someone asks for the exact date of an event, but it has not been settled. `정확한 날짜는` makes
+      the exact date the topic; `아직 확실하지 않아요` says it is still uncertain. This does not assert that any
+      proposed date is false.
     examples:
       - text: 정확한 날짜는 아직 확실하지 않아요.
-        meaning: The exact date is not yet certain.
-        note: 아직 marks the continuing uncertainty. The sentence does not claim the proposed date is
-          definitely wrong.
+        meaning: The exact date is not yet certain. 아직 marks the continuing uncertainty. The sentence does not
+          claim the proposed date is definitely wrong.
+        note: "Try it: say the exact time is still uncertain. Answer: `정확한 시간은 아직 확실하지 않아요`. Change the topic
+          noun to `시간`; retain `아직` and the negated certainty predicate."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_permission2026
     - htsk_tense2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

@@ -1,63 +1,65 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: कितने बजे 問鐘點，呢度放動詞前面，唔需要額外疑問助動詞。
+    explanation: 出門前想知間舖幾點開。`कितने बजे` 問鐘點，`खुलती है` 放喺舖頭同時間疑問後面；因為 `दुकान`
+      係陰性，動詞用 `खुलती`。
     examples:
       - text: दुकान कितने बजे खुलती है?
-        meaning: 間舖幾點開門？
-        note: खुलती 配合陰性 दुकान，未知資訊係開門時間。
+        meaning: 間舖幾點開門？ `दुकान` 係舖頭，`कितने बजे` 係未知鐘點，`खुलती है` 係開門；對方要補嘅係時間。
+        note: 試問關門時間。答案：`दुकान कितने बजे बंद होती है?` 將開門換成 `बंद होती है`。`क्या दुकान
+          खुलती है?` 問嘅係會唔會開，唔係幾點開。
   - subskill_id: answering_information
-    explanation: 時間短語可以直接回答問題，唔使重複主語動詞；切題性由上文決定。
+    explanation: 對方問幾點開門，單講鐘點就答到。數字後嘅 `बजे` 表示鐘面上嘅時間。
     examples:
       - text: आठ बजे।
-        meaning: 八點。
-        note: 回答開門時間；बजे 表明係鐘點。
+        meaning: 八點。 `आठ` 係八，`बजे` 令佢變成八點；間舖同開門動作由上一句補返。
+        note: 試答九點。答案：`नौ बजे।` 只換數字。`आठ घंटे` 係八個鐘頭嘅時長，答唔到幾點。
   - subskill_id: checking_facts
-    explanation: 說法後面加 है न? 可以請求確認，要讓對方識別到核實緊乜。
+    explanation: 你估間舖八點開，想對方確認。先講候選時間，再喺句尾用 `है न?` 核實整個說法。
     examples:
       - text: दुकान आठ बजे खुलती है, है न?
-        meaning: 間舖八點開門，係咪？
-        note: 講者已聽過或推斷係八點，再核實呢個細節。
+        meaning: 間舖八點開門，係咪？ `आठ बजे` 係估計嘅鐘點，`खुलती है` 講間舖開門；句尾 `है न?` 要對方確認。
+        note: 試核實係咪九點開。答案：`दुकान नौ बजे खुलती है, है न?` 只換候選時間。`दुकान कितने बजे खुलती
+          है?` 係問未知時間。
   - subskill_id: useful_detail
-    explanation: वाला 可以識別同組其中一個對象；位置加特徵有助對方搵到。
+    explanation: 訪客見到幾道門，要認出正確嗰道。`पीछे वाला` 指後面嗰道，顏色再提供可見線索。
     examples:
       - text: पीछे वाला दरवाज़ा नीला है।
-        meaning: 後面嗰道門係藍色嘅。
-        note: 畀訪客指路時，पीछे वाला 指邊道門，नीला 加上可見特徵。
+        meaning: 後面嗰道門係藍色嘅。 `पीछे वाला दरवाज़ा` 係後面嗰道門，`नीला है` 係藍色；`वाला` 同 `नीला`
+          都配合陽性 `दरवाज़ा`。
+        note: 試講後面嗰道係紅色。答案：`पीछे वाला दरवाज़ा लाल है।` 換顏色。單講 `दरवाज़ा नीला है` 冇指出後面嗰道。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/information-exchange/hindi-information-exchange-explained-in-english.yaml
-    at revision hindi-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/information-exchange/hindi-information-exchange-explained-in-english.yaml
-        at revision hindi-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

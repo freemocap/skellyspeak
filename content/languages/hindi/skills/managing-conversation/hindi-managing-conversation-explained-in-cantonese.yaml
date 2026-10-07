@@ -1,75 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: नमस्ते 可以問候或道別；提到下次見面可以清楚標示結束。
+    explanation: 探訪完結時，`नमस्ते` 可以道別，`फिर मिलेंगे` 講將來再見；佢喺對話尾段就係收尾。
     examples:
       - text: नमस्ते, फिर मिलेंगे।
-        meaning: 再見，下次見。
-        note: 探訪結束時，फिर मिलेंगे 提到再見，並結束今次交流。
+        meaning: 再見，下次見。 `फिर` 係再，`मिलेंगे` 係會見面；配 `नमस्ते` 結束今次見面，同時提到下次。
+        note: 試唔提下次見面就道別。答案：`नमस्ते।` 呢個情境可作道別；放喺見面開頭就係打招呼。
   - subskill_id: acknowledging
-    explanation: अच्छा 配合理解用語，可以表示收到解釋，唔必定贊同。
+    explanation: 對方解釋咗難點。`अच्छा` 表示收到，`अब समझ में आया` 係而家明白咗。
     examples:
       - text: अच्छा, अब समझ में आया।
-        meaning: 哦，我而家明喇。
-        note: 難點解釋清楚之後用；समझ में आया 表示達到理解。
+        meaning: 哦，我而家明喇。 `अब` 係而家，`समझ में आया` 係變得明白；回應確認理解，唔自動代表贊成意見。
+        note: 試講仍未明。答案：`अच्छा, अभी समझ में नहीं आया।` 否定理解。`मैं सहमत हूँ` 係同意，係另一回事。
   - subskill_id: clarification
-    explanation: 尊稱祈使句加 दोबारा 要求再講；上文交代邊段聽唔清或唔明。
+    explanation: 啱啱聽漏咗，就請對方重講。`ज़रा` 緩和語氣，`दोबारा` 係再一次，`कहिए` 係尊稱祈使式。
     examples:
       - text: ज़रा दोबारा कहिए।
-        meaning: 唔該再講一次。
-        note: 聽唔清之後用；कहिए 尊稱對方，ज़रा 令請求柔和啲。
+        meaning: 唔該再講一次。 `ज़रा दोबारा कहिए` 要對方再講一遍，處理聽漏；問 `मतलब` 就係問意思。
+        note: 試改成問意思。答案：`इसका मतलब क्या है?` 問理解；聽漏聲音就用 `ज़रा दोबारा कहिए।`
   - subskill_id: rephrasing
-    explanation: यानी 引入另一個等義講法，後面要真係有幫助理解嘅重述，唔係只加標記。
+    explanation: 對方唔清楚之前准許留低嘅意思。`यानी` 引入重述，講明實際截止時間。
     examples:
       - text: यानी, हम शाम तक रुक सकते हैं।
-        meaning: 即係話，我哋可以留到傍晚。
-        note: 重述可以留低過埋下晝嘅許可；शाम तक 明示終點。
+        meaning: 即係話，我哋可以留到傍晚。 `हम शाम तक रुक सकते हैं` 係我哋可以留到傍晚；`यानी`
+          將佢同先前同義說法接起，單講呢個詞唔夠。
+        note: 假設之前嘅准許明講五點截止，試重述：`यानी, हम पाँच बजे तक रुक सकते हैं।`
+          原本期限係五點，先算同義；改咗原來期限就係更正。
   - subskill_id: correcting_misunderstanding
-    explanation: मेरा मतलब 指原意，नहीं 排除錯誤選項；修正可以好簡短。
+    explanation: 聽者以為係星期二，但你本意係星期三。`मेरा मतलब` 講你本來意思；`मंगलवार नहीं` 排除聽錯嗰日。
     examples:
       - text: मेरा मतलब बुधवार था, मंगलवार नहीं।
-        meaning: 我意思係星期三，唔係星期二。
-        note: 對方理解成星期二時用；था 配合陽性 मतलब。
+        meaning: 我意思係星期三，唔係星期二。 `बुधवार था` 係本意星期三，`मंगलवार नहीं` 係唔係星期二；`था` 配陽性
+          `मतलब`，唔跟講者性別。
+        note: 試將星期四更正為星期五。答案：`मेरा मतलब शुक्रवार था, गुरुवार नहीं।` 同時講正確同錯誤日子，修正先清楚。
   - subskill_id: turns_topics
-    explanation: 第一人稱虛擬式問句可以要求發言空間，功能由目前輪次情境決定。
+    explanation: 小組討論時想插入一個發言。`क्या` 開是非問句，`कहूँ` 提出自己要講嘢。
     examples:
       - text: क्या मैं एक बात कहूँ?
-        meaning: 我可唔可以講兩句？
-        note: 討論中要求發言；कहूँ 係第一人稱虛擬式，唔係聲稱識講嘢。
+        meaning: 我可唔可以講兩句？ `एक बात` 係一點或一件事；`क्या मैं ... कहूँ?` 係請求發言空間，唔係描述識唔識講。
+        note: 試問可唔可以問一條問題。答案：`क्या मैं एक सवाल पूछूँ?` 換發言內容。`मैं एक बात कहूँगा`
+          係宣布將來會講，冇問可唔可以。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/managing-conversation/hindi-managing-conversation-explained-in-english.yaml
-    at revision hindi-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/managing-conversation/hindi-managing-conversation-explained-in-english.yaml
-        at revision hindi-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

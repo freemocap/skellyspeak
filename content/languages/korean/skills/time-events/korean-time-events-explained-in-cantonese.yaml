@@ -1,77 +1,62 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 動作動詞詞幹後加고 있어요，可以表示活動進行中；지금定位到而家。
+    explanation: 有人問你而家喺工作枱做緊乜。`지금` 指而家；`라디오를` 標示收音機係賓語，`고치고 있어요` 表示維修進行中。對話已知做事嘅人，可以省略。
     examples:
       - text: 지금 라디오를 고치고 있어요.
-        meaning: 我而家整緊收音機。
-        note: 고치고 있어요表示仲整緊；邊個整由對話交代。
+        meaning: 我而家整緊收音機。 고치고 있어요表示仲整緊；邊個整由對話交代。
+        note: 試吓話而家整緊單車。答案：`지금 자전거를 고치고 있어요`。賓語換 `자전거를`，保留 `고치고 있어요` 表示進行中。
   - subskill_id: past_events
-    explanation: 過去標記配合禮貌詞尾，報告較早事件；어제明確指尋日。
+    explanation: 朋友問你尋日整咗乜。`어제` 定位過去；`라디오를` 標示賓語，`고쳤어요` 係 `고치다` 嘅禮貌過去式。句子報告之前嘅維修，唔係而家仍做緊。
     examples:
       - text: 어제 라디오를 고쳤어요.
-        meaning: 我尋日整咗部收音機。
-        note: 고쳤어요來自고치다，報告過去維修，唔係目前進行中。
+        meaning: 我尋日整咗部收音機。 고쳤어요來自고치다，報告過去維修，唔係目前進行中。
+        note: 試吓講尋日整咗單車。答案：`어제 자전거를 고쳤어요`。保留過去式 `고쳤어요`，賓語改 `자전거를`。
   - subskill_id: future_events
-    explanation: 合適動詞詞幹後接을 거예요，可以表達將來計劃或預期；聽日提供明確時間。
+    explanation: 你打算聽日買維修零件。`내일` 指之後嘅時間；`부품을` 標示零件，`살 거예요` 由 `사다` 組成將來計劃。呢句本身未必係向人承諾。
     examples:
       - text: 내일 부품을 살 거예요.
-        meaning: 我聽日會買零件。
-        note: 살 거예요由사다配合將來取向結構組成；句子本身唔係承諾幫某人買。
+        meaning: 我聽日會買零件。 살 거예요由사다配合將來取向結構組成；句子本身唔係承諾幫某人買。
+        note: 試吓話聽日買收音機。答案：`내일 라디오를 살 거예요`。賓語改 `라디오를`，保留 `살 거예요` 表示計劃購買。
   - subskill_id: duration_frequency
-    explanation: 동안喺時間數量後標示時長；매주獨立交代每星期重複。
+    explanation: 你講每星期游水習慣。`매주` 係頻率；`두 시간 동안` 係每次做幾耐，兩個鐘用 `두`。比較 `두 시`：佢係兩點鐘，唔係時長。
     examples:
       - text: 매주 두 시간 동안 수영해요.
-        meaning: 我每星期游兩個鐘水。
-        note: 두 시간係兩個鐘，두 시先係兩點；매주交代固定頻率。
+        meaning: 我每星期游兩個鐘水。 두 시간係兩個鐘，두 시先係兩點；매주交代固定頻率。
+        note: 試吓話每星期游一個鐘。答案：`매주 한 시간 동안 수영해요`。`매주` 表頻率、`동안` 表時長；`두 시간` 改 `한 시간`。
   - subskill_id: event_sequence
-    explanation: 먼저同그다음排列步驟；禮貌請求交代每一步要做乜。
+    explanation: 你講檢查器材嘅安全次序。`먼저` 將關電源放先，`그다음` 再引出開蓋。`끄세요` 同 `여세요` 都係對聽者嘅禮貌指示。處理內部前，先後重要。
     examples:
       - text: 먼저 전원을 끄세요. 그다음 뚜껑을 여세요.
-        meaning: 先熄電源，然後打開個蓋。
-        note: 副詞明確排列動作；여세요係열다嘅禮貌請求形式。
+        meaning: 先熄電源，然後打開個蓋。 副詞明確排列動作；여세요係열다嘅禮貌請求形式。
+        note: 試吓講處理器材前安全關機兩步。答案：`먼저 전원을 끄세요. 그다음 플러그를 뽑으세요`。先熄電源再拔插頭；`먼저` 同 `그다음` 保留先後。
   - subskill_id: event_phase
-    explanation: 다配合已完成動作，表示整項工作做完，提供多於過去時間嘅完成資料。
+    explanation: 有人問說明書睇完未。`설명서를` 標示被閱讀嘅說明書；`다` 放喺 `읽었어요` 前表示全本讀完。單有過去式未必表示每部分都完成。
     examples:
       - text: 설명서를 다 읽었어요.
-        meaning: 我已經睇晒份說明書。
-        note: 다表示全部閱讀完成，唔係淨係話睇過一部分。
-provenance:
+        meaning: 我已經睇晒份說明書。 다表示全部閱讀完成，唔係淨係話睇過一部分。
+        note: 試吓話本書睇完咗。答案：`책을 다 읽었어요`。將 `설명서를` 換成 `책을`，保留 `다` 表示全部完成。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/time-events/korean-time-events-explained-in-english.yaml at revision
-    korean-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_tense2026
     - htsk_desire2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/time-events/korean-time-events-explained-in-english.yaml at revision
-        korean-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_tense2026
-        - htsk_desire2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

@@ -1,46 +1,61 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Jam berapa asks for a clock time. It can follow the predicate without inversion or
-      an extra auxiliary.
+    explanation: Before going to the shop, you need its opening hour. `jam berapa`
+      asks which clock time; `buka` states the event. The question phrase
+      follows the event it measures, with no English-style auxiliary.
     examples:
       - text: Toko itu buka jam berapa?
-        meaning: What time does that shop open?
-        note: The question seeks the opening hour. Berapa asks for the number in the time expression.
+        meaning: What time does that shop open? `Toko itu` points to that shop, `buka`
+          means opens, and `jam berapa` leaves the hour unknown.
+        note: "Ask for its closing hour. Answer: `Toko itu tutup jam berapa?` Replace
+          `buka` with `tutup`. `Toko itu buka?` instead checks whether it
+          opens."
   - subskill_id: answering_information
-    explanation: A clock-time phrase can answer an opening-time question. Jam precedes the number
-      when it means o’clock.
+    explanation: "The opening-time question already names the shop. A clock-time
+      phrase alone fills the missing detail: `jam` comes before the hour
+      number."
     examples:
       - text: Jam delapan.
-        meaning: At eight o’clock.
-        note: Reply to a question about when the shop opens. This differs from delapan jam, meaning
-          eight hours.
+        meaning: At eight o’clock. `Jam delapan` means eight o’clock. The opening event
+          is understood from the question; `delapan jam` reverses the order and
+          means eight hours.
+        note: "Answer nine o’clock. Answer: `Jam sembilan.` Change the number after
+          `jam`. `Sembilan jam` is a duration, not the opening time."
   - subskill_id: checking_facts
-    explanation: Conversational kan can invite confirmation of a proposition already available to
-      both participants. Its role depends on the exchange.
+    explanation: You have heard that the shop opens at eight and want confirmation.
+      The proposed time comes before final `kan?`, which invites the listener to
+      verify it.
     examples:
       - text: Toko itu buka jam delapan, kan?
-        meaning: That shop opens at eight, right?
-        note: The speaker checks an opening time that has already been suggested, rather than asking for
-          an unknown hour.
+        meaning: That shop opens at eight, right? `Toko itu buka jam delapan` gives the
+          candidate fact. `kan?` asks whether that fact is right, rather than
+          requesting an unknown hour.
+        note: "Check a nine-o’clock opening. Answer: `Toko itu buka jam sembilan, kan?`
+          Change only the proposed hour. `Jam berapa?` would ask for the hour
+          from scratch."
   - subskill_id: useful_detail
-    explanation: Yang can introduce a description distinguishing the intended item. Spatial detail
-      helps identify it among alternatives.
+    explanation: Several tables are available, so the listener needs a way to pick
+      one. `yang dekat jendela` restricts `meja` to the table near the window.
     examples:
       - text: Pakai meja yang dekat jendela.
-        meaning: Use the table near the window.
-        note: When the listener asks which table to use, yang dekat jendela supplies the needed
-          distinction.
+        meaning: Use the table near the window. `Pakai meja` asks the listener to use a
+          table; `yang dekat jendela` supplies the distinguishing location. The
+          phrase is useful because more than one table is in view.
+        note: "Point to the table near the door. Answer: `Pakai meja yang dekat pintu.`
+          Replace `jendela` with `pintu`. `Pakai meja` alone leaves the choice
+          unresolved."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
@@ -48,11 +63,25 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

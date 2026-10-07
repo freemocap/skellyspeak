@@ -1,8 +1,23 @@
-# Irish English guide expansion — 2026-10-07
+# Irish English and Cantonese guide expansion — 2026-10-07
 
-Status: implemented; independent grammar, assessment and final practice cross-review completed. Scope is the eight English explanation files, 42 subskills, Irish Ireland core. Other explanation editions and assessments are untouched.
+Status: all eight English and eight Cantonese guide editions implemented for 42 subskills, Irish Ireland core. The English-only checkpoint below records its earlier review; the Cantonese additions and paired practice need independent Irish and Cantonese review. All eight assessments remain unchanged.
 
 ## Source registration proposals
+
+For the 2026-10-07 Cantonese parity pass and the focused English sequence correction, a further official paradigm was read in full before authoring. Root must register this key before YAML citation:
+
+```bibtex
+@misc{teanglannNighTeaching20261007,
+  author = {{Foras na Gaeilge}},
+  title = {Irish Grammar Database: nigh},
+  url = {https://www.teanglann.ie/en/gram/nigh},
+  urldate = {2026-10-07},
+  review = {full-text},
+  claim = {The public nigh paradigm was read, including the singular second-person imperative nigh and plural nígí. It supports the command form used in a revised sequence practice, not the safety or idiomaticity of every authored teaching sentence.}
+}
+```
+
+The [ullmhaigh paradigm](https://www.teanglann.ie/en/gram/ullmhaigh) was also opened and its singular imperative `ullmhaigh` read for the second step. That consultation supports the form only; the practice sequence remains AI-authored and requires independent review.
 
 Read the complete seven-page official grammar article and the public bí paradigm. These support scoped grammatical claims; they do not certify original examples or pronunciation.
 
@@ -36,7 +51,7 @@ Read the complete seven-page official grammar article and the public bí paradig
 }
 ```
 
-## Implemented teaching and coverage
+## Earlier English teaching checkpoint
 
 All eight English files, 42 sections, are revised: coordinating action 6; feelings/viewpoints 5; information exchange 4; managing conversation 6; people/places 5; possibilities/constraints 5; reasons/connections 5; time/events 6. Each provides a plausible context, unpacks actual Irish fragments and their order, gives a useful contrast and puts practice with an explicit answer and reason in the example note. Explanations remain declarative for the partner input boundary. The sole declared Ireland variety uses the core sections.
 
@@ -50,7 +65,7 @@ The exact finished-reading construction has primary educational attestation in W
 
 ## Example preservation and assessment comparison
 
-No principal text or subskill ID changed. All other Irish explanation editions and all assessments are byte-identical to the pre-authoring snapshot. Read all eight assessment files and compared function meanings and admissible constructions; no concrete contradictory meaning or exclusion of a valid taught form was identified. Teaching expands guidance while keeping assessments independent. No definition, shared concept, runtime or bibliography file was edited by this author.
+No principal text or subskill ID changed during the English-only checkpoint. At that point, all other Irish explanation editions and all assessments were byte-identical to the pre-authoring snapshot. Read all eight assessment files and compared function meanings and admissible constructions; no concrete contradictory meaning or exclusion of a valid taught form was identified. Teaching expands guidance while keeping assessments independent. No definition, shared concept or runtime file was edited by the English author.
 
 ## Verification and open review
 
@@ -60,3 +75,15 @@ All original sentences, adaptations, pragmatic contexts and English glosses rema
 
 
 Temporary authoring and checking tools were removed after final verification. All three new source keys were registered by root before YAML citation; the glac key is scoped to the indexed public paradigm.
+
+## Cantonese parity pass and focused English correction
+
+The eight Cantonese guides now cover the same 42 subskills as English. Each `section.explanation` states a concrete conversational scene and the Irish forms and order that make the principal example work; each `examples[].note` supplies a related practice prompt, a full Irish answer and a reason. Ordinary Cantonese prose is unmarked, and target-language fragments are backticked. The core `irish-ireland` variety is taught directly. These are AI-authored lessons, retained as `needs_review`; the primary sources support scoped constructions rather than all new sentences or Cantonese choices.
+
+The English time-events/event_sequence practice previously reversed the food-preparation order by putting vegetable preparation before hand washing. With the integration owner's focused authorization, its note now asks for vegetables to be washed before further preparation: `Nigh na glasraí ar dtús, ansin ullmhaigh iad.` The Cantonese note teaches the same sensible order. The principal example remains unchanged. The official `nigh` and `ullmhaigh` paradigms were read for their imperative forms, and root registered [@teanglannNighTeaching20261007] before the new citation was added to both time-events editions. This verifies the particular forms; a native Irish speaker should still review the adapted sentence and register.
+
+All eight assessments were reread for the Cantonese pass and left unchanged. The resulting guides continue to separate identification from description, ability from permission, necessity from future prediction, reasons from consequences, an open condition from a forecast, a current action from a habit, and acknowledgment from agreement. No assessment contradiction requiring an edit was found.
+
+All 16 guides and eight unchanged assessments parsed as YAML. A HEAD comparison verified all 84 edition-sections and 84 principal Irish sentences retain their original text, subskill IDs and order; English and Cantonese editions are paired. Every section has a declarative explanation, worked meaning and a practice note with an explicit answer. Backticks are balanced and no exercise prompt appears in `section.explanation`. `node tools/check-languages.ts` and `git diff --check` passed for the Irish content. Root owns the final integrated native/schema/fast gate. Independent Irish and Cantonese review remains pending.
+
+Root's paired-content review identified two practice contexts that needed explicit calendar facts. In both editions, the rephrasing exercise now states that the event is tomorrow and the organiser requires booking by the end of today, so `inniu` preserves a stated deadline. The negotiating-plans exercise now states that today is Wednesday, so a proposal for tomorrow offers Thursday rather than repeating the unavailable Friday. Both are focused English/Cantonese note corrections; no principal example or assessment changed.

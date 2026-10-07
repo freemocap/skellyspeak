@@ -1,54 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: The て-form followed by います can describe an activity in progress. The interpretation
-      depends on the verb; not every ている expression means an ongoing action.
+    explanation: "Someone asks what you are doing at this moment. `今、地図を描いています` presents the map drawing as in progress: `今` means now, `地図を` names the object, and `描いています` joins the `て` form of `描く` to `います`. The speaker can be omitted because the question identifies them. `地図を描きます` can describe a habit or a later plan, depending on context. The `ている` pattern can also describe a resulting state with other verbs, so the verb and setting matter."
     examples:
       - text: 今、地図を描いています。
         meaning: I am drawing a map now.
-        note: 今 makes the current activity explicit. The speaker is understood without a separate 私は.
+        note: "Say you are drawing a picture now. `今、絵を描いています。` is a full current-activity report; `絵を` changes the object and `描いています` keeps the action in progress."
   - subskill_id: past_events
-    explanation: The polite past ending ました can report an earlier event. A time word makes its
-      placement explicit.
+    explanation: "A friend asks what you made yesterday. `昨日、木の箱を作りました` reports a completed earlier action: `昨日` anchors it to yesterday, `木の箱を` is the wooden box made, and `作りました` is the polite past of `作る`. `木の` describes the material; it does not say the box belongs to a tree. `作ります` is non-past and needs another context for future or habitual meaning. A past form inside a condition, such as `作ったら`, need not report an actual past event."
     examples:
       - text: 昨日、木の箱を作りました。
         meaning: Yesterday I made a wooden box.
-        note: 昨日 anchors the event before today. 木の describes the box’s material.
+        note: "Report making a wooden shelf yesterday. `昨日、木の棚を作りました。` is a full past report; `木の棚を` changes the item and `作りました` keeps the completed earlier action."
   - subskill_id: future_events
-    explanation: A non-past verb can describe a planned future action. A word such as 明日 supplies
-      the future anchor; Japanese does not need a separate future-tense ending.
+    explanation: "You are arranging tomorrow’s library trip. `明日、図書館で本を返します` places the return in the future with `明日`; `図書館で` marks where the action takes place, `本を` names the books, and non-past `返します` states the planned return. Japanese does not need a separate future-tense ending here. `図書館に行きます` would use `に` for the destination of going, while `で` in the principal sentence marks the site of returning. In a task-sharing exchange, the same statement might also undertake responsibility."
     examples:
       - text: 明日、図書館で本を返します。
         meaning: Tomorrow I will return the books at the library.
-        note: 返します is non-past. で identifies where the returning activity takes place.
+        note: "You borrowed a study-room key from the library. Plan to return it there tomorrow. `明日、図書館で鍵を返します。` is a full later plan; `鍵を` changes the object and `明日` fixes the future time."
   - subskill_id: duration_frequency
-    explanation: 毎週 gives weekly recurrence. A time quantity such as 二時間 measures how long the
-      activity lasts without an English for preposition.
+    explanation: "You are describing your weekly swimming routine. `毎週、二時間泳ぎます` gives both frequency and duration: `毎週` means every week, `二時間` means two hours, and `泳ぎます` is the non-past verb for swim. The time quantity measures how long each swim lasts; `二時` would mean two o’clock on the clock. `毎日、二時間泳ぎます` changes the recurrence to daily while keeping the duration. The sentence reports a routine, not one swim happening right now."
     examples:
       - text: 毎週、二時間泳ぎます。
         meaning: I swim for two hours every week.
-        note: 二時間 is duration, not a clock time. 毎週 establishes the repeated schedule.
+        note: "Say you swim for one hour every week. `毎週、一時間泳ぎます。` is a full routine statement; `毎週` retains the frequency and `一時間` changes each session’s length."
   - subskill_id: event_sequence
-    explanation: A verb’s て-form followed by から places that action before the next one. The link can
-      express a procedural sequence.
+    explanation: "You are explaining how to begin cooking safely. `手を洗ってから、料理を始めます` places washing before cooking: `手を洗って` is wash the hands in `て` form, `から` means after that action, and `料理を始めます` is begin cooking. This `てから` sequence orders actions; it is different from `雨だから` giving a reason. `料理を始めてから、手を洗います` would reverse the order and change the procedure. The original order makes the hand-washing step come first."
     examples:
       - text: 手を洗ってから、料理を始めます。
         meaning: I wash my hands before starting to cook.
-        note: 洗ってから explicitly places washing first. This use of から is not the reason-giving use after a
-          clause.
+        note: "Place washing vegetables before cooking. `野菜を洗ってから、料理を始めます。` is a full sequence; `洗ってから` puts washing first, and `始めます` begins cooking afterward."
   - subskill_id: event_phase
-    explanation: A verb stem combined with 終わる explicitly marks finishing an activity. It identifies
-      the stage reached rather than only a past time.
+    explanation: "Someone asks whether you are finished with a book. `その本を読み終わりました` says the reading reached its endpoint: `その本を` identifies that book, `読み` is the combining stem of `読む`, `終わる` adds completion, and `ました` makes the report polite past. `その本を読んでいます` would instead present reading as in progress. A plain `読みました` reports reading in the past but does not make the finishing phase as explicit as `読み終わりました`."
     examples:
       - text: その本を読み終わりました。
         meaning: I finished reading that book.
-        note: 読み is the combining stem of 読む. 読み終わりました states that the reading is complete.
+        note: "Say you finished writing that letter. `その手紙を書き終わりました。` is a full completion report; `書き` joins to `終わりました` to mark the endpoint of writing."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -58,7 +51,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

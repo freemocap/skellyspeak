@@ -1,49 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Во сколько asks at what clock time an event occurs.
+    explanation: You need to know when the workshop closes before setting out. `Во сколько` asks for a clock time,
+      not a duration. `Закрывается` is the present form used for the workshop’s regular closing; `мастерская`
+      is the subject. Russian forms the information question without an English-style auxiliary verb.
     examples:
       - text: Во сколько закрывается мастерская?
         meaning: What time does the workshop close?
-        note: The unknown information is its closing time, not whether a workshop exists.
+        note: "Try asking when the workshop opens. Answer: `Во сколько открывается мастерская?` `Во сколько` still
+          seeks the unknown clock time; `открывается` changes the event to opening."
   - subskill_id: answering_information
-    explanation: A prepositional time phrase can answer the previous question directly.
+    explanation: Someone has just asked when the workshop closes. `В пять часов` is a time phrase that directly
+      fills the missing information; `в` introduces the clock time, and `пять часов` names five o’clock. The
+      closing event is recoverable from the question, so a full sentence is unnecessary. In a new conversation
+      without that question, the fragment would need context.
     examples:
       - text: В пять часов.
         meaning: At five o’clock.
-        note: Use after the closing-time question; the prior exchange supplies the omitted event.
+        note: "Try answering that it closes at six. Answer: `В шесть часов.` The same time phrase supplies the
+          requested clock time; the verb can still be omitted because the question provides it."
   - subskill_id: checking_facts
-    explanation: Верно after a proposition invites confirmation of the supplied information.
+    explanation: You believe the workshop closes at five and want confirmation. `Мастерская закрывается в пять`
+      first states the proposed fact; final `верно?` invites the listener to check it. This differs from `во
+      сколько`, which asks for a time you do not yet know.
     examples:
       - text: Мастерская закрывается в пять, верно?
         meaning: The workshop closes at five, right?
-        note: Five is offered as a candidate fact to check.
+        note: "Try checking whether it closes at six. Answer: `Мастерская закрывается в шесть, верно?` The proposed
+          time changes to `в шесть`; `верно?` still requests confirmation rather than new information."
   - subskill_id: useful_detail
-    explanation: A location description can distinguish the entrance the listener needs.
+    explanation: A visitor can see the building but cannot find its entrance. `Вход` names the specific thing
+      sought; `со стороны двора` locates it on the courtyard side. The location phrase is useful because it
+      distinguishes this entrance from the street-facing side, not because it adds more words.
     examples:
       - text: Вход со стороны двора.
         meaning: The entrance is on the courtyard side.
-        note: In response to a question about finding the entrance, this supplies a useful landmark.
-provenance: &a1
+        note: "Try telling the visitor that the entrance is on the street side. Answer: `Вход со стороны улицы.` `Со
+          стороны` still identifies which side to approach; `улицы` replaces the courtyard."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_agreement2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_agreement2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

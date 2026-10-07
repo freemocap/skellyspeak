@@ -1,72 +1,105 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: नमस्ते can establish contact or take leave. A reference to the next encounter can
-      make a closing explicit.
+    explanation: At the end of a visit, `नमस्ते` can take leave and `फिर मिलेंगे`
+      looks toward another meeting. Position in the exchange makes this a
+      closing.
     examples:
       - text: नमस्ते, फिर मिलेंगे।
-        meaning: Goodbye; see you again.
-        note: At the end of a visit, फिर मिलेंगे looks forward to another meeting and closes the present
-          exchange.
+        meaning: Goodbye; see you again. `फिर` means again and `मिलेंगे` means we will
+          meet. Together with `नमस्ते`, the speaker ends this encounter and
+          anticipates another.
+        note: "Close without promising another meeting. Answer: `नमस्ते।` It can serve
+          as a leave-taking in this setting. The same word at the start of a
+          visit opens contact."
   - subskill_id: acknowledging
-    explanation: A response such as अच्छा with an expression of understanding acknowledges an
-      explanation. It need not endorse a judgment.
+    explanation: A partner has explained a difficult point. `अच्छा` signals
+      reception, and `अब समझ में आया` says understanding has arrived now.
     examples:
       - text: अच्छा, अब समझ में आया।
-        meaning: Oh, now I understand.
-        note: Reply after a difficult point is explained. समझ में आया marks achieved comprehension.
+        meaning: Oh, now I understand. `अब` means now and `समझ में आया` means it became
+          clear. The reply acknowledges comprehension; it does not automatically
+          endorse the partner’s opinion.
+        note: "Acknowledge that it is still unclear. Answer: `अच्छा, अभी समझ में नहीं
+          आया।` Add negation to the understanding claim. `मैं सहमत हूँ` says I
+          agree, a different response."
   - subskill_id: clarification
-    explanation: A polite imperative with दोबारा asks the partner to repeat. The preceding exchange
-      supplies what was not heard or understood.
+    explanation: When you miss what was just said, ask the partner to repeat it.
+      `ज़रा` softens the request, `दोबारा` says again, and `कहिए` is a
+      respectful imperative.
     examples:
       - text: ज़रा दोबारा कहिए।
-        meaning: Please say that again.
-        note: Use this immediately after an unclear utterance. कहिए respectfully addresses the partner;
-          ज़रा softens the request.
+        meaning: Please say that again. `ज़रा दोबारा कहिए` asks for another utterance.
+          It repairs a hearing gap, while a question about `मतलब` would ask for
+          meaning.
+        note: "Ask for the meaning instead. Answer: `इसका मतलब क्या है?` That targets
+          interpretation. If the sound was missed, keep `ज़रा दोबारा कहिए।`"
   - subskill_id: rephrasing
-    explanation: यानी can introduce an equivalent formulation. State the useful reformulation after
-      the marker rather than relying on the marker alone.
+    explanation: The partner is unsure what an earlier permission means. `यानी`
+      introduces a restatement that makes the practical endpoint explicit.
     examples:
       - text: यानी, हम शाम तक रुक सकते हैं।
-        meaning: In other words, we can stay until evening.
-        note: Rephrases a previous explanation that the group is allowed to remain for the rest of the
-          afternoon. शाम तक makes the endpoint explicit.
+        meaning: In other words, we can stay until evening. `हम शाम तक रुक सकते हैं`
+          says we can stay until evening. `यानी` connects this to a prior
+          statement with the same practical meaning; it is not enough by itself.
+        note: "Suppose the earlier permission explicitly ended at five o’clock. Restate
+          that endpoint: `यानी, हम पाँच बजे तक रुक सकते हैं।` The restatement is
+          equivalent only because the original deadline was five; changing an
+          earlier deadline would be a correction."
   - subskill_id: correcting_misunderstanding
-    explanation: मेरा मतलब names the intended meaning; a contrast with नहीं excludes the mistaken
-      alternative. The correction can be compact.
+    explanation: The listener heard Tuesday, but you intended Wednesday. `मेरा मतलब`
+      identifies your intended meaning; `मंगलवार नहीं` explicitly excludes the
+      mistaken day.
     examples:
       - text: मेरा मतलब बुधवार था, मंगलवार नहीं।
-        meaning: I meant Wednesday, not Tuesday.
-        note: Say this after the listener interprets the proposed day as Tuesday. था agrees with
-          masculine मतलब.
+        meaning: I meant Wednesday, not Tuesday. `बुधवार था` says Wednesday was intended
+          and `मंगलवार नहीं` says not Tuesday. `था` agrees with masculine
+          `मतलब`, not with a speaker’s gender.
+        note: "Correct Thursday to Friday. Answer: `मेरा मतलब शुक्रवार था, गुरुवार
+          नहीं।` State both intended and mistaken days so the repair is clear."
   - subskill_id: turns_topics
-    explanation: A first-person subjunctive question can ask for space to contribute. Its
-      conversational role is established by the current turn-taking situation.
+    explanation: During a group discussion, you want a turn to speak. `क्या` opens a
+      yes or no question and `कहूँ` proposes the speaker’s own contribution.
     examples:
       - text: क्या मैं एक बात कहूँ?
-        meaning: May I say something?
-        note: Use this while seeking a turn in a discussion. कहूँ is first-person subjunctive, not a
-          claim about speaking ability.
+        meaning: May I say something? `एक बात` is one point or thing to say. `क्या मैं
+          ... कहूँ?` asks for space in the conversation, rather than describing
+          speaking ability.
+        note: "Ask to pose one question. Answer: `क्या मैं एक सवाल पूछूँ?` Change the
+          contribution to a question. `मैं एक बात कहूँगा` announces a future act
+          without asking for a turn."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

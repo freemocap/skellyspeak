@@ -1,58 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: では can prepare a conversational closing. また with a time anticipates the next encounter.
+    explanation: "A meeting is ending, and you expect to meet next week. `では、また来週` closes the exchange: `では` marks a transition toward departure, `また` means again, and `来週` places the next contact next week. The meeting verb is omitted because the situation makes it clear. At the start of a meeting, the same time word would merely discuss a date; here the expression performs leave-taking."
     examples:
       - text: では、また来週。
         meaning: Well then, see you next week.
-        note: Use at the end of a meeting. 来週 names the next encounter’s time without an explicit
-          meeting verb.
+        note: "Close when you expect to see the person tomorrow. `では、また明日。` is a complete farewell in that setting; `明日` changes the next meeting time."
   - subskill_id: acknowledging
-    explanation: なるほど signals that an explanation makes sense to the listener. It need not express
-      endorsement of an opinion.
+    explanation: "Someone has explained a point that was confusing. `なるほど、そういうことですね` shows that the explanation now makes sense: `なるほど` is an acknowledgment of understanding, `そういうこと` points to what the speaker meant, and `ですね` checks shared understanding. It does not necessarily endorse the person’s opinion or accept a task. `わかりました` can also register understanding, but its role still depends on what came before. The earlier explanation supplies the content of `そういう`."
     examples:
       - text: なるほど、そういうことですね。
         meaning: I see; that is what you mean.
-        note: Reply after an explanation resolves confusion. The speaker acknowledges the explanation’s
-          meaning.
+        note: "Acknowledge the explanation more briefly. `なるほど、わかりました。` is a complete response after the point is explained; it registers understanding without stating agreement."
   - subskill_id: clarification
-    explanation: もう一度 means once more. With お願いします, it can request repetition of an unclear
-      preceding utterance.
+    explanation: "You did not catch the last sentence and need to hear it again. `すみません、もう一度お願いします` politely requests repetition: `すみません` softens the interruption, `もう一度` means once more, and `お願いします` asks the person to do it. The missing object is the utterance just spoken. This repairs a hearing gap; `どういう意味ですか` would ask for its meaning after hearing the words. A request to repeat can be complete without restating the lost sentence."
     examples:
       - text: すみません、もう一度お願いします。
         meaning: Sorry, could you say that again?
-        note: The previous utterance supplies what should be repeated. This is not a request to verify
-          whether the understood fact is true.
+        note: "Ask for the meaning instead of a repeat. `すみません、どういう意味ですか。` is a full clarification question when the words were heard but their meaning is unclear; `どういう意味` asks what meaning."
   - subskill_id: rephrasing
-    explanation: つまり can introduce a clearer summary of an earlier point. The new wording must
-      preserve the relevant meaning.
+    explanation: "A visitor heard a rule about booking in advance but needs the practical implication. `つまり、予約が必要ということです` restates it: `つまり` marks a summary, `予約が必要` means a reservation is necessary, and `ということです` presents that as what the previous rule means. A useful rephrase preserves the earlier requirement while making it clearer. If the earlier rule did not require a reservation, this wording would change the policy rather than explain it. `つまり` alone supplies no reformulation."
     examples:
       - text: つまり、予約が必要ということです。
         meaning: In other words, a reservation is required.
-        note: Use to simplify an earlier explanation that visitors must arrange their visit in advance.
-          ということです presents its practical meaning.
+        note: "A previous rule says visitors must book by phone. Restate the requirement simply: `つまり、電話で予約する必要があるということです。` is a full rephrase; `電話で` preserves the method, and `予約する必要がある` preserves the requirement."
   - subskill_id: correcting_misunderstanding
-    explanation: ではなく contrasts the unintended interpretation with the intended one. つもりでした can
-      explain what the speaker had meant.
+    explanation: "Your partner thinks the meeting was planned for Saturday, but you intended Sunday. `土曜日ではなく、日曜日のつもりでした` explicitly repairs it: `土曜日ではなく` rejects Saturday, `日曜日の` supplies Sunday as the intended option, and `つもりでした` says that was your intention. The correction addresses what you meant, not whether Saturday is a good day in general. `日曜日のつもりでした` alone may suffice in context, but naming both days makes the replacement clear."
     examples:
       - text: 土曜日ではなく、日曜日のつもりでした。
         meaning: I meant Sunday, not Saturday.
-        note: Say this after the listener interprets the proposed meeting day as Saturday. The intended
-          plan is corrected explicitly.
+        note: "Correct a mistaken Friday interpretation to Sunday. `金曜日ではなく、日曜日のつもりでした。` is complete; the first phrase rejects what the listener heard, and the second names your intended day."
   - subskill_id: turns_topics
-    explanation: 話は変わりますが announces a change of topic. Follow it with the new subject rather than
-      leaving the transition unexplained.
+    explanation: "The group has finished one agenda item, and you want to discuss next week. `話は変わりますが、来週の予定を確認してもいいですか` manages the transition: `話は変わりますが` announces a topic change, `来週の予定を` identifies the new subject, and `確認してもいいですか` asks permission to check it. The first clause prepares the listener rather than silently switching subjects. `てもいいですか` requests room for the action; here it helps manage the floor. Without a real topic change, the opening would not serve this purpose."
     examples:
       - text: 話は変わりますが、来週の予定を確認してもいいですか。
         meaning: Changing the subject, may I check next week’s plans?
-        note: The opening manages the topic shift, and the question introduces the next topic for
-          discussion.
+        note: "Shift to tomorrow’s schedule instead. `話は変わりますが、明日の予定を確認してもいいですか。` is a full topic transition; `明日の予定` gives the new subject and the final question requests a turn."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -62,7 +51,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

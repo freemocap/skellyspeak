@@ -1,71 +1,56 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 動作詞幹後加고 싶어요，表示想做嗰件事，講者可以省略。
+    explanation: 你喺傢俬工場講學習目標。`가구를 만드는 법을` 係製作傢俬嘅方法，標示為想學嘅對象；`배우고 싶어요` 表示講者想學。`-고 싶어요` 接動作，唔係英文不定式。
     examples:
       - text: 가구를 만드는 법을 배우고 싶어요.
-        meaning: 我想學整傢俬。
-        note: 배우고 싶어요表達願望；만드는 법指出想學嘅方法或技能。
+        meaning: 我想學整傢俬。 배우고 싶어요表達願望；만드는 법指出想學嘅方法或技能。
+        note: 試吓話想學整單車。答案：`자전거를 고치는 법을 배우고 싶어요`。技能片語改 `자전거를 고치는 법을`，保留 `배우고 싶어요` 表願望。
   - subskill_id: preferences
-    explanation: 좋아하다可以將喜歡嘅事物作賓語；보다同더可以比較喜好程度。
+    explanation: 你揀飲品。`저는` 指講者；`커피보다` 將咖啡作比較基準，`차를` 標示茶係喜歡嘅對象。`더 좋아해요` 表示較鍾意。比較 `차가 좋아요`：嗰句將茶描述成令人喜歡。
     examples:
       - text: 저는 커피보다 차를 더 좋아해요.
-        meaning: 比起咖啡，我鍾意茶多啲。
-        note: 차를將茶標示為喜歡嘅對象；커피보다提供比較基準。
+        meaning: 比起咖啡，我鍾意茶多啲。 차를將茶標示為喜歡嘅對象；커피보다提供比較基準。
+        note: 試吓話比起茶更鍾意咖啡。答案：`저는 차보다 커피를 더 좋아해요`。對調比較基準同喜好對象；較鍾意嘅飲品仍用賓語標記 `를`。
   - subskill_id: emotions
-    explanation: 기쁘다直接描述開心，配合禮貌詞尾；原因分句交代情緒由來。
+    explanation: 隔咗一段時間再見到對方。`다시 만나서` 指再次見面呢個感受來源；`기뻐요` 直接用禮貌句尾表達開心。參與者由見面語境可知。
     examples:
       - text: 다시 만나서 기뻐요.
-        meaning: 再見到你，我好開心。
-        note: 만나서將見面同心情連起來；省略嘅參與者由見面情境交代。
+        meaning: 再見到你，我好開心。 만나서將見面同心情連起來；省略嘅參與者由見面情境交代。
+        note: 試吓話再次見到朋友好開心。答案：`친구를 다시 만나서 기뻐요`。加 `친구를` 指見到邊個；`기뻐요` 仍係講自己感受。
   - subskill_id: opinions
-    explanation: 命題配合引述形式다고同생각해요，可以陳述個人判斷；被引述述語要用相應普通體。
+    explanation: 你評價一個建議方法。`이 방법이` 指討論中嘅方法；`좋다고` 包住「好」呢個判斷，`생각해요` 表示係講者嘅睇法。呢句係意見，唔係要求澄清事實。
     examples:
       - text: 이 방법이 좋다고 생각해요.
-        meaning: 我覺得呢個方法好。
-        note: 좋다고引述描述性述語좋다；講者評價呢個方法。
+        meaning: 我覺得呢個方法好。 좋다고引述描述性述語좋다；講者評價呢個方法。
+        note: 試吓話你認為呢個方法容易。答案：`이 방법이 쉽다고 생각해요`。描述性原形 `쉽다` 接 `-고` 成 `쉽다고`，再保留 `생각해요`。
   - subskill_id: agreement_disagreement
-    explanation: 그렇게指返他人嘅想法；도表示講者都持有同樣觀點。
+    explanation: 同伴啱啱話方法好，你都同意。`저도` 係我都係；`그렇게` 指返對方評價，`생각해요` 講自己點諗。前面嘅意見令簡短指代有對象。
     examples:
       - text: 저도 그렇게 생각해요.
-        meaning: 我都係咁諗。
-        note: 回應對方法嘅具體意見，表示認同，唔係淨係確認聽到。
-provenance:
+        meaning: 我都係咁諗。 回應對方法嘅具體意見，表示認同，唔係淨係確認聽到。
+        note: 試吓明確表示唔同意。答案：`저는 그렇게 생각하지 않아요`。將 `저도` 換成 `저는`，否定 `생각해요`；`그렇게` 仍指已知睇法。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/feelings-viewpoints/korean-feelings-viewpoints-explained-in-english.yaml
-    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_predicates2026
     - htsk_desire2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/feelings-viewpoints/korean-feelings-viewpoints-explained-in-english.yaml
-        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_predicates2026
-        - htsk_desire2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

@@ -1,77 +1,62 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: korean-teaching-cantonese-2026-10-07
 language: korean
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 아或어 주세요請人為自己或其他受益者做一件事，形式包含禮貌嘅요。
+    explanation: 你要同事移開箱，令門口暢通。`이 상자를` 指個箱；`문 옆으로` 係門旁嘅目的地，`옮겨 주세요` 禮貌請對方搬。呢句要求動作，唔係問一般能力。
     examples:
       - text: 이 상자를 문 옆으로 옮겨 주세요.
-        meaning: 唔該搬呢個箱去門邊。
-        note: 옮겨 주세요請人幫手搬箱；옆으로標示目的地。
+        meaning: 唔該搬呢個箱去門邊。 옮겨 주세요請人幫手搬箱；옆으로標示目的地。
+        note: 試吓請對方搬箱去窗邊。答案：`이 상자를 창문 옆으로 옮겨 주세요`。目的地改 `창문 옆으로`，保留 `옮겨 주세요` 請求。
   - subskill_id: offers_invitations
-    explanation: 을까요可以主動提出幫忙；드리다用尊敬方式表達幫助對方。
+    explanation: 你見到對方搬重器材，提出幫手。`제가` 指你做幫手；`도와드릴까요?` 問對方需唔需要你幫。`드리다` 尊重地表示行動令對方受益，唔代表你已經開始幫。
     examples:
       - text: 제가 도와드릴까요?
-        meaning: 要唔要我幫你？
-        note: 제가指出幫手嘅係講者；接唔接受由聽者決定。
+        meaning: 要唔要我幫你？ 제가指出幫手嘅係講者；接唔接受由聽者決定。
+        note: 試吓提出幫對方搬箱。答案：`제가 상자를 옮겨 드릴까요?`。講明箱，再用 `옮겨 드릴까요?` 表示為對方做嘅提議。
   - subskill_id: suggestions
-    explanation: 을까요問句配合같이，可以提議一齊行動。係提議定猜想別人會做乜，要睇語境。
+    explanation: 大家做咗一陣，可以休息。`같이` 包括講者同聽者；`잠깐` 表示短暫，`쉴까요?` 提議一齊休息。安排中嘅語境令問句成為建議。
     examples:
       - text: 같이 잠깐 쉴까요?
-        meaning: 不如我哋一齊抖一陣？
-        note: 같이將雙方包括喺提議內；잠깐限定短時間。
+        meaning: 不如我哋一齊抖一陣？ 같이將雙方包括喺提議內；잠깐限定短時間。
+        note: 試吓提議一齊行吓。答案：`같이 잠깐 걸을까요?`。保留 `같이 잠깐`，將休息改成 `걸을까요?` 提議一齊行。
   - subskill_id: commitments
-    explanation: 을게요表達顧及聽者嘅個人意圖；安排事情時，可以用嚟承擔工作。
+    explanation: 小組分配維修工作，聽日要工具。`제가` 強調由講者負責；`내일` 指日子，`가져올게요` 係考慮聽者嘅帶嚟承諾。喺呢段對話，唔只係無關嘅預測。
     examples:
       - text: 제가 내일 공구를 가져올게요.
-        meaning: 聽日我會帶工具嚟。
-        note: 負責幫大家帶工具時用，交代對方可以預期自己會做乜。
+        meaning: 聽日我會帶工具嚟。 負責幫大家帶工具時用，交代對方可以預期自己會做乜。
+        note: 試吓承擔聽日帶收音機。答案：`제가 내일 라디오를 가져올게요`。物件改 `라디오를`，保留 `제가` 同 `-올게요` 表示自己承擔。
   - subskill_id: accepting_declining
-    explanation: 道歉之後講自己做唔到，可以拒絕邀請；邀請本身交代出席乜活動。
+    explanation: 朋友邀請你今日去，但你去唔到。`미안해요` 表示歉意；`오늘은 못 가요` 係今日無法去。`못` 喺呢度表示能力或實際情況限制，目的地由邀請承接。
     examples:
       - text: 미안해요. 오늘은 못 가요.
-        meaning: 唔好意思，我今日嚟唔到。
-        note: 回應今日嘅邀請。못表示冇辦法做到，兩句合起來拒絕邀請。
+        meaning: 唔好意思，我今日嚟唔到。 回應今日嘅邀請。못表示冇辦法做到，兩句合起來拒絕邀請。
+        note: 試吓改為拒絕聽日嗰次。答案：`미안해요. 내일은 못 가요`。日子改 `내일은`，保留道歉同無法去嘅形式。
   - subskill_id: negotiating_plans
-    explanation: 어때요問替代方案合唔合適；先講原先嘅衝突，改動就更清楚。
+    explanation: 對方提議星期五，但你冇空。`금요일은 바빠요` 講限制；`토요일은 어때요?` 提議星期六，問對方合唔合適。話題標記 `은` 將兩日作對比。
     examples:
       - text: 금요일은 바빠요. 토요일은 어때요?
-        meaning: 我星期五唔得閒。星期六點睇？
-        note: 回應星期五見面嘅提議；은喺協商入面對比兩個日子。
-provenance:
+        meaning: 我星期五唔得閒。星期六點睇？ 回應星期五見面嘅提議；은喺協商入面對比兩個日子。
+        note: 試吓話星期五忙，改提星期日。答案：`금요일은 바빠요. 일요일은 어때요?`。保留原有衝突，替代日子改 `일요일은`。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/korean/skills/coordinating-action/korean-coordinating-action-explained-in-english.yaml
-    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Korean English guide; principal
+    target examples and variety retained. Independent linguistic and Cantonese review pending.
   sources:
     - htsk_permission2026
     - htsk_desire2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: korean-teaching-cantonese-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/korean/skills/coordinating-action/korean-coordinating-action-explained-in-english.yaml
-        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - htsk_permission2026
-        - htsk_desire2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

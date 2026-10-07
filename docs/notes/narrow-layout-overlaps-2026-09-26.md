@@ -164,3 +164,4 @@ faded-out control. The outline stays at full strength in both states.
   480px; the name gets very little room. If that reads as cramped, the next step is
   a deliberate narrow-header layout (the control row on its own line, or the XP
   chip collapsing to its star), not a smaller squeeze.
+  Done 2026-10-07: see [narrow-chat-header-2026-10-07.md](narrow-chat-header-2026-10-07.md).

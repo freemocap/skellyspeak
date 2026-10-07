@@ -1,49 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: กี่โมง asks for clock time after the event expression.
+    explanation: You need the shop’s closing time before travelling there. `ร้านปิด` names the event, and `กี่โมง`
+      asks the unknown clock time. The question word follows the event in this sentence; Thai does not add an
+      English-style “does.”
     examples:
       - text: ร้านปิดกี่โมง
         meaning: What time does the shop close?
-        note: The unknown information is the closing hour.
+        note: "Try asking when the shop opens. Answer: `ร้านเปิดกี่โมง` `กี่โมง` still asks for a clock time; `เปิด`
+          changes the event to opening."
   - subskill_id: answering_information
-    explanation: An hour expression can directly answer a preceding time question.
+    explanation: The previous speaker asked when the shop closes. `ห้าโมงเย็น` gives five in the evening, rather
+      than five in the morning; `เย็น` follows the hour. The closing event need not be repeated because the
+      question supplies it. Without that exchange, the short answer would need context.
     examples:
       - text: ห้าโมงเย็น
         meaning: At five in the afternoon.
-        note: Reply to the shop closing-time question; เย็น disambiguates the time of day.
+        note: "Try answering that it closes at six in the evening. Answer: `หกโมงเย็น` The new hour fills the same
+          information gap, and `เย็น` still marks the evening."
   - subskill_id: checking_facts
-    explanation: ใช่ไหม after a proposition asks whether it is correct.
+    explanation: You think the shop closes at five in the evening and seek confirmation. `ร้านปิดห้าโมงเย็น` first
+      states that proposed fact. Final `ใช่ไหม` asks whether it is right, unlike a plain `กี่โมง` question
+      seeking an unknown time.
     examples:
       - text: ร้านปิดห้าโมงเย็นใช่ไหม
         meaning: The shop closes at five in the afternoon, right?
-        note: The speaker supplies a candidate closing time.
+        note: "Try checking whether the shop closes at six in the evening. Answer: `ร้านปิดหกโมงเย็นใช่ไหม` The
+          proposed hour changes, while `ใช่ไหม` still requests confirmation."
   - subskill_id: useful_detail
-    explanation: A location phrase can give the distinguishing information a listener needs.
+    explanation: A visitor sees the building but cannot find its entrance. `ทางเข้า` names the entrance; `อยู่`
+      places it somewhere, and `ทางด้านลาน` identifies the courtyard side. The detail is useful because it
+      distinguishes this side from another possible approach.
     examples:
       - text: ทางเข้าอยู่ทางด้านลาน
         meaning: The entrance is on the courtyard side.
-        note: Use when explaining how to find the entrance.
-provenance: &a1
+        note: "Try saying the entrance is on the road side. Answer: `ทางเข้าอยู่ทางด้านถนน` The location frame
+          remains; `ถนน` changes the side the visitor should approach."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - hartmann_thai_questions2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - hartmann_thai_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

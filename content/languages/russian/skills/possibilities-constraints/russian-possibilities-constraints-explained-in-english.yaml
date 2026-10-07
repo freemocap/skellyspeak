@@ -1,56 +1,88 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Уметь with an infinitive describes learned ability.
+    explanation: A friend asks whether you can repair a bicycle. `Я умею` describes a learned skill, and
+      imperfective infinitive `чинить` names the kind of work you know how to do; `велосипеды` is the object.
+      This differs from a one-off practical possibility such as whether tools are available today.
     examples:
       - text: Я умею чинить велосипеды.
         meaning: I know how to repair bicycles.
-        note: The statement concerns a practical skill, not permission to perform a particular repair.
+        note: "Try saying you know how to repair watches. Answer: `Я умею чинить часы.` `Умею` still asserts learned
+          ability; `чинить часы` names the new repair skill."
   - subskill_id: permission
-    explanation: Можно with an infinitive can ask whether an action is permitted.
+    explanation: You are in a shared space and ask the person responsible whether you may leave a bag there.
+      `Можно` plus infinitive `оставить` asks whether the action is allowed; `здесь` specifies the place. The
+      social setting makes permission the intended reading, although `можно` can also concern practical
+      possibility in other contexts.
     examples:
       - text: Можно здесь оставить сумку?
         meaning: May I leave my bag here?
-        note: Address the person responsible for the space; that context establishes permission.
+        note: "Try asking whether you may leave a bicycle here. Answer: `Можно здесь оставить велосипед?` `Можно`
+          still seeks permission; the object changes to `велосипед`."
   - subskill_id: obligation
-    explanation: Нужно with an infinitive states necessity; a dative phrase identifies who must act.
+    explanation: You borrowed a key and it must be returned today. `Мне` is dative and identifies who must act;
+      `нужно` expresses necessity. Perfective infinitive `вернуть` presents returning the key as a task to
+      complete, and `сегодня` gives the deadline. `Не нужно` would remove the requirement, not prohibit
+      returning it.
     examples:
       - text: Мне нужно вернуть ключ сегодня.
         meaning: I need to return the key today.
-        note: Мне identifies the responsible person and сегодня gives the deadline.
+        note: "Try saying you must return the book today. Answer: `Мне нужно вернуть книгу сегодня.` `Мне нужно` keeps
+          the obligation on you; `вернуть книгу` names the required completed action."
   - subskill_id: possibility
-    explanation: Возможно qualifies the following proposition as possible.
+    explanation: You are deciding whether an evening outdoor activity is sensible. `Возможно` marks the following
+      proposition as a possibility rather than a certainty. `Вечером` sets the time; `будет дождь` presents
+      rain as a future event. The sentence concerns whether weather may occur, not whether anyone has a skill
+      or permission.
     examples:
       - text: Возможно, вечером будет дождь.
         meaning: It may rain this evening.
-        note: This leaves the weather outcome open instead of asserting it as certain.
+        note: "Try saying it may rain tomorrow. Answer: `Возможно, завтра будет дождь.` `Возможно` keeps the claim
+          uncertain; `завтра` changes the time."
   - subskill_id: certainty
-    explanation: Не уверен can state uncertainty about a clause introduced by что.
+    explanation: Someone asks whether a shop is open, but you do not know. `Я не уверена` is a feminine speaker
+      saying she is not certain; masculine singular would be `уверен`. `Что магазин открыт` gives the
+      proposition in doubt. This limits confidence rather than asserting that the shop is closed.
     examples:
       - text: Я не уверена, что магазин открыт.
         meaning: I am not sure that the shop is open.
-        note: The feminine speaker expresses uncertainty; she does not assert that it is closed.
-provenance: &a1
+        note: "Try saying, as the same feminine speaker, that you are not sure the door is open. Answer: `Я не
+          уверена, что дверь открыта.` `Не уверена` keeps the uncertain stance; the `что` clause changes what
+          is uncertain."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_modality2026
     - cornell_russian_need2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_modality2026
+        - cornell_russian_need2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

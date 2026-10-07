@@ -1,69 +1,62 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: irish-teaching-cantonese-2026-10-07
 language: irish
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Ba mhaith liom 表達願望，後面接描述行動嘅結構。
+    explanation: 談學習願望時，`Ba mhaith liom fuáil a fhoghlaim` 以 `Ba mhaith liom` 講我想；`fuáil` 係想學嘅縫紉，放喺 `a
+      fhoghlaim` 前。連接詞 `a` 令 `foghlaim` 開頭寫成 `fhoghlaim`；想學唔等於已經開始。
     examples:
       - text: Ba mhaith liom fuáil a fhoghlaim.
-        meaning: 我想學縫紉。
-        note: Liom 指想學嘅人；a fhoghlaim 放喺賓語 fuáil 後面。
+        meaning: 我想學縫紉。 `Liom` 指想學嘅人；`a fhoghlaim` 放喺賓語 `fuáil` 後面。
+        note: 試講想游水，毋須加「學」。答案：`Ba mhaith liom snámh.` 呢度想做嘅活動本身係游水，所以唔需要 `a fhoghlaim`。
   - subskill_id: preferences
-    explanation: Is fearr liom 配合 ná，可以比較兩個選項嘅喜好。
+    explanation: 揀茶定咖啡時，`Is fearr liom tae ná caife` 以 `Is fearr liom` 表個人較鍾意，`tae` 係首選，`ná caife`
+      係比較對象。`liom` 指感受者係我；唔聲稱茶客觀上較好。
     examples:
       - text: Is fearr liom tae ná caife.
-        meaning: 比起咖啡，我鍾意茶多啲。
-        note: 呢個結構表達講者嘅喜好，唔係客觀排名。
+        meaning: 比起咖啡，我鍾意茶多啲。 呢個結構表達講者嘅喜好，唔係客觀排名。
+        note: 試講較鍾意咖啡。答案：`Is fearr liom caife ná tae.` 對調 `ná` 前後兩種飲品，喜好就反轉。
   - subskill_id: emotions
-    explanation: 情緒名詞配合 ar，可以描述一個人嘅感受。
+    explanation: 收到好消息時，`Tá áthas orm faoin nuacht seo` 以 `áthas` 呢個名詞講喜悅，`orm` 指感受者係我；`faoin nuacht seo`
+      係關於呢個消息。愛爾蘭語可用情緒名詞加變化咗嘅介詞指邊個有感受。
     examples:
       - text: Tá áthas orm faoin nuacht seo.
-        meaning: 聽到呢個消息，我好開心。
-        note: Orm 指有呢種感受嘅人；faoin nuacht seo 交代係因為呢個消息。
+        meaning: 聽到呢個消息，我好開心。 `Orm` 指有呢種感受嘅人；`faoin nuacht seo` 交代係因為呢個消息。
+        note: 試講聽者對同一消息感到開心。答案：`Tá áthas ort faoin nuacht seo.` `orm` 換 `ort` 改感受者；消息片語保留。
   - subskill_id: opinions
-    explanation: Ceapaim 引出信念或判斷，具體內容放喺後面分句。
+    explanation: 比較做法時，`Ceapaim go bhfuil an modh seo níos éasca` 以 `Ceapaim` 講「我認為」；後面用 `go bhfuil`
+      引出被判斷嘅說法。`an modh seo` 係呢種做法，`níos éasca` 係較容易。`Ceapaim go` 後唔直接接 `tá`。
     examples:
       - text: Ceapaim go bhfuil an modh seo níos éasca.
-        meaning: 我覺得呢個方法容易啲。
-        note: Go bhfuil 將評價連到講者嘅意見。
+        meaning: 我覺得呢個方法容易啲。 `Go bhfuil` 將評價連到講者嘅意見。
+        note: 試講你覺得嗰種做法較容易。答案：`Ceapaim go bhfuil an modh sin níos éasca.` `sin` 換指向；`go bhfuil` 嘅從屬形式保留。
   - subskill_id: agreement_disagreement
-    explanation: Aontaigh le 表示同意；現在式陳述加 ní，就變成否定。
+    explanation: 討論一項建議時，`Ní aontaím leis an moladh seo` 用 `Ní` 否定 `aontaím`，表示我唔同意。動詞同意係接 `le`，遇冠詞用 `leis
+      an`；`an moladh seo` 指呢項建議。呢句係反對提議，唔係話聽唔明。
     examples:
       - text: Ní aontaím leis an moladh seo.
-        meaning: 我唔同意呢個建議。
-        note: Leis an moladh seo 指出唔接受嘅係邊個建議。
-provenance:
+        meaning: 我唔同意呢個建議。 `Leis an moladh seo` 指出唔接受嘅係邊個建議。
+        note: 試改為同意嗰項建議。答案：`Aontaím leis an moladh sin.` 拿走 `Ní` 改肯定，`sin` 指嗰項提議；`leis an` 保留。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/irish/skills/feelings-viewpoints/irish-feelings-viewpoints-explained-in-english.yaml
-    at revision irish-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the completed English guide; principal
+    Irish target examples preserved. Independent Irish and Cantonese review pending.
   sources:
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
+    - teanglannGlacTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: irish-teaching-cantonese-2026-10-07
+    scope: All Cantonese contextual explanations, meanings and practice answers for irish-ireland. Source
+      passages support scoped forms, not linguistic certification.
 varieties:
   irish-ireland:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/irish/skills/feelings-viewpoints/irish-feelings-viewpoints-explained-in-english.yaml
-        at revision irish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - brasicke_irish_copula2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

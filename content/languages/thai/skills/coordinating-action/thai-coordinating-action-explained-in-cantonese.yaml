@@ -1,77 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: ช่วย配合動作同หน่อย，可以請人幫手。
+    explanation: 你要同事將指定嘅箱搬到門邊方便裝載。`ช่วย` 放喺 `ย้าย` 前面，請對方幫手搬；`กล่องนี้` 指呢個箱，`ไปที่ประตู` 指目的地。句尾 `หน่อย`
+      緩和要求。呢句係請對方做事，唔係問搬箱可唔可能。
     examples:
       - text: ช่วยย้ายกล่องนี้ไปที่ประตูหน่อย
         meaning: 唔該幫手搬呢個箱去門口。
-        note: 適合合作情境；額外禮貌語氣詞要按講者同雙方關係選擇。
+        note: 試吓請對方將呢個箱搬去窗邊。答案：`ช่วยย้ายกล่องนี้ไปที่หน้าต่างหน่อย`。請求結構不變；`ไปที่หน้าต่าง` 改目的地。
   - subskill_id: offers_invitations
-    explanation: 即將行動嘅陳述配合ให้，可以主動提出幫忙。
+    explanation: 同行者拎住重袋，你提出幫佢拎。`เดี๋ยว` 將自己嘅行動放喺稍後；`ฉันถือกระเป๋า` 講邊個拎乜。句尾 `ให้` 表示為對方做。喺呢個語境，陳述句係提議幫手，唔只係預測。
     examples:
       - text: เดี๋ยวฉันถือกระเป๋าให้
         meaning: 我幫你拎個袋。
-        note: 聽者係語境中已知嘅受益者；講者自願行動。
+        note: 試吓提出幫同行者拎個箱。答案：`เดี๋ยวฉันถือกล่องให้`。`ถือกล่อง` 改咗物件；句尾 `ให้` 保留為對方做嘅提議。
   - subskill_id: suggestions
-    explanation: กัน表示共同參與，ไหม可以邀請對方接受提議。
+    explanation: 大家做咗一陣工，可以停一停。`พัก` 係建議嘅行動；`กัน` 包括講者同聽者一齊做。`สักครู่` 限定短時間，句尾 `ไหม` 邀請回應。呢句係共同建議，唔只係問身體可唔可以休息。
     examples:
       - text: พักกันสักครู่ไหม
         meaning: 不如我哋抖一陣？
-        note: 休息提議包括講者同聽者。
+        note: 試吓提議大家傾一陣。答案：`คุยกันสักครู่ไหม`。`กัน` 保留共同參與；`ไหม` 邀請大家接受或拒絕。
   - subskill_id: commitments
-    explanation: 將來陳述可以表示負責約定嘅工作。
+    explanation: 小組分配聽日要用嘅工具，你承擔帶嚟。`พรุ่งนี้` 指日子；`ฉัน` 指負責嘅講者。`จะเอาเครื่องมือมา` 將帶工具視為將來行動，`มา`
+      朝向會面地點。分工語境先令句子成為承諾；唔係每句有 `จะ` 都係承諾。
     examples:
       - text: พรุ่งนี้ฉันจะเอาเครื่องมือมา
         meaning: 聽日我會帶工具嚟。
-        note: 分工時用，講者承擔帶工具嘅責任。
+        note: 試吓承擔聽日帶鎖匙。答案：`พรุ่งนี้ฉันจะเอากุญแจมา`。講者同將來結構保留；`กุญแจ` 取代工具。
   - subskill_id: accepting_declining
-    explanation: 表達冇辦法出席，可以拒絕邀請。
+    explanation: 朋友邀請你今日去，但你去唔到。`ขอโทษ` 為拒絕致歉；`วันนี้` 將限制放喺今日。`ฉันไปไม่ได้` 將 `ไม่ได้`
+      放喺去嘅行動後，表示做唔到。喺邀請對話中，呢句即使冇另加「唔」，都係拒絕出席。
     examples:
       - text: ขอโทษ วันนี้ฉันไปไม่ได้
         meaning: 唔好意思，我今日去唔到。
-        note: 之前邀請交代咗拒絕邊個活動。
+        note: 試吓拒絕聽日嗰次邀請。答案：`ขอโทษ พรุ่งนี้ฉันไปไม่ได้`。`พรุ่งนี้` 改相關日子；`ไปไม่ได้` 仍講無法接受嘅原因。
   - subskill_id: negotiating_plans
-    explanation: 先講時間限制，再提出替代方案。
+    explanation: 星期五同你行程撞咗，所以你提星期六。`วันศุกร์ฉันไม่ว่าง` 講限制。`เจอกันวันเสาร์` 提議星期六見面；`แทน` 標示替代，`ได้ไหม`
+      問安排可唔可以。後半句令協商繼續，唔只係拒絕星期五。
     examples:
       - text: วันศุกร์ฉันไม่ว่าง เจอกันวันเสาร์แทนได้ไหม
         meaning: 我星期五唔得閒。可唔可以改星期六見？
-        note: แทน將星期六標示為替代日子。
+        note: 試吓講星期五唔得，改提星期日。答案：`วันศุกร์ฉันไม่ว่าง เจอกันวันอาทิตย์แทนได้ไหม`。`แทนได้ไหม` 仍提替代安排並徵求同意。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/thai/skills/coordinating-action/thai-coordinating-action-explained-in-english.yaml at
-    revision thai-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - niu_thai_hai2026
     - hartmann_thai_questions2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   thai-thailand:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/thai/skills/coordinating-action/thai-coordinating-action-explained-in-english.yaml
-        at revision thai-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
       sources:
         - niu_thai_hai2026
         - hartmann_thai_questions2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

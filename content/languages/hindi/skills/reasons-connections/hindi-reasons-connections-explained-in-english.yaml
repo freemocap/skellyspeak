@@ -1,63 +1,96 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: क्योंकि introduces a reason. The reason should explain the action or situation just
-      mentioned.
+    explanation: A friend asks why you stayed inside. First state what did not
+      happen, then `क्योंकि` introduces the rain as the reason.
     examples:
       - text: मैं बाहर नहीं गई क्योंकि बारिश हो रही थी।
-        meaning: I did not go outside because it was raining.
-        note: गई identifies a female speaker. The rain is the reason for staying in.
+        meaning: I did not go outside because it was raining. `बाहर नहीं गई` means did
+          not go outside and identifies a female speaker. `बारिश हो रही थी` says
+          it was raining; this explains the decision.
+        note: "Give a different reason: you were ill. Answer: `मैं बाहर नहीं गई क्योंकि
+          मैं बीमार थी।` The clause after `क्योंकि` must explain the first;
+          merely adding `और` would list another fact."
   - subskill_id: consequences
-    explanation: इसलिए marks a consequence of the preceding circumstance. It adds a causal relation
-      beyond the ordering of two events.
+    explanation: You explain why the group walked. `इसलिए` points back to the absent
+      bus and marks walking as the resulting course of action.
     examples:
       - text: बस नहीं आई, इसलिए हमें पैदल जाना पड़ा।
-        meaning: The bus did not come, so we had to walk.
-        note: इसलिए links the absent bus to the need to walk. जाना पड़ा expresses the resulting
-          necessity.
+        meaning: The bus did not come, so we had to walk. `बस नहीं आई` says the bus did
+          not come. `हमें पैदल जाना पड़ा` says we had to go on foot; `इसलिए`
+          ties that necessity to the bus.
+        note: "Give the result that you waited. Answer: `बस नहीं आई, इसलिए हमें इंतज़ार
+          करना पड़ा।` Change the consequence. `फिर` could merely say what
+          happened next."
   - subskill_id: conditions
-    explanation: अगर can introduce a hypothetical condition, often paired with तो. A perfective verb
-      in this construction can concern a future possibility.
+    explanation: You are making a rain plan, not reporting rain that already
+      happened. `अगर` opens the condition and `तो` leads to the action that
+      follows if it is met.
     examples:
       - text: अगर बारिश हुई तो हम घर पर रहेंगे।
-        meaning: If it rains, we will stay at home.
-        note: हुई is inside the condition; it does not assert that rain already occurred. रहेंगे gives
-          the consequence.
+        meaning: If it rains, we will stay at home. `बारिश हुई` is inside the if-clause;
+          here its perfective form does not assert a past event. `हम घर पर
+          रहेंगे` is the future consequence.
+        note: "Plan to go out if it does not rain. Answer: `अगर बारिश नहीं हुई तो हम
+          बाहर जाएँगे।` Negate the condition and change the consequence. Without
+          the condition, `हम घर पर रहेंगे` is simply a plan."
   - subskill_id: contrast
-    explanation: लेकिन connects propositions that contrast. The listener should be able to identify
-      the difference or defeated expectation.
+    explanation: You are describing a small room that still has an advantage.
+      `लेकिन` signals that the brightness contrasts with what the size might
+      lead someone to expect.
     examples:
       - text: यह कमरा छोटा है, लेकिन बहुत रोशन है।
-        meaning: This room is small, but it is very bright.
-        note: The favorable brightness contrasts with the room’s limited size.
+        meaning: This room is small, but it is very bright. `छोटा है` describes limited
+          size; `बहुत रोशन है` says it is very bright. `लेकिन` links the two as
+          a contrast, not a mere list.
+        note: "Contrast a large room that is dark. Answer: `यह कमरा बड़ा है, लेकिन
+          अँधेरा है।` Change both qualities. `और` would simply add another
+          description."
   - subskill_id: supporting_claims
-    explanation: क्योंकि may introduce evidence for a conclusion, not only the cause of an event.
-      Say what observation supports the claim.
+    explanation: You infer that the shop is open after seeing people inside. Here
+      `क्योंकि` supplies evidence for the claim, rather than a cause that made
+      the shop open.
     examples:
       - text: दुकान खुली है, क्योंकि अंदर लोग हैं।
-        meaning: The shop is open, because there are people inside.
-        note: People inside are offered as grounds for the conclusion. They are not claimed to have
-          caused the shop to open.
+        meaning: The shop is open, because there are people inside. `दुकान खुली है`
+          states the conclusion; `अंदर लोग हैं` is the observed reason for
+          believing it. People inside do not themselves cause the opening.
+        note: "You see a lock on the door and infer the shop is closed. Answer: `दुकान
+          बंद है, क्योंकि दरवाज़े पर ताला लगा है।` The lock is evidence for the
+          inference, not the event that caused the shop to close; an unlit
+          interior in daytime would be weaker evidence."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

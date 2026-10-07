@@ -1,47 +1,48 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 活動前面加 ingin，表示想做嗰件事。之後可以用 belajar 交代想學嘅技能。
+    explanation: 你講個人學習目標。`ingin` 放 `belajar menjahit` 前，表示想學縫紉；唔等於已經開始。
     examples:
       - text: Saya ingin belajar menjahit.
-        meaning: 我想學縫紉。
-        note: Ingin 表示 saya 嘅意願，唔等於向人承諾一定會去學。
+        meaning: 我想學縫紉。 `Saya` 係想做嘅人，`belajar` 係學，`menjahit` 係縫紉；動詞唔跟性別變詞尾。
+        note: 試講想學畫畫。答案：`Saya ingin belajar melukis.` 換技能；`Saya bisa melukis` 係講有能力。
   - subskill_id: preferences
-    explanation: Lebih suka 比較喜好；daripada 引出相對冇咁鍾意嘅選項。
+    explanation: 你喺兩種活動之間揀。`lebih suka ... daripada ...` 比自己鍾意畫畫定寫作，唔係客觀評價邊樣好。
     examples:
       - text: Saya lebih suka menggambar daripada menulis.
-        meaning: 比起寫嘢，我鍾意畫畫多啲。
-        note: 呢個係講者自己嘅喜好比較，唔係替兩種活動作客觀排名。
+        meaning: 比起寫嘢，我鍾意畫畫多啲。 `Saya` 係有喜好嘅人；`menggambar` 喺 `lebih suka`
+          後，係較鍾意嘅活動；`menulis` 喺 `daripada` 後係比較項。
+        note: 試改成較鍾意寫。答案：`Saya lebih suka menulis daripada menggambar.` 交換兩活動；`lebih
+          murah` 係比價錢，唔係喜好。
   - subskill_id: emotions
-    explanation: Senang 可以形容開心嘅感受；dengan 可以交代對乜嘢感到滿意。
+    explanation: 同事展示完成品，問你感受。`senang dengan` 將開心同大家講緊嘅成果連起。
     examples:
       - text: Saya senang dengan hasilnya.
-        meaning: 我對個結果好滿意。
-        note: 詞尾 -nya 將結果連返大家講緊嘅工作；senang 描述講者嘅反應。
+        meaning: 我對個結果感到開心。 `Saya senang` 係我開心；`hasilnya` 係談緊嘅成果，`-nya` 指返嗰件工作。
+        note: 試講對結果失望。答案：`Saya kecewa dengan hasilnya.` 換情緒；`hasilnya` 仍指同一成果。
   - subskill_id: opinions
-    explanation: Menurut saya 引出個人判斷，後面嘅命題先係具體評價。
+    explanation: 審視設計時，你覺得顏色對用途而言太暗。`Menurut saya` 標呢個係你嘅評價，`terlalu` 表示超出可接受程度。
     examples:
       - text: Menurut saya, warna ini terlalu gelap.
-        meaning: 我覺得呢隻色太深。
-        note: Terlalu 表示超出講者用途或者標準所需嘅程度。
+        meaning: 我覺得呢隻色太深。 `warna ini` 係呢種顏色，`gelap` 係暗；加 `terlalu` 就係過暗，唔係中性描述。
+        note: 試講你覺得太光。答案：`Menurut saya, warna ini terlalu terang.` 換評價性質，保留觀點標記。
   - subskill_id: agreement_disagreement
-    explanation: Setuju 表示同意，加 tidak 就變成唔同意；dengan 可以交代針對邊個立場。
+    explanation: 對方啱啱提議改動。`tidak setuju dengan` 講唔同意嗰個具體提議，唔係話聽唔明。
     examples:
       - text: Saya tidak setuju dengan usulan itu.
-        meaning: 我唔同意嗰個建議。
-        note: 回應人哋提出嘅建議或觀點，表示反對，唔係單純聽唔明。
+        meaning: 我唔同意嗰個建議。 `Saya` 係自己立場，`usulan itu` 指返嗰個提議，`tidak` 否定 `setuju`。
+        note: 試改成同意。答案：`Saya setuju dengan usulan itu.` 拿走 `tidak`；`Saya mengerti` 只講明白。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/feelings-viewpoints/indonesian-feelings-viewpoints-explained-in-english.yaml
-    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
@@ -49,18 +50,17 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/feelings-viewpoints/indonesian-feelings-viewpoints-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
@@ -68,6 +68,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

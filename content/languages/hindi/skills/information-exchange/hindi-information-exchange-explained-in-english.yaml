@@ -1,54 +1,83 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: कितने बजे requests an hour. The question phrase stays before the verb here; the
-      sentence does not need an extra question auxiliary.
+    explanation: You need the shop opening hour before leaving home. `कितने बजे`
+      asks at what clock time; `खुलती है` follows the shop and the requested
+      time. The verb is feminine because `दुकान` is feminine.
     examples:
       - text: दुकान कितने बजे खुलती है?
-        meaning: What time does the shop open?
-        note: खुलती agrees with feminine दुकान. The missing information is the opening time.
+        meaning: What time does the shop open? `दुकान` is the shop, `कितने बजे` the
+          unknown hour, and `खुलती है` means opens. The question leaves only the
+          clock time to supply.
+        note: "Ask for the closing hour. Answer: `दुकान कितने बजे बंद होती है?` Replace
+          the opening predicate with `बंद होती है`. `क्या दुकान खुलती है?`
+          instead asks whether it opens."
   - subskill_id: answering_information
-    explanation: A time phrase can answer a specific question without repeating its subject and
-      verb. Its relevance comes from that question.
+    explanation: When someone asks the opening hour, the time phrase alone can fill
+      that gap. `बजे` makes the number an hour on the clock.
     examples:
       - text: आठ बजे।
-        meaning: At eight.
-        note: Reply to the question about the shop’s opening time. बजे makes this an hour expression.
+        meaning: At eight. `आठ` means eight and `बजे` places it at eight o’clock. The
+          shop and opening verb are understood from the preceding question.
+        note: "Answer with nine. Answer: `नौ बजे।` Replace only the number. `आठ घंटे` is
+          eight hours of duration, so it does not answer the clock-time
+          question."
   - subskill_id: checking_facts
-    explanation: A proposition followed by है न? can ask for confirmation. The listener must be able
-      to identify the claim being checked.
+    explanation: You think the shop opens at eight and want the listener to confirm
+      that claim. State the candidate hour first, then use final `है न?` to
+      check it.
     examples:
       - text: दुकान आठ बजे खुलती है, है न?
-        meaning: The shop opens at eight, right?
-        note: The speaker has heard or inferred eight o’clock and checks that detail.
+        meaning: The shop opens at eight, right? `आठ बजे` gives the proposed time and
+          `खुलती है` describes the shop’s opening. Final `है न?` seeks
+          confirmation of that proposition.
+        note: "Check whether the shop opens at nine. Answer: `दुकान नौ बजे खुलती है, है
+          न?` Change the proposed hour. `दुकान कितने बजे खुलती है?` requests an
+          unknown hour instead."
   - subskill_id: useful_detail
-    explanation: वाला can distinguish a particular member of a set. A spatial description and a
-      distinguishing property can help the listener identify the intended object.
+    explanation: A visitor sees several doors and needs to identify the right one.
+      `पीछे वाला` selects the one at the back; the color gives a second visible
+      clue.
     examples:
       - text: पीछे वाला दरवाज़ा नीला है।
-        meaning: The door at the back is blue.
-        note: In directions to a visitor, पीछे वाला identifies which door and नीला adds a visible
-          identifying detail.
+        meaning: The door at the back is blue. `पीछे वाला दरवाज़ा` identifies the back
+          door. `नीला है` says it is blue; `वाला` and `नीला` take masculine
+          forms with `दरवाज़ा`.
+        note: "Point out a red back door. Answer: `पीछे वाला दरवाज़ा लाल है।` Change the
+          identifying color. `दरवाज़ा नीला है` gives a color but loses the
+          back-door distinction."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

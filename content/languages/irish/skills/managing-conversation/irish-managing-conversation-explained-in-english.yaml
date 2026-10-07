@@ -46,10 +46,10 @@ sections:
     examples:
       - text: Is é sin le rá, caithfimid áit a chur in áirithe roimh ré.
         meaning: In other words, we must book a place in advance.
-        note: "The opening announces that the following requirement restates the practical point. Try
-          rephrasing the requirement as booking today, using `inniu`. Answer: `Is é sin le rá,
+        note: "It is today, the event is tomorrow, and the organiser has said bookings close by the
+          end of today. Restate that exact deadline, using `inniu`. Answer: `Is é sin le rá,
           caithfimid áit a chur in áirithe inniu.` The reformulation signal and booking obligation
-          remain; the time is now today rather than the less specific in advance."
+          remain, while today's deadline comes from the organiser's stated rule."
   - subskill_id: correcting_misunderstanding
     explanation: If a listener has mistaken the meeting day, `Dé Sathairn atá i gceist agam, ní Dé
       hAoine` corrects it to Saturday rather than Friday. The intended day is placed first for

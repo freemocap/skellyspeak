@@ -1,53 +1,53 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: γεια σας 係尊稱或對多人嘅日常問候。喺呢度開始交流，簡短問候本身已可構成完整社交回應。
+    explanation: 你第一次喺維修舖見某人。`Γεια σας` 可禮貌地稱呼一個人，亦可稱呼多人；`Τι κάνετε;` 用相配嘅第二人稱複數動詞。對熟悉嘅一個人可用 `Γεια
+      σου`、`Τι κάνεις;`。
     examples:
       - text: Γεια σας! Τι κάνετε;
-        meaning: 你好！近來點呀？
-        note: 初次認識時用；σας 同 κάνετε 保持尊稱，問句用希臘文 ;。
+        meaning: 你好！你好嗎？`σας` 同 `κάνετε` 由頭到尾都係禮貌或複數稱呼。
+        note: 試吓同一位熟朋友打招呼兼問候。答案：`Γεια σου! Τι κάνεις;`。問候詞嘅代名詞同動詞都改用熟悉單數形式。
   - subskill_id: acknowledging
-    explanation: κατάλαβα 可以表示已明白。雖然係第一人稱過去式，喺呢度用作當下回應；理解唔等於贊同。
+    explanation: 技師啱啱解釋架單車放邊。`Κατάλαβα` 表示你聽明咗説明；`ευχαριστώ` 道謝。呢個唔等於同意一個意見或批准安排。
     examples:
       - text: Κατάλαβα, ευχαριστώ.
-        meaning: 明白，多謝。
-        note: 對方解釋單車放邊之後用，係表示收到同理解，唔係另作新承諾。
+        meaning: 我明白，多謝。`Κατάλαβα` 表示明白指示，`ευχαριστώ` 係禮貌回應。
+        note: 試吓只確認你明白，唔加道謝。答案：`Κατάλαβα`。前面嘅解釋已經交代你明白嘅係乜。
   - subskill_id: clarification
-    explanation: τι εννοείτε με 可以問某詞嘅意思；εννοείτε 尊稱對方，引用唔清楚部分令釐清目標更明確。
+    explanation: 技師提到後門，但你唔知佢指邊個門口。`Τι εννοείτε με` 問引號入面個講法係咩意思；`εννοείτε` 係禮貌或複數稱呼。你問嘅係意思，唔係門口存唔存在。
     examples:
       - text: Τι εννοείτε με «πίσω είσοδο»;
-        meaning: 你講「後門入口」係指邊度？
-        note: 對方提到後入口而你唔知邊個時用，係修補理解，唔係核實開門時間。
+        meaning: 你講「後門」係咩意思？`Τι εννοείτε με` 請對方解釋引述嘅 `πίσω είσοδο`。
+        note: 試吓問「側門」係咩意思。答案：`Τι εννοείτε με «πλαϊνή είσοδο»;`。保留澄清句式，只換需要解釋嘅詞組。
   - subskill_id: rephrasing
-    explanation: δηλαδή 引入更清楚講法，應保留原意，唔好暗中改變意思；用作問句時亦可以要求釐清。
+    explanation: 客人未必明白「仲要做啲工序」。`Δηλαδή` 引出較清楚嘅重述：維修未完成。第二句解釋第一句，唔係另一個無關問題。
     examples:
       - text: Χρειάζεται ακόμα δουλειά. Δηλαδή, η επισκευή δεν είναι έτοιμη.
-        meaning: 仲有工夫要做，即係維修仲未完成。
-        note: 後一句清楚解釋未完成狀態；兩句都係同一講者講，唔係兩人對答。
+        meaning: 仲要做工；換句話講，維修未完成。`Δηλαδή` 標示 `η επισκευή δεν είναι έτοιμη` 係重述未完成狀態。
+        note: 試吓將「維修舖關咗」重述成「未開」。答案：`Το συνεργείο είναι κλειστό. Δηλαδή, δεν είναι ανοιχτό`。第二句有解釋第一句，先適合用
+          `Δηλαδή`。
   - subskill_id: correcting_misunderstanding
-    explanation: εννοώ 指明原意，όχι 排除錯誤理解。有需要時兩個對象都講出嚟，唔必須靠某一過去式先做到修正。
+    explanation: 對方以為你講星期五，但你本來指星期六。`Εννοώ` 引出真正想講嘅日子；`όχι` 直接否定誤會。兩個日期片語都係賓格時間用法。
     examples:
       - text: Εννοώ το Σάββατο, όχι την Παρασκευή.
-        meaning: 我意思係星期六，唔係星期五。
-        note: 對方以為星期五到訪時用，明確修正日子。
+        meaning: 我指星期六，唔係星期五。`το Σάββατο` 係更正後日期；`όχι την Παρασκευή` 明確排除星期五。
+        note: 試吓更正對方：你指星期五，唔係星期六。答案：`Εννοώ την Παρασκευή, όχι το Σάββατο`。對調日期，保留各自冠詞。
   - subskill_id: turns_topics
-    explanation: μπορώ να 問句可以請求發言機會，σχετικά με 指出話題。重點唔係身體能力，而係協調參與。
+    explanation: 小組討論時你想輪到自己講路線。`Μπορώ να πω κάτι` 請求發言；`σχετικά με τη διαδρομή` 指明話題。呢句係爭取發言，唔係測試自己能否出聲。
     examples:
       - text: Μπορώ να πω κάτι σχετικά με τη διαδρομή;
-        meaning: 我可唔可以講少少路線方面嘅事？
-        note: 小組討論中要求發言；να πω 指行動，σχετικά με τη διαδρομή 指內容。
-provenance:
+        meaning: 我可唔可以講吓條路？`Μπορώ να πω κάτι` 請求發言，`σχετικά με τη διαδρομή` 指話題。
+        note: 試吓問可唔可以講吓維修。答案：`Μπορώ να πω κάτι σχετικά με την επισκευή;`。保留發言請求，話題改成陰性賓格 `την επισκευή`。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/managing-conversation/greek-managing-conversation-explained-in-english.yaml
-    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -58,28 +58,10 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/managing-conversation/greek-managing-conversation-explained-in-english.yaml
-        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-        - tsaggalidis_el_person2026
-        - archakis_el_politeness2026
-        - triantafyllides_el_diladi2026
-        - triantafyllides_el_mean2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

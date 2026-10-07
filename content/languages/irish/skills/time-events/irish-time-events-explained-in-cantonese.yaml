@@ -1,77 +1,72 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: irish-teaching-cantonese-2026-10-07
 language: irish
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: Tá 配合 ag 同動名詞，可以描述進行中嘅活動。
+    explanation: 對方問你而家做緊乜時，`Tá mé ag deisiú rothair anois` 用 `Tá mé` 指講者，`ag deisiú` 講維修進行中，`anois`
+      指此刻。`rothair` 係 `rothar` 作動名詞賓語時嘅形式；句子冇話已整好。
     examples:
       - text: Tá mé ag deisiú rothair anois.
-        meaning: 我而家整緊單車。
-        note: Rothair 係呢度配合動名詞用嘅屬格形式；anois 指明而家。
+        meaning: 我而家整緊單車。 `Rothair` 係呢度配合動名詞用嘅屬格形式；`anois` 指明而家。
+        note: 試唔講明「而家」，仍表示整緊單車。答案：`Tá mé ag deisiú rothair.` 保留 `tá ... ag` 嘅進行結構；對話交代目前時間。
   - subskill_id: past_events
-    explanation: 動詞過去式用嚟報告較早發生嘅事件。
+    explanation: 報告尋日完成嘅工作時，`Dheisigh mé an rothar inné` 用過去動詞 `Dheisigh`，開頭有弱化寫法；`mé` 係講者，`an rothar`
+      係被整嘅單車，`inné` 係尋日。有限動詞喺主語前。
     examples:
       - text: Dheisigh mé an rothar inné.
-        meaning: 我尋日整好咗架單車。
-        note: Dheisigh 係過去式；inné 交代係尋日。
+        meaning: 我尋日整好咗架單車。 `Dheisigh` 係過去式；`inné` 交代係尋日。
+        note: 試講今日已經整咗架單車。答案：`Dheisigh mé an rothar inniu.` `inniu` 改日子；過去動詞仍講已發生嘅維修。
   - subskill_id: future_events
-    explanation: 動詞將來式可以表達之後嘅行動。
+    explanation: 安排下一步維修時，`Gheobhaidh mé na páirteanna amárach` 講聽日攞零件。`Gheobhaidh` 係 `faigh` 嘅實際不規則將來形式；動詞後係
+      `mé`，再係 `na páirteanna`，最後 `amárach`。
     examples:
       - text: Gheobhaidh mé na páirteanna amárach.
-        meaning: 我聽日會攞到啲零件。
-        note: Gheobhaidh 係 faigh 嘅將來式；amárach 指明聽日。
+        meaning: 我聽日會攞到啲零件。 `Gheobhaidh` 係 `faigh` 嘅將來式；`amárach` 指明聽日。
+        note: 試講今日稍後會攞零件。答案：`Gheobhaidh mé na páirteanna inniu.` `inniu` 換今日；若攞零件仍未發生，將來形式保留。
   - subskill_id: duration_frequency
-    explanation: Bím 可以描述習慣情況，時間短語另行交代頻率。
+    explanation: 講游水習慣時，`Bím ag snámh dhá uair sa tseachtain` 用習慣形式 `Bím`，再用 `ag snámh` 講活動。`dhá uair`
+      喺呢度係兩次，`sa tseachtain` 係一星期；唔係話而家游緊，亦唔係每次游兩個鐘。
     examples:
       - text: Bím ag snámh dhá uair sa tseachtain.
-        meaning: 我一個星期游兩次水。
-        note: 呢度 dhá uair 數次數；dhá uair an chloig 先係量度兩個鐘。
+        meaning: 我一個星期游兩次水。 呢度 `dhá uair` 數次數；`dhá uair an chloig` 先係量度兩個鐘。
+        note: 試講每日游兩次。答案：`Bím ag snámh dhá uair sa lá.` 重複活動同兩次不變；`sa lá` 將間隔由星期改成一日。
   - subskill_id: event_sequence
-    explanation: Ar dtús 同 ansin 明確排列步驟。
+    explanation: 教煮食次序時，`Nigh do lámha ar dtús, ansin ullmhaigh na glasraí` 先叫一個人洗手，再準備菜。`Nigh` 同 `ullmhaigh`
+      係向同一位聽者講嘅命令式；`ar dtús` 標第一步，`ansin` 標後一步。
     examples:
       - text: Nigh do lámha ar dtús, ansin ullmhaigh na glasraí.
-        meaning: 先洗手，然後準備啲蔬菜。
-        note: 呢啲單數指令交代先後，唔係因果。
+        meaning: 先洗手，然後準備啲蔬菜。 呢啲單數指令交代先後，唔係因果。
+        note: 試以同樣次序詞改講先洗蔬菜，再準備佢哋。答案：`Nigh na glasraí ar dtús, ansin ullmhaigh iad.` 第一個動作喺 `ar dtús` 前，`ansin`
+          後係下一步；`iad` 指返蔬菜。
   - subskill_id: event_phase
-    explanation: Críochnaithe 配合 ag 同動名詞，可以表示一項活動已經完成。
+    explanation: 讀到尾之後，`Tá mé críochnaithe ag léamh` 表示講者已讀完。`Tá mé` 指而家狀態，`críochnaithe` 係完成，`ag léamh`
+      指閱讀活動；上下文可交代係邊本書。呢句聚焦完成狀態。
     examples:
       - text: Tá mé críochnaithe ag léamh.
-        meaning: 我已經睇完。
-        note: 之前嘅語境交代睇緊乜嘢；呢句標示閱讀已經完成。
-provenance:
+        meaning: 我已經睇完。 之前嘅語境交代睇緊乜嘢；呢句標示閱讀已經完成。
+        note: 試講自己仍喺閱讀階段。答案：`Tá mé ag léamh.` 拿走 `críochnaithe`，保留進行中嘅閱讀結構。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/irish/skills/time-events/irish-time-events-explained-in-english.yaml at revision
-    irish-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the completed English guide; principal
+    Irish target examples preserved. Independent Irish and Cantonese review pending.
   sources:
     - teanglann_deisigh2026
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
+    - teanglannGlacTeaching20261007
+    - teanglannNighTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: irish-teaching-cantonese-2026-10-07
+    scope: All Cantonese contextual explanations, meanings and practice answers for irish-ireland. Source
+      passages support scoped forms, not linguistic certification.
 varieties:
   irish-ireland:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/irish/skills/time-events/irish-time-events-explained-in-english.yaml at revision
-        irish-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - teanglann_deisigh2026
-        - brasicke_irish_copula2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

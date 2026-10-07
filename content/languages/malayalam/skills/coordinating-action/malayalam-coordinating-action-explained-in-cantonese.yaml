@@ -1,62 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: malayalam-cantonese-teaching-expanded-2026-10-07
 language: malayalam
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 問句入面嘅受益複合動詞，可以有禮貌噉請對方幫自己做嘢。
+    explanation: 有個箱阻住路，你請對方幫你搬到門邊。`ഈ പെട്ടി` 指呢個箱，`വാതിലിനടുത്തേക്ക്` 交代去門附近嘅方向；句尾
+      `മാറ്റിത്തരാമോ` 將「搬」同「為我做」合成問句。聽者係預期會做動作嘅人，唔使另加英文式 please。
     examples:
       - text: ഈ പെട്ടി വാതിലിനടുത്തേക്ക് മാറ്റിത്തരാമോ?
-        meaning: 可唔可以幫我搬呢個箱去門邊？
-        note: 目的地明確，做動作嘅人由語境理解為聽者。
+        meaning: 可唔可以幫我將呢個箱搬去門邊？`ഈ പെട്ടി` 係指定箱；`മാറ്റിത്തരാമോ` 唔係講者提出自己搬，而係請對方幫講者搬。
+        note: 試將箱換成袋，仍然請對方幫你搬去門邊。答案：`ഈ ബാഗ് വാതിലിനടുത്തേക്ക് മാറ്റിത്തരാമോ?` 將 `പെട്ടി` 換成
+          `ബാഗ്`；保留目的地同 `തരാമോ`，請求幫忙嘅方向不變。
   - subskill_id: offers_invitations
-    explanation: 第一人稱問句配合ട്ടെ，可以主動提出幫忙。
+    explanation: 同伴身邊有個袋要拎起，你提出自己幫佢拎。`ഞാൻ` 明講講者係幫手嘅人；`എടുത്തുതരട്ടെ?`
+      將「拎起」同「為對方做」連埋，問自己應唔應該做。呢個係提供幫忙，唔係叫聽者做事。
     examples:
       - text: ഞാൻ ബാഗ് എടുത്തുതരട്ടെ?
-        meaning: 要唔要我幫你拎起個袋？
-        note: 講者自願幫忙，唔係指示聽者去做。
+        meaning: 要唔要我幫你拎起個袋？`ബാഗ്` 係袋；`എടുത്തു` 係拎起，`തരട്ടെ` 加入為對方做同「等我做吖？」嘅意思。
+        note: 試提出幫對方拎起個箱。答案：`ഞാൻ പെട്ടി എടുത്തുതരട്ടെ?` 將物件 `ബാഗ്` 換成 `പെട്ടി`；`ഞാൻ`
+          同句尾仍然標示講者自願幫手。
   - subskill_id: suggestions
-    explanation: നമുക്ക്配合ആം形式，可以提議一齊行動。
+    explanation: 大家做咗一陣工，你提議一齊抖一陣。`നമുക്ക്` 將講者同聽者包括喺同一行動；`എടുക്കാം` 喺呢度提出可以一齊做嘅事。呢句唔係淨係報告有人曾經休息。
     examples:
       - text: നമുക്ക് ഒരു ചെറിയ ഇടവേള എടുക്കാം.
-        meaning: 不如我哋抖一陣。
-        note: നമുക്ക്將聽者包括喺建議行動內。
+        meaning: 不如我哋抖一陣。`ഒരു` 係一個，`ചെറിയ` 係短，`ഇടവേള` 係休息；描述放名詞前，`എടുക്കാം` 放喺共同動作句尾。
+        note: 試提議聽日一齊抖一陣。答案：`നാളെ നമുക്ക് ഒരു ചെറിയ ഇടവേള എടുക്കാം.` 加 `നാളെ` 指聽日；`നമുക്ക്` 同
+          `എടുക്കാം` 仍然係包括對方嘅共同提議。
   - subskill_id: commitments
-    explanation: 適當分工語境下，ആം形式可以承擔工作。
+    explanation: 小組分配聽日嘅工作，你主動負責帶工具。`ഞാൻ` 指明由你做，`നാളെ` 係聽日；`കൊണ്ടുവരാം` 喺分工背景下表達你會帶嚟。承擔責任靠對話背景，唔係單靠詞尾。
     examples:
       - text: നാളെ ഞാൻ ഉപകരണങ്ങൾ കൊണ്ടുവരാം.
-        meaning: 聽日我會帶工具嚟。
-        note: 分工時用，講者負責帶工具。
+        meaning: 聽日我會帶工具嚟。`ഉപകരണങ്ങൾ` 係多件工具；`കൊണ്ടുവരാം` 將帶住同過嚟合成行動，時間同做事人放喺工具、句尾行動之前。
+        note: 試承擔今日帶工具。答案：`ഇന്ന് ഞാൻ ഉപകരണങ്ങൾ കൊണ്ടുവരാം.` 將 `നാളെ` 換成
+          `ഇന്ന്`；其他部分保留由你負責帶工具。天氣預報即使講聽日，亦唔係承擔工作。
   - subskill_id: accepting_declining
-    explanation: 講自己做唔到，可以婉拒之前嘅邀請。
+    explanation: 有人邀請你今日參加，但你嚟唔到。`ക്ഷമിക്കണം` 先道歉，`ഇന്ന്` 交代今日；`എനിക്ക് വരാൻ കഴിയില്ല`
+      講你冇辦法嚟。前面有邀請，呢句先會喺對話中成為婉拒。
     examples:
       - text: ക്ഷമിക്കണം, ഇന്ന് എനിക്ക് വരാൻ കഴിയില്ല.
-        meaning: 唔好意思，我今日嚟唔到。
-        note: 之前嘅邀請交代咗拒絕邊個活動。
+        meaning: 唔好意思，我今日嚟唔到。`എനിക്ക്` 指能力框架入面嘅你，`വരാൻ` 係嚟，`കഴിയില്ല` 係做唔到；要做嘅行動放喺否定能力表達前。
+        note: 另一個邀請改喺聽日，但你仍然嚟唔到。答案：`ക്ഷമിക്കണം, നാളെ എനിക്ക് വരാൻ കഴിയില്ല.` 將日子換成
+          `നാളെ`；新邀請令能力限制成為婉拒，唔表示你唔鍾意對方。
   - subskill_id: negotiating_plans
-    explanation: 先講限制，再提議另一個時間。
+    explanation: 對方想星期五見，但你唔得閒。`വെള്ളിയാഴ്ച എനിക്ക് തിരക്കാണ്` 先交代星期五嘅限制；`ശനിയാഴ്ച കാണാമോ?`
+      再問星期六可唔可以見，畀對方一個可商量嘅新日期。
     examples:
       - text: വെള്ളിയാഴ്ച എനിക്ക് തിരക്കാണ്. ശനിയാഴ്ച കാണാമോ?
-        meaning: 我星期五唔得閒。可唔可以星期六見？
-        note: 問句提供具體替代日子。
+        meaning: 我星期五忙，可唔可以星期六見？`വെള്ളിയാഴ്ച` 係星期五，`ശനിയാഴ്ച` 係星期六；`കാണാമോ` 問見面可唔可以，參與者由約見嘅上文知道。
+        note: 試保留星期五唔得閒，但改提議星期日。答案：`വെള്ളിയാഴ്ച എനിക്ക് തിരക്കാണ്. ഞായറാഴ്ച കാണാമോ?` 只將建議日
+          `ശനിയാഴ്ച` 換成 `ഞായറാഴ്ച`；問句仍等對方回應，未當成已約好。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/malayalam/skills/coordinating-action/malayalam-coordinating-action-explained-in-english.yaml
-    at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
-    - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
+    - moagMalayalamTeaching20261007
+    - ut_malayalam_time2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: malayalam-cantonese-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   malayalam-kerala:
     disposition: use_core
@@ -64,14 +75,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/malayalam/skills/coordinating-action/malayalam-coordinating-action-explained-in-english.yaml
-        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - nizar_malayalam_dative2010
         - ut_malayalam_dialogues2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: malayalam-cantonese-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

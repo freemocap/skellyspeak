@@ -1,59 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A question with você pode + infinitive can politely ask the other person to perform
-      an action. Por favor makes the request explicit in its cooperative setting.
+    explanation: "You are handing books to a colleague and need them put away. `Você pode guardar estes livros, por favor?` uses `você` for the addressee, `pode` for can, and the infinitive `guardar` for the requested action. `Estes livros` identifies the books near the speaker. In this setting the question functions as a polite request, even though `poder` can also describe ability. The same frame with another infinitive, `Você pode fechar a porta, por favor?`, requests that the person close the door."
     examples:
       - text: Você pode guardar estes livros, por favor?
         meaning: Could you put these books away, please?
-        note: Said while handing the books to a colleague. It asks for their action, rather than testing
-          whether they possess the ability.
+        note: "Ask the colleague to put these boxes away instead. `Você pode guardar estas caixas, por favor?` is a full request. `Estas caixas` replaces `estes livros`; the demonstrative changes to feminine plural to agree with `caixas`."
   - subskill_id: offers_invitations
-    explanation: Quer + a thing can offer it when the speaker is in a position to provide it. The
-      verb alone does not distinguish an offer from a detached question about desire.
+    explanation: "You have fresh bread and can give someone a piece. `Quer uma fatia de pão?` means would you like a slice of bread? `Quer` is the present form of `querer` for the person addressed; `uma fatia` is one slice, and `de pão` says what the slice is of. With the bread available, this asks whether to accept an offer. Without that setting, the same words could merely ask about a preference. `Quer um pouco de água?` reuses the offer for water."
     examples:
       - text: Quer uma fatia de pão?
         meaning: Would you like a slice of bread?
-        note: Said by someone with freshly baked bread to share. The context makes this an offer; quer
-          addresses one person.
+        note: "Offer a glass of water instead. `Quer um copo de água?` is a complete offer when you can serve it; `um copo de` supplies the amount and its contents."
   - subskill_id: suggestions
-    explanation: Vamos + infinitive can propose joint action. It can also describe what will happen,
-      so the planning context matters.
+    explanation: "The group is choosing a day for a book exchange. `Vamos organizar a troca de livros no sábado?` proposes doing it together: `vamos` is we go or let us, `organizar` stays in the infinitive, and `no sábado` means on Saturday (`em` + `o`). The rising question asks the others to consider the plan. `Vamos organizar ...` can also describe an intended action, so a planning exchange shows that it is a suggestion. `Vamos organizar a troca no domingo?` proposes a different day."
     examples:
       - text: Vamos organizar a troca de livros no sábado?
         meaning: Shall we organize the book exchange on Saturday?
-        note: A proposal during a conversation about choosing the exchange day. No sábado specifies the
-          proposed timing.
+        note: "Suggest Sunday instead. `Vamos organizar a troca de livros no domingo?` keeps the joint-action frame and changes `no sábado` to `no domingo`."
   - subskill_id: commitments
-    explanation: A present form with a future time can undertake a task in a planning exchange. A
-      commitment depends on taking responsibility, not just naming the future.
+    explanation: "The group needs someone to bring boxes. By saying `Eu levo as caixas amanhã`, you take that job: `eu` explicitly names the person responsible, `levo` is a present form of `levar`, and `amanhã` places the action tomorrow. Portuguese can use a present form for a settled future arrangement. The same words outside a shared plan could simply report a schedule; here they answer who will do it."
     examples:
       - text: Eu levo as caixas amanhã.
         meaning: I will bring the boxes tomorrow.
-        note: Said when the group asks who will supply the boxes. Eu takes responsibility and amanhã
-          places the delivery later.
+        note: "Commit to bringing the books tomorrow. `Eu levo os livros amanhã.` works because `eu levo` takes the task and `amanhã` fixes its later time."
   - subskill_id: accepting_declining
-    explanation: A relevant refusal can state that the speaker cannot participate. Não before the
-      finite verb negates that participation; no full restatement of the invitation is needed.
+    explanation: "Someone invites you to help at the exchange today, but you cannot attend. `Não posso ir hoje` gives a relevant refusal: `não` precedes the finite verb `posso`, `ir` is the action you cannot do, and `hoje` limits it to today. The invitation supplies the destination, so it need not be repeated. A short `Posso, sim` could accept a known task instead."
     examples:
       - text: Não posso ir hoje.
         meaning: I cannot go today.
-        note: Reply to an invitation to help at the book exchange today. It declines that identified
-          invitation, rather than merely reporting an unrelated inability.
+        note: "Decline tomorrow rather than today. `Não posso ir amanhã.` is complete in reply to the invitation; changing `hoje` to `amanhã` changes the time you cannot attend."
   - subskill_id: negotiating_plans
-    explanation: To negotiate timing, state a constraint on the proposed day and ask about an
-      alternative. Podemos + infinitive can present a possible shared arrangement.
+    explanation: "A friend proposes Friday, but Friday does not work. `Na sexta não posso. Podemos combinar no sábado?` first states the constraint, then offers an alternative. `Na sexta` means on Friday (`em` + `a`); `não posso` leaves the already discussed meeting understood. `Podemos` is can we, and `combinar` asks to arrange the meeting; `no sábado` proposes Saturday. This is negotiation because it responds to an existing plan. The alternative changes to Sunday in `Podemos combinar no domingo?`"
     examples:
       - text: Na sexta não posso. Podemos combinar no sábado?
         meaning: I cannot on Friday. Can we arrange it for Saturday?
-        note: Reply to a proposal to meet on Friday. The activity omitted from não posso is supplied by
-          that proposal; the speaker suggests a different day.
+        note: "Keep Friday as the problem and propose Sunday. `Na sexta não posso. Podemos combinar no domingo?` is a full answer: the first sentence rejects the proposed time, and the second offers a workable replacement."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -65,7 +53,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

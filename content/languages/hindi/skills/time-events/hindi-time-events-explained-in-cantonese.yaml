@@ -1,77 +1,80 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 動詞詞幹加 रहा、रही 或 रहे，再加現在時助動詞，表達活動進行中。進行形式要配合主語。
+    explanation: 有人等茶，你講自己而家做緊乜。`अभी` 定位當下；動詞詞幹加 `रही हूँ` 表示女性講者正進行。
     examples:
       - text: मैं अभी चाय बना रही हूँ।
-        meaning: 我而家沖緊茶。
-        note: रही 表明女性講者，男性用 रहा；अभी 定位而家。
+        meaning: 我而家沖緊茶。 `चाय` 係茶，`बना रही हूँ` 係我沖緊；`रही` 配女性講者，男性用 `बना रहा हूँ`。
+        note: 試用男性講者講而家沖茶。答案：`मैं अभी चाय बना रहा हूँ।` `रही` 換 `रहा`。`मैं चाय बनाती
+          हूँ` 可講習慣，未必係而家。
   - subskill_id: past_events
-    explanation: 好多及物完成體句會用 ने 標示行動者，動詞配合冇其他格標記阻隔嘅受詞。要學個別動詞例外，唔好所有過去句都加 ने。
+    explanation: 講噚日煮過一樣嘢。呢個及物完成體句用 `मैंने` 標行動者，`बनाई` 配合冇格標記嘅陰性受詞 `खिचड़ी`。
     examples:
       - text: मैंने कल खिचड़ी बनाई।
-        meaning: 我噚日煮咗豆米飯。
-        note: बनाई 配合陰性 खिचड़ी；完成體事件令 कल 喺呢度指噚日，唔係聽日。
+        meaning: 我噚日煮咗豆米飯。 `कल` 喺完成事件中指噚日；`खिचड़ी` 係煮嘅食物，佢係陰性，所以用 `बनाई`，同廚師性別無關。
+        note: 試講噚日沖茶。答案：`मैंने कल चाय बनाई।` 陰性 `चाय` 仍配 `बनाई`。唔好每個過去動詞都加 `ने`；不及物 `मैं
+          गई` 係另一結構。
   - subskill_id: future_events
-    explanation: 將來動詞可以表明人稱同性別；कल 由將來形式同語境取得「聽日」意思。
+    explanation: 安排聽日探訪時，將來動詞令 `कल` 解聽日。`आऊँगी` 係女性講者將會嚟。
     examples:
       - text: मैं कल आऊँगी।
-        meaning: 我聽日會嚟。
-        note: आऊँगी 係第一人稱女性將來式；男性講者用 आऊँगा。
+        meaning: 我聽日會嚟。 `मैं` 係我，`कल` 係嗰日，`आऊँगी` 係我會嚟；男性用 `आऊँगा`，差別喺將來詞尾。
+        note: 試用男性講者講同一計劃。答案：`मैं कल आऊँगा।` 只改性別詞尾。`मैं कल आई` 則講噚日已經嚟過。
   - subskill_id: duration_frequency
-    explanation: 時長後接 से，可以交代持續咗幾耐；印地語進行結構唔需要照搬英文現在完成式。
+    explanation: 有人問你仲有冇睇書。`दो घंटे से` 量度由之前延續到而家嘅時間；進行式表明仲未停。
     examples:
       - text: मैं दो घंटे से पढ़ रही हूँ।
-        meaning: 我睇書睇咗兩個鐘，仲睇緊。
-        note: दो घंटे से 交代已持續時間；पढ़ रही हूँ 表示女性講者仍然閱讀緊。
+        meaning: 我睇書睇咗兩個鐘，仲睇緊。 `दो घंटे से` 係由兩個鐘前開始，`पढ़ रही हूँ` 係我睇緊；合起來係女性講者一直睇到而家。
+        note: 試講睇咗三個鐘。答案：`मैं तीन घंटे से पढ़ रही हूँ।` 換數字。`मैं दो घंटे पढ़ी`
+          可以係已完成嘅時長。
   - subskill_id: event_sequence
-    explanation: पहले 同 फिर 排列步驟；尊稱祈使句可以指示對方依次做。
+    explanation: 教人煮食要講清次序。`पहले` 帶第一步，`फिर` 帶下一步；兩個動詞都係對聽者嘅尊稱祈使式。
     examples:
       - text: पहले चावल धोइए, फिर पानी डालिए।
-        meaning: 先洗米，再加水。
-        note: धोइए 同 डालिए 禮貌稱呼對方，步驟次序清楚。
+        meaning: 先洗米，再加水。 `चावल धोइए` 叫對方洗米，`पानी डालिए` 叫佢再加水；次序詞令先後清楚。
+        note: 試將食材改成扁豆，保持先後次序。答案：`पहले दाल धोइए, फिर पानी डालिए।` `चावल` 換 `दाल`；`पहले`
+          仍標先洗，`फिर` 先加水。
   - subskill_id: event_phase
-    explanation: 動詞詞幹後用 चुकना 表示完成，配合主語；呢個結構唔會喺行動者後加 ने。
+    explanation: 睇完本書後要講已完成。動詞詞幹加 `चुकी हूँ` 表示女性講者已做完。
     examples:
       - text: मैं किताब पढ़ चुकी हूँ।
-        meaning: 我睇完本書喇。
-        note: चुकी 表示女性講者，並交代閱讀完成，唔係仲進行緊。
+        meaning: 我睇完本書喇。 `किताब पढ़` 係睇書，`चुकी हूँ` 講已完成並配合女性講者；呢個結構唔用行動者 `ने`。
+        note: 試用男性講者報告已睇完。答案：`मैं किताब पढ़ चुका हूँ।` `चुकी` 換 `चुका`。`मैं किताब पढ़
+          रही हूँ` 係仲睇緊。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/time-events/hindi-time-events-explained-in-english.yaml at revision
-    hindi-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
-    - msu_hindi_perfective2026
+    - msu_hindi_tense_aspect2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/time-events/hindi-time-events-explained-in-english.yaml at revision
-        hindi-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
-        - msu_hindi_perfective2026
+        - msu_hindi_tense_aspect2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

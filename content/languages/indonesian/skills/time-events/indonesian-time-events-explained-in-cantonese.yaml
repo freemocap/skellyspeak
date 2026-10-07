@@ -1,79 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 動詞前面加 sedang，明確表示動作進行中。動詞唔會按講者人稱變位。
+    explanation: 同事問你而家做緊乜。`sedang` 放 `menggambar` 前，表明畫緊；動詞唔加英文式現在時詞尾。
     examples:
       - text: Saya sedang menggambar peta.
-        meaning: 我畫緊地圖。
-        note: Sedang 表示畫緊，唔係話張地圖已經畫完。
+        meaning: 我畫緊地圖。 `Saya` 係講者，`sedang menggambar` 係畫緊，`peta` 係地圖；句子冇話已畫完。
+        note: 試講而家畫緊海報。答案：`Saya sedang menggambar poster.` 換賓語，保留 `sedang`；`Saya
+          menggambar poster` 喺別處可講習慣。
   - subskill_id: past_events
-    explanation: Kemarin 呢類時間詞可以將事件放喺過去，動詞本身唔需要加過去式詞尾。
+    explanation: 你報告噚日印嘢。`Kemarin` 定位過去；`mencetak` 本身冇過去時詞尾，時間由上下文提供。
     examples:
       - text: Kemarin saya mencetak poster.
-        meaning: 我尋日印咗海報。
-        note: Kemarin 指明印海報發生喺尋日；mencetak 喺其他時間語境都可以用同一個形式。
+        meaning: 我尋日印咗海報。 `Saya mencetak poster` 係我印海報，開頭 `Kemarin` 講幾時；句子報事件，唔係只講海報個名。
+        note: 試改成聽日印。答案：`Besok saya mencetak poster.` `kemarin` 換 `besok`；改時間唔一定改動詞形。
   - subskill_id: future_events
-    explanation: Akan 可以標示預計嘅行動，besok 就係聽日。冇 akan，都可以靠時間詞同語境表達將來。
+    explanation: 同團隊講聽日貼海報。`Besok` 係聽日，`akan` 指稍後計劃，`kami` 包括講者一方但唔包括聽者。
     examples:
       - text: Besok kami akan memasang poster.
-        meaning: 聽日我哋會貼海報。
-        note: Kami 嘅我哋唔包括聽者；akan 同 besok 將貼海報放喺之後。
+        meaning: 聽日我哋會貼海報。 `memasang poster` 係貼海報；將來意思由 `besok` 同 `akan` 提供，唔係動詞詞尾。
+        note: 試將聽者都算入計劃。答案：`Besok kita akan memasang poster.` `kami` 換
+          `kita`；時間動作一樣，參與者變。
   - subskill_id: duration_frequency
-    explanation: Selama 加時間數量表示持續幾耐；setiap Jumat 呢類表達另行交代重複頻率。
+    explanation: 你講每星期練習安排。`selama dua jam` 量每次時長，`setiap Jumat` 講逢星期五重複。
     examples:
       - text: Kami berlatih selama dua jam setiap Jumat.
-        meaning: 我哋逢星期五練習兩個鐘。
-        note: Dua jam 量度每次練習嘅時長，唔係鐘點；setiap Jumat 交代逢星期五。
+        meaning: 我哋逢星期五練習兩個鐘。 `Kami berlatih` 係我哋練習，但唔包括聽者；`dua jam` 係兩個鐘頭，同鐘點 `jam dua`
+          唔同。
+        note: 試改每次三個鐘。答案：`Kami berlatih selama tiga jam setiap Jumat.` 只換 `dua` 做
+          `tiga`，保留每週標記。
   - subskill_id: event_sequence
-    explanation: Pertama 同 lalu 排列步驟。每一步可以用命令式交代要做乜。
+    explanation: 你教人調顏料。`Pertama` 標第一步，`Lalu` 帶下一步；呢啲詞講次序，唔聲稱第一步必然造成第二步。
     examples:
       - text: Pertama, pilih warna. Lalu, campurkan cat.
-        meaning: 首先揀隻色，然後調油。
-        note: 呢啲標記交代先後，唔係話揀色導致調油。
+        meaning: 首先揀隻色，然後調油。 `Pilih warna` 叫聽者揀顏色，之後 `campurkan cat` 叫佢混合顏料；命令式直接對聽者講。
+        note: 試講先揀綠色，再混藍色同黃色顏料調出嚟。答案：`Pertama, pilih warna hijau. Lalu, campurkan cat biru dan kuning.` 先定目標顏色，再調顏料；`Pertama` 同 `Lalu` 保留次序。
   - subskill_id: event_phase
-    explanation: Selesai 明確表示做完一件事；sudah 表示呢個完成狀態已經達成。
+    explanation: 同事問海報準備好未。`sudah selesai mencetak` 明講印刷完成；`sudah` 喺其他句可標狀態轉變，所以呢度要指出完成嘅工作。
     examples:
       - text: Saya sudah selesai mencetak poster.
-        meaning: 我已經印完啲海報。
-        note: Selesai mencetak 指出印刷工作已經完成，比單純話尋日印過嘢提供更多資料。
+        meaning: 我已經印完啲海報。 `Saya` 係講者，`mencetak poster` 係工作，`selesai` 係完成；句子唔止講噚日印過。
+        note: 試講仲未印完。答案：`Saya belum selesai mencetak poster.` `sudah` 換 `belum`；`belum`
+          係尚未，唔係永遠唔會。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/time-events/indonesian-time-events-explained-in-english.yaml at
-    revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/time-events/indonesian-time-events-explained-in-english.yaml at
-        revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
         - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

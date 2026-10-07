@@ -712,7 +712,7 @@ New bibliography entries are registered and validated by the integration agent
 before workers reference their keys. This avoids the invalid intermediate
 bibliography state encountered in the first batch. Changes remain uncommitted.
 
-### October 7 checkpoint: six-language rollout and Irish scope
+### October 7 checkpoint: six-language rollout, Irish and Malayalam
 
 French, Italian, German, Vietnamese, Mandarin and Cantonese now have revised
 teaching for all 42 subskills in both existing English and Cantonese editions
@@ -740,6 +740,34 @@ all remaining language queues are outside this checkpoint. No commit is
 authorized for the agent. Final integrated verification is recorded below when
 complete.
 
+Irish and Malayalam English-only authoring and independent AI cross-review are
+complete: eight files and 42 subskills each. Other explanation editions and all
+assessment YAML remain unchanged. Original principal examples and IDs are
+preserved. Irish practice corrections retain the relationship being taught;
+Malayalam corrections clarify contextual negative meanings and remove an
+unsupported tense adaptation. Their source reports identify exact consulted
+passages and remaining idiom/register uncertainty; neither is native-certified.
+
+Checkpoint checks: `languages:check` passes all 75 configuration tests, including
+bundled/disk equality and all authored guide input budgets; `content:check`,
+`check:fast`, Clippy with warnings denied, native binary checks, application build,
+34 affected UI regression tests, documentation entry-point links and scoped diff
+whitespace checks pass. The content inventory still reports 336 pre-existing
+bundled-target gaps; required source files are complete. Final full native suite
+result is recorded below. All language workers are stopped; no new language
+assignment follows this checkpoint and no commit was created.
+
+Final full native run: 841 passed, six ignored, eight speech mock-server tests
+failed with five-second request-arrival timeouts under the concurrent run.
+The affected voice-test module was then rerun serially: all 11 passed, including
+all eight failures. This supports a contention explanation, not a clean full-suite
+pass or a proven fix for test timing. No speech implementation or timeout was
+changed. The preview export completed with 240 native-rendered guide selections,
+including English-only Irish and Malayalam. The user committed the checkpoint
+as `6a3de552` (`v3.1.2`) during final verification; this concluding verification
+note is the remaining uncommitted change. Root did not create that commit or
+change the release version. Work is stopped pending the user's next instruction.
+
 ### Follow-up requested: learner-visible citations
 
 The user wants language teaching to link to its supporting references, without
@@ -750,3 +778,59 @@ a readable bibliography, distinguishing consulted source passages from original
 AI-authored examples and unresolved linguistic review. Source-wide attribution
 must not imply that every adaptation is independently attested. This is a
 requested follow-up, not implemented learner-facing citation behavior.
+
+### Resumed rollout: remaining existing guide editions
+
+The user resumed work after the checkpoint and requested completion for every
+language. Inventory: nine languages have completed teaching rewrites in their
+existing editions; Irish and Malayalam have completed English editions only.
+Greek, Hindi, Indonesian, Japanese, Korean, Portuguese, Russian, Thai, Turkish
+and Ukrainian still need both existing English and Cantonese editions. The
+remaining Irish and Malayalam Cantonese editions are included in this resumed
+pass. This is 176 existing files, not a request to create every possible
+target/explanation-language pairing.
+
+Three Sol workers author one language at a time, followed by independent
+cross-review; root registers references, reviews integration and runs gates on
+stable batches. Initial assignments are Portuguese, Greek and Hindi. Each lesson
+must teach its own language using actual forms and source-supported explanations;
+exercises include usable answers and retain the function being practised.
+Assessment owners remain separate and are compared for semantic consistency.
+Original and adapted utterances remain subject to independent linguistic review.
+No commit, release, or deployment is authorized by this continuation.
+
+Portuguese, Greek and Hindi are now authored and cross-reviewed (48 files,
+42 subskills per language in both explanation editions). Review corrected
+exercise contexts, ambiguous glosses, demonstrative wording and punctuation.
+Principal target strings and IDs remain intact. The fast gate and direct native
+content load passed at this checkpoint; final stable-state integration follows
+the remaining batches. Japanese, Korean and Indonesian are the next assignments.
+
+### Second resumed batch: Japanese, Korean and Indonesian
+
+Implemented all 48 existing English/Cantonese guide files (42 subskills per language per edition). Independent agent reviews read the corresponding assessment guidance and corrected exercise context, sequencing and Cantonese wording; the integrator also checked scoped source claims. Japanese now uses audible footsteps for its occupancy-inference practice and an explicitly borrowed study-room key for its return obligation. Korean establishes the original advance-booking requirement before rephrasing and uses a coherent power-off/unplug sequence. Indonesian retains declarative explanations and a coherent colour-mixing exercise.
+
+The audit script passed across Greek, Hindi, Portuguese, Indonesian, Japanese and Korean: 96 files, 504 base sections, unchanged principal target examples and matching target examples across editions. The native disk loader accepted all 21 languages at that checkpoint. Wider final-state gates are still pending the remaining batches. A preview export collided with a transient Ukrainian authoring file under `content/`; the author removed it and moved the staging policy outside the scanned content tree. The failed export did not replace the existing preview fixture.
+
+Russian, Ukrainian and Turkish are the next batch. Thai and the remaining Irish/Malayalam Cantonese editions follow. Unrelated conversation-header changes from another workstream are present in the shared checkout and are not part of this content rollout.
+
+### Third resumed batch review
+
+Ukrainian, Russian and Turkish now have complete English/Cantonese teaching drafts. Root read the bilingual section content and checked the assessment boundaries against the existing guidance, with primary-source spot-checks for Ukrainian case/aspect/order, Russian future/joint proposals/comparison, and Turkish necessity/locative/progressive constructions. Review corrections keep moving-box contexts consistent with a destination near the door, preserve advance-booking meaning when paraphrasing, align invitation dates, explain Turkish compound repair verbs accurately, and remove redundant punctuation. Principal examples and assessment files are preserved. Final integrated checks remain pending the Thai and Irish/Malayalam Cantonese batch.
+
+The offline export now contains 352 exact native renderings, including Greek, Hindi, Portuguese, Indonesian, Japanese, Korean and Ukrainian. Browser inspection was rejected by the browser security policy; no alternative browser route was attempted. A fresh visual pass is therefore not claimed. The fast gate passed at this intermediate checkpoint.
+
+### All-language authoring complete
+
+The resumed pass completed the ten previously untouched targets: Greek, Hindi, Indonesian, Japanese, Korean, Portuguese, Russian, Thai, Turkish and Ukrainian. Irish and Malayalam now also have their Cantonese teaching editions. Three focused Irish English practice notes were corrected during bilingual review (sequence, booking deadline and calendar context). This continuation changes 179 existing guide files: the planned 176 plus those three English corrections.
+
+Current authored coverage is 21 target languages, eight skill groups and 42 subskills per target, with English and Cantonese explanation editions for every target and an additional Spanish explanation edition for Spanish: 344 guide files and 1,806 base teaching sections. Declared variety selection produces 2,184 section renderings across 416 complete guide selections. The final metadata inventory has no old guide revisions or mismatched provenance review revisions. Principal target sentences and IDs remain preserved; all 168 assessment files are unchanged in this continuation.
+
+All resumed batches received a separate AI review pass and correction cycle. The last pass corrected the Malayalam bag-pickup scene, Thai permission-question wording and folding-chair gloss, Ukrainian offer/context/markup details, and stale revision metadata in Turkish/Malayalam. Primary sources were checked and bibliography entries record the actual scope read; source access limitations remain in each language note. All content still carries `needs_review`: independent native-speaker review, especially for Irish/Malayalam idiom and Cantonese explanatory register, remains distinct from completed AI authoring and integration. A learner-visible bibliography/citation design remains a separate follow-up.
+
+Final content validation passed: eight skill definitions, 42 subskills, 21 languages, 24 shared explanations, 168 assessments and 344 learner guides. The audit reports zero missing required source files. Its 336 missing bundled-target files concern additional explanation-language combinations outside the existing-edition rollout; they are not 336 missing lessons in the English/Cantonese guides. The all-target preservation/parity/Markdown audit and final fast gate passed. Production build and all 12 focused guide UI regression tests passed; the test runner required a sandbox escalation for Vite configuration access, which succeeded. Documentation entry-point link checks and scoped diff whitespace checks also pass. Native configuration checks and the final preview export are recorded below when complete.
+Final `npm run languages:check` passed: disk content loads all 21 languages and all 75 native configuration tests passed. This includes bundled/disk consistency, all-guide coaching/practice context budgets, selected-variety rendering, original target preservation across editions, and teaching/assessment input isolation. Content fingerprint at verification: `58ff5e9ba3c2a82c42fc980ece33d347712d0580750cea6c6bb3a7650fc0eeef`. No additional paid AI inference was run in this continuation; earlier paid smoke evidence remains scoped to its documented cases. These tests do not certify new-language conversational naturalness.
+
+No commits, tags, version bumps or deployments were performed by this content workstream. Other workstreams changed conversation UI and the repository version during the shared session; their changes were preserved.
+
+Final preview export completed: 416 unique exact native guide renderings spanning all 21 targets, all existing explanation editions and declared varieties. The local preview metadata is derived from language configuration, including direction and font scale. The preview remains an offline reading-assistance fixture; its mocked gloss/audio behavior is not a fresh inference test. Browser security policy blocked the attempted visual inspection, so no fresh visual pass is claimed. Source content, authoring and integration checks are complete; no target language remains in the existing-edition authoring queue.

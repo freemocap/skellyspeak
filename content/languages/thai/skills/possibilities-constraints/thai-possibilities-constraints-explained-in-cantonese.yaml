@@ -1,71 +1,69 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 活動後嘅เป็น可以表示識做嗰件事。
+    explanation: 朋友問你學識游水未。`ฉันว่ายน้ำ` 指活動；句尾 `เป็น` 表示識做。呢個同 `ได้` 喺語境中講實際能力或許可、以及 `ไหว` 講體力可唔可以支撐唔同。
     examples:
       - text: ฉันว่ายน้ำเป็น
         meaning: 我識游水。
-        note: 呢度เป็น表示學識嘅能力，唔係身份識別繫詞。
+        note: 試吓話你識踩單車。答案：`ฉันขี่จักรยานเป็น`。`เป็น` 仍標示習得技能；`ขี่จักรยาน` 改活動。
   - subskill_id: permission
-    explanation: 動作後加ได้ไหม，可以請求許可。
+    explanation: 你喺共用房間問負責人可唔可以放低個袋。`ฉันวางกระเป๋าไว้ตรงนี้` 講將袋留喺呢度；句尾 `ได้ไหม` 問准唔准。社交語境令呢度係問許可；喺其他語境同一形式亦可問實際行唔行得通。
     examples:
       - text: ฉันวางกระเป๋าไว้ตรงนี้ได้ไหม
         meaning: 我可唔可以放個袋喺度？
-        note: 向管理地方嘅人講，確立請求許可嘅語境。
+        note: 試吓問可唔可以將鎖匙放喺呢度。答案：`ฉันวางกุญแจไว้ตรงนี้ได้ไหม`。`ได้ไหม` 仍係求許可；`กุญแจ` 取代袋。
   - subskill_id: obligation
-    explanation: 動作前嘅ต้อง表示要求。
+    explanation: 你借咗鎖匙，今日要還。`ฉันต้อง` 講講者嘅義務；`คืนกุญแจ` 係還鎖匙，`วันนี้` 指限期。`ไม่ต้อง` 係唔使做，唔係唔准還。
     examples:
       - text: ฉันต้องคืนกุญแจวันนี้
         meaning: 我今日一定要還鎖匙。
-        note: วันนี้交代限期，ต้อง令歸還成為必要。
+        note: 試吓話今日要還本書。答案：`ฉันต้องคืนหนังสือวันนี้`。`ต้อง` 保留義務；`คืนหนังสือ` 指新嘅歸還物件。
   - subskill_id: possibility
-    explanation: อาจจะ將事件限定為可能。
+    explanation: 你考慮夜晚戶外安排合唔合適。`เย็นนี้` 指時間；`ฝนอาจจะตก` 表示可能落雨。`อาจจะ` 保留天氣結果未定，唔係斷言一定落雨。句子講事件可能性，唔係某人嘅技能。
     examples:
       - text: เย็นนี้ฝนอาจจะตก
         meaning: 今晚可能落雨。
-        note: 天氣結果仍然未肯定。
+        note: 試吓話聽日可能落雨。答案：`พรุ่งนี้ฝนอาจจะตก`。`อาจจะ` 保留不確定；`พรุ่งนี้` 改時間。
   - subskill_id: certainty
-    explanation: ไม่แน่ใจ表達對後面命題唔肯定。
+    explanation: 有人問舖頭仲開唔開，你唔知道。`ฉันไม่แน่ใจ` 表示講者唔肯定；`ว่า` 引出疑問內容。`ร้านยังเปิดอยู่` 係舖頭仍然開門。句子限制信心，唔係斷言已關門。
     examples:
       - text: ฉันไม่แน่ใจว่าร้านยังเปิดอยู่
         meaning: 我唔肯定間舖頭係咪仲開緊。
-        note: 講者冇斷言舖頭已經閂咗。
+        note: 試吓話唔肯定門仲開唔開。答案：`ฉันไม่แน่ใจว่าประตูยังเปิดอยู่`。`ไม่แน่ใจว่า` 保留不確定立場；子句改為門。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/thai/skills/possibilities-constraints/thai-possibilities-constraints-explained-in-english.yaml
-    at revision thai-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - niu_thai_hai2026
     - fsi_thai_time2026
+    - niu_thai_skill2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   thai-thailand:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/thai/skills/possibilities-constraints/thai-possibilities-constraints-explained-in-english.yaml
-        at revision thai-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
       sources:
         - niu_thai_hai2026
         - fsi_thai_time2026
+        - niu_thai_skill2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

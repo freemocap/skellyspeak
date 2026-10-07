@@ -1,75 +1,63 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: ukrainian-teaching-cantonese-2026-10-07
 language: ukrainian
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 未完成體現在式可以描述當前活動。
+    explanation: 同事問你而家喺維修枱做緊乜。`Зараз` 定位此刻；第一人稱未完成體現在式 `ремонтую` 表示整單車進行中，冇話已完成。
     examples:
       - text: Зараз я ремонтую велосипед.
-        meaning: 我而家整緊單車。
-        note: Зараз將活動定位到目前情況。
+        meaning: 我而家整緊單車。 `Зараз`將活動定位到目前情況。
+        note: 試講而家整緊收音機。答案：`Зараз я ремонтую радіо.` 換賓語，保留 `зараз` 同未完成體 `ремонтую` 表示進行中。
   - subskill_id: past_events
-    explanation: 過去形式標示性別同數；完成體動詞可以表達有界限嘅維修事件。
+    explanation: 講者報告尋日整好咗單車。`Учора` 定位過去；完成體 `полагодила` 將維修當成有終點嘅事件，`-ла` 配合陰性單數講者。男性講者會用 `полагодив`。
     examples:
       - text: Учора я полагодила велосипед.
-        meaning: 我尋日整好咗架單車。
-        note: Полагодила係陰性單數，男性講者會用полагодив。
+        meaning: 我尋日整好咗架單車。 `Полагодила`係陰性單數，男性講者會用`полагодив`。
+        note: 同一位女性講者試講尋日整好收音機。答案：`Учора я полагодила радіо.` 賓語改變；`полагодила` 仍表完成同陰性配合。
   - subskill_id: future_events
-    explanation: 完成體將來式可以唔加額外助動詞，交代稍後完成嘅行動。
+    explanation: 你安排聽日攞維修零件。`Завтра` 指日子，`заберу` 係第一人稱單數完成體將來式，將領取當成一次有終點嘅事件，毋須另加 `буду`。
     examples:
       - text: Завтра я заберу деталі.
-        meaning: 我聽日會攞零件。
-        note: Заберу係第一人稱單數，завтра交代日子。
+        meaning: 我聽日會攞零件。 `Заберу`係第一人稱單數，`завтра`交代日子。
+        note: 試講聽日攞單車。答案：`Завтра я заберу велосипед.` 換領取嘅物件；保留 `заберу` 講有終點嘅領取。
   - subskill_id: duration_frequency
-    explanation: Двічі表示兩次，на тиждень交代重複周期。
+    explanation: 有人問游水習慣。`Двічі` 係兩次，`на тиждень` 係每星期；呢度講頻率，`дві години` 先係一次活動嘅時長。
     examples:
       - text: Я плаваю двічі на тиждень.
-        meaning: 我一個星期游兩次水。
-        note: 呢個係頻率，唔係一次游幾耐。
+        meaning: 我一個星期游兩次水。 呢個係頻率，唔係一次游幾耐。
+        note: 試講每星期游三次。答案：`Я плаваю тричі на тиждень.` 次數改 `тричі`，保留每星期嘅間隔。
   - subskill_id: event_sequence
-    explanation: Спочатку同потім交代第一步同之後步驟。
+    explanation: 講者交代準備食物嘅次序。`Спочатку` 將洗手放先，`потім` 再引出處理蔬菜。`Вимийте` 係禮貌／複數完成體指示，要完成洗手；`готуйте` 表示後續準備活動。
     examples:
       - text: Спочатку вимийте руки, потім готуйте овочі.
-        meaning: 先洗手，再準備啲蔬菜。
-        note: 禮貌或複數命令式描述程序。
+        meaning: 先洗手，再準備啲蔬菜。 禮貌或複數命令式描述程序。
+        note: 試保留先洗手，之後叫對方切菜。答案：`Спочатку вимийте руки, потім наріжте овочі.` `Наріжте` 講下一步有終點；次序詞保留安全先後。
   - subskill_id: event_phase
-    explanation: Дочитати突出一直讀到終點。
+    explanation: 朋友問本書睇完未。`Дочитала` 講閱讀到終點，並用陰性單數過去形式。相比之下，`читала` 可以只講讀過，單靠佢唔保證讀完。
     examples:
       - text: Я дочитала книжку.
-        meaning: 我睇完本書喇。
-        note: 女性講者報告讀完，唔係淨係花過時間閱讀。
-provenance:
+        meaning: 我睇完本書喇。 女性講者報告讀完，唔係淨係花過時間閱讀。
+        note: 同一位女性講者試講睇完份報紙。答案：`Я дочитала газету.` 保留 `дочитала` 表完成，閱讀對象改賓格 `газету`。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/ukrainian/skills/time-events/ukrainian-time-events-explained-in-english.yaml at
-    revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese Ukrainian teaching paired with the English guide; original principal
+    target text preserved. Independent linguistic and Cantonese review pending.
   sources:
     - ukma_ukrainian_tenses2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: ukrainian-teaching-cantonese-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/ukrainian/skills/time-events/ukrainian-time-events-explained-in-english.yaml at
-        revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - ukma_ukrainian_tenses2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

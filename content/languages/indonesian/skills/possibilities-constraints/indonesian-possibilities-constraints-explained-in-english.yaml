@@ -1,65 +1,101 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Bisa before an activity can state the speaker’s ability. The following verb does
-      not take a person or tense ending.
+    explanation: Someone asks what repairs you can do. `bisa` before the action
+      expresses practical ability here. It does not itself say someone has
+      permitted the work.
     examples:
       - text: Saya bisa memperbaiki sepeda.
-        meaning: I can repair bicycles.
-        note: In a discussion of practical skills, bisa describes ability. It does not automatically
-          grant permission.
+        meaning: I can repair bicycles. `Saya` is the speaker, `bisa` means can, and
+          `memperbaiki sepeda` means repair bicycles. The skill discussion
+          selects the ability reading.
+        note: "Say you can repair tables. Answer: `Saya bisa memperbaiki meja.` Replace
+          the object. In a permission discussion, `bisa` may instead concern
+          opportunity, so attend to context."
   - subskill_id: permission
-    explanation: Boleh can ask whether an action is permitted. The person addressed and their
-      authority establish the permission reading.
+    explanation: At a shared workspace, you ask the person in charge before using a
+      table. `Boleh saya ...?` requests permission for the speaker’s action,
+      with `meja ini` naming this table.
     examples:
       - text: Boleh saya memakai meja ini?
-        meaning: May I use this table?
-        note: Ask the person responsible for the workspace. The speaker seeks permission for their own
-          action.
+        meaning: May I use this table? `memakai` means use and `meja ini` means this
+          table. The question seeks a decision from the listener, not a report
+          of the speaker’s physical skill.
+        note: "Ask to use this chair. Answer: `Boleh saya memakai kursi ini?` Replace
+          the object. A responsible person could answer `Boleh` to grant
+          permission."
   - subskill_id: obligation
-    explanation: Harus before a verb states a requirement. Tidak harus removes that requirement,
-      while tidak boleh expresses prohibition.
+    explanation: You and the listener borrowed a tool that is due today. `kita`
+      includes both of you, and `harus` makes returning it a requirement.
     examples:
       - text: Kita harus mengembalikan alat ini hari ini.
-        meaning: We must return this tool today.
-        note: Kita includes the listener. Harus makes returning it a requirement, and hari ini supplies
-          the deadline.
+        meaning: We must return this tool today. `mengembalikan alat ini` names the
+          return action and object; `hari ini` supplies the deadline. `harus` is
+          about necessity, not ability.
+        note: "Say the return is not required today. Answer: `Kita tidak harus
+          mengembalikan alat ini hari ini.` `tidak harus` removes the
+          requirement; `tidak boleh` would forbid the return."
   - subskill_id: possibility
-    explanation: Mungkin introduces an outcome as possible. It does not assert that the event will
-      certainly happen.
+    explanation: You are planning an outdoor job and the weather is uncertain.
+      `Mungkin` marks rain as possible, and `nanti` places it later.
     examples:
       - text: Mungkin nanti hujan.
-        meaning: It may rain later.
-        note: Mungkin qualifies the forecast; nanti places the possible rain later.
+        meaning: It may rain later. `hujan` names rain; the sentence forecasts a
+          possibility rather than stating rain is already falling.
+        note: "Say it may rain tomorrow. Answer: `Mungkin besok hujan.` Change the time
+          word. `Besok hujan` gives a forecast without explicitly marking
+          uncertainty."
   - subskill_id: certainty
-    explanation: Yakin describes confidence. Belum can say that confidence has not yet been reached.
+    explanation: Someone asks whether this method is safe, but you have not checked
+      enough. `belum yakin` says your confidence is not there yet; `bahwa`
+      introduces the claim being evaluated.
     examples:
       - text: Saya belum yakin bahwa cara ini aman.
-        meaning: I am not yet sure that this method is safe.
-        note: Bahwa introduces the proposition under assessment. The uncertainty concerns safety, not
-          word comprehension.
+        meaning: I am not yet sure that this method is safe. `cara ini aman` is the
+          safety proposition. `Saya belum yakin` limits the speaker’s certainty
+          about it, rather than saying a word was misunderstood.
+        note: "Say you are already sure this method is safe. Answer: `Saya sudah yakin
+          bahwa cara ini aman.` Replace `belum` with `sudah`; that changes the
+          degree of certainty."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

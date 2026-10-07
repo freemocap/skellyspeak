@@ -1,51 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Porque can connect an action or situation to its reason. Distinguish this
-      explanatory porque from question forms asking why.
+    explanation: "A friend asks why you did not come out. `Fiquei em casa porque estava chovendo` gives the reason: `fiquei em casa` reports that you stayed home, `porque` means because, and `estava chovendo` presents rain in progress at that past time. The causal clause explains the decision; it is not merely a second unrelated event. In a why-question, Portuguese writes `por que`; here explanatory `porque` is one word."
     examples:
       - text: Fiquei em casa porque estava chovendo.
         meaning: I stayed home because it was raining.
-        note: Fiquei reports the decision; porque links it to the ongoing rain expressed by estava
-          chovendo.
+        note: "Give illness as the reason for staying home. `Fiquei em casa porque estava doente.` is complete: `porque` connects the action to the reason, and `estava doente` gives that reason."
   - subskill_id: consequences
-    explanation: Por isso presents the following action or conclusion as a consequence of what came
-      before. It is more specific than simply naming the next event.
+    explanation: "Your bicycle tire punctured during the trip, so you returned on foot. `O pneu furou, por isso voltei a pé` presents the result: `furou` says the tire punctured, `por isso` means therefore or because of that, `voltei` means I returned, and `a pé` means on foot. The connector points backward to the puncture as the reason for walking. `O pneu furou, depois voltei a pé` merely puts the events in order unless the causal relation is otherwise clear. `Por isso` makes the consequence explicit."
     examples:
       - text: O pneu furou, por isso voltei a pé.
         meaning: The tire got punctured, so I walked back.
-        note: Por isso explicitly relates walking back to the puncture. Voltei is a past event and a pé
-          means on foot.
+        note: "Explain why you arrived late when the bus was delayed. `O ônibus atrasou, por isso cheguei tarde.` is a full consequence: `por isso` connects the late arrival to the delayed bus."
   - subskill_id: conditions
-    explanation: For a projected future condition, se can introduce the future subjunctive. With
-      regular chover, that form looks like the infinitive; the context gives its grammatical
-      role.
+    explanation: "You are planning a book exchange for tomorrow, with the venue depending on rain. `Se chover amanhã, vamos fazer a troca de livros na biblioteca` has a condition and a consequence: `se` means if, `chover` is the future subjunctive of `chover`, and `vamos fazer` gives the planned action if rain occurs. The regular future-subjunctive form happens to look like the infinitive here. With an irregular verb the difference is visible: `Se tivermos tempo, vamos fazer a troca` means if we have time. Neither sentence claims that rain or spare time has already happened."
     examples:
       - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
         meaning: If it rains tomorrow, we will hold the book exchange at the library.
-        note: Se chover gives the condition; vamos fazer gives the planned consequence. Rain is possible
-          rather than reported as having occurred.
+        note: "Make time the condition instead. `Se tivermos tempo, vamos fazer a troca de livros na biblioteca.` is a full projected condition; `tivermos` is the future-subjunctive form of `ter` for we."
   - subskill_id: contrast
-    explanation: Mas can contrast an initial intention or expectation with an obstacle or different
-      outcome. The two clauses must actually stand in that relation.
+    explanation: "You want to cycle, but the tire is punctured. `Quero ir de bicicleta, mas o pneu está furado` contrasts an intention with an obstacle: `quero ir` means I want to go, `de bicicleta` names the means of transport, `mas` means but, and `está furado` gives the tire’s current condition. The second clause matters because it interferes with the first. A random second fact after `mas` would not make a useful contrast."
     examples:
       - text: Quero ir de bicicleta, mas o pneu está furado.
         meaning: I want to go by bicycle, but the tire is punctured.
-        note: Mas links the travel preference to a problem that interferes with it.
+        note: "Contrast walking with the rain. `Quero ir a pé, mas está chovendo.` is a complete contrast: the rain makes the desired walk less practical."
   - subskill_id: supporting_claims
-    explanation: A judgment can be supported by a further assertion that explains its basis. The
-      support need not always begin with porque.
+    explanation: "You recommend one route over another. `Acho que este caminho é melhor: é mais curto` first makes the judgment, then supplies grounds for it. `Acho que` marks your view, `este caminho` is this route, `é melhor` means is better, and `é mais curto` explains that it is shorter. The second clause is evidence relevant to the judgment even without `porque`. A claim plus an unrelated fact would not support it."
     examples:
       - text: "Acho que este caminho é melhor: é mais curto."
         meaning: "I think this route is better: it is shorter."
-        note: The shorter distance is offered as grounds for the judgment melhor. The two assertions are
-          related as claim and support.
+        note: "Support the same recommendation with safety. `Acho que este caminho é melhor: é mais seguro.` is complete; `é mais seguro` provides a reason relevant to choosing a route."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -57,7 +47,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

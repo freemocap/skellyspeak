@@ -1,48 +1,65 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: О котрій годині asks for the clock time of an event.
+    explanation: Before visiting a workshop, the speaker needs its closing time. `О котрій годині` asks at
+      which hour, and `зачиняється` names the closing event. The question targets an unknown time, rather
+      than checking a proposed hour.
     examples:
       - text: О котрій годині зачиняється майстерня?
-        meaning: What time does the workshop close?
-        note: The speaker seeks the closing hour.
+        meaning: What time does the workshop close? The speaker seeks the closing hour.
+        note: "Ask when the workshop opens. Answer: `О котрій годині відчиняється майстерня?` Keep the time
+          question and change the event from closing to opening."
   - subskill_id: answering_information
-    explanation: A time phrase can answer directly when the previous question supplies the event.
+    explanation: "The workshop-closing question already supplies the event. `О п’ятій` is a sufficient time
+      answer: `о` marks the clock-time relation and `п’ятій` is the feminine ordinal form agreeing with
+      the understood hour `годині`."
     examples:
       - text: О п’ятій.
-        meaning: At five o’clock.
-        note: Reply to the workshop closing-time question; the ordinal form identifies the hour.
+        meaning: At five o’clock. Reply to the workshop closing-time question; the ordinal form identifies the
+          hour.
+        note: "Answer that it closes at six. Answer: `О шостій.` Keep `о` and use the feminine ordinal for the
+          sixth hour; the closing event remains recoverable."
   - subskill_id: checking_facts
-    explanation: Так after a proposition can ask for confirmation of a candidate fact.
+    explanation: You heard the workshop closes at five and want confirmation. `Майстерня зачиняється о
+      п’ятій` states the candidate fact; final `так?` invites verification. This differs from `о котрій
+      годині`, which leaves the hour unknown.
     examples:
       - text: Майстерня зачиняється о п’ятій, так?
-        meaning: The workshop closes at five, right?
-        note: The speaker checks five o’clock rather than asking an open question.
+        meaning: The workshop closes at five, right? The speaker checks five o’clock rather than asking an open
+          question.
+        note: "Check whether the workshop closes at six. Answer: `Майстерня зачиняється о шостій, так?` Change
+          the proposed hour and retain the confirmation tag."
   - subskill_id: useful_detail
-    explanation: A location phrase can distinguish the entrance the listener needs.
+    explanation: A visitor has reached the building but cannot find the entrance. `Вхід` identifies the
+      needed feature; `з боку двору` locates it on the courtyard side. The side detail helps choose among
+      entrances, rather than merely repeating the building name.
     examples:
       - text: Вхід з боку двору.
-        meaning: The entrance is on the courtyard side.
-        note: This answers a question about finding the entrance with a relevant landmark.
+        meaning: The entrance is on the courtyard side. This answers a question about finding the entrance with a
+          relevant landmark.
+        note: "Direct the visitor to the entrance on the street side. Answer: `Вхід з боку вулиці.` Replace the
+          landmark while preserving the useful side-of-building relation."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - ukma_ukrainian_terms2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

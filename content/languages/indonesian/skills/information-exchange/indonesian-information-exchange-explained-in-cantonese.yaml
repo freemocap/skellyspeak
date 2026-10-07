@@ -1,41 +1,42 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Jam berapa 問幾點，可以放喺述語後面，唔使倒裝或者額外加助動詞。
+    explanation: 出發去舖頭前要知幾點開。`jam berapa` 問鐘點，`buka` 講開門；時間問題放事件後面，唔使照英文加助動詞。
     examples:
       - text: Toko itu buka jam berapa?
-        meaning: 嗰間舖頭幾點開門？
-        note: 呢句問開門時間；berapa 問時間表達入面嘅數字。
+        meaning: 嗰間舖頭幾點開門？ `Toko itu` 指嗰間舖，`buka` 係開門，`jam berapa` 留低未知時間畀對方答。
+        note: 試問關門時間。答案：`Toko itu tutup jam berapa?` 將 `buka` 換 `tutup`。`Toko itu buka?`
+          係核實會唔會開。
   - subskill_id: answering_information
-    explanation: 回答開門時間，可以直接講鐘點。表示幾點鐘時，jam 放喺數字前面。
+    explanation: 上句已經問咗邊間舖幾點開，單講鐘點就夠。`jam` 放喺鐘點數字前。
     examples:
       - text: Jam delapan.
-        meaning: 八點鐘。
-        note: 回應舖頭幾點開門；留意 delapan jam 係八個鐘，唔係八點。
+        meaning: 八點鐘。 `Jam delapan` 係八點；開門事件由問題承接。倒轉成 `delapan jam` 就係八個鐘頭。
+        note: 試答九點。答案：`Jam sembilan.` 換 `jam` 後面數字；`sembilan jam` 係時長。
   - subskill_id: checking_facts
-    explanation: 口語 kan 可以就雙方已經提過嘅命題尋求確認，實際作用要睇對話。
+    explanation: 你聽講間舖八點開，想核實。先講候選時間，再用句尾 `kan?` 請對方確認。
     examples:
       - text: Toko itu buka jam delapan, kan?
-        meaning: 嗰間舖頭八點開門，係咪？
-        note: 講者核實已經有人提過嘅開門時間，唔係由零開始問幾點。
+        meaning: 嗰間舖頭八點開門，係咪？ `Toko itu buka jam delapan` 係待核實說法；`kan?` 問啱唔啱，唔係問未知鐘點。
+        note: 試核實九點開。答案：`Toko itu buka jam sembilan, kan?` 只換候選時間；`jam berapa?` 係由頭問時間。
   - subskill_id: useful_detail
-    explanation: Yang 可以引出描述，分辨要揀邊件物品。位置資料有助喺幾個選項之中認出目標。
+    explanation: 有幾張枱，聽者要知用邊張。`yang dekat jendela` 將 `meja` 限定為窗邊嗰張。
     examples:
       - text: Pakai meja yang dekat jendela.
-        meaning: 用近窗口嗰張枱。
-        note: 對方問用邊張枱時，yang dekat jendela 提供所需嘅區分。
+        meaning: 用近窗口嗰張枱。 `Pakai meja` 叫對方用枱，`yang dekat jendela` 加可辨認位置；因為有多張枱，呢個細節有用。
+        note: 試指門邊嗰張。答案：`Pakai meja yang dekat pintu.` `jendela` 換 `pintu`；只講 `Pakai
+          meja` 未解決邊張。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/information-exchange/indonesian-information-exchange-explained-in-english.yaml
-    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
@@ -43,18 +44,17 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/information-exchange/indonesian-information-exchange-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
@@ -62,6 +62,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

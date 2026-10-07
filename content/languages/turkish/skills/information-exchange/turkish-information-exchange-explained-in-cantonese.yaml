@@ -1,50 +1,56 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Saat kaçta問事件喺幾點發生。
+    explanation: 你想知工場幾點閂門。`Atölye` 係工場，`saat kaçta` 問鐘點，`kapanıyor` 係關門事件。未知嘅係時間；唔係需要另加 `mı` 嘅是非問句。
     examples:
       - text: Atölye saat kaçta kapanıyor?
         meaning: 間工場幾點閂門？
-        note: Kaçta指出未知嘅關門鐘點。
+        note: 試問間舖頭幾點閂門。答案：`Dükkân saat kaçta kapanıyor?` 將地方換成 `Dükkân`；`saat kaçta` 仍然問未知鐘點。
   - subskill_id: answering_information
-    explanation: 帶詞尾嘅時間詞可以直接回答，唔使重複事件。
+    explanation: 對方啱啱問工場幾點閂門。`Beş` 係五，`Beşte` 嘅詞尾表示喺五點。因為問題已交代關門事件，簡短回答就夠；離開對話就要靠其他上文。
     examples:
       - text: Beşte.
         meaning: 五點。
-        note: 回應工場關門時間；詞尾表示喺嗰個鐘點。
+        note: 試答六點。答案：`Altıda.` 改鐘點但保留表示喺嗰時刻嘅詞尾；上文問題已交代事件。
   - subskill_id: checking_facts
-    explanation: 命題後加değil mi，邀請確認。
+    explanation: 你估工場五點閂門，想對方確認。`Atölye beşte kapanıyor` 先提出待核實事實，句尾 `değil mi?`
+      請對方確認。呢個係核對已提出答案，唔係問未知鐘點。
     examples:
       - text: Atölye beşte kapanıyor, değil mi?
         meaning: 間工場五點閂門，係咪？
-        note: 講者提出五點作待核實事實。
+        note: 試核對工場係咪六點閂門。答案：`Atölye altıda kapanıyor, değil mi?` 將候選時間換成 `altıda`；保留 `değil mi?`
+          請對方確認。
   - subskill_id: useful_detail
-    explanation: 位置修飾語可以識別相關物件。
+    explanation: 訪客見到幾道門，問應該用邊個入口。`Avlu tarafındaki` 指庭院嗰邊，`kapıyı` 標嗰道指定門係受事，`kullanın`
+      叫訪客使用。位置詳情解決咗實際選擇。
     examples:
       - text: Avlu tarafındaki kapıyı kullanın.
         meaning: 用庭院嗰邊道門。
-        note: 聽者問用邊個入口時，修飾語區分要用嗰道門。
+        note: 試指示訪客用街嗰邊道門。答案：`Sokak tarafındaki kapıyı kullanın.` 將識別方向換成 `Sokak`；`kapıyı`
+          仍然係要用嘅指定門。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/turkish/skills/information-exchange/turkish-information-exchange-explained-in-english.yaml
-    at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision turkish-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
     - tt_turkish_possession2026
     - tt_turkish_modality2026
+    - tt_turkish_questions2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: turkish-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   turkish-turkiye:
     disposition: use_core
@@ -52,14 +58,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/turkish/skills/information-exchange/turkish-information-exchange-explained-in-english.yaml
-        at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision turkish-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - tt_turkish_possession2026
         - tt_turkish_modality2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: turkish-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

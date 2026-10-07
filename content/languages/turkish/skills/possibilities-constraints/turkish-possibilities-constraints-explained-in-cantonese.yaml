@@ -1,55 +1,63 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 能力詞尾配合進行標記，可以描述目前能力。
+    explanation: 小組問你識做邊類維修。`Bisiklet` 指被維修嘅單車；`tamir etmek` 係「維修」嘅複合動詞，`edebiliyorum`
+      帶能力同目前第一人稱形式。呢個背景係講技能，唔係問可唔可以整某架指定單車。
     examples:
       - text: Bisiklet tamir edebiliyorum.
         meaning: 我識整單車。
-        note: 討論實用技能時，呢句陳述講者能力。
+        note: 試講你識整收音機。答案：`Radyo tamir edebiliyorum.` 將維修物件換成 `Radyo`；`edebiliyorum` 仍然表達你嘅能力。
   - subskill_id: permission
-    explanation: 第一人稱情態問句可以請求批准。
+    explanation: 喺有人管理嘅櫃檯，你問可唔可以將袋留喺度。`Çantamı` 標你個指定袋係受事，`burada` 係呢度，`bırakabilir miyim?`
+      問可唔可以留下。向管理地方嘅人問，功能係請求批准；`mi` 分開寫。
     examples:
       - text: Çantamı burada bırakabilir miyim?
         meaning: 我可唔可以放個袋喺度？
-        note: 向管理地方嘅人詢問；疑問詞仍然分開寫。
+        note: 試問可唔可以將你件褸放喺度。答案：`Montumu burada bırakabilir miyim?` 將所有物件換成
+          `Montumu`；同一情態問句向負責人請求批准。
   - subskill_id: obligation
-    explanation: 名詞化行動配合gerekiyor，表示必要。
+    explanation: 你借咗鎖匙，今日要還。`Anahtarı` 指鎖匙，`bugün` 係限期，`geri vermem gerekiyor`
+      將「我歸還」呢個行動同必要性連起。呢句講要求；用 `gerek yok` 去掉需要，唔等於禁止歸還。
     examples:
       - text: Anahtarı bugün geri vermem gerekiyor.
         meaning: 我今日要還鎖匙。
-        note: Vermem指出由講者歸還；bugün交代今日限期。
+        note: 試講今日要還本書。答案：`Kitabı bugün geri vermem gerekiyor.` 將物件換成 `Kitabı`；`vermem gerekiyor`
+          保留講者必須做嘅行動。
   - subskill_id: possibility
-    explanation: 情態詞尾可以將事件表達成可能。
+    explanation: 你考慮晚間活動應唔應該喺室內。`Akşam` 將可能事件放喺晚上，`yağmur yağabilir` 表示可能落雨。呢度情態詞尾講天氣不確定，唔係任何人嘅能力。
     examples:
       - text: Akşam yağmur yağabilir.
         meaning: 今晚可能落雨。
-        note: 呢個係天氣可能性，唔係某人嘅能力。
+        note: 試講晚上可能落雪。答案：`Akşam kar yağabilir.` 將 `yağmur` 換成 `kar`；`yağabilir` 仍然表達可能發生嘅天氣事件。
   - subskill_id: certainty
-    explanation: Emin değilim表示對所講命題唔肯定。
+    explanation: 有人問間舖頭開咗未，你未核實。`Dükkânın açık olduğundan` 提供「舖頭開門」呢個命題；`emin değilim`
+      表示對佢冇把握，唔係斷言舖頭閂咗。
     examples:
       - text: Dükkânın açık olduğundan emin değilim.
         meaning: 我唔肯定間舖頭開咗未。
-        note: 講者唔肯定營業狀態，唔係斷言閂咗。
+        note: 試講你肯定間舖頭開門。答案：`Dükkânın açık olduğundan eminim.` 去掉 `değil`，改成有把握；關於開門嘅命題不變。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/turkish/skills/possibilities-constraints/turkish-possibilities-constraints-explained-in-english.yaml
-    at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision turkish-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
     - tt_turkish_modality2026
+    - tt_turkish_need2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: turkish-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   turkish-turkiye:
     disposition: use_core
@@ -57,13 +65,14 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/turkish/skills/possibilities-constraints/turkish-possibilities-constraints-explained-in-english.yaml
-        at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision turkish-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - tt_turkish_modality2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: turkish-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

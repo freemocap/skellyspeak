@@ -1,70 +1,75 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Personal μπορώ changes with the person who can do the action and takes a να clause.
-      The second verb also carries person information. Here the statement describes an existing
-      practical ability, rather than asking someone to do a favour.
+    explanation: "A friend asks whether you need help with the bicycle. Personal `Μπορώ` says I can, and
+      the verb after `να` names the action I can perform: `αλλάξω το λάστιχο`. `μόνος μου` says I
+      will do it by myself and has the masculine form for this speaker."
     examples:
       - text: Μπορώ να αλλάξω το λάστιχο μόνος μου.
-        meaning: I can change the tyre on my own.
-        note: Μπορώ and αλλάξω are first person singular. Μόνος μου describes a male speaker doing it
-          independently; a female speaker would use μόνη μου.
+        meaning: I can change the tyre on my own. `Μπορώ να αλλάξω` identifies the speaker and possible
+          action; `μόνος μου` says without help.
+        note: "Try it: say you can open the door on your own, as a male speaker. Answer: `Μπορώ να ανοίξω
+          την πόρτα μόνος μου`. Keep `μπορώ να`; use first-person `ανοίξω` for the new action."
   - subskill_id: permission
-    explanation: A first-person να question can ask whether an action is allowed. The responsible
-      listener and the setting establish permission; the construction need not have an explicit
-      μπορώ. Do not treat every να question as a permission request.
+    explanation: At a repair shop, you need to ask whether you may leave your bicycle in this spot. A
+      first-person `να` question, `Να αφήσω…;`, proposes your action and seeks the person’s
+      permission. `εδώ` specifies the spot.
     examples:
       - text: Να αφήσω το ποδήλατο εδώ;
-        meaning: May I leave the bicycle here?
-        note: Use this when asking the person responsible for the space. Αφήσω identifies the speaker’s
-          proposed action, and εδώ identifies the proposed location.
+        meaning: May I leave the bicycle here? `Να αφήσω` asks about the speaker leaving it; `το ποδήλατο`
+          is the object and `εδώ` means here.
+        note: "Try it: ask whether you may open the door. Answer: `Να ανοίξω την πόρτα;`. Use first-person
+          `ανοίξω` because you would perform the action; ask the person responsible."
   - subskill_id: obligation
-    explanation: "Πρέπει is impersonal: it does not change to agree with the person under the
-      obligation. A να clause names the required action and its participant through the verb
-      ending. Context can make πρέπει an inference instead, so read the entire utterance."
+    explanation: You are closing the shop with a colleague. Impersonal `Πρέπει` says something is
+      necessary; the following `να κλείσουμε` is first-person plural, so both of you must close the
+      door. `πριν φύγουμε` puts departure after that action.
     examples:
       - text: Πρέπει να κλείσουμε την πόρτα πριν φύγουμε.
-        meaning: We must close the door before we leave.
-        note: Κλείσουμε and φύγουμε are first person plural. In a shop-closing routine, this is a
-          requirement on the group.
+        meaning: We must close the door before we leave. `Πρέπει` expresses necessity; `κλείσουμε` and
+          `φύγουμε` are both first-person plural and include the speaker and colleague.
+        note: "Try it: say you must open the door before leaving. Answer: `Πρέπει να ανοίξουμε την πόρτα
+          πριν φύγουμε`. Keep impersonal `πρέπει`; change the required action to plural
+          `ανοίξουμε`."
   - subskill_id: possibility
-    explanation: Impersonal μπορεί stays third person singular even if the possible event involves
-      the speaker. Its να clause has the appropriate person ending. This differs from personal
-      μπορώ, which can describe the speaker’s ability.
+    explanation: Your arrival time is undecided. Impersonal `Μπορεί` means it may be the case; `να έρθω`
+      specifies that I may come. The first word stays third-person singular even though the coming
+      is first-person.
     examples:
       - text: Μπορεί να έρθω αργότερα.
-        meaning: I may come later.
-        note: Μπορεί expresses possibility and έρθω is first person singular. The sentence leaves the
-          later arrival uncertain; it does not promise it.
+        meaning: I may come later. `Μπορεί` marks possibility, `έρθω` is the speaker’s coming, and
+          `αργότερα` means later.
+        note: "Try it: say you may come tomorrow. Answer: `Μπορεί να έρθω αύριο`. Keep impersonal `μπορεί`
+          and first-person `έρθω`; change the time."
   - subskill_id: certainty
-    explanation: An adverb such as σίγουρα can express confidence in a stated proposition. Put
-      enough content alongside it to show what you are confident about. This is a speaker
-      stance, not evidence that the proposition is objectively proven.
+    explanation: Someone is unsure which day the meeting is scheduled. `σίγουρα` lets you present the
+      date as certain within the whole proposition `Η συνάντηση είναι … αύριο`. It expresses
+      confidence in the date, rather than an obligation or permission.
     examples:
       - text: Η συνάντηση είναι σίγουρα αύριο.
-        meaning: The meeting is definitely tomorrow.
-        note: Σίγουρα presents the meeting’s date as certain. A bare agreement response could have a
-          different conversational role.
+        meaning: The meeting is definitely tomorrow. `Η συνάντηση` is the meeting; `σίγουρα` strengthens the
+          claim that it is `αύριο`.
+        note: "Try it: state confidently that the meeting is today. Answer: `Η συνάντηση είναι σίγουρα
+          σήμερα`. Replace the date with `σήμερα`; keep `σίγουρα` to mark certainty."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

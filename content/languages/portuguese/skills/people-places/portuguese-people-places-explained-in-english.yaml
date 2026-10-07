@@ -1,51 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Use ser to identify someone with a noun phrase. Esta and a possessive such as minha
-      match the feminine referent; colega can refer to a man or woman depending on its
-      agreement.
+    explanation: "You are introducing Ana to someone who does not know her. `Esta é minha colega Ana` identifies her: `esta` points to a feminine person near the speaker, `é` is the present of `ser`, and `minha` agrees with the feminine noun `colega`. `Colega` can describe a man or woman; the surrounding words show which here. A state expression such as `Ana está cansada` reports how Ana feels today, rather than identifying her."
     examples:
       - text: Esta é minha colega Ana.
         meaning: This is my colleague Ana.
-        note: Esta and minha indicate a woman. É identifies her rather than describing how she feels.
+        note: "Introduce Beatriz as your colleague. `Esta é minha colega Beatriz.` is a complete introduction; `esta` and `minha` agree with the feminine referent."
   - subskill_id: qualities_states
-    explanation: With estar, an adjective can describe the present condition of something. The
-      adjective and verb still agree with the subject.
+    explanation: "You inspect plants that need water. `As plantas estão secas` describes their current condition: `as plantas` is feminine plural, `estão` is the matching plural form of `estar`, and `secas` is the feminine plural adjective. The endings matter because the state belongs to several plants. Here `estar` reports how the plants are now, not an identity or an inherent classification."
     examples:
       - text: As plantas estão secas.
         meaning: The plants are dry.
-        note: "Plantas is feminine plural: estão is plural and secas has feminine plural agreement. This
-          describes their current condition."
+        note: "Describe one dry plant. `A planta está seca.` is the full sentence: singular `a planta` takes `está` and singular `seca`."
   - subskill_id: location_movement
-    explanation: Ficar can locate a building or other fixed place. In perto de + a, de combines with
-      the feminine article to give da.
+    explanation: "A visitor asks where the library is. `A biblioteca fica perto da praça` locates it: `fica` is a location use of `ficar`, `perto de` means near, and `da` combines `de` with feminine `a` before `praça`. This says where the building is, not that it became a library. A movement sentence such as `Vou à biblioteca` would instead say where you are going."
     examples:
       - text: A biblioteca fica perto da praça.
         meaning: The library is near the square.
-        note: Fica means is located here; perto da identifies the spatial relation, not a change into a
-          library.
+        note: "Locate the library near the park. `A biblioteca fica perto do parque.` is complete; `do` replaces `da` because `parque` takes masculine `o`."
   - subskill_id: possession_relations
-    explanation: Ter states possession. Meu and minha agree with the noun naming the possessed item
-      or relationship, rather than with the speaker.
+    explanation: "You are telling someone about your family and an object your brother owns. `Meu irmão tem uma bicicleta` has two relations: `meu irmão` identifies your brother, and `tem uma bicicleta` says he has a bicycle. `Meu` is masculine because `irmão` is masculine, regardless of the speaker; `tem` is the third-person present of `ter` and agrees with the brother. This is an ownership statement, not a count of bicycles."
     examples:
       - text: Meu irmão tem uma bicicleta.
         meaning: My brother has a bicycle.
-        note: Meu agrees with masculine irmão and introduces the family relationship; tem states what he
-          has.
+        note: "Say your sister has a bicycle. `Minha irmã tem uma bicicleta.` is the full sentence; `minha` agrees with feminine `irmã`, while `tem` still describes what that person has."
   - subskill_id: quantity_comparison
-    explanation: A number counts objects. Mais + adjective + que or do que compares a property of
-      one object with another.
+    explanation: "You have three boxes and need to choose one to carry. `Temos três caixas. Esta caixa é mais leve que as outras` first counts the boxes, then compares their weight. `Temos` means we have, `três` gives the number, and `mais leve que` means lighter than. `Esta` points to one box, while `as outras` stands for the other boxes and is feminine plural. The weight comparison depends on the adjective after `mais`; `mais pesada` means heavier whereas `mais leve` means lighter."
     examples:
       - text: Temos três caixas. Esta caixa é mais leve que as outras.
         meaning: We have three boxes. This box is lighter than the others.
-        note: Três supplies the count. Mais leve que compares weight; esta and outras have feminine
-          agreement with caixa and caixas.
+        note: "Say this box is heavier than the others. `Temos três caixas. Esta caixa é mais pesada que as outras.` preserves the count and comparison frame; `pesada` changes the compared property and agrees with `caixa`."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -58,7 +48,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

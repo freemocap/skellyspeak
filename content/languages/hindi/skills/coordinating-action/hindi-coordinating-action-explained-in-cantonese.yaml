@@ -1,75 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 尊稱祈使句可以請對方行動。रखिए 用於有禮貌稱呼，明示代名詞時可以配合 आप。
+    explanation: 你想對方將書放到指定位置。`रखिए` 係對聽者嘅尊稱祈使式；`यहाँ` 指放喺呢度。
     examples:
       - text: किताब यहाँ रखिए।
-        meaning: 唔該將本書放喺呢度。
-        note: रखिए 要求擺放書本，यहाँ 交代位置；有禮貌請求唔係每次都必須加 कृपया。
+        meaning: 唔該將本書放喺呢度。 `किताब` 係書，`यहाँ` 係呢度；`रखिए` 請對方放低，禮貌已喺動詞形入面，唔一定加 `कृपया`。
+        note: 試叫對方放嗰邊。答案：`किताब वहाँ रखिए।` `यहाँ` 換 `वहाँ`。`किताब यहाँ है` 只係報位置。
   - subskill_id: offers_invitations
-    explanation: 第一人稱虛擬式問句可以主動提出為對方做事。
+    explanation: 對方做事有困難。`क्या मैं ... करूँ?` 主動提議自己做，`आपकी मदद` 指幫有禮貌稱呼嘅對方。
     examples:
       - text: क्या मैं आपकी मदद करूँ?
-        meaning: 要唔要我幫你？
-        note: करूँ 提議講者行動；आपकी 配合陰性 मदद，亦尊稱對方。
+        meaning: 要唔要我幫你？ `करूँ` 係第一人稱虛擬式提議；`आपकी` 配陰性 `मदद`。整句畀對方接受或拒絕幫手。
+        note: 試改成主動攞茶。答案：`क्या मैं चाय ले आऊँ?` 仍係自己出手。`आप मेरी मदद करें` 就係請對方幫你。
   - subskill_id: suggestions
-    explanation: चलिए 可以引入共同行動建議，後面第一人稱複數講大家一齊做乜。
+    explanation: 大家企咗一陣。`चलिए` 開始共同建議，`बैठते हैं` 提議講者同聽者一齊坐。
     examples:
       - text: चलिए, थोड़ी देर बैठते हैं।
-        meaning: 我哋坐一陣啦。
-        note: बैठते हैं 包括講者同聽者，喺呢度係提議，唔係報告平時坐邊。
+        meaning: 我哋坐一陣啦。 `थोड़ी देर` 限定坐一陣；呢個情境 `बैठते हैं` 係提議，但同一形式喺別處可以講習慣。
+        note: 試建議一齊行一陣。答案：`चलिए, थोड़ी देर चलते हैं।` 換動作。`हम रोज़ बैठते हैं` 係習慣報告。
   - subskill_id: commitments
-    explanation: 喺計劃中表達將來行動可以承擔責任，但承諾意思來自交流，唔係單靠將來詞形。
+    explanation: 小組安排時你接手買票。`ले आऊँगी` 講女性講者會攞票返嚟；因為係分工對話，所以係承諾。
     examples:
       - text: मैं टिकट ले आऊँगी।
-        meaning: 由我帶啲飛嚟。
-        note: 分工攞飛時用；आऊँगी 表明講者係女性。
+        meaning: 由我帶啲飛嚟。 `टिकट` 係大家要嘅票，`मैं ... ले आऊँगी` 將任務交畀講者；將來形式喺其他情境亦可只係預測。
+        note: 試用男性講者承擔同一任務。答案：`मैं टिकट ले आऊँगा।` 改將來性別詞尾。`शायद टिकट आ जाएँगे`
+          只係估結果，冇承擔。
   - subskill_id: accepting_declining
-    explanation: 簡短交代限制可以拒絕邀請；做唔到邊項行動，由上文邀請交代。
+    explanation: 有人請你今日去探訪，但你唔得。`माफ़ कीजिए` 緩和回應，`आज मेरे पास समय नहीं है` 交代限制，因而婉拒。
     examples:
       - text: माफ़ कीजिए, आज मेरे पास समय नहीं है।
-        meaning: 唔好意思，我今日冇時間。
-        note: 回應今日到訪嘅邀請，道歉加冇時間構成拒絕。
+        meaning: 唔好意思，我今日冇時間。 `आज` 限定今日，`मेरे पास समय नहीं है`
+          係冇時間；有上文邀請先構成拒絕，單獨講只係行程資訊。
+        note: 試改成因今日忙而婉拒。答案：`माफ़ कीजिए, आज मैं व्यस्त हूँ।` 理由改咗，喺此情境仍係拒絕。`हाँ, ज़रूर`
+          係接受。
   - subskill_id: negotiating_plans
-    explanation: 對比唔合適時間同替代時間；第一人稱複數可以提出新安排。
+    explanation: 對方提議星期二，你覺得星期三較合適。`मंगलवार नहीं` 否定原日子，`बुधवार को मिलते हैं` 提出新安排。
     examples:
       - text: मंगलवार नहीं, बुधवार को मिलते हैं।
-        meaning: 唔係星期二，我哋星期三見啦。
-        note: 回應星期二提議；बुधवार को 指替代見面日子。
+        meaning: 唔係星期二，我哋星期三見啦。 `बुधवार को` 係替代日期；`मिलते हैं` 包括一齊約見嘅人。喺此處係提議，唔係定期習慣。
+        note: 試改提議星期四。答案：`मंगलवार नहीं, गुरुवार को मिलते हैं।` 保留否定星期二，換新日期。`हम हर
+          बुधवार मिलते हैं` 係講慣常安排。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/coordinating-action/hindi-coordinating-action-explained-in-english.yaml
-    at revision hindi-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/coordinating-action/hindi-coordinating-action-explained-in-english.yaml
-        at revision hindi-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

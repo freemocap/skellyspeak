@@ -1,72 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Use αυτός, αυτή or αυτό to identify a referent, with the form appropriate to that
-      referent. The verb είναι links the person to an identifying noun phrase. Personal names
-      normally have a definite article in this ordinary introduction.
+    explanation: "You are pointing out Nikos to someone who has not met him. `Αυτός` is a masculine
+      form meaning this one or he in this context; `είναι` links him to an identity, and `ο φίλος μου` says how you know him. In an ordinary
+      introduction the personal name appears with `ο`: `ο Νίκος`."
     examples:
       - text: Αυτός είναι ο φίλος μου, ο Νίκος.
-        meaning: This is my friend Nikos.
-        note: Αυτός refers to a man. Ο φίλος μου identifies his relationship to the speaker, and ο Νίκος
-          supplies the name.
+        meaning: This is my friend Nikos. `Αυτός` points to a male person; `ο φίλος μου` identifies him as
+          my friend, and `ο Νίκος` supplies his name.
+        note: "Try it: identify Maria as your friend. Answer: `Αυτή είναι η φίλη μου, η Μαρία`. Use feminine
+          `αυτή`, `η φίλη`, and the article `η` before the name."
   - subskill_id: qualities_states
-    explanation: An adjective describing a noun agrees with its gender and number, including after
-      είναι. Learn the noun with its article so that a description uses the appropriate
-      adjective form.
+    explanation: Someone asks whether a bridge is easy to cross. `Η γέφυρα` is a feminine singular noun
+      phrase; after `είναι`, its describing adjective still agrees, so narrow appears as `στενή`.
+      This describes the bridge rather than a separate object.
     examples:
       - text: Η γέφυρα είναι στενή.
-        meaning: The bridge is narrow.
-        note: Γέφυρα is feminine singular, so its predicative adjective is στενή. The sentence describes
-          a physical property.
+        meaning: The bridge is narrow. `Η γέφυρα` is feminine singular, and `στενή` has the matching
+          feminine singular form even after `είναι`.
+        note: "Try it: say the bridge is wide. Answer: `Η γέφυρα είναι φαρδιά`. Keep the same subject and
+          verb; choose feminine `φαρδιά` for the bridge."
   - subskill_id: location_movement
-    explanation: Κοντά σε introduces proximity; σε combines with definite articles in forms such as
-      στον, στην and στο. The same preposition can introduce a destination with a motion verb,
-      so the verb and context distinguish being somewhere from going there.
+    explanation: You need to locate the repair shop and then say where you are going. `κοντά στην
+      πλατεία` gives proximity to the square; `στην` combines `σε` and `την`. With `πάω`, `στο
+      συνεργείο` names the destination. The verb and context determine the relation.
     examples:
       - text: Το συνεργείο είναι κοντά στην πλατεία.
-        meaning: The repair shop is near the square.
-        note: Κοντά στην πλατεία locates the shop. Στην combines σε with την; the noun is accusative.
+        meaning: The repair shop is near the square. `κοντά στην πλατεία` tells where the shop is; `στην` is
+          `σε` plus the feminine accusative article `την`.
+        note: "Try it: say you are going to the square. Answer: `Πάω στην πλατεία`. `πάω` expresses going,
+          so `στην πλατεία` is the destination, not a static location."
       - text: Πάω στο συνεργείο.
-        meaning: I am going to the repair shop.
-        note: With πάω, στο συνεργείο gives a destination rather than the speaker’s present location.
+        meaning: I am going to the repair shop. `Πάω` is I go, so `στο συνεργείο` is the destination; the
+          same preposition can occur in a static place phrase with a different verb.
+        note: "Try it: say the bicycle is at the shop. Answer: `Το ποδήλατο είναι στο συνεργείο`. Replace
+          the motion verb with `είναι`; the phrase now locates the bicycle."
   - subskill_id: possession_relations
-    explanation: "A weak genitive possessive pronoun follows the noun: μου identifies the speaker as
-      possessor. The noun normally keeps its article. A noun stressed on its third-to-last
-      syllable acquires another written accent before this clitic."
+    explanation: Someone asks whose bicycle this is. The noun phrase `το ποδήλατό μου` puts the weak
+      possessive `μου` after the noun. The extra written accent on `ποδήλατό` keeps the stress
+      pattern when the clitic follows; the article `το` remains.
     examples:
       - text: Αυτό είναι το ποδήλατό μου.
-        meaning: This is my bicycle.
-        note: Μου means my here. The additional accent in ποδήλατό preserves the stress pattern of the
-          noun together with its following clitic.
+        meaning: This is my bicycle. `το ποδήλατό` is the bicycle, and following `μου` identifies its owner
+          as the speaker. The second accent belongs to this noun plus clitic combination.
+        note: "Try it: say it is your bicycle to one familiar person. Answer: `Αυτό είναι το ποδήλατό σου`.
+          Replace `μου` with `σου`; retain `το` and the extra accent on `ποδήλατό`."
   - subskill_id: quantity_comparison
-    explanation: Numerals quantify nouns, while πιο with an adjective and από can compare an object
-      with a stated standard. The adjective agrees with the object being described; πιο itself
-      does not change.
+    explanation: You are choosing which box to carry. `τρία κουτιά` counts three neuter plural boxes;
+      `αυτό το κουτί` singles one out. `πιο βαρύ από τα άλλα` compares that box with the others. The
+      adjective `βαρύ` agrees with the singular neuter box, while `πιο` does not change.
     examples:
       - text: Χρειαζόμαστε τρία κουτιά. Αυτό το κουτί είναι πιο βαρύ από τα άλλα.
-        meaning: We need three boxes. This box is heavier than the others.
-        note: Τρία and κουτιά are neuter plural. Βαρύ describes the singular neuter κουτί, and από τα
-          άλλα supplies the comparison set.
+        meaning: We need three boxes. This box is heavier than the others. `τρία κουτιά` gives the count;
+          `πιο βαρύ` means heavier and `από τα άλλα` names the comparison group.
+        note: "Try it: say this box is lighter than the others. Answer: `Αυτό το κουτί είναι πιο ελαφρύ από
+          τα άλλα`. Replace `βαρύ` with neuter singular `ελαφρύ`; keep the comparison frame."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

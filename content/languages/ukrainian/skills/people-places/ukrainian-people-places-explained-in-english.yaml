@@ -1,54 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: ukrainian-skills-2026-10-04
+revision: ukrainian-teaching-english-2026-10-07
 language: ukrainian
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Це introduces an identifying noun phrase without a required present linking verb.
+    explanation: At an introduction, the speaker identifies a woman who lives nearby. `Це` points to the
+      person; `моя сусідка` names the relationship. `Моя` and `сусідка` are feminine singular, and this
+      present identification needs no spoken linking verb.
     examples:
       - text: Це моя сусідка.
-        meaning: This is my neighbour.
-        note: Моя matches the feminine noun сусідка; the neighbour is female.
+        meaning: This is my neighbour. `Моя` matches the feminine noun `сусідка`; the neighbour is female.
+        note: "Introduce her as your friend instead. Answer: `Це моя подруга.` `Подруга` is feminine, so `моя`
+          still agrees; the noun changes the relationship."
   - subskill_id: qualities_states
-    explanation: A predicative adjective agrees with the subject it describes.
+    explanation: A visitor asks about the street ahead. `Ця вулиця` names this street, and `вузька` describes
+      it as narrow. Both `ця` and `вузька` have feminine singular forms to match `вулиця`; the property
+      is stated without a present copula.
     examples:
       - text: Ця вулиця вузька.
-        meaning: This street is narrow.
-        note: Ця and вузька are feminine singular, matching вулиця.
+        meaning: This street is narrow. `Ця` and `вузька` are feminine singular, matching `вулиця`.
+        note: "Describe this street as wide. Answer: `Ця вулиця широка.` Keep the feminine subject and use
+          feminine `широка` for the opposite property."
   - subskill_id: location_movement
-    explanation: На with a locative form places the object on a surface.
+    explanation: Someone is looking for a key. `Ключ` is what is located; `лежить` says it lies, and `на
+      полиці` places it on the shelf. After locative `на`, `полиця` takes the form `полиці`; movement
+      onto a surface would be a different relation.
     examples:
       - text: Ключ лежить на полиці.
-        meaning: The key is on the shelf.
-        note: Полиці is the locative form of полиця in this construction.
+        meaning: The key is on the shelf. `Полиці` is the locative form of `полиця` in this construction.
+        note: "Locate the key on the table instead. Answer: `Ключ лежить на столі.` Keep static `на` and
+          `лежить`; `столі` is the locative form for the new surface."
   - subskill_id: possession_relations
-    explanation: У with a genitive possessor and є expresses possession.
+    explanation: While counting furniture, the speaker says they have two chairs. `У мене є` identifies the
+      possessor and existence of the item; `два стільці` gives the quantity. `Мене` is the form used
+      after `у`, not the nominative `я`.
     examples:
       - text: У мене є два стільці.
-        meaning: I have two chairs.
-        note: Мене identifies the possessor; два стільці specifies the possessed quantity.
+        meaning: I have two chairs. `Мене` identifies the possessor; `два стільці` specifies the possessed
+          quantity.
+        note: "Say you have two tables instead. Answer: `У мене є два столи.` Retain the possessor frame and use
+          `два столи` for two masculine table nouns."
   - subskill_id: quantity_comparison
-    explanation: A comparative can introduce its standard with за.
+    explanation: You are choosing which box to carry. `Ця коробка` is the box being judged; `легша` is the
+      feminine comparative agreeing with it. `За ту` sets the other feminine box as the comparison
+      standard without repeating `коробка`.
     examples:
       - text: Ця коробка легша за ту.
-        meaning: This box is lighter than that one.
-        note: Легша agrees with коробка. Ту refers to the other box without repeating the noun.
+        meaning: This box is lighter than that one. `Легша` agrees with `коробка`. `Ту` refers to the other box
+          without repeating the noun.
+        note: "Say this box is heavier than that one. Answer: `Ця коробка важча за ту.` Keep the same comparison
+          standard and choose feminine `важча` for heavier."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Ukrainian teaching with worked examples and practice; original
+    principal target text preserved. Independent linguistic review pending.
   sources:
     - ukma_ukrainian_terms2026
+    - jenkala_ukrainian_cases2026
+    - jenkala_ukrainian_aspect_summary2026
+    - jenkala_ukrainian_word_order2026
   generation: null
   review:
     status: needs_review
-    revision: ukrainian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: ukrainian-teaching-english-2026-10-07
+    scope: All Ukrainian contextual explanations, worked meanings and practice answers in ukrainian-ukraine.
+      Source passages support scoped constructions, not native certification.
 varieties:
   ukrainian-ukraine:
     disposition: use_core

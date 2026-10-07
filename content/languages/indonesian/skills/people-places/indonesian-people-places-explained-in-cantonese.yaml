@@ -1,47 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: indonesian-teaching-cantonese-2026-10-07
 language: indonesian
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Ini 可以配合名詞短語介紹人。日常呢類識別句唔使明寫繫詞，表示擁有者嘅詞放喺關係名詞後面。
+    explanation: 向初次見 Rina 嘅人介紹佢。`Ini` 指呢位，`teman saya` 講同你嘅關係；呢種名詞述語唔使加 `adalah`。
     examples:
       - text: Ini teman saya, Rina.
-        meaning: 呢位係我朋友 Rina。
-        note: Teman saya 即係我朋友。介紹 Rina 嘅身份時，呢句冇加 adalah。
+        meaning: 呢位係我朋友 Rina。 `Teman` 係朋友，後面 `saya` 係我嘅，`Rina` 係姓名；句子介紹人物，唔係列財物。
+        note: 試介紹 Budi。答案：`Ini teman saya, Budi.` 換姓名；`teman saya` 唔會因性別變形。
   - subskill_id: qualities_states
-    explanation: 形容詞可以直接做述語。主語短語入面，指示詞 ini 放喺名詞後面。
+    explanation: 訪客問房間點樣。形容詞喺名詞片語後：`Kamar ini` 指呢間房，`terang` 講光猛；唔使加相當於英文 is 嘅詞。
     examples:
       - text: Kamar ini terang.
-        meaning: 呢間房好光猛。
-        note: Kamar ini 係描述對象，terang 係佢嘅性質；唔需要加一個對應英文 is 嘅詞。
+        meaning: 呢間房好光猛。 `Kamar` 係房，`ini` 指呢間，`terang` 係光猛；呢句講性質，唔係位置。
+        note: 試講呢間房暗。答案：`Kamar ini gelap.` `terang` 換 `gelap`；唔好因英文有 is 就加繫詞。
   - subskill_id: location_movement
-    explanation: Di 引出位置，ke 引出目的地。呢啲介詞要同後面嘅詞分開寫。
+    explanation: 有人搵唔到你個袋。`di bawah meja` 指枱底；呢個分開寫嘅 `di` 係地點介詞，唔係動詞前綴 `di-`。
     examples:
       - text: Tas saya di bawah meja.
-        meaning: 我個袋喺張枱下面。
-        note: Di bawah meja 交代袋嘅位置；呢度 di 係介詞，唔係被動前綴。
+        meaning: 我個袋喺張枱下面。 `Tas saya` 係我個袋，`di bawah meja` 交代位置；句子講靜止位置，唔係目的地。
+        note: 試講袋喺枱面。答案：`Tas saya di atas meja.` `bawah` 換 `atas`；`ke meja` 係向枱嘅目的地。
   - subskill_id: possession_relations
-    explanation: 口語常用 punya 表示擁有。如果係組成所有關係名詞短語，就將擁有者放喺物品或者關係名詞後面。
+    explanation: 打包前點算物資。`Saya punya` 講邊個有物品，`tiga kotak` 數三個箱；數字已經講明數量。
     examples:
       - text: Saya punya tiga kotak.
-        meaning: 我有三個箱。
-        note: Saya 指擁有者；tiga kotak 已經交代數量，唔使靠重疊名詞表示多過一個。
+        meaning: 我有三個箱。 `Saya` 係持有人，`punya` 係日常語境嘅有，`tiga kotak` 係三個箱；數字後名詞唔使重疊。
+        note: 試講有兩個箱。答案：`Saya punya dua kotak.` `tiga` 換 `dua`。`Kotak saya` 係我嘅箱，未講數目。
   - subskill_id: quantity_comparison
-    explanation: 形容詞前加 lebih、比較對象前加 daripada，就可以作比較。形容詞唔會好似英文咁加比較級詞尾。
+    explanation: 搬箱前比較兩個箱。`lebih ringan daripada` 比重量，`daripada` 後面嗰個箱係基準。
     examples:
       - text: Kotak ini lebih ringan daripada kotak itu.
-        meaning: 呢個箱比嗰個箱輕。
-        note: Ringan 表示比較嘅尺度係重量；兩個指示詞分開呢個同嗰個箱。
+        meaning: 呢個箱比嗰個箱輕。 `Kotak ini` 係呢個箱，`kotak itu` 係嗰個；`lebih ringan`
+          講第一個較輕，指示詞都喺名詞後。
+        note: 試講呢個較重。答案：`Kotak ini lebih berat daripada kotak itu.` 性質換 `berat`，保留比較基準。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/indonesian/skills/people-places/indonesian-people-places-explained-in-english.yaml at
-    revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
@@ -49,18 +49,17 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: indonesian-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/indonesian/skills/people-places/indonesian-people-places-explained-in-english.yaml
-        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - niu_indonesian_phrases2026
         - niu_indonesian_questions2026
@@ -68,6 +67,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: indonesian-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

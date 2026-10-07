@@ -1,71 +1,58 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: greek-teaching-cantonese-2026-10-07
 language: greek
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: επειδή 引入原因子句，可放主句前或後。γιατί 亦可引入原因，但用嚟問點解時功能唔同。
+    explanation: 你解釋點解唔踩單車。前半句係決定；`επειδή` 引出原因，`το λάστιχο είναι χαλασμένο` 表示輪胎壞咗。`χαλασμένο` 配合中性 `λάστιχο`。
     examples:
       - text: Δεν παίρνω το ποδήλατο επειδή το λάστιχο είναι χαλασμένο.
-        meaning: 我唔踩單車，因為條車胎壞咗。
-        note: 車胎損壞解釋交通選擇；χαλασμένο 配合中性單數 λάστιχο。
+        meaning: 我唔帶架單車，因為輪胎壞咗。`Δεν παίρνω` 否定帶走；`επειδή` 將決定同原因連起嚟。
+        note: 試吓話因為維修舖關門，所以唔帶單車。答案：`Δεν παίρνω το ποδήλατο επειδή το συνεργείο είναι κλειστό`。`επειδή`
+          後面嘅新分句交代原因。
   - subskill_id: consequences
-    explanation: γι’ αυτό 將結果或決定連到啱啱提過嘅原因；αυτό 指返之前情況。要有實際關係，唔係任意兩句都係因果。
+    explanation: 維修舖今日關門，所以要另約時間。`Γι’ αυτό` 指返關門呢件事，引出結果；`θα έρθω αύριο` 交代你下一步點做。
     examples:
       - text: Το συνεργείο είναι κλειστό. Γι’ αυτό θα έρθω αύριο.
-        meaning: 間維修舖閂咗，所以我聽日再嚟。
-        note: 關門促成改日到訪；γι’ αυτό 明示關係，αύριο 交代新日期。
+        meaning: 維修舖關門，所以我聽日嚟。`Γι’ αυτό` 即係因此；`θα έρθω αύριο` 係由此而來嘅安排。
+        note: 試吓話維修舖開門，所以你今日嚟。答案：`Το συνεργείο είναι ανοιχτό. Γι’ αυτό θα έρθω σήμερα`。前提同到訪日子都要改。
   - subskill_id: conditions
-    explanation: αν 引入條件；完成體依存形式可以講預期事件，結果用 θα。要按希臘文意思選形式，唔好機械照搬英文條件時態。
+    explanation: 你根據聽日天氣安排交通。`Αν βρέξει αύριο` 係可能發生嘅條件；`θα πάμε με το λεωφορείο` 係如果落雨就採取嘅方案。`βρέξει` 唔係話已經落咗雨。
     examples:
       - text: Αν βρέξει αύριο, θα πάμε με το λεωφορείο.
-        meaning: 如果聽日落雨，我哋就搭巴士去。
-        note: βρέξει 指可能落雨；θα πάμε 交代條件成立後嘅計劃，冇肯定一定落雨。
+        meaning: 如果聽日落雨，我哋會搭巴士。`Αν` 標示條件，`θα πάμε` 引出後果，`με το λεωφορείο` 指交通工具。
+        note: 試吓改成如果今日落雨就搭巴士。答案：`Αν βρέξει σήμερα, θα πάμε με το λεωφορείο`。條件日期改 `σήμερα`，後面方案保持。
   - subskill_id: contrast
-    explanation: αλλά 連接意思上有對比嘅說法。相反或出乎預期關係要由內容支持，唔係單靠連接詞。
+    explanation: 你鍾意條路，但要提醒踩車同伴車多。`αλλά` 將正面描述同缺點連起嚟。`πολλή` 係陰性單數，配合呢度解作交通嘅 `κίνηση`。
     examples:
       - text: Η διαδρομή είναι όμορφη, αλλά έχει πολλή κίνηση.
-        meaning: 條路好靚，但車好多。
-        note: 後半句提出缺點，同正面描述對比；πολλή 配合 κίνηση，用陰性賓格。
+        meaning: 條路好靚，但車好多。`αλλά` 標示對比；`πολλή κίνηση` 係交通繁忙。
+        note: 試吓話條路短，但車好多。答案：`Η διαδρομή είναι σύντομη, αλλά έχει πολλή κίνηση`。`σύντομη` 配合陰性
+          `διαδρομή`，後面警告保留。
   - subskill_id: supporting_claims
-    explanation: 原因子句既可解釋事件原因，亦可提供支持論點嘅觀察；νομίζω 可標示係判斷而非已證實事實。
+    explanation: 你見到舖內有燈，推測維修舖開門。`Νομίζω ότι` 表示呢個係判斷，未經證實；`γιατί έχει φως μέσα` 提供推測依據，唔係話燈令舖頭開門。
     examples:
       - text: Νομίζω ότι το συνεργείο είναι ανοιχτό, γιατί έχει φως μέσα.
-        meaning: 我諗間維修舖開緊，因為入面有燈着住。
-        note: 見到燈光支持開門嘅判斷，唔係燈令間舖開門；推論仍可能錯。
-provenance:
+        meaning: 我覺得維修舖開門，因為入面有燈。`νομίζω ότι` 引出推測；`γιατί` 將推測同觀察到嘅燈連起嚟。
+        note: 試吓話你覺得舖頭關咗，因為入面好黑。答案：`Νομίζω ότι το συνεργείο είναι κλειστό, γιατί είναι σκοτεινά
+          μέσα`。觀察支持推測，但唔等於證明。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/greek/skills/reasons-connections/greek-reasons-connections-explained-in-english.yaml
-    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the Greek English guide; target
+    examples and variety applicability retained. No independent linguistic or Cantonese review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: greek-teaching-cantonese-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/greek/skills/reasons-connections/greek-reasons-connections-explained-in-english.yaml
-        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - poulopoulou_el_grammar2015
-        - hatzisavvidis_el_school_grammar2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

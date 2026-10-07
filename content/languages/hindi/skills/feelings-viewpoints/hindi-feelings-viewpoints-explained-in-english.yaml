@@ -1,64 +1,95 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: An infinitive before चाहना names the desired action. The habitual form of चाहना
-      agrees with the person who wants it.
+    explanation: You are telling a friend about a personal goal. `तैरना सीखना` names
+      learning to swim, and `चाहती हूँ` expresses a female speaker’s desire to
+      do it.
     examples:
       - text: मैं तैरना सीखना चाहती हूँ।
-        meaning: I want to learn to swim.
-        note: सीखना चाहती हूँ expresses a female speaker’s desire. चाहती would be चाहता for a male
-          speaker.
+        meaning: I want to learn to swim. `तैरना` is to swim, `सीखना` to learn, and
+          `चाहती हूँ` I want. The two infinitives keep the desired activity
+          distinct from the wanting verb.
+        note: "Say a male speaker wants to learn to swim. Answer: `मैं तैरना सीखना चाहता
+          हूँ।` Only the gendered wanting form changes. A desire does not by
+          itself promise to enrol."
   - subskill_id: preferences
-    explanation: मुझे identifies the experiencer in a पसंद construction. ज़्यादा and a comparison
-      phrase can distinguish a preferred option.
+    explanation: When choosing a drink, compare tea with coffee. `मुझे` identifies
+      the person who likes it; `कॉफ़ी से ज़्यादा` sets coffee as the comparison
+      standard.
     examples:
       - text: मुझे कॉफ़ी से ज़्यादा चाय पसंद है।
-        meaning: I like tea more than coffee.
-        note: कॉफ़ी से gives the comparison; चाय is what the speaker prefers.
+        meaning: I like tea more than coffee. `चाय पसंद है` says tea is liked, and
+          `कॉफ़ी से ज़्यादा` says more than coffee. Tea is the preferred option,
+          not the comparison baseline.
+        note: "Prefer coffee to tea. Answer: `मुझे चाय से ज़्यादा कॉफ़ी पसंद है।`
+          Exchange the two drink positions. `मुझे चाय पसंद है` gives liking
+          without a comparison."
   - subskill_id: emotions
-    explanation: खुश can describe happiness with a present copula. A phrase with से can name what
-      the emotion concerns.
+    explanation: You have just heard good news and explain your reaction. `इस ख़बर
+      से` links the news to your happiness; `खुश` itself does not change with
+      the speaker’s gender.
     examples:
       - text: मैं इस ख़बर से खुश हूँ।
-        meaning: I am happy about this news.
-        note: इस ख़बर से connects the happiness to the news; खुश does not change for the speaker’s
-          gender.
+        meaning: I am happy about this news. `मैं` is the person feeling it, `इस ख़बर
+          से` identifies the news, and `खुश हूँ` says I am happy. The sentence
+          reports an emotion, not a judgment about whether the news is correct.
+        note: "Say you are sad about this news. Answer: `मैं इस ख़बर से दुखी हूँ।`
+          Replace the emotion. `यह ख़बर अच्छी है` evaluates the news instead of
+          naming your feeling."
   - subskill_id: opinions
-    explanation: मेरे ख़याल से introduces the speaker’s assessment. It frames the following
-      description as a personal judgment.
+    explanation: In a planning discussion, you offer your assessment of a proposal.
+      `मेरे ख़याल से` marks the following claim as your view; `अच्छी` agrees
+      with feminine `योजना`.
     examples:
       - text: मेरे ख़याल से यह योजना अच्छी है।
-        meaning: In my opinion, this plan is good.
-        note: अच्छी agrees with feminine योजना. The opening phrase identifies the viewpoint as the
-          speaker’s.
+        meaning: In my opinion, this plan is good. `यह योजना` is this plan and `अच्छी
+          है` says it is good. The opening phrase tells whose judgment this is.
+        note: "Say you think the plan is bad. Answer: `मेरे ख़याल से यह योजना अच्छी नहीं
+          है।` Negate the evaluation. `यह योजना अच्छी है` omits the explicit
+          viewpoint marker."
   - subskill_id: agreement_disagreement
-    explanation: सहमत with से relates agreement to a person or position. नहीं negates agreement
-      without implying failure to hear.
+    explanation: After hearing a partner’s opinion, you can politely state
+      opposition. `आपसे` names whose position you address, and `नहीं` negates
+      `सहमत`.
     examples:
       - text: मैं आपसे सहमत नहीं हूँ।
-        meaning: I do not agree with you.
-        note: Use this after the partner expresses an opinion. आपसे identifies the person whose position
-          is opposed.
+        meaning: I do not agree with you. `मैं` identifies your stance and `आपसे सहमत
+          नहीं हूँ` means I do not agree with you. The sentence opposes a view;
+          it does not say you failed to understand it.
+        note: "State agreement instead. Answer: `मैं आपसे सहमत हूँ।` Remove `नहीं`. `अब
+          समझ में आया` says you now understand, which need not mean agreement."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

@@ -1,46 +1,46 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Ser配合名詞短語識別人；esta同minha配合女性對象，colega可以按配合形式指男或女。
+    explanation: "你要介紹 Ana 畀未識佢嘅人。`Esta é minha colega Ana` 係認人：`esta` 指講者附近嘅女性，`é` 係 `ser` 嘅現在式，`minha` 配合陰性名詞 `colega`。`Colega` 本身可以講男同事或女同事，呢度其他詞顯示係女。若要講 Ana 今日點樣，就用狀態句，例如 `Ana está cansada`，唔係介紹身份。"
     examples:
       - text: Esta é minha colega Ana.
         meaning: 呢位係我同事Ana。
-        note: Esta同minha指出女性；é識別身份，唔係描述心情。
+        note: "介紹 Beatriz 係你同事：`Esta é minha colega Beatriz.`。呢句係完整介紹；`esta` 同 `minha` 配合陰性所指。"
   - subskill_id: qualities_states
-    explanation: Estar配合形容詞可以描述目前狀態；形容詞同動詞仍然要同主語配合。
+    explanation: "你睇到幾盆植物需要澆水。`As plantas estão secas` 描述佢哋而家嘅狀態：`as plantas` 係陰性複數，`estão` 係配合複數嘅 `estar`，`secas` 係陰性複數形容詞。詞尾重要，因為乾嘅係多盆植物。呢度 `estar` 講目前點樣，唔係身份或固定分類。"
     examples:
       - text: As plantas estão secas.
         meaning: 啲植物乾晒。
-        note: Plantas係陰性複數；estão係複數，secas亦係陰性複數，描述目前狀態。
+        note: "描述一盆乾咗嘅植物：`A planta está seca.`。單數 `a planta` 配 `está` 同單數 `seca`。"
   - subskill_id: location_movement
-    explanation: Ficar可以交代建築物等固定地方嘅位置；perto de加a時，de同陰性冠詞結合成da。
+    explanation: "訪客問圖書館喺邊。`A biblioteca fica perto da praça` 指位置：`fica` 係 `ficar` 表位置嘅用法，`perto de` 係附近，`da` 由 `de` 同陰性 `a` 合成，接 `praça`。呢句講棟樓喺邊，唔係話佢變成圖書館。`Vou à biblioteca` 則講去向。"
     examples:
       - text: A biblioteca fica perto da praça.
         meaning: 圖書館喺廣場附近。
-        note: 呢度fica係位於；perto da交代空間關係，唔係變成圖書館。
+        note: "講圖書館近公園：`A biblioteca fica perto do parque.`。句子完整；`parque` 配陽性 `o`，所以 `da` 轉成 `do`。"
   - subskill_id: possession_relations
-    explanation: Ter表示擁有；meu同minha配合所擁有物件或關係嘅名詞，唔係配合講者性別。
+    explanation: "你同人講家庭同哥哥擁有嘅物品。`Meu irmão tem uma bicicleta` 有兩個關係：`meu irmão` 係我兄弟，`tem uma bicicleta` 係佢有架單車。`Meu` 用陽性，因為 `irmão` 係陽性，唔取決於講者性別；`tem` 係 `ter` 嘅第三身現在式，配合兄弟。呢句係講擁有，唔係計單車數量。"
     examples:
       - text: Meu irmão tem uma bicicleta.
         meaning: 我兄弟有架單車。
-        note: Meu配合陽性irmão，介紹親屬關係；tem交代佢有乜。
+        note: "講你姊妹有架單車：`Minha irmã tem uma bicicleta.`。`minha` 配合陰性 `irmã`，`tem` 仍然講佢擁有乜嘢。"
   - subskill_id: quantity_comparison
-    explanation: 數詞數物件；mais加形容詞，再加que或do que，比較兩件物件嘅性質。
+    explanation: "你哋有三個箱，要揀一個搬。`Temos três caixas. Esta caixa é mais leve que as outras` 先數箱，再比較重量。`Temos` 係我哋有，`três` 係數量，`mais leve que` 係比其他更輕。`Esta` 指其中一個箱，`as outras` 代替其餘啲箱，係陰性複數。`Esta caixa é mais pesada que as outras` 就反過來講更重，所以唔好只睇 `mais` 就判斷意思。"
     examples:
       - text: Temos três caixas. Esta caixa é mais leve que as outras.
         meaning: 我哋有三個箱。呢個箱比其他嗰啲輕。
-        note: Três提供數量；mais leve que比較重量，esta同outras配合陰性caixa同caixas。
+        note: "講呢個箱比其他更重：`Temos três caixas. Esta caixa é mais pesada que as outras.`。保留數量同比較結構；`pesada` 改變比較性質，並配合 `caixa`。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/people-places/portuguese-people-places-explained-in-english.yaml at
-    revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -50,7 +50,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -60,7 +60,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/people-places/portuguese-people-places-explained-in-english.yaml
-        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -70,6 +70,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

@@ -1,57 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: japanese-skills-2026-10-04
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A verb’s て-form plus ください asks the listener to perform an action. An object and a
-      destination can make the request precise.
+    explanation: "A colleague needs to move a box, and you need it at the entrance. `この箱を入口まで運んでください` asks the listener to act: `この箱` is this box, `を` marks what is carried, `入口まで` gives the endpoint, and `運んでください` is the request form of `運ぶ`. The `て` form connects the action to `ください`; `まで` marks how far, not who carries it. `運んでもらえませんか` is a more deferential request in some settings, while `運びます` says that someone will carry it."
     examples:
       - text: この箱を入口まで運んでください。
         meaning: Please carry this box to the entrance.
-        note: 運んで is the て-form of 運ぶ. まで marks how far the box should be carried.
+        note: "Ask the colleague to carry this bag to the entrance. `このかばんを入口まで運んでください。` is a complete request. `このかばんを` changes the object, and `入口まで` keeps the same endpoint."
   - subskill_id: offers_invitations
-    explanation: ましょうか can offer the speaker’s assistance. The question leaves acceptance to the
-      other person.
+    explanation: "Someone is carrying more than they can manage. `荷物を持ちましょうか` offers your own help: `荷物を` names the luggage to carry, `持ち` is the stem of `持つ`, and `ましょうか` asks whether the listener would like you to do it. The subject is omitted because the offer situation makes your role clear. `荷物を持ってください` would ask the listener to carry it instead. The question lets them accept or decline without treating the offer as an assigned task."
     examples:
       - text: 荷物を持ちましょうか。
         meaning: Shall I carry your luggage?
-        note: Use when the partner is carrying bags. 持ちましょうか offers help rather than announcing an
-          agreed commitment.
+        note: "Offer to carry the box instead. `箱を持ちましょうか。` is a full offer: the speaker proposes their own action, and `箱を` replaces the luggage as its object."
   - subskill_id: suggestions
-    explanation: ましょう can propose an activity shared by speaker and listener. The participants can
-      remain implicit.
+    explanation: "Your group has been working and needs a short break. `ここで少し休みましょう` proposes a shared action: `ここで` gives the place where the break happens, `少し` limits it to a little, and `休みましょう` is let us rest. The participants need not be spoken aloud when the group is clear. `休みます` could report a schedule or one person’s action; `ましょう` invites the others into the plan. `休みましょうか` can instead ask whether to take the break."
     examples:
       - text: ここで少し休みましょう。
         meaning: Let us rest here for a little while.
-        note: 休みましょう suggests a break. で marks the location of that activity.
+        note: "Suggest a short break outside. `外で少し休みましょう。` is complete; `外で` changes the activity location while `休みましょう` keeps it a joint proposal."
   - subskill_id: commitments
-    explanation: A non-past statement can undertake an assigned action. Explicit 私が can identify the
-      speaker as the person taking responsibility.
+    explanation: "The team is dividing supplies, and someone asks who will bring the tools. `私が道具を持ってきます` takes that task: `私が` singles out the speaker as the responsible person, `道具を` names the tools, and `持ってきます` means bring them here or to the shared destination. Japanese non-past `ます` can refer to a later planned action; the division of work makes this a commitment rather than a mere forecast. `道具を持ってきます` also works when the person is already clear, but explicit `私が` answers who."
     examples:
       - text: 私が道具を持ってきます。
         meaning: I will bring the tools.
-        note: Say this while dividing tasks for an activity. が identifies who will take that
-          responsibility; a neutral future report would have a different role.
+        note: "Take responsibility for bringing the map instead. `私が地図を持ってきます。` is a complete undertaking in the team plan; `私が` names who takes the job and `地図を` changes the item."
   - subskill_id: accepting_declining
-    explanation: A polite apology and a negative ability statement can decline an invitation. The
-      invitation supplies the proposed visit.
+    explanation: "A friend invites you to join a visit today, but you cannot go. `すみません、今日は行けません` declines with an apology and a reason: `すみません` softens the reply, `今日は` limits it to today, and `行けません` is the polite negative potential of `行く`, cannot go. The invitation supplies the destination and activity, so they need not be repeated. `今日は行きません` merely says you will not go and can sound different from inability; the surrounding invitation makes the refusal function clear."
     examples:
       - text: すみません、今日は行けません。
         meaning: Sorry, I cannot come today.
-        note: Reply to an invitation for today. 行けません is the negative potential of 行く, not a claim that
-          the destination does not exist.
+        note: "Decline tomorrow’s visit instead. `すみません、明日は行けません。` is a complete reply; `明日は` changes the proposed day, and `行けません` still says you cannot attend."
   - subskill_id: negotiating_plans
-    explanation: Contrast an unsuitable date with one that works. なら can frame the alternative as
-      the condition under which the plan is acceptable.
+    explanation: "Someone proposes Friday for a meeting, but Saturday is possible for you. `金曜日は難しいですが、土曜日なら大丈夫です` first presents Friday as difficult and then offers Saturday as the workable condition. `は` marks each day as the topic, `ですが` links the contrast politely, and `なら` means if it is Saturday or as for Saturday. `大丈夫です` means that option works here. The statement negotiates an existing plan; without Friday’s proposal, it could simply describe availability. `金曜日は難しいですが` is a soft refusal rather than a claim that Friday is inherently hard."
     examples:
       - text: 金曜日は難しいですが、土曜日なら大丈夫です。
         meaning: Friday is difficult, but Saturday would work.
-        note: Reply to a proposed Friday meeting. 難しい politely marks the difficulty; 土曜日なら gives a
-          workable alternative.
+        note: "Counter a Friday proposal with Sunday. `金曜日は難しいですが、日曜日なら大丈夫です。` is complete: the first clause declines Friday, and `日曜日なら` gives the acceptable alternative."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -61,7 +51,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: japanese-skills-2026-10-04
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

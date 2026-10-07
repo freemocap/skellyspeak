@@ -1,73 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: irish-teaching-cantonese-2026-10-07
 language: irish
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: In ann 配合動名詞，可以表示能力。
+    explanation: 講自己識唔識游水時，`Tá mé in ann snámh` 用 `Tá mé` 指我，`in ann` 講能力，`snámh` 係游水活動。呢句講做得到，唔係別人准唔准你游。
     examples:
       - text: Tá mé in ann snámh.
-        meaning: 我識游水。
-        note: 呢個結構講能力，唔係准許。
+        meaning: 我識游水。 呢個結構講能力，唔係准許。
+        note: 試講聽者識游水。答案：`Tá tú in ann snámh.` `mé` 換 `tú`，有能力嘅人變咗；`in ann snámh` 保留。
   - subskill_id: permission
-    explanation: Cead 配合 ag 明確表示許可。
+    explanation: 喺接待處想放低個袋時，`An bhfuil cead agam an mála a fhágáil anseo?` 以 `An bhfuil` 問，`cead agam`
+      係我有冇許可。`an mála` 放喺 `a fhágáil` 前，`a` 令 `fágáil` 開頭寫成 `fhágáil`；`anseo` 係呢度。
     examples:
       - text: An bhfuil cead agam an mála a fhágáil anseo?
-        meaning: 我可唔可以放個袋喺度？
-        note: Agam 指申請許可嘅人；an mála 放喺 a fhágáil 前面。
+        meaning: 我可唔可以放個袋喺度？ `Agam` 指申請許可嘅人；`an mála` 放喺 `a fhágáil` 前面。
+        note: 試問可唔可以放個袋喺嗰度。答案：`An bhfuil cead agam an mála a fhágáil ansin?` 許可同賓語先於動作嘅結構保留；地點改 `ansin`。
   - subskill_id: obligation
-    explanation: Caithfidh 可以表示必要，後面接動名詞結構。
+    explanation: 借咗鎖匙要今日還時，`Caithfidh mé an eochair a thabhairt ar ais inniu` 用 `Caithfidh mé` 講我必須；`an
+      eochair` 放喺 `a thabhairt ar ais` 前，`inniu` 係今日限期。`caithfidh` 雖然有將來形式，呢度係必要，唔只係預測。
     examples:
       - text: Caithfidh mé an eochair a thabhairt ar ais inniu.
-        meaning: 我今日一定要還鎖匙。
-        note: 賓語放喺 a thabhairt 前面；inniu 交代限期係今日。
+        meaning: 我今日一定要還鎖匙。 賓語放喺 `a thabhairt` 前面；`inniu` 交代限期係今日。
+        note: 試改成聽日必須還。答案：`Caithfidh mé an eochair a thabhairt ar ais amárach.` 只改限期；必要性同動作次序保留。
   - subskill_id: possibility
-    explanation: B’fhéidir 配合後面嘅分句，表達未能肯定嘅可能性。
+    explanation: 安排戶外活動時，`B’fhéidir go mbeidh sé ag cur báistí tráthnóna` 用 `B’fhéidir` 標可能，`go mbeidh` 引出
+      `bí` 嘅從屬將來形式；`sé ag cur báistí` 係落雨講法，`tráthnóna` 指下午或傍晚。句子冇保證一定落雨。
     examples:
       - text: B’fhéidir go mbeidh sé ag cur báistí tráthnóna.
-        meaning: 夜晚可能會落雨。
-        note: Go mbeidh 引出可能出現嘅將來天氣情況。
+        meaning: 夜晚可能會落雨。 `Go mbeidh` 引出可能出現嘅將來天氣情況。
+        note: 試講聽日可能落雨。答案：`B’fhéidir go mbeidh sé ag cur báistí amárach.` 時間改 `amárach`；`B’fhéidir go mbeidh`
+          保留不確定同將來形式。
   - subskill_id: certainty
-    explanation: Nílim cinnte 明確表示對命題冇十足把握。
+    explanation: 出發前未肯定間舖開門，`Nílim cinnte go bhfuil an siopa oscailte` 先用 `Nílim cinnte` 講我冇把握，再用 `go bhfuil`
+      引出「間舖開住」呢個待核實說法。唔肯定佢開，唔等於斷言佢閂。
     examples:
       - text: Nílim cinnte go bhfuil an siopa oscailte.
-        meaning: 我唔肯定間舖頭開咗未。
-        note: 講者表示唔肯定，唔係斷言間舖頭閂咗。
-provenance:
+        meaning: 我唔肯定間舖頭開咗未。 講者表示唔肯定，唔係斷言間舖頭閂咗。
+        note: 試講而家肯定間舖開住。答案：`Tá mé cinnte go bhfuil an siopa oscailte.` 間舖狀態冇變，改嘅係講者把握程度。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/irish/skills/possibilities-constraints/irish-possibilities-constraints-explained-in-english.yaml
-    at revision irish-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the completed English guide; principal
+    Irish target examples preserved. Independent Irish and Cantonese review pending.
   sources:
     - teanglann_cead2026
     - teanglann_caith2026
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
+    - teanglannGlacTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: irish-teaching-cantonese-2026-10-07
+    scope: All Cantonese contextual explanations, meanings and practice answers for irish-ireland. Source
+      passages support scoped forms, not linguistic certification.
 varieties:
   irish-ireland:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/irish/skills/possibilities-constraints/irish-possibilities-constraints-explained-in-english.yaml
-        at revision irish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - teanglann_cead2026
-        - teanglann_caith2026
-        - brasicke_irish_copula2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

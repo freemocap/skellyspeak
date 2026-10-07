@@ -137,7 +137,15 @@
 .xp-chip.progress-trigger .progress-counter-mark { color: var(--coach-mark); }
 .xp-chip.progress-trigger .progress-counter-gain { background: var(--coach-ink); }
 .xp-chip.progress-trigger:hover { border-color: var(--coach-line); background: var(--coach-tint); }
-@media (max-width: 400px) { .xp-chip.progress-trigger { padding-inline: var(--space-2); } }
+/* A phone header is one row, and the partner name is what gives up room, so
+   below 480px the counters tighten: the points keep their number and drop their
+   shape (the Progress tab draws it large), and the XP chip its padding. On the
+   smallest screens XP loses its unit too, as it does in the top bar. */
+@media (max-width: 480px) {
+  .chat-head .skill-level-chip .skill-radar-glyph { display: none; }
+  .xp-chip.progress-trigger { padding-inline: var(--space-2); }
+}
+@media (max-width: 400px) { .chat-head .progress-counter-icon { display: none; } }
 
 .xp-ledger-heading, .xp-ledger-stats { flex: none; }
 .xp-ledger-stats { padding: 0 var(--space-4) var(--space-4); border-bottom: var(--border-width) solid var(--line); }

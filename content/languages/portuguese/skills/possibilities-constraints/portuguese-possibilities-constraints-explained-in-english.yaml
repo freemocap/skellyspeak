@@ -1,52 +1,41 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: portuguese-skills-2026-10-04
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Saber + infinitive can express knowing how to perform an activity. Sei is the
-      first-person present; a bare fact known by the speaker is a different use of saber.
+    explanation: "A neighbor asks whether you can repair a bicycle. `Sei consertar uma bicicleta` says you know how: `sei` is first-person present of `saber`, and the infinitive `consertar` names the practiced action. `Uma bicicleta` is what you can repair. `Sei onde está a bicicleta` would instead mean you know a fact about its location."
     examples:
       - text: Sei consertar uma bicicleta.
         meaning: I know how to repair a bicycle.
-        note: Sei followed by consertar expresses practical skill, rather than knowledge of a
-          proposition.
+        note: "State that you know how to repair a radio. `Sei consertar um rádio.` gives the full ability claim; the infinitive after `sei` names what you know how to do."
   - subskill_id: permission
-    explanation: Poder + infinitive can ask whether an action is allowed. Context distinguishes this
-      from a question about physical ability or available opportunity.
+    explanation: "You are in a shared workspace and ask the person in charge about a table. `Posso usar esta mesa?` uses `posso`, the first-person present of `poder`, plus the infinitive `usar` to ask may I use it? `Esta mesa` points to this table. Here the addressee can grant or deny access, so the question seeks permission. In a different setting, the same modal could ask about practical possibility."
     examples:
       - text: Posso usar esta mesa?
         meaning: May I use this table?
-        note: Addressed to the person managing a shared workspace. The speaker asks for permission to
-          use the table.
+        note: "Ask permission to use this chair. `Posso usar esta cadeira?` is complete when addressed to the person who controls it; `cadeira` replaces `mesa` and `esta` still agrees with a feminine noun."
   - subskill_id: obligation
-    explanation: Ter que + infinitive expresses a requirement. Tenho is first-person present; the
-      verb after que remains an infinitive.
+    explanation: "The library books are due today. `Tenho que devolver os livros hoje` states a requirement: `tenho` is I have, `que` links it to the infinitive `devolver`, and `hoje` names the deadline. The books have not necessarily been returned yet. `Não preciso devolver hoje` says there is no need today; it does not forbid returning them. The connecting `que` is part of this `ter que` pattern."
     examples:
       - text: Tenho que devolver os livros hoje.
         meaning: I have to return the books today.
-        note: Tenho que states a requirement; hoje gives its timing. It does not say that the return has
-          already happened.
+        note: "State that you must return the books tomorrow. `Tenho que devolver os livros amanhã.` is a full requirement; `amanhã` changes the deadline, while `tenho que devolver` stays together."
   - subskill_id: possibility
-    explanation: É possível que introduces an uncertain event with the subjunctive in this
-      construction. Chova is the present subjunctive of chover.
+    explanation: "You are making an outdoor plan and rain is uncertain. `É possível que chova amanhã` means it is possible that it will rain tomorrow. `É possível que` introduces the uncertain event, and `chova` is the present subjunctive of `chover` in this construction; `amanhã` gives the future time. `Está chovendo` would report rain happening now, not a possibility."
     examples:
       - text: É possível que chova amanhã.
         meaning: It may rain tomorrow.
-        note: The rain is presented as possible. Amanhã supplies future time although chova is a
-          present-subjunctive form.
+        note: "Say the library may close tomorrow. `É possível que a biblioteca feche amanhã.` is a full possibility statement; `feche` is used after `é possível que` for the uncertain closure."
   - subskill_id: certainty
-    explanation: Não sei se can mark that the speaker does not know whether a proposition is true.
-      This se introduces an indirect yes/no question, rather than an if-condition for another
-      action.
+    explanation: "Before travelling, you do not know whether the library is open. `Não sei se a biblioteca está aberta` names that limit of knowledge: `não sei` means I do not know, `se` means whether in this indirect yes/no question, and `está aberta` reports its open state. The question is unresolved, so the speaker is not claiming that it is closed. This `se` differs from a future condition such as `Se chover, fico em casa`."
     examples:
       - text: Não sei se a biblioteca está aberta.
         meaning: I do not know whether the library is open.
-        note: The uncertainty concerns its present open status. Está is indicative inside this indirect
-          question.
+        note: "Say you do not know whether the library is closed. `Não sei se a biblioteca está fechada.` is the full uncertainty statement; `fechada` changes the state under question."
 provenance: &a1
   origin: ai
   authorship: AI-authored language-specific guidance, English explanations and original examples,
@@ -58,7 +47,7 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: portuguese-skills-2026-10-04
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
       conversational contexts and declared variety applicability. Source-informed AI editorial
       review does not certify linguistic correctness.

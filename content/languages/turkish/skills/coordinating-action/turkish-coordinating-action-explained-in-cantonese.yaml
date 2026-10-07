@@ -1,62 +1,68 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 禮貌或複數命令式可以請人做具體行動。
+    explanation: 共用工作間有個指定箱要搬。`Bu kutuyu` 指呢個箱係受事，`kapıya` 交代目的地係門口。`taşıyın`
+      可以對多人，亦可以禮貌噉對一個人講；`lütfen` 令請求客氣，但仍然係叫人做事。
     examples:
       - text: Bu kutuyu kapıya taşıyın, lütfen.
         meaning: 唔該搬呢個箱去門口。
-        note: Kutuyu標示具體物件，kapıya標示目的地。
+        note: 試請同一個人將箱搬去架。答案：`Bu kutuyu rafa taşıyın, lütfen.` 將目的地 `kapıya` 換成
+          `rafa`，禮貌指令仍然係要求行動。
   - subskill_id: offers_invitations
-    explanation: 第一人稱願望式問句可以主動提出幫忙。
+    explanation: 訪客拎住重袋，你提出幫手。`Çantanızı` 係禮貌稱呼嘅聽者個袋。`taşıyayım mı?` 問講者自己應唔應該拎，第一人稱願望式令呢句係提議幫忙，唔係命令人。
     examples:
       - text: Çantanızı taşıyayım mı?
         meaning: 要唔要我幫你拎個袋？
-        note: 講者用禮貌稱呼，提出幫聽者拎袋。
+        note: 試改成提出幫對方拎箱。答案：`Kutunuzu taşıyayım mı?` 將物件換成 `kutunuzu`；`taşıyayım mı?` 仍然係講者提出自己做。
   - subskill_id: suggestions
-    explanation: 第一人稱複數願望式提議共同行動。
+    explanation: 一齊做咗一陣工，你提議休息。`Biraz` 表示抖一陣，`ara verelim` 用第一人稱複數提議，將講者同聽者都包括喺內；唔係叫對方自己去抖。
     examples:
       - text: Biraz ara verelim.
         meaning: 不如我哋抖一陣。
-        note: Verelim將講者包括喺提議內。
+        note: 試提議一齊行一陣。答案：`Biraz yürüyelim.` 第一人稱複數 `yürüyelim` 包括雙方，同原句 `verelim` 一樣。
   - subskill_id: commitments
-    explanation: 將來陳述可以承擔講好咗嘅工作。
+    explanation: 維修小組分配聽日嘅工作，你負責工具。`Aletleri` 係指定工具，`yarın` 係聽日，`getireceğim`
+      標講者將來會做嘅事。喺分工對話入面，呢句將來陳述就係承擔工作。
     examples:
       - text: Aletleri yarın getireceğim.
         meaning: 聽日我會帶工具嚟。
-        note: 分工時用，講者接受呢項工作。
+        note: 試承諾聽日帶零件。答案：`Parçaları yarın getireceğim.` 將物件換成 `parçaları`；同一個第一人稱將來式承擔咗分配嘅工作。
   - subskill_id: accepting_declining
-    explanation: 表達冇辦法出席，可以拒絕邀請。
+    explanation: 有人邀請你今日出席，但你嚟唔到。`Üzgünüm` 係道歉，`bugün` 交代今日，`gelemem` 表示不能來。之前個邀請先令呢句成為婉拒；單獨一句只係講能力限制。
     examples:
       - text: Üzgünüm, bugün gelemem.
         meaning: 唔好意思，我今日嚟唔到。
-        note: 之前邀請交代拒絕邊個活動。
+        note: 另一位朋友邀請你聽日出席活動，但你嚟唔到。答案：`Üzgünüm, yarın gelemem.` 將日子換成 `yarın`；新邀請令能力限制成為婉拒。
   - subskill_id: negotiating_plans
-    explanation: 先講限制，再提出替代計劃。
+    explanation: 對方提議星期五見，但你唔得閒。`Cuma günü uygun değilim` 交代衝突；`Cumartesi buluşalım`
+      提議雙方星期六見。第二句提供可行新安排，唔止係拒絕。
     examples:
       - text: Cuma günü uygun değilim. Cumartesi buluşalım.
         meaning: 我星期五冇時間。不如星期六見。
-        note: 第二句提供具體替代提議。
+        note: 試否定星期五後改提議星期日。答案：`Cuma günü uygun değilim. Pazar buluşalım.` 保留星期五唔得嘅原因，將見面日改成
+          `Pazar`。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/turkish/skills/coordinating-action/turkish-coordinating-action-explained-in-english.yaml
-    at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision turkish-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
     - tt_turkish_optative2026
     - tt_turkish_modality2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: turkish-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   turkish-turkiye:
     disposition: use_core
@@ -64,14 +70,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/turkish/skills/coordinating-action/turkish-coordinating-action-explained-in-english.yaml
-        at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision turkish-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - tt_turkish_optative2026
         - tt_turkish_modality2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: turkish-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

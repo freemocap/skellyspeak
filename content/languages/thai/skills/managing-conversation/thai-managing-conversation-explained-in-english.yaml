@@ -1,62 +1,94 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: thai-skills-2026-10-04
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A farewell can name the next expected meeting.
+    explanation: You are leaving after arranging to meet next week. `แล้วเจอกัน` is a closing that anticipates
+      seeing the listener again; `สัปดาห์หน้า` supplies the expected time. The phrase ends this exchange
+      rather than starting a new negotiation.
     examples:
       - text: แล้วเจอกันสัปดาห์หน้า
         meaning: See you next week.
-        note: This closes the current exchange.
+        note: "Try closing with an expected meeting tomorrow. Answer: `แล้วเจอกันพรุ่งนี้` The farewell stays, while
+          `พรุ่งนี้` changes the next meeting time."
   - subskill_id: acknowledging
-    explanation: เข้าใจแล้ว acknowledges that understanding has been reached.
+    explanation: A colleague has just explained a confusing step. `อ๋อ` marks recognition; `ตอนนี้เข้าใจแล้ว` says
+      understanding has now been reached. Here `แล้ว` presents the change in state, not a general past-tense
+      ending. Acknowledging comprehension does not automatically mean agreeing with the advice.
     examples:
       - text: อ๋อ ตอนนี้เข้าใจแล้ว
         meaning: Ah, now I understand.
-        note: Use after an explanation; understanding need not mean agreement.
+        note: "Try acknowledging the explanation without saying “now.” Answer: `อ๋อ เข้าใจแล้ว` `เข้าใจแล้ว` still
+          tells the colleague that the explanation has become clear."
   - subskill_id: clarification
-    explanation: A question can ask the other speaker to repeat the preceding contribution.
+    explanation: You missed what another speaker just said. `พูดอีกครั้ง` asks them to say it again; `ได้ไหม`
+      makes that action a question about whether they can do it. In context the question requests repetition
+      of the previous contribution, rather than seeking a new fact about the outside world.
     examples:
       - text: พูดอีกครั้งได้ไหม
         meaning: Could you say that again?
-        note: The context supplies the speaker and material to repeat.
+        note: "Try asking them to explain once more instead. Answer: `อธิบายอีกครั้งได้ไหม` `อีกครั้งได้ไหม` still
+          seeks a repeat, while `อธิบาย` requests explanation rather than the same words."
   - subskill_id: rephrasing
-    explanation: พูดอีกอย่างก็คือ introduces another formulation.
+    explanation: A visitor heard that this service requires booking before arrival. `พูดอีกอย่างก็คือ` signals a
+      restatement in other words; `ต้องจองล่วงหน้า` states the practical requirement to book in advance. The
+      new wording should preserve the policy already given, rather than add a new condition.
     examples:
       - text: พูดอีกอย่างก็คือ ต้องจองล่วงหน้า
         meaning: In other words, you need to book in advance.
-        note: Use after explaining how a booking procedure works.
+        note: "Try restating the policy as “you must book before coming.” Answer: `พูดอีกอย่างก็คือ ต้องจองก่อนมา` The
+          opening still marks a restatement, and `ก่อนมา` makes the timing explicit."
   - subskill_id: correcting_misunderstanding
-    explanation: หมายถึง identifies the intended meaning and contrasts it with a mistaken one.
+    explanation: The listener thought you meant Friday, but you meant Saturday. `ฉันหมายถึงวันเสาร์` states your
+      intended day; `ไม่ใช่วันศุกร์` explicitly rejects the mistaken day. Naming both days makes the
+      correction easier to act on than just repeating Saturday.
     examples:
       - text: ฉันหมายถึงวันเสาร์ ไม่ใช่วันศุกร์
         meaning: I mean Saturday, not Friday.
-        note: The speaker corrects the day understood by the listener.
+        note: "Try correcting someone who heard Saturday when you meant Sunday. Answer: `ฉันหมายถึงวันอาทิตย์
+          ไม่ใช่วันเสาร์` The intended day comes first; `ไม่ใช่` rejects the mistaken one."
   - subskill_id: turns_topics
-    explanation: A permission-shaped request can manage a topic transition.
+    explanation: The group has finished one issue, and you want to raise another. `ขอถาม` requests the floor to
+      ask; `เรื่องอื่น` names another topic. `หน่อยได้ไหม` makes the transition a softened request for
+      permission. The question manages the conversation rather than asking for the answer to the new issue
+      itself.
     examples:
       - text: ขอถามเรื่องอื่นหน่อยได้ไหม
         meaning: May I ask about something else?
-        note: The requested action concerns the conversation itself.
-provenance: &a1
+        note: "Try asking to raise the schedule next. Answer: `ขอถามเรื่องตารางเวลาหน่อยได้ไหม` The permission-shaped
+          request stays, while `เรื่องตารางเวลา` names the next topic."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - hartmann_thai_questions2026
     - niu_thai_hai2026
   generation: null
   review:
     status: needs_review
-    revision: thai-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   thai-thailand:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - hartmann_thai_questions2026
+        - niu_thai_hai2026
+      generation: null
+      review:
+        status: needs_review
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

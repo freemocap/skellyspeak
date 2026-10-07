@@ -1,75 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: thai-teaching-expanded-2026-10-07
 language: thai
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 活動前面嘅กำลัง將活動表達成進行中。
+    explanation: 有人問你此刻做緊乜。`ตอนนี้` 指眼前時間；`ฉันกำลังซ่อมจักรยาน` 將 `กำลัง` 放喺維修活動前，講正在進行。泰語唔使改動詞字尾嚟對應英文進行式。
     examples:
       - text: ตอนนี้ฉันกำลังซ่อมจักรยาน
         meaning: 我而家整緊單車。
-        note: ตอนนี้將活動定位到目前情況。
+        note: 試吓話而家睇緊書。答案：`ตอนนี้ฉันกำลังอ่านหนังสือ`。`ตอนนี้` 同 `กำลัง` 保留此刻正在做嘅意思；`อ่านหนังสือ` 改活動。
   - subskill_id: past_events
-    explanation: 過去時間表達可以定位事件，唔使改動詞。
+    explanation: 你講尋日整單車嘅事。`เมื่อวาน` 將事件放喺過去；`ฉันซ่อมจักรยาน` 講維修活動，`ซ่อม` 冇過去式字尾。維修係咪完成，要靠更大語境；時間詞本身唔編碼終點。
     examples:
       - text: เมื่อวานฉันซ่อมจักรยาน
         meaning: 我尋日整咗架單車。
-        note: เมื่อวาน確立過去時間；ซ่อม冇時態詞尾。
+        note: 試吓話尋日整收音機。答案：`เมื่อวานฉันซ่อมวิทยุ`。`เมื่อวาน` 仍定位過去；`ซ่อมวิทยุ` 改維修物件。
   - subskill_id: future_events
-    explanation: จะ配合時間表達，可以引出將來行動。
+    explanation: 你安排聽日去拎維修零件。`พรุ่งนี้` 指將來日子；`ฉันจะไปรับอะไหล่` 用 `จะ` 講計劃，用 `ไปรับ` 講去領取零件。泰語動詞唔會加將來式字尾；時間詞同計劃交代時間。
     examples:
       - text: พรุ่งนี้ฉันจะไปรับอะไหล่
         meaning: 我聽日會去攞零件。
-        note: พรุ่งนี้交代日子；ไปรับ結合去同領取。
+        note: 試吓話聽日會去拎鎖匙。答案：`พรุ่งนี้ฉันจะไปรับกุญแจ`。`พรุ่งนี้` 同 `จะ` 保留將來計劃；`กุญแจ` 改領取物件。
   - subskill_id: duration_frequency
-    explanation: ละ設定每段時間嘅頻率，ครั้ง數次數。
+    explanation: 你講固定游水習慣。`สัปดาห์ละ` 建立每星期嘅比率；`สองครั้ง` 數兩次活動。呢個係頻率，唔係一次游幾耐；`สองชั่วโมง` 先係兩個鐘。
     examples:
       - text: ฉันว่ายน้ำสัปดาห์ละสองครั้ง
         meaning: 我一個星期游兩次水。
-        note: 呢個係頻率，唔係一次游幾耐。
+        note: 試吓話每星期游三次。答案：`ฉันว่ายน้ำสัปดาห์ละสามครั้ง`。`สัปดาห์ละ` 保留每星期比率；`สามครั้ง` 改活動次數。
   - subskill_id: event_sequence
-    explanation: ก่อน同แล้วค่อย排列步驟。
+    explanation: 你講廚房準備步驟。`ล้างมือก่อน` 將洗手放先；`แล้วค่อย` 指完成嗰步後先準備蔬菜。句子安排先後，唔係淨係列兩項工作。
     examples:
       - text: ล้างมือก่อน แล้วค่อยเตรียมผัก
         meaning: 先洗手，再準備啲蔬菜。
-        note: 指令語境交代對邊個講。
+        note: 試吓叫人先洗手，再切菜。答案：`ล้างมือก่อน แล้วค่อยหั่นผัก`。`ก่อน` 同 `แล้วค่อย` 保留次序；`หั่นผัก` 係第二步。
   - subskill_id: event_phase
-    explanation: 閱讀後面嘅จบ表示到達終點，แล้ว表達已達成狀態。
+    explanation: 朋友問你本書睇完未。`หนังสือเล่มนี้` 用量詞 `เล่ม` 指呢一本書；`อ่าน...จบ` 將閱讀帶到終點。句尾 `แล้ว` 表示已達成狀態。句子唔只係話曾經睇過。
     examples:
       - text: ฉันอ่านหนังสือเล่มนี้จบแล้ว
         meaning: 我已經睇完呢本書。
-        note: 句子表示閱讀完成，唔係淨係較早發生過。
+        note: 試吓話呢篇文章睇完咗。答案：`ฉันอ่านบทความนี้จบแล้ว`。`อ่าน...จบแล้ว` 保留完成點同已達成狀態；`บทความนี้` 取代本書。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/thai/skills/time-events/thai-time-events-explained-in-english.yaml at revision
-    thai-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - fsi_thai_time2026
+    - niu_thai_completion2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: thai-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+      their existing review limitations.
 varieties:
   thai-thailand:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/thai/skills/time-events/thai-time-events-explained-in-english.yaml at revision
-        thai-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored Cantonese teaching, revised against the principal Thai examples and the cited source
+        passages; no independent linguistic review.
       sources:
         - fsi_thai_time2026
+        - niu_thai_completion2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: thai-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic claims retain
+          their existing review limitations.

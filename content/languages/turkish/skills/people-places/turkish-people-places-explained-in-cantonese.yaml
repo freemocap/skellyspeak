@@ -1,69 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Bu可以引出用所有關係名詞短語識別嘅人。
+    explanation: 你向訪客指出一位鄰居。`Bu` 指呢個人，`benim` 標講者係擁有關係一方，`komşum` 帶第一人稱所有詞尾。關係連到講者，形式冇交代鄰居性別。
     examples:
       - text: Bu benim komşum.
         meaning: 呢位係我鄰居。
-        note: Benim同komşum嘅詞尾都將鄰居連到講者，冇指定性別。
+        note: 試介紹呢位係你朋友。答案：`Bu benim arkadaşım.` 保留 `benim`，用第一人稱所有形式 `arkadaşım`；句子仍然用關係識別一個人。
   - subskill_id: qualities_states
-    explanation: 第三人稱形容詞述語可以唔帶明示繫詞詞尾。
+    explanation: 你比較送貨路線。`Bu sokak` 指呢條街，`dar` 直接講佢窄。呢類一般第三人稱現在形容詞句，土耳其文唔使另加相當於英文 is 嘅字。
     examples:
       - text: Bu sokak dar.
         meaning: 呢條街好窄。
-        note: Dar直接陳述性質，唔需要額外加相當於英文is嘅詞。
+        note: 試講呢條街好闊。答案：`Bu sokak geniş.` 將性質 `dar` 換成 `geniş`；形容詞仍然直接構成第三人稱陳述。
   - subskill_id: location_movement
-    explanation: 位置格詞尾表達位置，喺清輔音後面會改變輔音。
+    explanation: 有人搵鎖匙，你講佢喺邊。`Anahtar` 係鎖匙；`rafta` 由架 `raf` 加位置格 `-ta`，`f` 係清輔音所以用
+      `t`。呢句答位置；`rafa` 會標去架嗰邊嘅方向。
     examples:
       - text: Anahtar rafta.
         meaning: 鎖匙喺個架上面。
-        note: 呢個位置表達入面，raf接-ta。
+        note: 試講鎖匙喺張枱上面。答案：`Anahtar masada.` 用位置格 `masada` 講所在；目的地形式會答去邊，唔係喺邊。
   - subskill_id: possession_relations
-    explanation: 帶所有標記嘅名詞配合var，可以陳述擁有。
+    explanation: 你點算可用座位。`İki` 係兩張，`sandalyem` 係凳加「我嘅」所有詞尾，`var` 表示有。數詞後被數名詞形式保持單數，唔係漏咗英文式複數。
     examples:
       - text: İki sandalyem var.
         meaning: 我有兩張凳。
-        note: Sandalyem標示我嘅凳；iki交代數量，唔加複數詞尾。
+        note: 試講你有三張凳。答案：`Üç sandalyem var.` 將 `İki` 換成 `Üç`；`sandalyem` 保留所有詞尾，數詞後仍用單數形式。
   - subskill_id: quantity_comparison
-    explanation: Daha加形容詞，配合離格比較基準，可以表達比較。
+    explanation: 兩個箱喺度比較重量。`Bu kutu` 係呢個箱，`ondan` 標嗰個係比較基準，`daha hafif` 係較輕。`ondan` 嘅離格詞尾指出同邊個比。
     examples:
       - text: Bu kutu ondan daha hafif.
         meaning: 呢個箱比嗰個輕。
-        note: Ondan指出比較對象，hafif描述重量。
+        note: 試講呢個箱比嗰個重。答案：`Bu kutu ondan daha ağır.` 保留離格比較基準 `ondan`，將比較性質 `hafif` 換成 `ağır`。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
-    languages/turkish/skills/people-places/turkish-people-places-explained-in-english.yaml at
-    revision turkish-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+    languages/turkish/skills/people-places/turkish-people-places-explained-in-english.yaml
+    at revision turkish-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
     - tt_turkish_possession2026
+    - tt_turkish_locative2026
+    - tt_turkish_ablative2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: turkish-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   turkish-turkiye:
     disposition: use_core
     provenance:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
-        languages/turkish/skills/people-places/turkish-people-places-explained-in-english.yaml at
-        revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        languages/turkish/skills/people-places/turkish-people-places-explained-in-english.yaml
+        at revision turkish-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - tt_turkish_possession2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: turkish-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

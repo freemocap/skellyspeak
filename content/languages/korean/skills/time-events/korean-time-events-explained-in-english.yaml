@@ -1,70 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: 고 있어요 after an action-verb stem can present an activity in progress. 지금 anchors it
-      to the present.
+    explanation: Someone asks what you are doing at the workbench now. `지금` fixes the time; `라디오를` marks the
+      radio as the object, and `고치고 있어요` presents the repair as ongoing. The worker can be omitted
+      because the exchange identifies them.
     examples:
       - text: 지금 라디오를 고치고 있어요.
-        meaning: I am repairing a radio now.
-        note: 고치고 있어요 presents ongoing work. The person doing it is understood from the exchange.
+        meaning: I am repairing a radio now. 고치고 있어요 presents ongoing work. The person doing it is understood
+          from the exchange.
+        note: "Try it: say you are repairing a bicycle now. Answer: `지금 자전거를 고치고 있어요`. Replace the object with
+          `자전거를`; keep `고치고 있어요` for work in progress."
   - subskill_id: past_events
-    explanation: A past marker combines with the polite ending to report an earlier event. 어제
-      explicitly places the action yesterday.
+    explanation: A friend asks what you fixed yesterday. `어제` locates the event; `라디오를` marks the object, and
+      `고쳤어요` is the polite past form of `고치다`. It reports an earlier repair rather than a job continuing
+      now.
     examples:
       - text: 어제 라디오를 고쳤어요.
-        meaning: I repaired a radio yesterday.
-        note: 고쳤어요 comes from 고치다. The sentence reports a past repair, rather than a present repair in
-          progress.
+        meaning: I repaired a radio yesterday. 고쳤어요 comes from 고치다. The sentence reports a past repair, rather
+          than a present repair in progress.
+        note: "Try it: report that you repaired a bicycle yesterday. Answer: `어제 자전거를 고쳤어요`. Keep the past form
+          `고쳤어요`; change the object to `자전거를`."
   - subskill_id: future_events
-    explanation: The construction 을 거예요 after an appropriate verb stem can express a future plan or
-      expectation. Tomorrow provides an explicit time anchor.
+    explanation: You plan to buy parts for a repair tomorrow. `내일` anchors the later time; `부품을` marks the
+      parts, and `살 거예요` expresses a future-oriented plan from `사다`. It does not by itself promise the
+      parts to another person.
     examples:
       - text: 내일 부품을 살 거예요.
-        meaning: I will buy the parts tomorrow.
-        note: 살 거예요 combines 사다 with the future-oriented construction. The sentence does not by itself
-          promise to buy them for someone.
+        meaning: I will buy the parts tomorrow. 살 거예요 combines 사다 with the future-oriented construction. The
+          sentence does not by itself promise to buy them for someone.
+        note: "Try it: say you will buy a radio tomorrow. Answer: `내일 라디오를 살 거예요`. Change the object to `라디오를`;
+          keep `살 거예요` for the planned purchase."
   - subskill_id: duration_frequency
-    explanation: 동안 follows a time quantity to mark duration. 매주 supplies weekly recurrence
-      independently of that duration.
+    explanation: You describe a weekly swimming routine. `매주` says how often; `두 시간 동안` says how long each
+      session lasts, using native number `두` for two hours. Compare `두 시`, which means two o’clock rather
+      than a duration.
     examples:
       - text: 매주 두 시간 동안 수영해요.
-        meaning: I swim for two hours every week.
-        note: 두 시간 is two hours, whereas 두 시 names two o’clock. 매주 gives the repeated schedule.
+        meaning: I swim for two hours every week. 두 시간 is two hours, whereas 두 시 names two o’clock. 매주 gives the
+          repeated schedule.
+        note: "Try it: say you swim for one hour every week. Answer: `매주 한 시간 동안 수영해요`. Keep `매주` for frequency
+          and `동안` for duration; change `두 시간` to `한 시간`."
   - subskill_id: event_sequence
-    explanation: 먼저 and 그다음 state the order of steps. Polite requests can specify what the listener
-      should do at each stage.
+    explanation: You are explaining a safe order for checking equipment. `먼저` puts switching off the power
+      first; `그다음` introduces opening the lid afterward. Both `끄세요` and `여세요` are polite directives to
+      the listener. The order matters before handling the inside.
     examples:
       - text: 먼저 전원을 끄세요. 그다음 뚜껑을 여세요.
-        meaning: First switch off the power. Then open the lid.
-        note: The adverbs explicitly order the actions. 여세요 is the polite request form of 열다.
+        meaning: First switch off the power. Then open the lid. The adverbs explicitly order the actions. 여세요 is
+          the polite request form of 열다.
+        note: "Try it: make a safe two-step shutdown before handling equipment. Answer: `먼저 전원을 끄세요. 그다음
+          플러그를 뽑으세요`. Switch off power before unplugging; `먼저` and `그다음` preserve that order."
   - subskill_id: event_phase
-    explanation: 다 with a completed action can state that the whole task is finished. It adds
-      completion information beyond placing an action in the past.
+    explanation: Someone asks whether you are finished with the instructions. `설명서를` marks the instructions
+      as what was read; `다` before `읽었어요` says the whole reading is complete. The past ending alone would
+      not necessarily state that every part was read.
     examples:
       - text: 설명서를 다 읽었어요.
-        meaning: I finished reading the instructions.
-        note: 다 indicates the full reading is complete. The example does not merely say that some
-          reading occurred.
+        meaning: I finished reading the instructions. 다 indicates the full reading is complete. The example does
+          not merely say that some reading occurred.
+        note: "Try it: say you have finished reading the book. Answer: `책을 다 읽었어요`. Replace `설명서를` with `책을` and
+          retain `다` for full completion."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_tense2026
     - htsk_desire2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

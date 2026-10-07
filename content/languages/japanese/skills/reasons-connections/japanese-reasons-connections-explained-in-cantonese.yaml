@@ -1,53 +1,53 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: ので將原因連到行動或決定；呢個例子喺ので前面用普通體動詞。
+    explanation: "開始落雨，所以你放棄散步。`雨が降っているので、歩くのはやめます` 講原因：`雨が降っている` 係而家落緊雨，`ので` 將落雨連到決定，`歩くのは` 將散步變成討論嘅活動；`やめます` 係停做或放棄計劃。`降ってから` 只會將下一件事放喺落雨之後，本身唔講原因。落雨解釋點解唔散步。"
     examples:
       - text: 雨が降っているので、歩くのはやめます。
         meaning: 因為落雨，我唔行路喇。
-        note: 落雨解釋決定；歩くの將行路名詞化，成為放棄嘅活動。
+        note: "改用大風作取消散步原因：`風が強いので、歩くのはやめます。`。`ので` 將天氣情況連到決定。"
   - subskill_id: consequences
-    explanation: そのため引出前述情況嘅結果，兩個分句要有合理關聯。
+    explanation: "條橋過唔到，所以要改路。`橋が通れません。そのため、別の道を使います` 先講障礙，再講後果：`橋が通れません` 係條橋過唔到，`そのため` 指返呢個情況，`別の道を使います` 係用另一條路。改路由障礙引起，唔只係時間上較後。`そのあと` 主要講之後發生乜，未必解釋點解。"
     examples:
       - text: 橋が通れません。そのため、別の道を使います。
         meaning: 條橋用唔到，所以我會行第二條路。
-        note: 條橋唔通促使改路；その指返呢個情況。
+        note: "講橋過唔到，所以行隧道：`橋が通れません。そのため、トンネルを使います。`。`そのため` 將新路線連到橋唔通。"
   - subskill_id: conditions
-    explanation: たら形可以設定可能條件；雖然形式包含た，唔一定講已發生嘅事。
+    explanation: "你定聽日落雨預案，唔係報告落咗雨。`雨が降ったら、中で作業します` 設條件：`雨が降ったら` 係如果落雨，`たら` 接喺似過去形嘅形式後，`中で作業します` 係條件成立後嘅行動。`たら` 入面嘅 `た` 唔表示雨一定已經喺過去落咗。`雨が降ったので` 則會將實際落雨當決定原因。計劃要視乎條件有冇發生。"
     examples:
       - text: 雨が降ったら、中で作業します。
         meaning: 如果落雨，我就喺入面做嘢。
-        note: 降ったら提出條件；室內工作係條件成立時嘅應對。
+        note: "講天晴就喺外面工作：`晴れたら、外で作業します。`。`晴れたら` 係條件，`外で作業します` 係相應安排。"
   - subskill_id: contrast
-    explanation: 口語けど可以對比兩個性質或考慮因素，兩邊要有足夠內容顯示對比。
+    explanation: "你揀路前比較兩條路。`この道は短いですけど、坂が急です` 將優點同缺點放埋一齊：`この道は短い` 係路短，`けど` 係但係，`坂が急` 係斜坡陡。陡坡可能抵消較短路程嘅好處。`けど` 喺其他情境亦可緩和未講完嘅請求；呢度前後兩邊都有內容，形成真正對比。`そして` 只會並列兩個事實，唔明確講取捨。"
     examples:
       - text: この道は短いですけど、坂が急です。
         meaning: 呢條路短，但個斜坡好斜。
-        note: 斜坡係短路程以外嘅缺點；呢度係明確對比，唔係淨係用句尾緩和語氣。
+        note: "對比路闊但車多：`この道は広いですけど、車が多いです。`。闊係優點，車多係缺點，構成完整對比。"
   - subskill_id: supporting_claims
-    explanation: 用ので同と思います，可以將觀察作為結論理據；觀察係支持信念嘅證據，未必係事件成因。
+    explanation: "你聽到樓入面有人聲，推斷入面有人。`中から声が聞こえるので、誰かいると思います` 同時講證據同結論：`中から` 係由入面，`声が聞こえる` 係聽到人聲，`ので` 連起觀察，`誰かいると思います` 係我認為有人。人聲支持判斷，但唔係令嗰個人出現嘅原因。`誰かいます` 就較直接斷言有人。呢個推斷仍可能被修正。"
     examples:
       - text: 中から声が聞こえるので、誰かいると思います。
         meaning: 我諗入面有人，因為聽到入面有人聲。
-        note: 聽到人聲支持有人喺度嘅結論，但結論仍然係推論。
+        note: "用入面傳來腳步聲支持有人嘅推斷：`中から足音が聞こえるので、誰かいると思います。`。腳步聲提供根據，`と思います` 保持為判斷。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/reasons-connections/japanese-reasons-connections-explained-in-english.yaml
-    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -57,13 +57,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/reasons-connections/japanese-reasons-connections-explained-in-english.yaml
-        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        at revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

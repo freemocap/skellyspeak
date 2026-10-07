@@ -1,59 +1,89 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: russian-skills-2026-10-04
+revision: russian-teaching-expanded-2026-10-07
 language: russian
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Это introduces an identification. A present-tense linking verb is normally unnecessary.
+    explanation: You point out a neighbour to someone meeting her. `Это` introduces the person being identified;
+      `моя соседка` is feminine singular, so possessive `моя` matches `соседка`. A present-tense “is” is
+      normally omitted in this direct identification.
     examples:
       - text: Это моя соседка.
         meaning: This is my neighbour.
-        note: Моя agrees with the feminine noun соседка; the identified neighbour is female.
+        note: "Try introducing your sister. Answer: `Это моя сестра.` `Это` still identifies a person; feminine `моя`
+          matches `сестра`."
   - subskill_id: qualities_states
-    explanation: A property can be predicated directly, with the adjective agreeing with its subject.
+    explanation: Someone asks what this street is like. `Эта улица` is feminine singular, so demonstrative `эта`
+      and adjective `узкая` agree with `улица`. The adjective directly predicates a property in the present;
+      Russian does not need a separate present-tense linking verb here.
     examples:
       - text: Эта улица узкая.
         meaning: This street is narrow.
-        note: Эта and узкая are feminine singular, matching улица.
+        note: "Try describing this room as narrow. Answer: `Эта комната узкая.` Both `эта` and `узкая` remain feminine
+          singular to match `комната`."
   - subskill_id: location_movement
-    explanation: На with the prepositional case locates the key on a surface. The verb describes its
-      position.
+    explanation: Someone is looking for a key lying on a shelf. `Ключ` is the thing located; `лежит` describes its
+      resting position. `На полке` uses `на` plus prepositional case for a static place on a surface. Movement
+      onto a shelf would require a different construction, such as `положить на полку`.
     examples:
       - text: Ключ лежит на полке.
         meaning: The key is on the shelf.
-        note: Полке is the prepositional form of полка. A destination would require a different
-          construction.
+        note: "Try saying the key is lying on the table. Answer: `Ключ лежит на столе.` `Лежит` still describes a
+          resting position; `на столе` changes the static location."
   - subskill_id: possession_relations
-    explanation: У plus a genitive possessor and есть can express possession. Counted nouns have
-      number-dependent forms.
+    explanation: You are counting boxes available for a task. `У меня` uses `у` plus genitive to identify the
+      possessor; `есть` asserts that the boxes exist in your possession. `Две` is the feminine form of two,
+      matching `коробка`; after this numeral the counted noun appears as `коробки`. This differs from using a
+      direct equivalent of English “I have.”
     examples:
       - text: У меня есть две коробки.
         meaning: I have two boxes.
-        note: Меня follows у; две agrees with the feminine counted noun, whose form here is коробки.
+        note: "Try saying you have three boxes. Answer: `У меня есть три коробки.` The possession frame remains; `три
+          коробки` counts three with the appropriate noun form."
   - subskill_id: quantity_comparison
-    explanation: A comparative can take a genitive standard without чем.
+    explanation: You are choosing which box is easier to carry. `Эта коробка` identifies the box being compared;
+      `легче` means lighter. `Той` is the genitive form of “that one,” supplying the comparison standard
+      without `чем`. The form compares weights, not the number of boxes.
     examples:
       - text: Эта коробка легче той.
         meaning: This box is lighter than that one.
-        note: Легче compares weight. Той stands for the other box, so the noun need not be repeated.
-provenance: &a1
+        note: "Try saying this box is heavier than that one. Answer: `Эта коробка тяжелее той.` `Тяжелее` reverses the
+          weight judgment; genitive `той` remains the comparison standard."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+    passages; no independent linguistic review.
   sources:
     - cornell_russian_agreement2026
     - cornell_russian_possession2026
+    - cornell_russian_comparison2026
+    - cornell_russian_numerals2026
   generation: null
   review:
     status: needs_review
-    revision: russian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: russian-teaching-expanded-2026-10-07
+    scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+      and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+      correctness.
 varieties:
   russian-russia:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored English teaching, revised against the principal Russian examples and the cited source
+        passages; no independent linguistic review.
+      sources:
+        - cornell_russian_agreement2026
+        - cornell_russian_possession2026
+        - cornell_russian_comparison2026
+        - cornell_russian_numerals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: russian-teaching-expanded-2026-10-07
+        scope: Entire document, including constructions, original examples, English meanings, conversational contexts
+          and declared variety applicability. Source-informed AI editorial review does not certify linguistic
+          correctness.

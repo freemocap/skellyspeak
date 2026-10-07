@@ -1,55 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Çünkü引出前述情況嘅解釋。
+    explanation: 朋友問點解你留喺屋企。`Evde kaldım` 講你留家；`çünkü yağmur başladı` 提供原因：開始落雨。`Çünkü`
+      將原因連到先前決定，唔係單純排兩件事次序。
     examples:
       - text: Evde kaldım çünkü yağmur başladı.
         meaning: 因為開始落雨，我留咗喺屋企。
-        note: 落雨被表達成留家原因。
+        note: 試解釋因為開始有風暴所以留家。答案：`Evde kaldım çünkü fırtına başladı.` 將原因換成 `fırtına başladı`；`çünkü`
+          仍然連到留家。
   - subskill_id: consequences
-    explanation: Bu yüzden將情況連到由此而起嘅行動。
+    explanation: 你解釋點解行路到達。`Otobüs gelmedi` 講巴士冇嚟，`bu yüzden yürüdüm` 將行路表達成由此作出嘅選擇。`Bu
+      yüzden` 指返前面個問題，唔係淨係講先後。
     examples:
       - text: Otobüs gelmedi, bu yüzden yürüdüm.
         meaning: 架巴士冇嚟，所以我行路。
-        note: 行路被表達成結果。
+        note: 試講的士冇嚟，所以你行路。答案：`Taksi gelmedi, bu yüzden yürüdüm.` 將冇嚟嘅交通工具換成 `Taksi`；`bu yüzden`
+          保留結果關係。
   - subskill_id: conditions
-    explanation: 條件詞尾唔使配合eğer，都可以建立條件依存關係。
+    explanation: 你訂聽日視乎天氣嘅安排。`Yarın yağmur yağarsa` 係如果聽日落雨，條件由 `-sa` 承載；`evde kalacağız`
+      係嗰個情況下嘅計劃。句子冇斷言而家落緊雨。
     examples:
       - text: Yarın yağmur yağarsa evde kalacağız.
         meaning: 如果聽日落雨，我哋就留喺屋企。
-        note: Yağarsa標示條件；kalacağız交代相應計劃。
+        note: 試講如果聽日落雪就留家。答案：`Yarın kar yağarsa evde kalacağız.` 將可能天氣換成 `kar`；`yağarsa`
+          仍令留家計劃依條件而定。
   - subskill_id: contrast
-    explanation: Ama連接語境中有對比嘅描述。
+    explanation: 你揀路線，要衡量兩種性質。`Yol kısa` 係條路短，`ama dik` 補充佢斜。`Ama` 對比路程短嘅方便同上斜嘅困難，唔係話其中一樣造成另一樣。
     examples:
       - text: Yol kısa ama dik.
         meaning: 條路短，但好斜。
-        note: 揀路線時，長度同斜度提供唔同方向嘅考慮。
+        note: 試講條路短但窄。答案：`Yol kısa ama dar.` 將第二個性質換成 `dar`；`ama` 仍然呈現揀路時有用嘅對比。
   - subskill_id: supporting_claims
-    explanation: 原因分句可以提供推論證據。
+    explanation: 夜晚你見到屋入面盞燈亮起，謹慎推測可能有人。`Sanırım` 標示估計，`evde biri var` 講推論，`çünkü ışık yanıyor`
+      交代觀察到嘅線索。燈光支持推論，唔係造成有人喺屋企。
     examples:
       - text: Sanırım evde biri var çünkü ışık yanıyor.
         meaning: 我諗有人喺屋企，因為盞燈開咗。
-        note: 燈光支持推論，唔係造成有人喺屋企嘅原因。
+        note: 試改用屋入面傳出人聲做線索。答案：`Sanırım evde biri var çünkü içeriden sesler geliyor.`
+          聲音支持同一個謹慎推論；`Sanırım` 保留估計語氣，唔係肯定。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/turkish/skills/reasons-connections/turkish-reasons-connections-explained-in-english.yaml
-    at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision turkish-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
     - tt_turkish_conditions2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: turkish-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   turkish-turkiye:
     disposition: use_core
@@ -57,13 +66,14 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/turkish/skills/reasons-connections/turkish-reasons-connections-explained-in-english.yaml
-        at revision turkish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision turkish-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - tt_turkish_conditions2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: turkish-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

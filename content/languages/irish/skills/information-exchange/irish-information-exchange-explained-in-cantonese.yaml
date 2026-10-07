@@ -1,65 +1,55 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: irish-teaching-cantonese-2026-10-07
 language: irish
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Cén t-am 問時間，呢度後面接關係動詞結構。
+    explanation: 去舖頭前需要知關門時間時，`Cén t-am a dhúnann an siopa?` 用 `Cén t-am` 問幾點；連接詞 `a` 後用 `dhúnann`，再講 `an
+      siopa`。呢句索取未知鐘點，唔係先提出五點畀人核實。
     examples:
       - text: Cén t-am a dhúnann an siopa?
-        meaning: 間舖頭幾點閂門？
-        note: A dhúnann 將所問嘅時間連到閂門呢件事。
+        meaning: 間舖頭幾點閂門？ `A dhúnann` 將所問嘅時間連到閂門呢件事。
+        note: 試問關門時間但唔畀候選鐘點。答案：`Cén t-am a dhúnann an siopa?` `Cén t-am` 問空缺；`An ndúnann ...?` 係核實已提出嘅時間。
   - subskill_id: answering_information
-    explanation: 可以只用時間短語回答，唔使重複成件事。
+    explanation: 上句已問舖頭幾點關時，`Ar a cúig a chlog` 單獨答五點就夠。`Ar` 引入時間，`a cúig` 係五，`a chlog` 完成鐘點講法；關門事件由前文承接。
     examples:
       - text: Ar a cúig a chlog.
-        meaning: 五點鐘。
-        note: 回應舖頭閂門時間嘅問題；省略咗嘅事件由上句提供。
+        meaning: 五點鐘。 回應舖頭閂門時間嘅問題；省略咗嘅事件由上句提供。
+        note: 試用完整句答五點關。答案：`Dúnann an siopa ar a cúig a chlog.` 加上關門動詞同舖頭，時間片語形式不變，句子毋須依賴上一問。
   - subskill_id: checking_facts
-    explanation: An 配合從屬動詞形式，可以核實提出咗嘅事實。
+    explanation: 你估舖頭五點關，想核實時，`An ndúnann an siopa ar a cúig a chlog?` 先用 `An` 做是非問句，令 `dúnann` 寫成
+      `ndúnann`；後面講舖頭同候選鐘點。呢句問已提出嘅事實。
     examples:
       - text: An ndúnann an siopa ar a cúig a chlog?
-        meaning: 間舖頭係咪五點閂門？
-        note: 講者提出五點，請對方確認。
+        meaning: 間舖頭係咪五點閂門？ 講者提出五點，請對方確認。
+        note: 試用完整陳述確認五點關。答案：`Dúnann an siopa ar a cúig a chlog.` 陳述句唔用問句詞 `An`，動詞亦返去 `dúnann`。
   - subskill_id: useful_detail
-    explanation: 位置描述可以提供有用嘅地標。
+    explanation: 有人搵入口時，`Tá an bealach isteach taobh leis an gclós` 指入口喺庭院旁。`an bealach isteach` 係入口，`taobh
+      le` 係旁邊；介詞 `le` 加冠詞成 `leis an`，呢個形式用 `gclós`。地標幫聽者揀啱入口。
     examples:
       - text: Tá an bealach isteach taobh leis an gclós.
-        meaning: 入口喺庭院隔籬。
-        note: 呢個資料幫緊對方搵入口。
-provenance:
+        meaning: 入口喺庭院隔籬。 呢個資料幫緊對方搵入口。
+        note: 試講入口喺庭院入面。答案：`Tá an bealach isteach sa chlós.` `sa` 連住位置關係，呢個形式用 `chlós`；「旁邊」改成「入面」。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/irish/skills/information-exchange/irish-information-exchange-explained-in-english.yaml
-    at revision irish-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Cantonese teaching revision paired with the completed English guide; principal
+    Irish target examples preserved. Independent Irish and Cantonese review pending.
   sources:
     - teanglann_deisigh2026
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
+    - teanglannGlacTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: irish-teaching-cantonese-2026-10-07
+    scope: All Cantonese contextual explanations, meanings and practice answers for irish-ireland. Source
+      passages support scoped forms, not linguistic certification.
 varieties:
   irish-ireland:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/irish/skills/information-exchange/irish-information-exchange-explained-in-english.yaml
-        at revision irish-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - teanglann_deisigh2026
-        - brasicke_irish_copula2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

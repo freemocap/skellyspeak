@@ -1,82 +1,90 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: The Greek present can describe something happening at the moment of speaking
-      without a separate progressive auxiliary. Τώρα makes the current timing explicit; the verb
-      ending identifies the speaker without εγώ.
+    explanation: Someone asks what you are doing with the bicycle now. `Τώρα` fixes the action at the
+      present moment; `φτιάχνω` is first-person singular present and can mean I am fixing here. The
+      present can also describe routines, so the time word and context matter.
     examples:
       - text: Τώρα φτιάχνω το ποδήλατο.
-        meaning: I am fixing the bicycle now.
-        note: Φτιάχνω is first person singular present. The current action is explicit, but this
-          sentence does not say the repair is finished.
+        meaning: I am fixing the bicycle now. `Τώρα` means now, `φτιάχνω` says I am fixing, and `το
+          ποδήλατο` names the bicycle being repaired.
+        note: "Try it: say you are opening the box now. Answer: `Τώρα ανοίγω το κουτί`. `ανοίγω` is
+          first-person present; `τώρα` makes the current-event reading clear."
   - subskill_id: past_events
-    explanation: The aorist presents a past event as a whole. Learn irregular or less predictable
-      stems with the verb rather than guessing from its present ending. Χθες supplies an
-      explicit past time.
+    explanation: You report a repair completed yesterday. `Χθες` places it in the past; `άλλαξα` is the
+      first-person aorist of `αλλάζω` and presents changing the tyre as a whole event. The aorist
+      does not mean the work happened instantly.
     examples:
       - text: Χθες άλλαξα το λάστιχο.
-        meaning: Yesterday I changed the tyre.
-        note: Άλλαξα is the first person aorist of αλλάζω. The sentence reports the tyre change as a
-          past event.
+        meaning: Yesterday I changed the tyre. `Χθες` supplies yesterday; `άλλαξα` reports my completed
+          change, and `το λάστιχο` is the tyre.
+        note: "Try it: say you changed the door yesterday. Answer: `Χθες άλλαξα την πόρτα`. Keep the aorist
+          `άλλαξα`; use feminine accusative `την πόρτα` for the new object."
   - subskill_id: future_events
-    explanation: Θα precedes the verb in a future expression. Here the perfective stem presents the
-      bringing as a whole anticipated event. The verb still has a person ending; θα does not
-      replace that information.
+    explanation: You and a friend plan a repair tomorrow. `Αύριο` fixes the day, while `θα φέρω`
+      presents bringing the tools as a future whole event. `φέρω` is the form used here after `θα`;
+      compare present `φέρνω` when describing what you usually bring.
     examples:
       - text: Αύριο θα φέρω τα εργαλεία.
-        meaning: Tomorrow I will bring the tools.
-        note: Αύριο dates the event, and θα φέρω expresses the speaker’s future action. This can be a
-          forecast or a commitment depending on the exchange.
+        meaning: Tomorrow I will bring the tools. `Αύριο` means tomorrow; `θα φέρω` expresses the future
+          bringing, and `τα εργαλεία` are the tools.
+        note: "Try it: promise to bring the bicycle tomorrow. Answer: `Αύριο θα φέρω το ποδήλατο`. Keep `θα
+          φέρω`; change the object to singular `το ποδήλατο`."
   - subskill_id: duration_frequency
-    explanation: A time quantity can appear as a bare accusative phrase, while κάθε with a day names
-      a recurring schedule. A routine can use the present even when the English explanation
-      describes repeated occasions.
+    explanation: You explain your Friday work routine. `τρεις ώρες` tells how long each work period
+      lasts without an extra word for for; `κάθε Παρασκευή` says it recurs every Friday. The present
+      `δουλεύω` fits a routine.
     examples:
       - text: Δουλεύω εδώ τρεις ώρες κάθε Παρασκευή.
-        meaning: I work here for three hours every Friday.
-        note: Τρεις ώρες gives the duration of each work period; κάθε Παρασκευή gives its frequency.
+        meaning: I work here for three hours every Friday. `τρεις ώρες` is the duration of each shift; `κάθε
+          Παρασκευή` gives its frequency.
+        note: "Try it: say you work here two hours every Friday. Answer: `Δουλεύω εδώ δύο ώρες κάθε
+          Παρασκευή`. Change the duration to `δύο ώρες`; keep the recurring day."
   - subskill_id: event_sequence
-    explanation: Time adverbs can establish an order without requiring a different tense for each
-      step. Πρώτα identifies the first step and μετά a following one. The present is useful for
-      a routine or a description of a procedure.
+    explanation: You are giving the order of steps for a repair. `Πρώτα` puts opening the box first;
+      `και μετά` links the later action of taking out the tools. Both verbs are present and share
+      the understood first-person subject; the adverbs carry the order.
     examples:
       - text: Πρώτα ανοίγω το κουτί και μετά βγάζω τα εργαλεία.
-        meaning: First I open the box and then I take out the tools.
-        note: The two actions are placed in sequence. Και joins them; πρώτα and μετά make their temporal
-          ordering explicit.
+        meaning: First I open the box and then I take out the tools. `Πρώτα` and `μετά` sequence `ανοίγω`
+          and `βγάζω`; `και` joins the two actions.
+        note: "Try it: say you first take out the tools and then fix the bicycle. Answer: `Πρώτα βγάζω τα
+          εργαλεία και μετά φτιάχνω το ποδήλατο`. The two time words make the sensible order
+          explicit."
   - subskill_id: event_phase
-    explanation: Use a verb of finishing to state completion rather than relying on any past form to
-      imply it. Ακόμα with a present activity can say that work is continuing. These lexical
-      choices make the stage of the task explicit.
+    explanation: A friend asks if the bicycle is ready. `Τελείωσα` explicitly says I finished the
+      repair; a past tense alone would only place work in the past. By contrast, `ακόμα` with
+      present `φτιάχνω` says the work is continuing.
     examples:
       - text: Τελείωσα την επισκευή.
-        meaning: I finished the repair.
-        note: Τελείωσα names completion of the specified repair, rather than merely placing some work in
-          the past.
+        meaning: I finished the repair. `Τελείωσα` states completion and `την επισκευή` names the repair
+          that is finished.
+        note: "Try it: say you are still fixing the bicycle. Answer: `Ακόμα φτιάχνω το ποδήλατο`. Use
+          `ακόμα` plus present `φτιάχνω` for continuing work, not `τελείωσα`."
       - text: Ακόμα φτιάχνω το ποδήλατο.
-        meaning: I am still fixing the bicycle.
-        note: Ακόμα marks continuation; φτιάχνω describes the ongoing work rather than a completed
-          repair.
+        meaning: I am still fixing the bicycle. `Ακόμα` means still; present `φτιάχνω` describes work
+          continuing at this point.
+        note: "Try it: report that the repair is finished. Answer: `Τελείωσα την επισκευή`. Use `τελείωσα`
+          for explicit completion instead of `ακόμα` for continuation."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

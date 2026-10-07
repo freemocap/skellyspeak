@@ -1,50 +1,57 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: malayalam-cantonese-teaching-expanded-2026-10-07
 language: malayalam
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: എത്ര മണിക്ക്問事件喺幾點發生。
+    explanation: 去舖頭之前，你想知幾點閂門。`കട` 係舖頭，`എത്ര മണിക്കാണ്` 問未知鐘點；`അടയ്ക്കുന്നത്`
+      講關門動作，放喺時間問題後面。呢句唔靠英文問句倒裝。
     examples:
       - text: കട എത്ര മണിക്കാണ് അടയ്ക്കുന്നത്?
-        meaning: 間舖頭幾點閂門？
-        note: 問句想知舖頭關門嘅鐘點。
+        meaning: 間舖頭幾點閂門？`എത്ര മണിക്ക്` 係幾點，接埋 `ആണ്` 成 `മണിക്കാണ്`；`അടയ്ക്കുന്നത്` 指關門，要求對方提供時間。
+        note: 試問間舖頭幾點開門。答案：`കട എത്ര മണിക്കാണ് തുറക്കുന്നത്?` 將關門 `അടയ്ക്കുന്നത്` 換成開門
+          `തുറക്കുന്നത്`；`എത്ര` 仍然問未知鐘點。
   - subskill_id: answering_information
-    explanation: 與格標記嘅鐘點，可以回答前面嘅時間問題。
+    explanation: 對方啱啱問舖頭幾點閂門，你可以直接講鐘點。`അഞ്ചു മണിക്ക്` 嘅詞尾講「喺五點」，上文已有舖頭同關門事件，所以唔使成句重複。
     examples:
       - text: അഞ്ചു മണിക്ക്.
-        meaning: 五點鐘。
-        note: 回應舖頭閂門時間，唔使重複事件。
+        meaning: 五點鐘。`അഞ്ചു` 係五，`മണി` 係鐘點，`മണിക്ക്` 係喺嗰個時刻；成句補上剛才問題缺少嘅時間。
+        note: 試答六點。答案：`ആറു മണിക്ക്.` 將 `അഞ്ചു` 換成 `ആറു`，保留 `മണിക്ക്`；`അഞ്ചു മണിക്കൂർ`
+          係五個鐘嘅時長，唔係閂門鐘點。
   - subskill_id: checking_facts
-    explanation: 命題後面加അല്ലേ，可以尋求確認。
+    explanation: 你記得舖頭五點閂，想核實。`കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്` 先提出候選事實；句尾 `അല്ലേ?`
+      請對方確認成個命題。唔同直接問未知時間。
     examples:
       - text: കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്, അല്ലേ?
-        meaning: 間舖頭五點閂門，係咪？
-        note: 講者提出五點作候選答案。
+        meaning: 間舖頭五點閂門，係咪？`മണിക്കാണ്` 係鐘點形式接 `ആണ്`；`അല്ലേ` 放句尾核對前面嘅五點關門陳述。
+        note: 試核對係咪六點閂門。答案：`കട ആറു മണിക്കാണ് അടയ്ക്കുന്നത്, അല്ലേ?` 只換候選鐘點，保留 `അല്ലേ`；問 `എത്ര`
+          先係要求對方講未知時間。
   - subskill_id: useful_detail
-    explanation: 位置述語可以幫聽者分辨入口。
+    explanation: 訪客搵唔到入口，你用庭院做參照講清楚方向。`മുറ്റത്തിന്റെ` 係庭院嘅，`വശത്താണ്` 係位於嗰邊，放喺 `പ്രവേശനം` 後面，幫對方分辨入口。
     examples:
       - text: പ്രവേശനം മുറ്റത്തിന്റെ വശത്താണ്.
-        meaning: 入口喺庭院嗰邊。
-        note: 聽者搵緊入口時用。
+        meaning: 入口喺庭院嗰邊。`പ്രവേശനം` 係入口，`മുറ്റത്തിന്റെ` 係庭院嘅；`വശത്താണ്` 將位置形式同 `ആണ്` 接埋。
+        note: 試講入口喺另一邊。答案：`പ്രവേശനം മറുവശത്താണ്.` `മറുവശത്താണ്` 係另一邊；對方要知道同邊一邊相對，呢個位置提示先真正有用。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/malayalam/skills/information-exchange/malayalam-information-exchange-explained-in-english.yaml
-    at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
+    - moagMalayalamTeaching20261007
     - ut_malayalam_time2026
-    - ut_malayalam_dialogues2026
+    - utMalayalamSandhiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: malayalam-cantonese-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   malayalam-kerala:
     disposition: use_core
@@ -52,14 +59,15 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/malayalam/skills/information-exchange/malayalam-information-exchange-explained-in-english.yaml
-        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - ut_malayalam_time2026
         - ut_malayalam_dialogues2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: malayalam-cantonese-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.

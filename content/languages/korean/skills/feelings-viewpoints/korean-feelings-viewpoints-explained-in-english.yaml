@@ -1,61 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 고 싶어요 after an action stem expresses wanting to perform that action. The speaker
-      can be implicit.
+    explanation: You are explaining a learning goal at a furniture workshop. `가구를 만드는 법을` is the method of
+      making furniture, marked as what you want to learn; `배우고 싶어요` expresses the speaker’s desire to
+      learn. `-고 싶어요` follows an action, not an English infinitive.
     examples:
       - text: 가구를 만드는 법을 배우고 싶어요.
-        meaning: I want to learn how to make furniture.
-        note: 배우고 싶어요 expresses desire. 만드는 법 names the method or skill to be learned.
+        meaning: I want to learn how to make furniture. 배우고 싶어요 expresses desire. 만드는 법 names the method or skill
+          to be learned.
+        note: "Try it: say you want to learn how to repair bicycles. Answer: `자전거를 고치는 법을 배우고 싶어요`. Replace the
+          skill phrase with `자전거를 고치는 법을`; keep `배우고 싶어요` for the wish."
   - subskill_id: preferences
-    explanation: 좋아하다 can take the liked thing as its object. 보다 and 더 can compare how much
-      alternatives are liked.
+    explanation: You are choosing a drink. `저는` names the speaker; `커피보다` sets coffee as the comparison
+      point, while `차를` marks tea as the liked object. `더 좋아해요` says the liking is stronger. Compare `차가
+      좋아요`, where tea is the thing described as pleasing.
     examples:
       - text: 저는 커피보다 차를 더 좋아해요.
-        meaning: I prefer tea to coffee.
-        note: 차를 marks tea as the object of liking; 커피보다 supplies the comparison.
+        meaning: I prefer tea to coffee. 차를 marks tea as the object of liking; 커피보다 supplies the comparison.
+        note: "Try it: say you prefer coffee to tea. Answer: `저는 차보다 커피를 더 좋아해요`. Swap the comparison standard
+          and liked object; retain object marker `를` on the preferred drink."
   - subskill_id: emotions
-    explanation: 기쁘다 directly describes happiness and takes a polite ending. A reason clause can
-      name what prompted the feeling.
+    explanation: You meet someone again after a long absence. `다시 만나서` names the meeting that brings about
+      the feeling; `기뻐요` directly expresses happiness with a polite ending. The participants can be
+      understood from this encounter.
     examples:
       - text: 다시 만나서 기뻐요.
-        meaning: I am happy to see you again.
-        note: 만나서 links the meeting to the feeling. The omitted participants are supplied by the
-          encounter.
+        meaning: I am happy to see you again. 만나서 links the meeting to the feeling. The omitted participants are
+          supplied by the encounter.
+        note: "Try it: say you are glad because you met a friend again. Answer: `친구를 다시 만나서 기뻐요`. Add `친구를` to
+          identify whom you met; `기뻐요` still names your feeling."
   - subskill_id: opinions
-    explanation: A proposition with the quoting form 다고 and 생각해요 can state a personal judgment. The
-      quoted predicate uses its appropriate plain form.
+    explanation: You are evaluating a suggested method. `이 방법이` identifies the method under discussion; `좋다고`
+      embeds the claim that it is good, and `생각해요` attributes that judgment to the speaker. This
+      expresses a view, not a request for factual clarification.
     examples:
       - text: 이 방법이 좋다고 생각해요.
-        meaning: I think this method is good.
-        note: 좋다고 quotes the descriptive predicate 좋다. The speaker presents an assessment of the method.
+        meaning: I think this method is good. 좋다고 quotes the descriptive predicate 좋다. The speaker presents an
+          assessment of the method.
+        note: "Try it: say you think this method is easy. Answer: `이 방법이 쉽다고 생각해요`. Use descriptive plain form
+          `쉽다` before `-고` to make `쉽다고`, then keep `생각해요`."
   - subskill_id: agreement_disagreement
-    explanation: 그렇게 can refer back to the way another person thinks. 도 adds the speaker to that viewpoint.
+    explanation: A partner has just said the method is good, and you share that view. `저도` adds me too; `그렇게`
+      points back to the partner’s evaluation, and `생각해요` states your own thought. The prior opinion
+      makes the short reference meaningful.
     examples:
       - text: 저도 그렇게 생각해요.
-        meaning: I think so too.
-        note: Reply to an identifiable opinion about the method. The sentence aligns with that opinion
-          rather than merely acknowledging hearing it.
+        meaning: I think so too. Reply to an identifiable opinion about the method. The sentence aligns with that
+          opinion rather than merely acknowledging hearing it.
+        note: "Try it: explicitly disagree with the partner’s view. Answer: `저는 그렇게 생각하지 않아요`. Replace `저도` with
+          `저는` and negate `생각해요`; `그렇게` still refers to the known claim."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_predicates2026
     - htsk_desire2026
+    - nikl_ko_language_overview2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

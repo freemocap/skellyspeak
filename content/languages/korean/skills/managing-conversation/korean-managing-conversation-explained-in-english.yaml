@@ -1,73 +1,86 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: korean-skills-2026-10-04
+revision: korean-teaching-english-2026-10-07
 language: korean
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Different leave-taking formulas address the person leaving and the person staying.
-      Choose the one matching the encounter.
+    explanation: You remain at the workshop while a visitor leaves. `안녕히 가세요` wishes the departing person
+      well; `다음 주에 봬요` points to seeing that person next week. If you were the one leaving and they
+      stayed, `안녕히 계세요` would fit the changed roles.
     examples:
       - text: 안녕히 가세요. 다음 주에 봬요.
-        meaning: Goodbye. See you next week.
-        note: Say this to a departing visitor while you remain. 봬요 is the polite contracted form used
-          here for seeing the person again.
+        meaning: Goodbye. See you next week. Say this to a departing visitor while you remain. 봬요 is the polite
+          contracted form used here for seeing the person again.
+        note: "Try it: say goodbye to a departing visitor and expect to meet tomorrow. Answer: `안녕히 가세요. 내일 봬요`.
+          Keep the leaving-person farewell and change the next-meeting time."
   - subskill_id: acknowledging
-    explanation: 알겠어요 can signal that an explanation or instruction has been understood. The form
-      with 겠 need not describe future knowledge.
+    explanation: A colleague has just explained a repair step you did not understand. `네` receives the
+      explanation; `이제 알겠어요` means you understand now. `-겠-` here participates in an acknowledgment, not
+      a prediction that you will know later. It does not say you agree with every opinion.
     examples:
       - text: 네, 이제 알겠어요.
-        meaning: Yes, now I understand.
-        note: Reply after an explanation resolves confusion. Agreement with an opinion is not required
-          for this acknowledgment.
+        meaning: Yes, now I understand. Reply after an explanation resolves confusion. Agreement with an opinion
+          is not required for this acknowledgment.
+        note: "Try it: acknowledge the explanation without now. Answer: `네, 알겠어요`. The context supplies what you
+          understood; `알겠어요` completes the receipt rather than stating agreement."
   - subskill_id: clarification
-    explanation: 다시 with 말씀해 주세요 respectfully asks the partner to repeat. The preceding words supply
-      the repair target.
+    explanation: You missed what the partner said. `죄송하지만` softens the interruption; `다시 말씀해 주세요`
+      respectfully asks the partner to say it again. This repairs hearing or understanding of an
+      utterance, rather than checking an external fact.
     examples:
       - text: 죄송하지만 다시 말씀해 주세요.
-        meaning: Sorry, please say that again.
-        note: Use after missing or not understanding an utterance. 말씀해 respectfully refers to the
-          partner’s speech.
+        meaning: Sorry, please say that again. Use after missing or not understanding an utterance. 말씀해
+          respectfully refers to the partner’s speech.
+        note: "Try it: ask them to say it once more without an apology. Answer: `다시 말씀해 주세요`. `다시` requests
+          repetition and `말씀해 주세요` keeps a respectful request form."
   - subskill_id: rephrasing
-    explanation: 다시 말하면 introduces a reformulation. The following clause should make the earlier
-      meaning clearer.
+    explanation: A customer heard that this service requires an advance booking, so same-day requests cannot
+      be handled. `다시 말하면` signals a clearer restatement; `미리 예약해야 해요` states that booking in advance is
+      required. The second wording keeps the stated policy.
     examples:
       - text: 다시 말하면 미리 예약해야 해요.
-        meaning: In other words, we need to book in advance.
-        note: Rephrases an explanation that same-day requests cannot be accommodated. 미리 makes the
-          practical requirement explicit.
+        meaning: In other words, we need to book in advance. Rephrases the stated advance-booking rule; `미리`
+          makes the timing requirement explicit.
+        note: "Try it: rephrase that advance booking is required as “you must book before visiting.” Answer: `다시
+          말하면 방문하기 전에 예약해야 해요`. `다시 말하면` links the restatement; `방문하기 전에` clarifies when to book."
   - subskill_id: correcting_misunderstanding
-    explanation: 이 아니라 contrasts an incorrect nominal interpretation with the correct one. Supply
-      the intended alternative explicitly.
+    explanation: Your listener thought you said Friday, but you meant Saturday. `제가 말한 날은` identifies the day
+      you mentioned; `금요일이 아니라` rejects Friday, and `토요일이었어요` supplies the correction. Naming both days
+      repairs the interpretation directly.
     examples:
       - text: 제가 말한 날은 금요일이 아니라 토요일이었어요.
-        meaning: The day I meant was Saturday, not Friday.
-        note: Use after the listener interprets the proposed day as Friday. 말한 modifies 날 and identifies
-          which earlier contribution is being corrected.
+        meaning: The day I meant was Saturday, not Friday. Use after the listener interprets the proposed day as
+          Friday. 말한 modifies 날 and identifies which earlier contribution is being corrected.
+        note: "Try it: correct someone who heard Saturday when you meant Friday. Answer: `제가 말한 날은 토요일이 아니라
+          금요일이었어요`. Swap the rejected and intended days while keeping the contrast frame."
   - subskill_id: turns_topics
-    explanation: A permission question can manage a shift to another topic. The new topic or
-      proposed change should be identifiable.
+    explanation: A group has finished discussing the repair and you want to move on. `잠깐` softens the
+      interruption; `다른 이야기를 해도 될까요?` asks permission to discuss another topic. It seeks a conversational
+      transition, not proof of speech ability.
     examples:
       - text: 잠깐 다른 이야기를 해도 될까요?
-        meaning: May I briefly change the subject?
-        note: 다른 이야기를 names a different subject. The question manages the discussion rather than
-          describing speech ability.
+        meaning: May I briefly change the subject? 다른 이야기를 names a different subject. The question manages the
+          discussion rather than describing speech ability.
+        note: "Try it: ask to talk about the schedule instead. Answer: `잠깐 일정 이야기를 해도 될까요?`. Replace `다른 이야기`
+          with the specific schedule topic; keep the permission question."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Korean teaching revision with contextual explanations, worked examples and
+    practice; relevant primary sources were checked. Independent linguistic review pending.
   sources:
     - htsk_permission2026
     - htsk_tense2026
+    - nikl_ko_language_overview2026
+    - nikl_ko_honorific_eusi2026
   generation: null
   review:
     status: needs_review
-    revision: korean-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: korean-teaching-english-2026-10-07
+    scope: All contextual explanations, worked glosses, practice answers and register choices in
+      korean-south-korea. Sources support scoped constructions, not certification of these lessons.
 varieties:
   korean-south-korea:
     disposition: use_core

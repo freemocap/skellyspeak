@@ -1,69 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: Μπορείτε να followed by the requested action can politely ask someone to do it. The
-      plural forms address either several people or one person respectfully. The action’s verb
-      carries the listener’s person rather than remaining an English-style infinitive.
+    explanation: Your hands are full and you need another person to open a door. `Μπορείτε να ανοίξετε`
+      forms a polite request using second-person plural forms, which can address one person
+      respectfully. `παρακαλώ` adds please; the question asks for action, not a report about
+      ability.
     examples:
       - text: Μπορείτε να ανοίξετε την πόρτα, παρακαλώ;
-        meaning: Could you open the door, please?
-        note: Μπορείτε and ανοίξετε address the listener respectfully here. The speaker requests an
-          action rather than testing an ability.
+        meaning: Could you open the door, please? `Μπορείτε` and `ανοίξετε` address the listener politely;
+          `την πόρτα` is what you want opened.
+        note: "Try it: politely ask someone to close the door. Answer: `Μπορείτε να κλείσετε την πόρτα,
+          παρακαλώ;`. Keep the respectful request frame and replace the action with `κλείσετε`."
   - subskill_id: offers_invitations
-    explanation: Θέλετε να can invite someone to join an activity. The following verb identifies who
-      would participate. Here the respectful question addresses the listener, while μαζί μας
-      includes the speaker’s group in the activity.
+    explanation: You are going on an outing and want to invite another person along. `Θέλετε να έρθετε`
+      asks whether they would like to come; both verbs use respectful or plural address. `μαζί μας`
+      makes the invitation include your group.
     examples:
       - text: Θέλετε να έρθετε μαζί μας στη βόλτα;
-        meaning: Would you like to come with us on the outing?
-        note: Έρθετε is second person plural and can respectfully address one person. Μαζί μας makes
-          this an invitation to join the group.
+        meaning: Would you like to come with us on the outing? `έρθετε` is the listener’s coming; `μαζί μας`
+          means with us and `στη βόλτα` names the outing.
+        note: "Try it: invite someone to come with you to the repair shop. Answer: `Θέλετε να έρθετε μαζί μας στο
+          συνεργείο;`. Keep the invitation and change the destination to `στο συνεργείο`."
   - subskill_id: suggestions
-    explanation: A first-person plural να question can propose a joint action. The person ending
-      includes the speaker and the proposed companions. The exchange establishes it as a
-      suggestion, rather than a request for permission to act alone.
+    explanation: You and a friend are choosing a route. First-person plural `Να πάμε…;` proposes an
+      action for both of you. `από τον πιο ήσυχο δρόμο` identifies the route, with `πιο ήσυχο`
+      expressing the comparison in context.
     examples:
       - text: Να πάμε από τον πιο ήσυχο δρόμο;
-        meaning: Shall we take the quieter street?
-        note: Πάμε proposes an action for us. Από τον πιο ήσυχο δρόμο specifies a route; the comparison
-          is with another route under discussion.
+        meaning: Shall we take the quieter street? `Να πάμε` proposes that we go; `από τον πιο ήσυχο δρόμο`
+          names the route to take.
+        note: "Try it: suggest taking the shorter street. Answer: `Να πάμε από τον πιο σύντομο δρόμο;`. Keep
+          first-person plural `Να πάμε` and change the route description."
   - subskill_id: commitments
-    explanation: "A first-person future expression can undertake responsibility in a shared plan. Θα
-      alone does not promise anything: the speaker’s action and the planning exchange establish
-      the commitment."
+    explanation: While sharing the repair tasks, you take responsibility for the tools. `Θα φέρω` is a
+      first-person future action; the extra `εγώ` highlights that you, rather than the other person,
+      will bring them. In this planning context it is a commitment.
     examples:
       - text: Θα φέρω εγώ τα εργαλεία.
-        meaning: I will bring the tools.
-        note: Use this while dividing tasks for a repair. The explicit εγώ highlights the speaker taking
-          responsibility; it is optional in an ordinary future statement.
+        meaning: I will bring the tools. `Θα φέρω` states the future action, `εγώ` emphasizes the speaker’s
+          responsibility, and `τα εργαλεία` names what will be brought.
+        note: "Try it: take responsibility for bringing the bicycle. Answer: `Θα φέρω εγώ το ποδήλατο`. Keep
+          the emphasized speaker and change the object to the bicycle."
   - subskill_id: accepting_declining
-    explanation: A short ναι with thanks can accept an identifiable offer. If no offer or invitation
-      has been made, the same words could simply confirm information; the preceding turn
-      supplies the action being accepted.
+    explanation: Someone offers to carry your bag. `Ναι, ευχαριστώ πολύ` accepts that specific offer and
+      thanks them; the offer makes the short `Ναι` meaningful. Without a preceding offer, the same
+      words would not identify what help you accepted.
     examples:
       - text: Ναι, ευχαριστώ πολύ.
-        meaning: Yes, thank you very much.
-        note: Use this after someone offers to carry your bag. The response accepts that help, without
-          restating the action or claiming agreement with an opinion.
+        meaning: Yes, thank you very much. Here `Ναι` accepts the offered help with the bag and `ευχαριστώ
+          πολύ` thanks the person.
+        note: "Try it: decline the offer politely. Answer: `Όχι, ευχαριστώ πολύ`. `Όχι` rejects the
+          identified offer; the thanks acknowledges the person’s kindness."
   - subskill_id: negotiating_plans
-    explanation: State a constraint and propose an alternative, then leave room for the other person
-      to agree. A να question can put the new action or date forward. Days used as time
-      expressions normally appear in the accusative.
+    explanation: A friend proposes Friday, but you cannot come then. `Την Παρασκευή δεν μπορώ` states
+      the conflict; `Να έρθω το Σάββατο;` proposes Saturday and asks for agreement. The two
+      sentences together negotiate a replacement time.
     examples:
       - text: Την Παρασκευή δεν μπορώ. Να έρθω το Σάββατο;
-        meaning: I cannot make it on Friday. Shall I come on Saturday?
-        note: The first sentence declines the proposed availability; the second asks about a replacement
-          day. Το Σάββατο dates the speaker’s proposed visit.
+        meaning: I cannot make it on Friday. Shall I come on Saturday? `δεν μπορώ` marks unavailability; the
+          first-person `Να έρθω` asks whether the substitute visit works.
+        note: "Try it: say you cannot come Saturday and propose Sunday. Answer: `Το Σάββατο δεν μπορώ. Να
+          έρθω την Κυριακή;`. Change both day phrases; keep the constraint followed by a proposed
+          alternative."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
@@ -73,10 +81,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

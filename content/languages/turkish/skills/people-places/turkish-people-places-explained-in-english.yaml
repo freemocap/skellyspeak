@@ -1,55 +1,78 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: turkish-skills-2026-10-04
+revision: turkish-teaching-expanded-2026-10-07
 language: turkish
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Bu can introduce a person identified by a possessive noun phrase.
+    explanation: You point out a neighbour to a visitor. `Bu` identifies the person, `benim`
+      marks the speaker as possessor, and `komşum` carries the first-person possessive
+      ending. The relation is to the speaker; the form does not specify the neighbour’s
+      gender.
     examples:
       - text: Bu benim komşum.
         meaning: This is my neighbour.
-        note: Benim and the ending of komşum both relate the neighbour to the speaker; no gender is
-          specified.
+        note: "Identify this person as your friend instead. Answer: `Bu benim arkadaşım.` Keep
+          `benim` and use the first-person possessive form `arkadaşım`; the sentence still
+          identifies a person by relation."
   - subskill_id: qualities_states
-    explanation: A third-person adjective predicate can stand without an overt copular ending.
+    explanation: You are comparing streets for a delivery route. `Bu sokak` picks out this
+      street, and `dar` directly gives its narrow property. Turkish does not need a
+      separate present-tense third-person word corresponding to English is in this
+      ordinary adjective statement.
     examples:
       - text: Bu sokak dar.
         meaning: This street is narrow.
-        note: Dar states the property; an extra word corresponding to English is is unnecessary.
+        note: "Describe this street as wide instead. Answer: `Bu sokak geniş.` Replace the
+          property `dar` with `geniş`; the adjective still forms the ordinary third-person
+          statement without an extra is word."
   - subskill_id: location_movement
-    explanation: A locative suffix expresses position. Its consonant changes after a voiceless consonant.
+    explanation: Someone is looking for a key, and you tell them where it is. `Anahtar` is the
+      key; `rafta` combines shelf `raf` with locative `-ta`, which follows the voiceless
+      final `f`. This answers where the key is; `rafa` would mark movement toward the
+      shelf.
     examples:
       - text: Anahtar rafta.
         meaning: The key is on the shelf.
-        note: Raf takes -ta in this location expression.
+        note: "Say the key is on the table instead. Answer: `Anahtar masada.` Use the locative
+          `masada` for position; a destination form would answer where it is going, not
+          where it is."
   - subskill_id: possession_relations
-    explanation: A possessed noun and var can state what someone has.
+    explanation: You are counting available seats. `İki` is two, `sandalyem` is chair with my
+      possessive ending, and `var` says they exist in your possession. After this numeral,
+      the counted noun remains singular in form; it is not missing an English plural.
     examples:
       - text: İki sandalyem var.
         meaning: I have two chairs.
-        note: Sandalyem marks my chair; iki supplies the quantity without a plural suffix.
+        note: "Say you have three chairs instead. Answer: `Üç sandalyem var.` Replace `İki` with
+          `Üç`; `sandalyem` keeps the possessive ending and stays singular after the
+          numeral."
   - subskill_id: quantity_comparison
-    explanation: Daha with an adjective and an ablative standard expresses comparison.
+    explanation: Two boxes are being weighed. `Bu kutu` is this box, `ondan` marks that one as
+      the comparison standard, and `daha hafif` means lighter. The ablative ending on
+      `ondan` identifies what this box is compared with.
     examples:
       - text: Bu kutu ondan daha hafif.
         meaning: This box is lighter than that one.
-        note: Ondan identifies the comparison object; hafif describes weight.
+        note: "Say this box is heavier than that one. Answer: `Bu kutu ondan daha ağır.` Keep the
+          ablative standard `ondan` and replace the compared quality `hafif` with `ağır`."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored language-specific guidance, English explanations and original
+    examples, informed by the cited sources; no independent linguistic review.
   sources:
     - tt_turkish_possession2026
+    - tt_turkish_locative2026
+    - tt_turkish_ablative2026
   generation: null
   review:
     status: needs_review
-    revision: turkish-skills-2026-10-04
+    revision: turkish-teaching-expanded-2026-10-07
     scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+      conversational contexts and declared variety applicability. Source-informed AI
+      editorial review does not certify linguistic correctness.
 varieties:
   turkish-turkiye:
     disposition: use_core

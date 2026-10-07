@@ -1,69 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: hindi-teaching-cantonese-2026-10-07
 language: hindi
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: चाहना 前面嘅不定式交代想做嘅事；चाहना 習慣式要配合想做嘅人。
+    explanation: 同朋友講個人目標。`तैरना सीखना` 係學游水，`चाहती हूँ` 表示女性講者想做。
     examples:
       - text: मैं तैरना सीखना चाहती हूँ।
-        meaning: 我想學游水。
-        note: सीखना चाहती हूँ 表示女性講者願望；男性用 चाहता，唔係 चाहती。
+        meaning: 我想學游水。 `तैरना` 係游水，`सीखना` 係學，`चाहती हूँ` 係我想；兩個不定式同想做嘅動詞各有作用。
+        note: 試用男性講者講想學游水。答案：`मैं तैरना सीखना चाहता हूँ।` 只換想做嘅性別形。想做唔等於已承諾報名。
   - subskill_id: preferences
-    explanation: पसंद 結構入面，मुझे 指有喜好嘅人；ज़्यादा 加比較短語可以指出較鍾意選項。
+    explanation: 揀飲品時比較茶同咖啡。`मुझे` 係有喜好嘅人；`कॉफ़ी से ज़्यादा` 設咖啡為比較基準。
     examples:
       - text: मुझे कॉफ़ी से ज़्यादा चाय पसंद है।
-        meaning: 比起咖啡，我更鍾意茶。
-        note: कॉफ़ी से 交代比較對象，चाय 係較鍾意嘅嘢。
+        meaning: 比起咖啡，我更鍾意茶。 `चाय पसंद है` 係鍾意茶，`कॉफ़ी से ज़्यादा` 係比咖啡更；茶先係較鍾意嗰樣。
+        note: 試改成較鍾意咖啡。答案：`मुझे चाय से ज़्यादा कॉफ़ी पसंद है।` 交換兩種飲品位置。`मुझे चाय पसंद
+          है` 只講鍾意，冇比較。
   - subskill_id: emotions
-    explanation: खुश 配合現在時繫詞描述開心；से 短語可以交代感受涉及乜。
+    explanation: 啱啱聽到好消息，你講自己感受。`इस ख़बर से` 將消息連到開心；`खुश` 唔跟講者性別變。
     examples:
       - text: मैं इस ख़बर से खुश हूँ।
-        meaning: 呢個消息令我開心。
-        note: इस ख़बर से 連結消息同開心；खुश 唔會按講者性別變形。
+        meaning: 呢個消息令我開心。 `मैं` 係感受者，`इस ख़बर से` 係相關消息，`खुश हूँ` 係我開心；呢句講情緒，唔係判斷消息真偽。
+        note: 試講為消息難過。答案：`मैं इस ख़बर से दुखी हूँ।` 換情緒。`यह ख़बर अच्छी है`
+          係評價消息，冇直接講自己感受。
   - subskill_id: opinions
-    explanation: मेरे ख़याल से 引入講者評價，表明後面係個人判斷。
+    explanation: 傾計劃時講自己評價。`मेरे ख़याल से` 標後面係你嘅睇法；`अच्छी` 配陰性 `योजना`。
     examples:
       - text: मेरे ख़याल से यह योजना अच्छी है।
-        meaning: 我覺得呢個計劃好。
-        note: अच्छी 配合陰性 योजना；開頭短語標示觀點來源。
+        meaning: 我覺得呢個計劃好。 `यह योजना` 係呢個計劃，`अच्छी है` 係好；開頭短語指出判斷屬於邊個。
+        note: 試講你覺得計劃唔好。答案：`मेरे ख़याल से यह योजना अच्छी नहीं है।` 否定評價。單講 `यह योजना
+          अच्छी है` 冇明示個人觀點來源。
   - subskill_id: agreement_disagreement
-    explanation: सहमत 配合 से 表示同意某人或立場；नहीं 否定同意，唔代表聽唔到。
+    explanation: 聽完對方意見，你可以有禮貌講唔同意。`आपसे` 指對方立場，`नहीं` 否定 `सहमत`。
     examples:
       - text: मैं आपसे सहमत नहीं हूँ।
-        meaning: 我唔同意你。
-        note: 對方講咗意見之後用；आपसे 指持有被反對立場嘅人。
+        meaning: 我唔同意你。 `मैं` 指自己立場，`आपसे सहमत नहीं हूँ` 係我唔同意你；唔係話聽唔明。
+        note: 試改成同意。答案：`मैं आपसे सहमत हूँ।` 拿走 `नहीं`。`अब समझ में आया` 係明白咗，未必同意。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/hindi/skills/feelings-viewpoints/hindi-feelings-viewpoints-explained-in-english.yaml
-    at revision hindi-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: hindi-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/hindi/skills/feelings-viewpoints/hindi-feelings-viewpoints-explained-in-english.yaml
-        at revision hindi-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
       sources:
         - snell_hindi_skeleton2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: hindi-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

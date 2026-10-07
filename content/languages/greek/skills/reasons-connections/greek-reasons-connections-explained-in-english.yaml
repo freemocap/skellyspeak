@@ -1,70 +1,76 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: greek-skills-2026-10-04
+revision: greek-teaching-english-2026-10-07
 language: greek
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Επειδή introduces a reason clause. The clause explains the decision or circumstance
-      in the main clause; it can appear before or after it. Γιατί can also introduce a reason,
-      and has a different role when it asks why.
+    explanation: You explain why you are not riding your bicycle. The first clause gives the decision;
+      `επειδή` introduces the reason, and `το λάστιχο είναι χαλασμένο` says the tyre is damaged.
+      `χαλασμένο` agrees with neuter `λάστιχο`.
     examples:
       - text: Δεν παίρνω το ποδήλατο επειδή το λάστιχο είναι χαλασμένο.
-        meaning: I am not taking the bicycle because the tyre is damaged.
-        note: The damaged tyre explains the transport decision. Χαλασμένο agrees with the neuter
-          singular λάστιχο.
+        meaning: I am not taking the bicycle because the tyre is damaged. `Δεν παίρνω` negates taking it;
+          `επειδή` connects that decision to the damaged tyre.
+        note: "Try it: explain that you are not taking the bicycle because the shop is closed. Answer: `Δεν
+          παίρνω το ποδήλατο επειδή το συνεργείο είναι κλειστό`. The new clause after `επειδή` gives
+          the reason."
   - subskill_id: consequences
-    explanation: Γι’ αυτό links a consequence or resulting decision to a reason just stated. The
-      pronoun αυτό refers back to the preceding circumstance. Supply a real connection rather
-      than treating any two successive sentences as cause and effect.
+    explanation: The repair shop is closed today, so you need another visit. `Γι’ αυτό` points back to
+      the closure and introduces the resulting decision; `θα έρθω αύριο` states what you will do.
+      The result belongs to the earlier situation.
     examples:
       - text: Το συνεργείο είναι κλειστό. Γι’ αυτό θα έρθω αύριο.
-        meaning: The repair shop is closed. That is why I will come tomorrow.
-        note: The closure motivates the later visit. Γι’ αυτό makes that relationship explicit; αύριο
-          gives the new date.
+        meaning: The repair shop is closed. That is why I will come tomorrow. `Γι’ αυτό` means for that
+          reason; `θα έρθω αύριο` gives the resulting plan.
+        note: "Try it: say the shop is open, so you will come today. Answer: `Το συνεργείο είναι ανοιχτό.
+          Γι’ αυτό θα έρθω σήμερα`. Change both the condition and the resulting visit time."
   - subskill_id: conditions
-    explanation: Αν introduces a condition. A perfective dependent form can describe an anticipated
-      event, with θα in the consequence. Greek verb forms here should be chosen for the actual
-      meaning, rather than copied from an English conditional tense formula.
+    explanation: You are making a transport plan that depends on tomorrow’s weather. `Αν βρέξει αύριο`
+      states the possible condition; `θα πάμε με το λεωφορείο` gives the plan if it happens.
+      `βρέξει` presents a rain event, not a statement that it already rained.
     examples:
       - text: Αν βρέξει αύριο, θα πάμε με το λεωφορείο.
-        meaning: If it rains tomorrow, we will go by bus.
-        note: Βρέξει names the possible rain event. Θα πάμε gives the planned consequence if that
-          condition is met; the rain is not asserted as certain.
+        meaning: If it rains tomorrow, we will go by bus. `Αν` marks the condition; `θα πάμε` introduces the
+          planned consequence, and `με το λεωφορείο` names the transport.
+        note: "Try it: say that if it rains today, you will go by bus. Answer: `Αν βρέξει σήμερα, θα πάμε με
+          το λεωφορείο`. Change the condition’s day to `σήμερα`; the dependent plan remains."
   - subskill_id: contrast
-    explanation: Αλλά joins propositions whose meanings contrast. The contradiction or unexpected
-      difference should be recoverable from what the clauses say; the conjunction alone is not
-      the entire contrast.
+    explanation: You like the route but need to warn a cycling companion about traffic. `αλλά` joins the
+      positive description to a drawback. `πολλή` is feminine singular to go with `κίνηση`, which
+      here means traffic.
     examples:
       - text: Η διαδρομή είναι όμορφη, αλλά έχει πολλή κίνηση.
-        meaning: The route is beautiful, but it has a lot of traffic.
-        note: The second clause raises a drawback against the positive description. Πολλή is feminine
-          accusative with κίνηση.
+        meaning: The route is beautiful, but it has a lot of traffic. `αλλά` signals the contrast; `πολλή
+          κίνηση` is a lot of traffic.
+        note: "Try it: say the route is short but has a lot of traffic. Answer: `Η διαδρομή είναι σύντομη,
+          αλλά έχει πολλή κίνηση`. `σύντομη` agrees with feminine `διαδρομή`; the warning remains."
   - subskill_id: supporting_claims
-    explanation: A reason clause can support the truth of a claim as well as explain the cause of an
-      event. State an observation that warrants the conclusion. Νομίζω can mark the conclusion
-      as a judgement rather than a proved fact.
+    explanation: You infer that the repair shop is open because you see a light inside. `Νομίζω ότι`
+      marks this as your judgement, not confirmed fact. `γιατί έχει φως μέσα` gives evidence for
+      that judgement; the light does not cause the shop to open.
     examples:
       - text: Νομίζω ότι το συνεργείο είναι ανοιχτό, γιατί έχει φως μέσα.
-        meaning: I think the repair shop is open because there is a light on inside.
-        note: The visible light is evidence for the judgement that the shop is open. It is not claimed
-          to cause the shop to open, and the inference could be mistaken.
+        meaning: I think the repair shop is open because there is a light on inside. `νομίζω ότι` introduces
+          the conclusion; `γιατί` links it to the observed light.
+        note: "Try it: say you think the shop is closed because it is dark inside. Answer: `Νομίζω ότι το
+          συνεργείο είναι κλειστό, γιατί είναι σκοτεινά μέσα`. The observation supports the
+          conclusion; it does not prove it."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Greek teaching revision with contextual explanations, worked examples and
+    practice, informed by scoped primary sources. No independent linguistic review.
   sources:
     - poulopoulou_el_grammar2015
     - hatzisavvidis_el_school_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: greek-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: greek-teaching-english-2026-10-07
+    scope: All explanations, worked examples, practice answers and translations in the selected
+      greek-greece variety. Source consultation does not certify these lessons.
 varieties:
   greek-greece:
     disposition: use_core

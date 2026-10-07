@@ -1,61 +1,92 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: hindi-skills-2026-10-04
+revision: hindi-teaching-english-2026-10-07
 language: hindi
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: यह can introduce someone; a possessive before the relationship noun identifies how
-      that person relates to the speaker. The copula links the two.
+    explanation: When introducing a friend to someone, `यह` points to the person and
+      `मेरी सहेली` states your relationship to her. The possessive follows the
+      gender of the friend noun, not the speaker.
     examples:
       - text: यह मेरी सहेली है।
-        meaning: This is my female friend.
-        note: मेरी agrees with feminine सहेली; it does not specify the speaker’s gender.
+        meaning: This is my female friend. `यह` means this person, `मेरी` means my in a
+          feminine form, and `सहेली` is a female friend. `है` completes the
+          identification.
+        note: "Introduce your brother instead. Answer: `यह मेरा भाई है।` Use `मेरा` with
+          masculine `भाई`. `मेरी भाई` mismatches the relationship noun."
   - subskill_id: qualities_states
-    explanation: Variable adjectives agree with the noun they describe. A property can be predicated
-      with है without expressing an action.
+    explanation: Someone asks what the lane is like. The adjective `सँकरी` gives a
+      physical property and takes its feminine form because `गली` is feminine.
     examples:
       - text: यह गली सँकरी है।
-        meaning: This lane is narrow.
-        note: सँकरी has feminine agreement with गली. The statement gives a physical property.
+        meaning: This lane is narrow. `यह गली` identifies this lane; `सँकरी है` says it
+          is narrow. The ending on `सँकरी` relates to the lane, not the speaker.
+        note: "Describe a narrow room. Answer: `यह कमरा सँकरा है।` The masculine noun
+          `कमरा` calls for `सँकरा`. A place name alone gives no quality."
   - subskill_id: location_movement
-    explanation: में follows the place expression. A masculine noun ending in आ generally changes to
-      its oblique form before this postposition.
+    explanation: "You are telling someone where the chair is. A place comes before
+      its postposition: `कमरे में` means in the room. Masculine `कमरा` changes
+      to `कमरे` before `में`."
     examples:
       - text: कुर्सी कमरे में है।
-        meaning: The chair is in the room.
-        note: कमरा becomes कमरे before में. The chair is located inside the room.
+        meaning: The chair is in the room. `कुर्सी` is the chair, `कमरे में` gives the
+          room as its location, and `है` says it is there. This locates the
+          chair; no movement is stated.
+        note: "Place the chair outside the room. Answer: `कुर्सी कमरे के बाहर है।` `के
+          बाहर` means outside. `कुर्सी कमरा में है` omits the oblique form
+          required here."
   - subskill_id: possession_relations
-    explanation: के पास with a possessor commonly expresses having an object available. With the
-      speaker, use मेरे पास. Family relationships also use possessive phrases, rather than
-      requiring पास.
+    explanation: At the ticket counter, you can state what you already have. `मेरे
+      पास` marks the holder; the plural item `दो टिकट` calls for plural `हैं`.
     examples:
       - text: मेरे पास दो टिकट हैं।
-        meaning: I have two tickets.
-        note: हैं agrees with plural टिकट. मेरे identifies whose possession is being described.
+        meaning: I have two tickets. `मेरे पास` means in my possession, `दो टिकट` means
+          two tickets, and `हैं` agrees with the plural tickets. It does not
+          identify a family relationship.
+        note: "Say you have one ticket. Answer: `मेरे पास एक टिकट है।` Change `दो` to
+          `एक` and plural `हैं` to singular `है`. `मेरी बहन` names a relation
+          without saying what you possess."
   - subskill_id: quantity_comparison
-    explanation: Place से after the standard of comparison and use the appropriate adjective for the
-      item being compared. A comparative does not need an English-style comparative ending.
+    explanation: You are comparing two lanes to choose a route. Put the comparison
+      standard before `से`; the adjective describes the first lane and agrees
+      with its feminine noun.
     examples:
       - text: यह गली दूसरी गली से सँकरी है।
-        meaning: This lane is narrower than the other lane.
-        note: दूसरी गली से supplies the comparison standard; सँकरी describes यह गली.
+        meaning: This lane is narrower than the other lane. `यह गली` is the lane being
+          judged. `दूसरी गली से` means than the other lane, and `सँकरी है` says
+          the first is narrower.
+        note: "Compare a room with another room. Answer: `यह कमरा दूसरे कमरे से सँकरा
+          है।` Both masculine room phrases change form, while `से` marks the
+          standard. `से` by itself does not always mean than."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Hindi teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - snell_hindi_skeleton2026
   generation: null
   review:
     status: needs_review
-    revision: hindi-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: hindi-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      hindi-india. Source consultation does not certify the lessons.
 varieties:
   hindi-india:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Hindi teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - snell_hindi_skeleton2026
+      generation: null
+      review:
+        status: needs_review
+        revision: hindi-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          hindi-india. Source consultation does not certify the lessons.

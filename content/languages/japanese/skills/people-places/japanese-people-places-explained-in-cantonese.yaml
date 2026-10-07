@@ -1,53 +1,53 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: japanese-teaching-expanded-2026-10-07
 language: japanese
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: こちら可以有禮貌噉介紹人；の連接同事關係同姓名，さん放喺人名後面表示尊重。
+    explanation: "你介紹田中畀未見過佢嘅人。`こちらは同僚の田中さんです` 有禮貌噉認人：`こちら` 指呢位，`は` 設為話題，`同僚の田中さん` 講田中係同事，`さん` 係尊稱後綴。講者同田中嘅關係由介紹情境提供，通常唔使明講 `私の`。`こちらは田中さんです` 仍然識別田中，但冇講點樣相識。"
     examples:
       - text: こちらは同僚の田中さんです。
         meaning: 呢位係我同事田中。
-        note: 語境交代係邊個嘅同事，唔需要明講私の。
+        note: "介紹佐藤係同事：`こちらは同僚の佐藤さんです。`。`佐藤さん` 改介紹對象，`同僚の` 保留關係。"
   - subskill_id: qualities_states
-    explanation: い形容詞可以描述性質。禮貌語體喺形容詞後加です，唔使再加だ。
+    explanation: "訪客問呢條路點樣。`この道は狭いです` 係話佢窄：`この道` 係呢條路，`は` 設為話題，`狭い` 係性質。禮貌句尾 `です` 直接跟完整嘅 `い` 形容詞；一般唔會喺中間加 `だ`。呢句描述道路性質，唔係指路或講屬於邊個。"
     examples:
       - text: この道は狭いです。
         meaning: 呢條路好窄。
-        note: 狭い係形容詞；は將この道標示為描述緊嘅話題。
+        note: "改講條路闊：`この道は広いです。`。`広い` 取代 `狭い`，道路仍係話題。"
   - subskill_id: location_movement
-    explanation: に配合あります，可以交代非生物物件位置；上等關係名詞交代相對位置。
+    explanation: "你搵唔到鎖匙，有人話畀你知位置。`鍵は棚の上にあります` 指非生命物件位置：`鍵は` 將鎖匙設為話題，`棚の上` 係架上面，`に` 標位置，`あります` 表示喺嗰度。關係名詞 `上` 要靠 `棚の` 講明係邊個上面。講人通常會用 `います`；若講喺架上面進行活動，標記又唔同，常用 `で`。呢度只係報位置。"
     examples:
       - text: 鍵は棚の上にあります。
         meaning: 鎖匙喺個架上面。
-        note: 棚の上係架嘅上面；に將嗰度標示為鎖匙位置。
+        note: "改講鎖匙喺架下面：`鍵は棚の下にあります。`。`下に` 將關係由上面改為下面。"
   - subskill_id: possession_relations
-    explanation: 人稱後面加の可以表達所有關係；物件已知時，の後面唔使重複名詞。
+    explanation: "有人問呢把傘係邊個嘅。`この傘は姉のです` 答係自己家姐嘅：`この傘は` 係呢把傘，`姉` 係從講者角度講嘅家姐，尾段 `の` 喺指明物主之後代替已提過嘅傘。`姉の傘です` 就再講出件物品。日語唔使英文所有格嘅撇號。若屬於細妹，`妹のです` 保留所有關係，只改人。"
     examples:
       - text: この傘は姉のです。
         meaning: 呢把遮係我家姐嘅。
-        note: 呢度姉指講者家姐；の表示擁有，省略咗已知嘅傘。
+        note: "講係細妹嘅傘：`この傘は妹のです。`。呢句完整回答邊個擁有；`妹の` 改物主，傘仍由前文理解。"
   - subskill_id: quantity_comparison
-    explanation: 比較基準可放喺より前面，要突出嘅另一邊放喺のほうが前面，句尾形容詞交代比較性質。
+    explanation: "你要揀兩個箱之中較易搬嗰個。`あの箱より、この箱のほうが軽いです` 比較重量：`あの箱より` 將嗰個箱設為基準，`この箱のほうが` 指受評估嘅呢個箱，`軽い` 係輕；合起來係呢個較輕。`この箱が好きです` 係喜好，唔係重量比較。兩個箱交換位置，就會改變邊個較輕。"
     examples:
       - text: あの箱より、この箱のほうが軽いです。
         meaning: 呢個箱比嗰個箱輕。
-        note: 軽い比較重量；句子本身唔表示鍾意揀邊個箱。
+        note: "講嗰個箱較輕：`この箱より、あの箱のほうが軽いです。`。呢個箱變基準，嗰個箱變較輕嘅一方。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/japanese/skills/people-places/japanese-people-places-explained-in-english.yaml at
-    revision japanese-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained exactly;
     no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - jpf_irodori_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: japanese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -57,13 +57,13 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/japanese/skills/people-places/japanese-people-places-explained-in-english.yaml at
-        revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        revision japanese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - jpf_irodori_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: japanese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

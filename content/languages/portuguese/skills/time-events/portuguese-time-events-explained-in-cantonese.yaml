@@ -1,55 +1,55 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: portuguese-teaching-expanded-2026-10-07
 language: portuguese
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: Estar加副動詞明確表示進行中活動；簡單現在式亦可按語境描述習慣或當前活動。
+    explanation: "有人問你而家喺廚房做緊乜。`Estou preparando a massa do pão` 表示動作進行中：`estou` 係 `estar` 嘅第一身現在式，`preparando` 係 `preparar` 嘅動名詞，`a massa do pão` 係麵包麵團（`do` 由 `de` 加 `o` 合成）。`Preparo pão toda semana` 則講習慣。"
     examples:
       - text: Estou preparando a massa do pão.
         meaning: 我準備緊整麵包嘅麵糰。
-        note: Estou係第一人稱現在式；preparando係preparar嘅副動詞，表示活動進行中。
+        note: "講而家焗緊麵包：`Estou assando o pão.`。呢句完整表示動作進行中；`assando` 取代 `preparando`。"
   - subskill_id: past_events
-    explanation: 簡單完成過去時報告已完成嘅過去動作，形式按人稱同動詞類別改變，唔需要英文have類助動詞。
+    explanation: "朋友問你尋日對架單車做咗乜。`Ontem troquei o pneu da bicicleta` 報告已完成嘅過去動作：`ontem` 定位喺尋日，`troquei` 係我換咗，`o pneu da bicicleta` 係單車車胎。`Troquei` 係 `trocar` 嘅第一身簡單完成過去式；`qu` 保持 `ei` 前面嘅硬輔音。呢種完成事件唔使加相當於英文 have 嘅助動詞。"
     examples:
       - text: Ontem troquei o pneu da bicicleta.
         meaning: 我尋日換咗單車胎。
-        note: Troquei係trocar嘅第一人稱簡單過去式；qu保留ei前面嘅輔音，ontem定位到過去。
+        note: "報告尋日換咗單車鏈：`Ontem troquei a corrente da bicicleta.`。呢句完整講過去事件；`troquei` 仍係完成動作，`a corrente` 改變對象。"
   - subskill_id: future_events
-    explanation: Ir現在式加不定式可以表達計劃中嘅稍後行動；時間詞令將來指向明確。
+    explanation: "你安排聽日去圖書館。`Amanhã vou levar os livros à biblioteca` 用 `amanhã` 同 `vou levar` 指將來：`vou` 係「我」用嘅 `ir` 現在式，`levar` 保持不定式。`À biblioteca` 係去圖書館；`à` 由表示方向嘅 `a` 同陰性冠詞 `a` 合成。`Hoje levo os livros` 可以講今日安排。將來意圖唔一定係向別人承諾。"
     examples:
       - text: Amanhã vou levar os livros à biblioteca.
         meaning: 我聽日會拎啲書去圖書館。
-        note: Vou levar結合ir第一人稱現在式同levar；biblioteca前嘅à係a加a。
+        note: "計劃聽日帶箱去圖書館：`Amanhã vou levar as caixas à biblioteca.`。`vou levar` 表示之後打算做，`as caixas` 指新嘅物品。"
   - subskill_id: duration_frequency
-    explanation: 現在式加há同一段時長，可以量度持續到而家嘅情況；toda sexta-feira等表達就交代頻率。
+    explanation: "有人問你喺呢度做咗幾耐。`Trabalho aqui há seis meses` 係六個月前開始，現在仍然做緊：`trabalho` 係現在式，`aqui` 係呢度，`há seis meses` 量度已過嘅時間。英文 have been working 唔可以機械地轉成葡語 `tenho trabalhado`；後者常帶近期重複或持續活動嘅意思。`Trabalho aqui toda sexta-feira` 則講幾密做一次，唔係做咗幾耐。"
     examples:
       - text: Trabalho aqui há seis meses.
         meaning: 我喺呢度做咗六個月。
-        note: 工作仍然繼續，há seis meses喺度量度時長；配合已完成過去事件時，há亦可以解作之前。
+        note: "講你喺呢度做咗兩年：`Trabalho aqui há dois anos.`。現在式表示情況仍持續，`há dois anos` 指持續長度。"
   - subskill_id: event_sequence
-    explanation: Primeiro同depois排列行動先後，本身唔斷言因果。
+    explanation: "你講解食譜步驟。`Primeiro misturo a farinha, depois acrescento a água` 清楚講先後：`primeiro` 係首先，`misturo` 係我攪拌，`depois` 係之後，`acrescento` 係我加入。兩個動詞都用現在式講程序。`Depois` 只講一件事跟住另一件事，唔會單靠佢解釋原因。"
     examples:
       - text: Primeiro misturo a farinha, depois acrescento a água.
         meaning: 我先拌麵粉，再加水。
-        note: 兩個現在式動詞描述食譜步驟；primeiro同depois明確交代次序。
+        note: "講一個合理嘅蔬菜準備程序：`Primeiro lavo os legumes, depois corto os legumes.`。呢句完整；`primeiro` 將清洗放喺切菜之前，`depois` 帶出下一步。"
   - subskill_id: event_phase
-    explanation: Terminar等動詞表示完成；ainda配合進行式，就表示活動仍然繼續。
+    explanation: "有人問你本書讀完未。`Já terminei a leitura do livro` 表示已到終點：`já` 係已經，`terminei` 係我完成咗，`a leitura do livro` 指讀呢本書。雖然英文可能用 I have finished，葡語呢度用簡單過去式。若仍然讀緊，就講 `Ainda estou lendo o livro`：`ainda` 係仍然，`estou lendo` 表示進行中。兩個答案講同一件事嘅相反階段。"
     examples:
       - text: Já terminei a leitura do livro.
         meaning: 我已經睇完本書。
-        note: Terminei表示閱讀完成，já表示已達到呢個階段；葡文用簡單過去式表達已經做完。
+        note: "講已經讀完文章：`Já terminei a leitura do artigo.`。呢句完整表示完成；`do artigo` 取代 `do livro`，`já terminei` 表示已到終點。"
       - text: Ainda estou lendo o livro.
         meaning: 我仲睇緊本書。
-        note: Ainda estou lendo描述持續，同已完成閱讀作對比。
+        note: "講仲讀緊文章：`Ainda estou lendo o artigo.`。呢句完整表示未完；`ainda` 同 `estou lendo` 講持續，唔係完成。"
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
     languages/portuguese/skills/time-events/portuguese-time-events-explained-in-english.yaml at
-    revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
     exactly; no independent linguistic review. Exact backend model metadata was not recorded.
   sources:
     - uw_pt_principiantes2026
@@ -58,7 +58,7 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: portuguese-teaching-expanded-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
 varieties:
@@ -68,7 +68,7 @@ varieties:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
         languages/portuguese/skills/time-events/portuguese-time-events-explained-in-english.yaml at
-        revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        revision portuguese-teaching-expanded-2026-10-07. Target examples and variety applicability retained
         exactly; no independent linguistic review. Exact backend model metadata was not recorded.
       sources:
         - uw_pt_principiantes2026
@@ -77,6 +77,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: portuguese-teaching-expanded-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.

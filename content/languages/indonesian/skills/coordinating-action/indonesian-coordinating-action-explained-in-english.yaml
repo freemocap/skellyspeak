@@ -1,71 +1,115 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: indonesian-skills-2026-10-04
+revision: indonesian-teaching-english-2026-10-07
 language: indonesian
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: Tolong with an imperative requests help with an action. The imperative need not
-      have the active prefix used in a declarative verb.
+    explanation: A chair blocks the workspace, so you ask the listener to move it.
+      `Tolong` frames the action as help, and `pindahkan` addresses the listener
+      with the chair as its object.
     examples:
       - text: Tolong pindahkan kursi ini.
-        meaning: Please move this chair.
-        note: Pindahkan asks the listener to move the chair. Tolong frames the action as a request for
-          help.
+        meaning: Please move this chair. `kursi ini` means this chair. The request aims
+          to change its position, not to learn whether the listener can move it.
+        note: "Ask the listener to move this table. Answer: `Tolong pindahkan meja ini.`
+          Replace the object. `Meja ini di sini` would only describe its
+          position."
   - subskill_id: offers_invitations
-    explanation: A question offering an item can use mau with the offered object. Context supplies
-      the listener as the person being offered it.
+    explanation: A visitor arrives and you offer tea. In this conversational
+      setting, short `Mau ...?` asks whether the listener wants the offered
+      item; the listener is understood.
     examples:
       - text: Mau secangkir teh?
-        meaning: Would you like a cup of tea?
-        note: Said by a host offering tea to a visitor. Secangkir specifies one cup.
+        meaning: Would you like a cup of tea? `secangkir teh` means one cup of tea. The
+          question offers a drink rather than asking for a factual inventory of
+          what the visitor owns.
+        note: "Offer a cup of coffee. Answer: `Mau secangkir kopi?` Replace the drink.
+          `Saya mau teh` would state the speaker’s own desire, not offer it to
+          the visitor."
   - subskill_id: suggestions
-    explanation: Mari can introduce a shared proposed action. Kita explicitly includes the listener
-      in that action.
+    explanation: You and the listener need to check a colour choice. `Mari kita`
+      proposes a shared action and explicitly includes the listener; `bersama`
+      reinforces doing it together.
     examples:
       - text: Mari kita periksa warnanya bersama.
-        meaning: Let us check the colour together.
-        note: The speaker proposes a joint check; bersama reinforces the shared participation.
+        meaning: Let us check the colour together. `periksa warnanya` names the check
+          and its colour. `kita` includes both parties, unlike `kami`, which
+          excludes the listener.
+        note: "Suggest checking the size together. Answer: `Mari kita periksa ukurannya
+          bersama.` Replace the property being checked. `Mari kami` would
+          conflict with inviting the listener into the action."
   - subskill_id: commitments
-    explanation: A future statement can accept responsibility during planning. The exchange
-      distinguishes an undertaking from a prediction.
+    explanation: During task allocation, you volunteer to bring the equipment
+      tomorrow. `Saya akan membawa` states your later action; the allocation
+      exchange makes it an undertaking rather than a mere forecast.
     examples:
       - text: Saya akan membawa alatnya besok.
-        meaning: I will bring the equipment tomorrow.
-        note: Use this when volunteering to supply the equipment for an agreed activity. -nya refers to
-          that equipment.
+        meaning: I will bring the equipment tomorrow. `besok` fixes the day and
+          `alatnya` points to the equipment already under discussion. `-nya`
+          refers back to that known item.
+        note: "Undertake to bring the paint tomorrow. Answer: `Saya akan membawa catnya
+          besok.` Change the item while keeping the assigned action. `Akan` by
+          itself does not guarantee a promise."
   - subskill_id: accepting_declining
-    explanation: Maaf can soften a refusal. A statement of inability may decline an invitation when
-      that invitation supplies the action.
+    explanation: Someone invited you for tonight, but you cannot attend. `Maaf`
+      softens the answer, and `tidak bisa datang malam ini` gives the constraint
+      that declines that particular invitation.
     examples:
       - text: Maaf, saya tidak bisa datang malam ini.
-        meaning: Sorry, I cannot come tonight.
-        note: Reply to an invitation for tonight. The sentence declines attendance.
+        meaning: Sorry, I cannot come tonight. `malam ini` restricts the inability to
+          tonight. Without the prior invitation, the same sentence could simply
+          report availability.
+        note: "Decline because you are busy tonight. Answer: `Maaf, saya sibuk malam
+          ini.` In reply to the invitation, this explains a refusal. `Ya, saya
+          datang` would accept."
   - subskill_id: negotiating_plans
-    explanation: Bagaimana kalau introduces an alternative for discussion. State the conflicting
-      constraint so the listener can see why the plan changes.
+    explanation: The other person proposed Friday, but you are busy. The first
+      clause states that conflict; `Bagaimana kalau ...?` then offers Saturday
+      as a replacement for both of you.
     examples:
       - text: Jumat saya sibuk. Bagaimana kalau kita bertemu Sabtu?
-        meaning: I am busy on Friday. How about meeting on Saturday?
-        note: Reply to a proposal to meet Friday. The new day addresses the stated conflict.
+        meaning: I am busy on Friday. How about meeting on Saturday? `Jumat saya sibuk`
+          rules out Friday. `kita bertemu Sabtu` includes the listener in the
+          alternative meeting; the question seeks agreement.
+        note: "Counter with Sunday instead. Answer: `Jumat saya sibuk. Bagaimana kalau
+          kita bertemu Minggu?` Change the proposed day while retaining the
+          conflict."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Indonesian teaching with worked forms and
+    practice; original target examples retained. Independent linguistic review
+    pending.
   sources:
     - niu_indonesian_phrases2026
     - niu_indonesian_questions2026
     - niu_indonesian_verbs2026
+    - niu_indonesian_pronouns2026
   generation: null
   review:
     status: needs_review
-    revision: indonesian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: indonesian-teaching-english-2026-10-07
+    scope: All teaching prose, original examples, meanings and practice answers for
+      indonesian-indonesia. Source consultation does not certify the lessons.
 varieties:
   indonesian-indonesia:
     disposition: use_core
-    provenance: *a1
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored contextual Indonesian teaching with worked forms and
+        practice; original target examples retained. Independent linguistic
+        review pending.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+        - niu_indonesian_pronouns2026
+      generation: null
+      review:
+        status: needs_review
+        revision: indonesian-teaching-english-2026-10-07
+        scope: All teaching prose, original examples, meanings and practice answers for
+          indonesian-indonesia. Source consultation does not certify the
+          lessons.

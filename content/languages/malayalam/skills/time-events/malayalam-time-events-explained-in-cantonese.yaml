@@ -1,77 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: malayalam-cantonese-teaching-expanded-2026-10-07
 language: malayalam
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 動名詞結構配合ആണ്，可以表達進行中行動。
+    explanation: 有人喺你維修單車時問你做緊乜。`ഇപ്പോൾ` 係而家，`ഞാൻ` 係我，`സൈക്കിൾ` 係單車；`നന്നാക്കുകയാണ്` 將維修行動同
+      `ആണ്` 結合，突出工程正進行，唔係已完成。
     examples:
       - text: ഇപ്പോൾ ഞാൻ സൈക്കിൾ നന്നാക്കുകയാണ്.
-        meaning: 我而家整緊單車。
-        note: ഇപ്പോൾ將維修定位到而家。
+        meaning: 我而家整緊單車。單車放喺行動前，`നന്നാക്കുകയാണ്` 表示維修進行中；時間詞 `ഇപ്പോൾ` 定位到而家。
+        note: 練習：邊個形式講而家整緊，`നന്നാക്കുകയാണ്` 定 `നന്നാക്കി`？答案：`നന്നാക്കുകയാണ്`，因為行動進行中；`നന്നാക്കി`
+          報告較早嘅維修。
   - subskill_id: past_events
-    explanation: 動詞過去式可以報告較早完成嘅動作。
+    explanation: 同事問你尋日做咗乜。`ഇന്നലെ` 交代尋日，`ഞാൻ സൈക്കിൾ നന്നാക്കി` 講我整咗單車；`നന്നാക്കി`
+      係呢個動詞嘅過去形式，唔係按講者性別變化。
     examples:
       - text: ഇന്നലെ ഞാൻ സൈക്കിൾ നന്നാക്കി.
-        meaning: 我尋日整咗架單車。
-        note: നന്നാക്കി係過去式，唔會按講者性別改變。
+        meaning: 我尋日整咗單車。`ഇന്നലെ` 指明日子；`നന്നാക്കി` 報告較早嘅維修，唔同 `നന്നാക്കുകയാണ്` 講進行中。
+        note: 練習：邊個詞明講維修係尋日？答案：`ഇന്നലെ`。`നന്നാക്കി` 報告過去事件，`ഇന്നലെ` 指定嗰一日。
   - subskill_id: future_events
-    explanation: 動詞將來式可以描述稍後計劃。
+    explanation: 你計劃聽日買用品。`നാളെ` 係聽日，`ഞാൻ` 係我，`സാധനങ്ങൾ` 係用品；`വാങ്ങും`
+      喺呢個時間背景係將來會買。呢個形式亦可以喺其他背景講習慣，所以時間詞有用。
     examples:
       - text: നാളെ ഞാൻ സാധനങ്ങൾ വാങ്ങും.
-        meaning: 我聽日會買用品。
-        note: നാളെ為വാങ്ങും設定將來時間。
+        meaning: 我聽日會買用品。要買嘅物件放喺動詞 `വാങ്ങും` 前；`നാളെ` 令呢句讀成聽日嘅安排，唔係日常購物習慣。
+        note: 練習：邊個詞令將來讀法清楚？答案：`നാളെ`，因為佢將買用品定位到聽日，唔係反覆發生嘅活動。
   - subskill_id: duration_frequency
-    explanation: 時間範圍加次數，可以表達頻率。
+    explanation: 有人問你幾耐游一次水。`ആഴ്ചയിൽ` 係每星期呢個範圍，`രണ്ടു പ്രാവശ്യം` 數兩次，`നീന്താറുണ്ട്`
+      講慣常游水；成句講頻率，唔係一次游兩個鐘。
     examples:
       - text: ഞാൻ ആഴ്ചയിൽ രണ്ടു പ്രാവശ്യം നീന്താറുണ്ട്.
-        meaning: 我一個星期游兩次水。
-        note: നീന്താറുണ്ട്表達習慣活動；രണ്ടു പ്രാവശ്യം數次數。
+        meaning: 我一個星期游兩次水。時間範圍同次數放喺活動前；`നീന്താറുണ്ട്` 配合固定活動習慣，唔係單次正在游。
+        note: 練習：`ആഴ്ചയിൽ` 同 `രണ്ടു പ്രാവശ്യം` 邊部分數次數？答案：`രണ്ടു പ്രാവശ്യം` 係兩次；`ആഴ്ചയിൽ` 交代喺每星期內數。
   - subskill_id: event_sequence
-    explanation: ആദ്യം同പിന്നെ交代第一步同之後步驟。
+    explanation: 食譜要講清楚步驟。`ആദ്യം` 標第一步 `കൈ കഴുകുക` 洗手；`പിന്നെ` 引出下一步 `പച്ചക്കറി മുറിക്കുക`
+      切蔬菜。呢啲行動形式用喺書面程序指示，標先後唔係因果。
     examples:
       - text: ആദ്യം കൈ കഴുകുക, പിന്നെ പച്ചക്കറി മുറിക്കുക.
-        meaning: 先洗手，再切蔬菜。
-        note: 程序指令交代次序，唔係因果。
+        meaning: 先洗手，再切蔬菜。`ആദ്യം` 係先，`പിന്നെ` 係然後；兩個程序動作按呢個次序排列。
+        note: 練習：邊個動作先？答案：`കൈ കഴുകുക` 洗手，因為佢跟 `ആദ്യം`；`പച്ചക്കറി മുറിക്കുക` 跟 `പിന്നെ`，係下一步。
   - subskill_id: event_phase
-    explanation: 配合തീർക്കുക嘅複合結構，可以指明完成活動。
+    explanation: 朋友問你本書睇完未。`ഞാൻ` 係我，`പുസ്തകം` 係書；`വായിച്ചു` 提供閱讀行動，`തീർത്തു` 加入完成，兩個動詞合埋講閱讀到咗終點。
     examples:
       - text: ഞാൻ പുസ്തകം വായിച്ചു തീർത്തു.
-        meaning: 我睇完本書喇。
-        note: 閱讀達到終點，唔係淨係喺過去發生過。
+        meaning: 我睇完本書喇。`വായിച്ചു തീർത്തു` 將睇同完成結合；單講曾經閱讀，唔一定明講本書已睇完。
+        note: 練習：邊部分明講閱讀已完成？答案：`തീർത്തു`。`വായിച്ചു` 指閱讀活動，`തീർത്തു` 標出佢嘅終點。
 provenance:
   origin: ai
   authorship: Directly authored by Codex in Cantonese, informed by
-    languages/malayalam/skills/time-events/malayalam-time-events-explained-in-english.yaml at
-    revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+    languages/malayalam/skills/time-events/malayalam-time-events-explained-in-english.yaml
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+    retained exactly; no independent linguistic review. Exact backend model metadata was
+    not recorded.
   sources:
+    - moagMalayalamTeaching20261007
     - ut_malayalam_time2026
-    - ut_malayalam_dialogues2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: malayalam-cantonese-teaching-expanded-2026-10-07
+    scope: Cantonese translation, terminology and preservation of source meaning; source
+      linguistic claims retain their existing review limitations.
 varieties:
   malayalam-kerala:
     disposition: use_core
     provenance:
       origin: ai
       authorship: Directly authored by Codex in Cantonese, informed by
-        languages/malayalam/skills/time-events/malayalam-time-events-explained-in-english.yaml at
-        revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+        languages/malayalam/skills/time-events/malayalam-time-events-explained-in-english.yaml
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata
+        was not recorded.
       sources:
         - ut_malayalam_time2026
         - ut_malayalam_dialogues2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: malayalam-cantonese-teaching-expanded-2026-10-07
+        scope: Cantonese translation, terminology and preservation of source meaning; source
+          linguistic claims retain their existing review limitations.
