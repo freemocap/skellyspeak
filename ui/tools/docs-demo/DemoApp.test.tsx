@@ -66,7 +66,7 @@ describe('offline documentation examples', () => {
     const choices = within(screen.getByLabelText('Select a skill')).getAllByRole('button')
     await user.click(choices[1])
     expect(screen.getByRole('heading', { level: 2, name: choices[1].textContent! })).toBeInTheDocument()
-    expect(screen.getByRole('group', { name: 'Chart settings' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Chart controls' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Bars' }))
     expect(screen.getByRole('button', { name: 'Bars' })).toHaveAttribute('aria-pressed', 'true')
   })

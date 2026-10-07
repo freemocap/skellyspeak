@@ -42,11 +42,12 @@ export function SkillsExample() {
   const [selected, setSelected] = useState(levels.skills[0].id)
   const [type, setType] = useState<SkillChartView['type']>('radial')
   const [scale, setScale] = useState<SkillChartView['scale']>('normalized')
+  const [shown, setShown] = useState<SkillChartView['shown']>('both')
   const skill = levels.skills.find(item => item.id === selected)!
   return <>
     <h1>Explore a language’s skills</h1><p>Choose an arm or a skill name. Use the controls above the chart to switch to bars, change scale, or zoom. This sample starts with no credited evidence.</p>
     <div className="docs-demo-skills-grid">
-      <SkillChart levels={levels} conversation={null} view={{ type, scale, setType, setScale }} selected={selected} onSelect={setSelected}>
+      <SkillChart levels={levels} conversation={null} view={{ type, scale, shown, setType, setScale, setShown }} selected={selected} onSelect={setSelected}>
         <p>Sample language level {levels.level}. The goal is {levels.target} point in each skill. An empty chart means no credited evidence in this sample, not inability.</p>
       </SkillChart>
       <section className="docs-demo-skill-detail" aria-live="polite"><h2>{skill.label}</h2><p>{skill.description}</p><h3>Counts when</h3><p>{skill.criterion}</p><p>{skill.points} points · Level {skill.level}</p><p>In the app, inspect the underlying messages and assessments before interpreting a skill total.</p></section>

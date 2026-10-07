@@ -113,6 +113,6 @@ it('shows the total across languages behind a globe, and every language with its
   expect(await screen.findByLabelText('Total XP: 42')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Language XP' }))
   const card = screen.getByRole('dialog', { name: 'All languages' })
-  expect(within(card).getAllByRole('row').slice(1).map(row => within(row).getByRole('rowheader').textContent)).toEqual(['FRFrench', 'ESSpanish'])
+  expect(within(card).getAllByRole('row').slice(1).map(row => within(row).getByRole('rowheader').textContent)).toEqual(['FRFrench', 'ESSpanish', 'Total'])
   expect(within(card).getByRole('button', { name: 'Practice' })).toBeVisible()
 })

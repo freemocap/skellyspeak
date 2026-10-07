@@ -46,7 +46,10 @@ it('keeps inline target words and phrases free of passage toolbars', async () =>
   const {container} = render(<ReadingScopeContext value={scope}><ReadingActionsContext value={{inspect:vi.fn(),speak:vi.fn(),stop:vi.fn(),speaking:null}}>
     <Markdown text={'Use `de`, `mi hermana`, or كتاب inside a sentence.'} targetCode />
   </ReadingActionsContext></ReadingScopeContext>)
-  expect(container.querySelectorAll('.target-text').length).toBeGreaterThanOrEqual(3)
+  // Authored guides mark target text explicitly; unmarked prose stays prose,
+  // regardless of its script.
+  expect(Array.from(container.querySelectorAll('.target-text'), node => node.textContent)).toEqual(['de', 'mi hermana'])
+  expect(screen.queryByRole('button', {name:'كتاب'})).toBeNull()
   expect(container.querySelector('.target-phrase-actions')).toBeNull()
   expect(screen.queryByRole('button', {name:'Add to Practice'})).toBeNull()
   expect(screen.queryByRole('button', {name:/Read aloud:/})).toBeNull()
