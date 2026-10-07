@@ -110,7 +110,7 @@ jobs:
 
   rust:
     needs: fast-validation
-    timeout-minutes: 30
+    timeout-minutes: 60
     if: ${{ inputs.skip_validation != true }}
     runs-on: windows-latest
     steps:
@@ -136,8 +136,15 @@ jobs:
         working-directory: native
       - run: cargo run --locked --bin benchmark_gloss -- export --check
         working-directory: native
-      - run: cargo test --locked --lib
+      # Keep compilation separate: 850 tests, including the complete workspace
+      # migration chain, outgrew the former combined 15-minute Windows budget.
+      - name: Compile native library tests
+        run: cargo test --locked --lib --no-run
         timeout-minutes: 15
+        working-directory: native
+      - name: Run native library tests
+        run: cargo test --locked --lib -- --test-threads=4
+        timeout-minutes: 30
         working-directory: native
       - run: cargo test --locked --manifest-path tools/verify-updater/Cargo.toml
 
