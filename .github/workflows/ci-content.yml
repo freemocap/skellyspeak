@@ -1,0 +1,33 @@
+name: CI — content
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  content:
+    timeout-minutes: 30
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: native
+      - run: cargo run --locked --bin export-contracts -- --check
+        working-directory: native
+      - run: cargo run --locked --bin audit-content -- --ready
+        working-directory: native
+      - run: cargo run --locked --bin audit-content -- --check-schemas
+        working-directory: native
+      - run: cargo test --locked --bin export-contracts
+        working-directory: native
+      - run: cargo run --locked --bin benchmark_gloss -- export --check
+        working-directory: native

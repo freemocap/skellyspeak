@@ -1,5 +1,9 @@
 # Native CI test timeout — October 6, 2026
 
+The single-job organization below is superseded by the
+[domain workflow split](ci-domain-workflows-2026-10-07.md). This note retains the
+original failure evidence and verification of the timeout fix.
+
 ## Observed failure
 
 CI runs [37539631597](https://github.com/freemocap/skellyspeak/actions/runs/37539631597)

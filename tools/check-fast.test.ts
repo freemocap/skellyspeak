@@ -108,7 +108,7 @@ interface Job {
   with?: Record<string, unknown>
   steps?: { run?: string; uses?: string; with?: Record<string, unknown> }[]
 }
-function workflow(file: string): { jobs: Record<string, Job> } {
+function workflow(file: string): { on: Record<string, unknown>; jobs: Record<string, Job> } {
   const document = parseDocument(readFileSync(join(repositoryRoot, '.github/workflows', file), 'utf8'))
   assert.deepEqual(document.errors, [], file)
   return document.toJS()
@@ -127,15 +127,22 @@ test('ordinary tests and every expensive CI job retain the fast validation gate'
   assert.ok(gate.steps?.some(step => step.run === 'npm run check:fast'))
   assert.ok(gate.steps?.some(step => step.with?.components === 'rustfmt'))
   assert.ok(!gate.needs, 'The fast checks must not wait for compilation')
-  const cheapJobs = new Set(['validation-mode', 'fast-validation', 'android-resources'])
+  const cheapJobs = new Set(['validation-mode', 'fast-validation'])
+  const domains = ['ui', 'native', 'server', 'content', 'docs', 'tooling', 'mobile']
+  assert.deepEqual(Object.keys(jobs).filter(name => !cheapJobs.has(name)).sort(), [...domains].sort())
   for (const [name, job] of Object.entries(jobs)) {
     if (cheapJobs.has(name)) continue
     const needs = [job.needs].flat()
     assert.ok(needs.includes('fast-validation'), `${name} must wait for fast validation`)
     // No always()/failure() escape: normal success dependency semantics must apply.
     assert.equal(job.if, '${{ inputs.skip_validation != true }}', name)
+    assert.equal(job.uses, `./.github/workflows/ci-${name}.yml`)
+    const domain = workflow(`ci-${name}.yml`)
+    assert.deepEqual(Object.keys(domain.on), ['workflow_call'], `${name} must not launch duplicate push/PR runs`)
+    assert.ok(Object.keys(domain.jobs).length)
   }
-  assert.ok([jobs['android-build'].needs].flat().includes('android-resources'))
+  const mobile = workflow('ci-mobile.yml')
+  assert.ok([mobile.jobs['android-build'].needs].flat().includes('android-resources'))
   assert.equal(gate.if, '${{ inputs.skip_validation != true }}')
   const release = workflow('release.yml')
   assert.equal(release.jobs.checks.uses, './.github/workflows/ci.yml')

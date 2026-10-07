@@ -22,6 +22,7 @@ export function fastChecks(root = repositoryRoot): Check[] {
         .filter(file => file.endsWith('.test.ts')).sort()
         .map(file => resolve(repositoryRoot, 'ui/tools/localization', file)),
       resolve(repositoryRoot, 'tools/check-fast.test.ts'),
+      resolve(repositoryRoot, 'tools/ci/native-tests.test.ts'),
     ] },
   ]
 }

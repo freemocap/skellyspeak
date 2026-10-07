@@ -7,5 +7,5 @@
     "module": "nodenext",
     "allowImportingTsExtensions": true
   },
-  "include": ["check-fast.ts", "check-fast.test.ts", "check-languages.ts", "../ui/tools/localization/*.ts"]
+  "include": ["check-fast.ts", "check-fast.test.ts", "check-languages.ts", "ci/*.ts", "../ui/tools/localization/*.ts"]
 }

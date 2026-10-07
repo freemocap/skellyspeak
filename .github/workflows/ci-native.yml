@@ -1,0 +1,107 @@
+name: CI — native
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    outputs:
+      domains: ${{ steps.tests.outputs.domains }}
+    timeout-minutes: 30
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: native
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+      - run: cargo clippy --lib --tests -- -D warnings
+        working-directory: native
+      - name: Compile and inventory native domain tests
+        id: tests
+        run: node tools/ci/native-tests.ts prepare
+        timeout-minutes: 15
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-domain-tests
+          path: native/target/ci-tests/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  domain-tests:
+    name: Native / ${{ matrix.domain }}
+    needs: compile
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        domain: ${{ fromJSON(needs.compile.outputs.domains) }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: native-domain-tests
+          path: native/target/ci-tests/
+      - name: Run assigned native domain
+        env:
+          TEST_DOMAIN: ${{ matrix.domain }}
+        run: node tools/ci/native-tests.ts run "$env:TEST_DOMAIN"
+
+  updater:
+    timeout-minutes: 15
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: tools/verify-updater
+      - run: cargo test --locked --manifest-path tools/verify-updater/Cargo.toml
+
+  rust-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Install the native libraries the core links against
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libxdo-dev libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libasound2-dev
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: native
+      - run: cargo check --lib
+        working-directory: native
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+      - run: npm run logs:test
