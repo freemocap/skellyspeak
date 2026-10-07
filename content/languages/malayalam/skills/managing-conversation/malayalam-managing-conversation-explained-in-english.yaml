@@ -1,61 +1,95 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A short future-oriented expression can close the exchange.
+    explanation: When leaving an encounter, a short reference to meeting again can serve as a farewell.
+      The other person knows who will meet, so the expression need not repeat a subject.
     examples:
       - text: പിന്നെ കാണാം!
-        meaning: See you later!
-        note: This is a conversational farewell, not merely a prediction of visual perception.
+        meaning: "**The example.** See you later! `പിന്നെ` means later or then, and `കാണാം` is a modal form
+          of see or meet. In leave-taking the whole expression anticipates another encounter; it is
+          not a report that you are seeing someone now."
+        note: "Try closing with see you tomorrow. Answer: `നാളെ കാണാം!` Replace `പിന്നെ` with `നാളെ`. The
+          day becomes specific while the farewell remains. `കാണാം` has other uses, so its closing
+          function depends on saying it as the encounter ends."
   - subskill_id: acknowledging
-    explanation: മനസ്സിലായി can acknowledge comprehension.
+    explanation: An explanation has just become clear, and you can acknowledge that change. `മനസ്സിലായി`
+      says it has been understood; it does not necessarily endorse an opinion in the explanation.
     examples:
       - text: ശരി, ഇപ്പോൾ മനസ്സിലായി.
-        meaning: Okay, now I understand.
-        note: Use after an explanation; it need not indicate agreement with a view.
+        meaning: "**The example.** Okay, now I understand. `ശരി` is okay, `ഇപ്പോൾ` is now, and `മനസ്സിലായി`
+          expresses coming to understand. The person understanding can remain unstated because the
+          reply is your response to the explanation."
+        note: "Try saying you did not understand. Answer: `മനസ്സിലായില്ല.` The negative form replaces
+          achieved understanding with its absence. `ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നു` explicitly
+          agrees with a suggestion; understanding its meaning is a separate response."
   - subskill_id: clarification
-    explanation: A question with ഒന്നുകൂടി asks for another repetition.
+    explanation: If you miss what someone said, asking for repetition gives them a clear way to help.
+      `ഒന്നുകൂടി` requests one more time, with the prior utterance supplying what should be
+      repeated.
     examples:
       - text: ഒന്നുകൂടി പറയാമോ?
-        meaning: Could you say that again?
-        note: The preceding contribution supplies what should be repeated.
+        meaning: "**The example.** Could you say that again? `പറയാമോ` is a modal question about saying.
+          `ഒന്നുകൂടി` precedes it and adds again or once more. The request does not need to name the
+          listener or repeat the missed content."
+        note: "Try asking for one more reading rather than speaking. Answer: `ഒന്നുകൂടി വായിക്കാമോ?` Replace
+          `പറയാമോ` with `വായിക്കാമോ`, could you read. Repetition can resolve missed words; if the
+          meaning is still unclear, hearing the same words again may not be enough."
   - subskill_id: rephrasing
-    explanation: മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ introduces an alternative formulation.
+    explanation: "A booking procedure can be restated as its practical requirement: booking beforehand.
+      The opening says you are expressing the same point another way, rather than introducing an
+      unrelated rule."
     examples:
       - text: മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ, മുൻകൂട്ടി ബുക്ക് ചെയ്യണം.
-        meaning: In other words, you need to book in advance.
-        note: Use after explaining a booking procedure; ബുക്ക് is a conventional borrowing written in
-          Malayalam.
+        meaning: "**The example.** In other words, you need to book in advance. `മറ്റൊരു രീതിയിൽ` is in
+          another way, and `പറഞ്ഞാൽ` means if put or said. `മുൻകൂട്ടി` is in advance. `ബുക്ക്
+          ചെയ്യണം` means need to book, with the borrowing `ബുക്ക്` combined with the doing verb."
+        note: "Try restating the advance-booking requirement explicitly for the group. Answer: `മറ്റൊരു
+          രീതിയിൽ പറഞ്ഞാൽ, ഞങ്ങൾ മുൻകൂട്ടി ബുക്ക് ചെയ്യണം.` Add `ഞങ്ങൾ`, we excluding the listener,
+          before the requirement. The content remains advance booking; changing it to booking after
+          arrival would not preserve the original point."
   - subskill_id: correcting_misunderstanding
-    explanation: ഉദ്ദേശിച്ചത് identifies what the speaker intended.
+    explanation: "The listener has understood Friday, but you meant Saturday. Naming both days makes the
+      correction actionable: one is the intended day, and the other is excluded."
     examples:
       - text: ഞാൻ ഉദ്ദേശിച്ചത് ശനിയാഴ്ചയാണ്, വെള്ളിയാഴ്ചയല്ല.
-        meaning: I meant Saturday, not Friday.
-        note: The speaker corrects the day understood by the listener.
+        meaning: "**The example.** I meant Saturday, not Friday. `ഞാൻ ഉദ്ദേശിച്ചത്` refers to what I
+          intended. `ശനിയാഴ്ചയാണ്` identifies it as Saturday with joined `ആണ്`; `വെള്ളിയാഴ്ചയല്ല`
+          rejects Friday with joined `അല്ല`. The positive identification comes before its rejected
+          alternative."
+        note: "Try correcting Sunday to Saturday. Answer: `ഞാൻ ഉദ്ദേശിച്ചത് ശനിയാഴ്ചയാണ്, ഞായറാഴ്ചയല്ല.`
+          Keep Saturday as intended and replace the mistaken day with `ഞായറാഴ്ചയല്ല`, not Sunday.
+          Denying the wrong day alone would not tell the listener which day to use."
   - subskill_id: turns_topics
-    explanation: A question can propose moving the conversation to another topic.
+    explanation: Once a question has been discussed, you can ask the group to move on. The destination
+      is another part of the conversation, so the action manages the discussion rather than physical
+      movement.
     examples:
       - text: അടുത്ത ചോദ്യത്തിലേക്ക് കടക്കാമോ?
-        meaning: Can we move on to the next question?
-        note: The requested transition concerns the discussion itself.
+        meaning: "**The example.** Can we move on to the next question? `അടുത്ത` means next.
+          `ചോദ്യത്തിലേക്ക്` means to the question, with its direction ending. `കടക്കാമോ` asks
+          whether to move or proceed to it. The destination phrase comes before the final proposed
+          transition."
+        note: "Try proposing a move to another topic. Answer: `മറ്റൊരു വിഷയത്തിലേക്ക് കടക്കാമോ?` `മറ്റൊരു`
+          means another and `വിഷയത്തിലേക്ക്` means to the topic. The same question ending keeps the
+          transition open to the group's agreement."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
-    - ut_malayalam_dialogues2026
+    - moagMalayalamTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

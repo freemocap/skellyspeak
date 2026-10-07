@@ -1,83 +1,146 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: people_places
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/people-places/people-places-explained-in-spanish.yaml
 sections:
   - subskill_id: identification
-    explanation: Usa ser para identificar. Puedes omitir el pronombre sujeto si el verbo y el contexto
-      permiten identificarlo.
+    explanation: "Al conocer a alguien, una presentación breve permite decir quién eres. Para expresar
+      identidad se usa `ser`: `soy` corresponde a la persona que habla. El verbo ya indica esa
+      persona, así que no hace falta añadir `yo`."
     examples:
       - text: Soy Ana.
-        meaning: La persona que habla se llama Ana.
-        note: Soy identifica a la hablante.
+        meaning: "`Soy Ana` presenta a la persona que habla. `Soy` indica quién se presenta y `Ana` da su
+          nombre. En esta presentación no se pone artículo delante del nombre."
+        note: >-
+          **Adáptalo.** `Soy Luis` presenta a Luis; `Ella es Ana` identifica a otra persona. Con
+          `ella`, cambia `soy` por `es`. `Estoy Ana` no expresa esta identidad.
+
+
+          **Prueba.** Preséntate con el nombre Marta. Respuesta: `Soy Marta`. Conserva `soy` y
+          cambia el nombre.
   - subskill_id: qualities_states
-    explanation: Elige ser o estar según el significado. La diferencia no se reduce a lo permanente
-      frente a lo temporal.
+    explanation: Antes de entrar en una habitación, puede ser útil decir si la puerta está abierta.
+      `Estar` describe el estado en que la encuentras. `Ser` y `estar` permiten descripciones
+      distintas; preguntar solamente si algo es permanente no basta para elegir.
     examples:
       - text: La puerta está abierta.
-        meaning: La puerta no está cerrada.
-        note: Estar describe el estado actual de la puerta.
+        meaning: "`La puerta` nombra el objeto, `está` presenta su estado y `abierta` dice cuál es. La
+          terminación de `abierta` concuerda con el nombre femenino singular `puerta`."
+        note: >-
+          **Adáptalo.** `Las puertas están abiertas` habla de varias puertas: cambian el verbo y el
+          adjetivo. `La puerta es grande` describe una cualidad, su tamaño.
+
+
+          **Prueba.** Di que la puerta está cerrada usando `cerrada`. Respuesta: `La puerta está
+          cerrada`. Cambia el estado y conserva el sujeto y el verbo.
   - subskill_id: location_movement
-    explanation: Combina un verbo de ubicación o movimiento con una expresión de lugar o recorrido.
+    explanation: Cuando alguien busca un libro, indicar su ubicación le ayuda a encontrarlo. `Estar`
+      sitúa a una persona o un objeto y una expresión de lugar completa la información. Aquí el
+      libro se encuentra sobre una mesa.
     examples:
       - text: El libro está en la mesa.
-        meaning: El libro se encuentra sobre la mesa.
-        note: Estar en sitúa el libro con respecto a la mesa.
+        meaning: "`El libro` identifica el objeto, `está` lo sitúa y `en la mesa` indica el lugar. `En`
+          puede señalar el interior o la superficie; la relación entre los objetos aclara el
+          sentido."
+        note: >-
+          **Compara.** `Voy a la mesa` expresa movimiento hacia la mesa. `El libro está aquí`
+          sustituye toda la expresión de lugar por `aquí`.
+
+
+          **Prueba.** Sitúa el libro dentro de una mochila usando `la mochila`. Respuesta: `El libro
+          está en la mochila`. Para esta ubicación usa `en`, no la `a` de dirección.
   - subskill_id: possession_relations
-    explanation: Los posesivos y de expresan pertenencia o relaciones. El posesivo concuerda con lo
-      poseído, no con quien lo posee.
+    explanation: "Si dos personas tienen libros parecidos, nombrar al propietario ayuda a distinguirlos.
+      Se puede poner `de` después del objeto y luego nombrar a su dueño. Un posesivo como `mi`
+      también identifica una relación: aquí indica de quién es hermana."
     examples:
       - text: Es el libro de mi hermana.
-        meaning: El libro pertenece a mi hermana.
-        note: De indica a quién pertenece el libro.
+        meaning: "`Es` identifica el libro del que se habla y `el libro` nombra el objeto. `De mi hermana`
+          indica que pertenece a mi hermana. `Mi` relaciona a la hermana con quien habla; no
+          describe el libro."
+        note: >-
+          **Adáptalo.** `Es mi libro` dice que el libro es mío. `Son mis libros` habla de varios
+          libros: `mis` concuerda con los libros, no con el número de propietarios. Aquí no se usa
+          un apóstrofo posesivo.
+
+
+          **Prueba.** Di que es el libro de tu hermano, hablando desde tu perspectiva con `mi
+          hermano`. Respuesta: `Es el libro de mi hermano`. Conserva `de` delante del propietario.
   - subskill_id: quantity_comparison
-    explanation: Usa números y expresiones de cantidad; más ... que y menos ... que comparan cualidades
-      o cantidades.
+    explanation: Para elegir una caja, puede ser útil compararla con otra. Se coloca `más` delante de la
+      cualidad y `que` delante del término de comparación. Esta frase compara tamaños, no el número
+      de cajas.
     examples:
       - text: Esta caja es más grande que esa.
-        meaning: Esta caja tiene mayor tamaño que la otra.
-        note: Más grande que expresa la comparación y su punto de referencia.
+        meaning: "`Esta caja` señala la caja cercana; `es más grande` dice que tiene mayor tamaño. `Que esa`
+          señala la otra sin repetir `caja`. `Esta` y `esa` concuerdan con el nombre femenino."
+        note: >-
+          **Adáptalo.** `Esta caja es menos grande que esa` invierte la comparación. `Tengo más
+          cajas` habla de una cantidad mayor de cajas. Conserva `que` cuando nombras con qué
+          comparas.
+
+
+          **Prueba.** Compara dos libros con `este libro` y `ese`. Respuesta: `Este libro es más
+          grande que ese`. Los demostrativos pasan al masculino porque `libro` es masculino.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

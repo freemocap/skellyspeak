@@ -1,98 +1,102 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: french-skills-2026-10-04
+revision: french-teaching-expanded-english-2026-10-07
 skill_id: managing_conversation
 language: french
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: >-
-      Use a greeting or closing appropriate to the interaction. Bonjour and au revoir
-      serve different positions in an encounter; a closing can also refer to a future
-      meeting.
+    explanation: "You have to leave a conversation and expect to see the person tomorrow. `Je dois
+      partir` gives a reason for ending the exchange: I have to leave. `À demain !` closes it
+      with see you tomorrow. `Dois` is the form of `devoir` used with `je`, and `partir` stays
+      infinitive. When the next meeting is not fixed, `À bientôt !` means see you soon without
+      promising tomorrow. A greeting such as `Bonjour !` opens an encounter; it does not perform
+      the same closing job."
     examples:
-      - text: "Je dois partir. À demain !"
-        meaning: >-
-          I have to go. See you tomorrow!
-        note: >-
-          The departure statement prepares the closing; à demain ends the exchange while
-          anticipating another meeting.
+      - text: Je dois partir. À demain !
+        meaning: I have to go. See you tomorrow!
+        note: "Close with see you on Monday. `Je dois partir. À lundi !` works: `à` followed by the day
+          names the anticipated next meeting."
   - subskill_id: acknowledging
-    explanation: >-
-      Use a short response such as je vois or d’accord to show receipt or understanding.
-      Whether it also expresses agreement depends on what it responds to.
+    explanation: Someone explains their idea, and you signal that you now understand it. `Ah` marks
+      the moment of recognition. `Je vois` literally means I see but also means I understand
+      here; `ce que tu veux dire` means what you mean. This acknowledges the explanation without
+      necessarily agreeing with it. `Je suis d’accord` would additionally express agreement. `Je
+      vois ce que vous voulez dire` keeps the same response for polite address or several
+      listeners.
     examples:
-      - text: "Ah, je vois ce que tu veux dire."
-        meaning: >-
-          Oh, I see what you mean.
-        note: >-
-          This acknowledges the previous explanation; it need not endorse the partner’s
-          opinion.
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: Oh, I see what you mean.
+        note: "Acknowledge a person addressed as `vous`. `Ah, je vois ce que vous voulez dire.` works:
+          changing `tu veux` to `vous voulez` changes the address, not whether you agree."
   - subskill_id: clarification
-    explanation: >-
-      Identify the word or point that needs explanation. Qu’est-ce que… veut dire can ask
-      about meaning; a request to repeat addresses audibility instead.
+    explanation: You heard the word temporary but do not know what the speaker intends by it.
+      `Qu’est-ce que` asks what; `tu veux dire` means you mean, and `par « provisoire »` singles
+      out the word needing explanation. The quotation marks make clear that you are discussing a
+      word rather than describing something yourself. `Qu’est-ce que tu veux dire par « urgent »
+      ?` targets a different unclear term. This differs from `Tu peux répéter ?`, which requests
+      repetition and may leave the meaning unclear.
     examples:
-      - text: "Qu’est-ce que tu veux dire par « provisoire » ?"
-        meaning: >-
-          What do you mean by “temporary”?
-        note: >-
-          Par names the expression being queried; the question repairs understanding of
-          the previous contribution.
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: What do you mean by “temporary”?
+        note: Ask what the speaker means by important. `Qu’est-ce que tu veux dire par « important » ?`
+          works because the quoted word identifies the exact uncertainty.
   - subskill_id: rephrasing
-    explanation: >-
-      Introduce another formulation with autrement dit or c’est-à-dire when your earlier
-      meaning was unclear. The new wording must preserve or clarify that meaning.
+    explanation: A reservation rule was explained in detail, and you restate its practical meaning.
+      `Autrement dit` signals in other words. `Nous devons réserver` means we have to book;
+      `avant de payer` means before paying. When the same people perform both actions, `avant
+      de` can introduce the infinitive `payer`. `Avant de` gives order; it does not itself say
+      why the booking is required. The introduction presents an equivalent restatement, so it
+      should retain the original rule rather than quietly add a new condition.
     examples:
-      - text: "Autrement dit, nous devons réserver avant de payer."
-        meaning: >-
-          In other words, we need to book before paying.
-        note: >-
-          Autrement dit links the reformulation to prior speech. An unrelated new fact
-          would not be a successful rephrasing.
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: In other words, we need to book before paying.
+        note: "Restate a rule that booking comes before leaving. `Autrement dit, nous devons réserver
+          avant de partir.` works: only the second action changes, and `partir` remains
+          infinitive."
   - subskill_id: correcting_misunderstanding
-    explanation: >-
-      Contrast the interpretation the partner received with the intended one. Je voulais
-      dire commonly introduces this repair without requiring a full retelling.
+    explanation: The listener wrote Thursday, but the day you meant was Tuesday. `Je voulais dire`
+      means I meant; the imperfect `voulais` looks back to your intended meaning. `Mardi, pas
+      jeudi` replaces the mistaken day with the right one. This keeps the correction about your
+      message rather than blaming the listener. `Je veux dire mardi` can correct you in the act
+      of speaking; `je voulais dire` more naturally refers back to what was already said.
     examples:
-      - text: "Je voulais dire mardi, pas jeudi."
-        meaning: >-
-          I meant Tuesday, not Thursday.
-        note: >-
-          Voulais dire introduces the correction and pas jeudi identifies the mistaken
-          alternative.
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: I meant Tuesday, not Thursday.
+        note: Correct Friday to Saturday. `Je voulais dire samedi, pas vendredi.` works because the
+          intended day comes first and the rejected day follows `pas`.
   - subskill_id: turns_topics
-    explanation: >-
-      Use an explicit transition or turn request so the other participant can follow a
-      change of focus. Au fait often introduces a related new point.
+    explanation: The discussion is about to move on, but you still need a price detail. `Avant de
+      changer de sujet` means before changing the subject. `Puis-je` is a formal, polite may I
+      question; it is followed by the infinitive `poser`. `Poser une question sur le prix` means
+      ask a question about the price. In everyday conversation, `Est-ce que je peux poser une
+      question ?` is a less formal alternative. The opening explains why you are holding the
+      topic briefly rather than introducing an unrelated interruption.
     examples:
-      - text: "Avant de changer de sujet, puis-je poser une question sur le prix ?"
-        meaning: >-
-          Before changing the subject, may I ask a question about the price?
-        note: >-
-          The opening phrase manages the discussion; puis-je requests the floor rather
-          than locating an outside event in time.
-provenance: &provenance
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: Before changing the subject, may I ask a question about the price?
+        note: "Keep the topic briefly to ask about the date. `Avant de changer de sujet, puis-je poser
+          une question sur la date ?` works: `sur la date` names the remaining point."
+provenance: &a1
   origin: ai
-  authorship: >-
-    AI-authored French explanations, assessment guidance and original examples, informed
-    by the cited sources; no independent linguistic review.
+  authorship: AI-authored French teaching and original examples informed by the cited sources; no
+    independent linguistic review.
   sources:
     - dingemanse2015_communication_repair
     - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
   generation: null
   review:
     status: needs_review
-    revision: french-skills-2026-10-04
-    scope: >-
-      Entire document, including examples and applicability to both declared varieties.
-      References support the named grammatical or functional claims; they do not certify
-      generated examples.
+    revision: french-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1

@@ -1,88 +1,91 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: french-skills-2026-10-04
+revision: french-teaching-expanded-english-2026-10-07
 skill_id: possibilities_constraints
 language: french
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: >-
-      Savoir followed by an infinitive expresses learned know-how. Pouvoir can express
-      capacity or an available opportunity; context distinguishes these from permission.
+    explanation: A bicycle needs a repair, and you have learned the necessary skill. `Je sais` means
+      I know how, and `réparer une roue de vélo` means repair a bicycle wheel. `Savoir` followed
+      by an infinitive expresses learned know-how; the action verb does not take `de` here. `Je
+      peux réparer la roue` can instead describe being able to do it in the current
+      circumstances, for example having the tools and time. `Nous savons réparer` changes who
+      has the skill while keeping the infinitive.
     examples:
-      - text: "Je sais réparer une roue de vélo."
-        meaning: >-
-          I know how to repair a bicycle wheel.
-        note: >-
-          Sais réparer expresses a learned ability; it does not claim that a repair is
-          possible with the tools currently available.
+      - text: Je sais réparer une roue de vélo.
+        meaning: I know how to repair a bicycle wheel.
+        note: "Say that your group knows how to repair a bicycle. `Nous savons réparer un vélo.` works:
+          `savons` agrees with `nous`, and `réparer` still describes the learned skill."
   - subskill_id: permission
-    explanation: >-
-      Pouvoir in a question can request permission when the other participant has
-      authority over the action. The same verb in a different exchange can express
-      ability.
+    explanation: A room feels warm, but opening its window affects other people, so you ask for
+      permission. `Est-ce que` introduces the question; `je peux` means may I or can I, and
+      `ouvrir la fenêtre` names the proposed action. Context makes this a permission question
+      rather than a test of physical ability. `Vous pouvez ouvrir la fenêtre` can grant
+      permission. A negative reply, `Vous ne pouvez pas ouvrir la fenêtre`, denies it; `ne` and
+      `pas` surround the conjugated verb.
     examples:
-      - text: "Est-ce que je peux ouvrir la fenêtre ?"
-        meaning: >-
-          May I open the window?
-        note: >-
-          In a shared room this asks whether opening the window is permitted; it does not
-          test the speaker’s physical ability.
+      - text: Est-ce que je peux ouvrir la fenêtre ?
+        meaning: May I open the window?
+        note: "Ask permission to close the door. `Est-ce que je peux fermer la porte ?` works: the
+          permission frame remains, and the infinitive phrase supplies the new action."
   - subskill_id: obligation
-    explanation: >-
-      Devoir followed by an infinitive can express an obligation. Il faut also expresses
-      necessity; il faut que introduces a clause with its own subject and subjunctive
-      form.
+    explanation: You are leaving a rented room, and returning the keys before noon is required.
+      `Nous devons` means we must or we have to; `rendre les clés` is return the keys, and
+      `avant midi` sets the deadline. `Devons` agrees with `nous`, while `rendre` stays
+      infinitive. `Nous ne devons pas garder les clés` says we must not keep them. It does not
+      mean we do not have to keep them; absence of necessity can be expressed with `Nous n’avons
+      pas besoin de garder les clés.`
     examples:
-      - text: "Nous devons rendre les clés avant midi."
-        meaning: >-
-          We must return the keys before noon.
-        note: >-
-          Devons rendre places the obligation on nous; avant midi specifies the deadline.
+      - text: Nous devons rendre les clés avant midi.
+        meaning: We must return the keys before noon.
+        note: "Give the obligation to a person addressed as `vous`. `Vous devez rendre les clés avant
+          midi.` works: only the subject and matching form of `devoir` change."
   - subskill_id: possibility
-    explanation: >-
-      Peut-être or a suitable modal construction can leave an event uncertain. Match the
-      grammatical construction to the strength of the claim.
+    explanation: The forecast is uncertain, so you say snow may fall tonight. `Il va neiger` means
+      it is going to snow; the weather subject `il` does not refer to a person. `Peut-être`
+      means perhaps and makes the prediction uncertain. `Cette nuit` gives tonight. The phrase
+      can also begin the sentence as `Peut-être qu’il va neiger cette nuit.` Without
+      `peut-être`, `Il va neiger cette nuit` presents a more definite prediction. This
+      uncertainty word has a hyphen; it is different from two separate words meaning can be.
     examples:
-      - text: "Il va peut-être neiger cette nuit."
-        meaning: >-
-          It may snow tonight.
-        note: >-
-          Peut-être qualifies the prediction; this is a possibility rather than a definite
-          announcement of snow.
+      - text: Il va peut-être neiger cette nuit.
+        meaning: It may snow tonight.
+        note: "Make the same uncertain forecast for rain. `Il va peut-être pleuvoir cette nuit.` works:
+          `pleuvoir` replaces the weather event and stays infinitive after `va`."
   - subskill_id: certainty
-    explanation: >-
-      Expressions such as je suis certain que identify commitment to a proposition. Devoir
-      can signal an inference, so its presence alone does not establish certainty or
-      obligation.
+    explanation: You have just checked the service counter, so you state confidently that it is
+      closed. `Je suis certaine que` means I am certain that; `le guichet est fermé` supplies
+      the fact. `Je viens de vérifier` says I have just checked and gives the basis for
+      confidence. `Certaine` is the feminine form describing the speaker; the masculine is
+      `certain`. `Fermé` agrees with masculine `guichet`, not with the speaker. `Je pense que`
+      would make the claim less explicit about certainty.
     examples:
       - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
-        meaning: >-
-          I am certain that the counter is closed; I have just checked.
-        note: >-
-          Certaine is the feminine speaker’s certainty claim; the following clause states
-          the basis, without making the assessor a verifier of the real-world fact.
-provenance: &provenance
+        meaning: I am certain that the counter is closed; I have just checked.
+        note: "Keep the same checked fact for a masculine speaker. `Je suis certain que le guichet est
+          fermé : je viens de vérifier.` works: only `certain` changes because the counter and
+          the checking remain the same."
+provenance: &a1
   origin: ai
-  authorship: >-
-    AI-authored French explanations, assessment guidance and original examples, informed
-    by the cited sources; no independent linguistic review.
+  authorship: AI-authored French teaching and original examples informed by the cited sources; no
+    independent linguistic review.
   sources:
     - tex_modals2026
     - tex_conditional2026
+    - texRecentPastTeaching20261007
+    - texNearFutureTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: french-skills-2026-10-04
-    scope: >-
-      Entire document, including examples and applicability to both declared varieties.
-      References support the named grammatical or functional claims; they do not certify
-      generated examples.
+    revision: french-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1

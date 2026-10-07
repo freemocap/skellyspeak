@@ -56,16 +56,9 @@ const config: Config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.ts'),
           routeBasePath: 'docs',
-          editUrl: 'https://github.com/freemocap/skellyspeak/tree/main/docs/website/',
+          editUrl: 'https://github.com/freemocap/skellyspeak/tree/main/docs/docs-site/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: { type: ['rss', 'atom'], xslt: true },
-          editUrl: 'https://github.com/freemocap/skellyspeak/tree/main/docs/website/',
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        blog: false,
         theme: {
           customCss: [require.resolve('@freemocap/skellydocs/css/custom.css')],
         },
@@ -74,11 +67,6 @@ const config: Config = {
   ],
 
   themeConfig: {
-    announcementBar: {
-      id: 'documentation-audit-pending',
-      content: 'Documentation audit pending: these pages may describe older behavior. Check the repository source and READMEs for the current layout.',
-      isCloseable: false,
-    },
     image: 'img/og-image.png',
     colorMode: {
       defaultMode: 'dark',
@@ -92,9 +80,7 @@ const config: Config = {
       },
       items: [
         { to: '/download', label: 'Download', position: 'left' },
-        { type: 'docSidebar', sidebarId: 'docsSidebar', position: 'left', label: 'Docs' },
-        { to: '/blog', label: 'Blog', position: 'left' },
-        { to: '/roadmap', label: 'Roadmap', position: 'left' },
+        { type: 'docSidebar', sidebarId: 'docsSidebar', position: 'left', label: 'User guides' },
         { href: 'https://github.com/freemocap/skellyspeak', label: 'Code', position: 'right' },
       ],
     },
@@ -103,7 +89,11 @@ const config: Config = {
       links: [
         {
           title: 'Documentation',
-          items: [{ label: 'Getting Started', to: '/docs/overview' }],
+          items: [
+            { label: 'First session', to: '/docs/overview' },
+            { label: 'Interface walkthrough', to: '/docs/navigation' },
+            { label: 'Troubleshooting', to: '/docs/troubleshooting' },
+          ],
         },
         {
           title: 'Community',
@@ -114,10 +104,11 @@ const config: Config = {
           ],
         },
         {
-          title: 'More',
+          title: 'App',
           items: [
-            { label: 'Blog', to: '/blog' },
-            { label: 'Website', href: 'https://github.com/freemocap/skellyspeak' },
+            { label: 'Download', to: '/download' },
+            { label: 'Settings', to: '/docs/settings' },
+            { label: 'Privacy and data', to: '/docs/privacy' },
           ],
         },
       ],

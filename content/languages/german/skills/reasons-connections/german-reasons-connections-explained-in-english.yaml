@@ -1,55 +1,82 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: In the written weil construction used here, the finite verb ends the subordinate
-      clause. Denn is another way to give a reason, with main-clause word order.
+    explanation: A broken bicycle explains why you choose the bus. `weil` introduces the reason and
+      changes the verb order inside the reason clause.
     examples:
       - text: Ich nehme den Bus, weil mein Fahrrad kaputt ist.
-        meaning: I am taking the bus because my bicycle is broken.
-        note: Weil links the choice to its reason; ist comes at the end of that clause.
+        meaning: "**The example.** I am taking the bus because my bicycle is broken. `Ich nehme den Bus`
+          means I take the bus, with masculine accusative `den`. `mein Fahrrad` is my bicycle and
+          `kaputt` means broken. After `weil`, finite `ist` goes at the end: `weil mein Fahrrad
+          kaputt ist`."
+        note: "`denn` can also introduce this reason, but keeps ordinary main-clause order. Try it: give the
+          reason with `denn`. Answer: `Ich nehme den Bus, denn mein Fahrrad ist kaputt`. Move `ist`
+          before `kaputt` when changing the connector; the cause stays the same."
   - subskill_id: consequences
-    explanation: Deshalb can connect a situation to its consequence. When it starts a main clause,
-      the finite verb follows before the subject.
+    explanation: "A road closure forces a change of route. `Deshalb` links the closure to its
+      consequence: you travel across the bridge because that road is unavailable."
     examples:
       - text: Die Straße ist gesperrt. Deshalb fahren wir über die Brücke.
-        meaning: The road is closed. Therefore we are going via the bridge.
-        note: Deshalb presents the route change as a result; fahren follows it. A simple danach would
-          primarily express sequence.
+        meaning: "**The example.** The road is closed. Therefore we are going via the bridge. `Die Straße
+          ist gesperrt` means the road is closed. `Deshalb` means therefore and takes the first
+          position in the next sentence. Finite `fahren` comes second, before `wir`. `über die
+          Brücke` describes the route across the bridge."
+        note: "Try it: put the travellers first in the second sentence. Answer: `Die Straße ist gesperrt.
+          Wir fahren deshalb über die Brücke`. `fahren` remains second and `deshalb` moves later.
+          `danach` means afterwards and gives a time sequence; it does not itself express this
+          causal link."
   - subskill_id: conditions
-    explanation: Falls introduces a contingency with the finite verb at the end. If its clause comes
-      first, the following main clause begins with its finite verb.
+    explanation: "Tomorrow’s plan depends on the weather. `Falls` introduces an open condition: staying
+      home will follow if it rains, without stating that rain is certain."
     examples:
       - text: Falls es morgen regnet, bleiben wir zu Hause.
-        meaning: If it rains tomorrow, we will stay at home.
-        note: Regnet ends the condition; bleiben starts the following clause. Present forms are
-          sufficient for this open future contingency.
+        meaning: "**The example.** If it rains tomorrow, we will stay at home. `Falls es morgen regnet`
+          means if it rains tomorrow; `regnet` goes at the end after `falls`. The whole condition
+          comes first, so the main clause begins with `bleiben`, then `wir`. `zu Hause` means at
+          home. Present forms can describe this future arrangement."
+        note: "Try it: start with your plan and put the condition last. Answer: `Wir bleiben zu Hause, falls
+          es morgen regnet`. The main clause now starts with `wir`; the condition still ends with
+          `regnet`. `weil` would present rain as a reason rather than leaving it as an open
+          condition."
   - subskill_id: contrast
-    explanation: Aber connects opposing properties or ideas while preserving main-clause word order.
-      Obwohl can express a concession with a subordinate clause instead.
+    explanation: A shorter route may still be harder to walk because it is steeper. `aber` connects the
+      advantage with the drawback, helping explain why shorter does not settle the choice.
     examples:
       - text: Der neue Weg ist kürzer, aber er ist viel steiler.
-        meaning: The new route is shorter, but it is much steeper.
-        note: Aber contrasts the advantage of a shorter route with the drawback of greater steepness;
-          kürzer and steiler are comparatives.
+        meaning: "**The example.** The new route is shorter, but it is much steeper. `Der neue Weg` is the
+          new route. `kürzer` means shorter, from `kurz` with an umlaut and comparative ending.
+          `viel steiler` means much steeper, from `steil`. After `aber`, `er ist` keeps subject then
+          verb; `er` refers to masculine `Weg`."
+        note: "Try it: say the route is longer but much flatter. Answer: `Der neue Weg ist länger, aber er
+          ist viel flacher`. `lang` becomes `länger`, while `flach` becomes `flacher`. The two new
+          comparative adjectives change the trade-off; `viel` strengthens the second comparison."
   - subskill_id: supporting_claims
-    explanation: Give grounds that bear on a judgment, using a reason clause or a linked statement.
-      An example or observed result can support a position without proving it beyond doubt.
+    explanation: Calling a workshop reliable is more convincing when you give relevant experience. This
+      statement first evaluates the workshop, then supports that evaluation with repeated timely
+      completion of bicycle repairs.
     examples:
       - text: Ich halte die Werkstatt für zuverlässig, denn unsere Fahrräder waren jedes Mal pünktlich
           fertig.
-        meaning: I consider the workshop reliable, because our bicycles were ready on time every time.
-        note: Halte … für states the evaluation. The clause after denn retains main-clause order and
-          supplies the reported experience supporting it.
-provenance: &a1
+        meaning: "**The example.** I consider the workshop reliable, because our bicycles were ready on time
+          every time. `Ich halte die Werkstatt für zuverlässig` means I consider the workshop
+          reliable; `halten … für` introduces an assessment. `denn` gives the reason without moving
+          the verb to the end. `unsere Fahrräder waren` is our bicycles were; `jedes Mal` means
+          every time and `pünktlich fertig` means ready on time."
+        note: "Try it: support the same claim using `weil`. Answer: `Ich halte die Werkstatt für
+          zuverlässig, weil unsere Fahrräder jedes Mal pünktlich fertig waren`. `waren` moves to the
+          end of the reason clause. The evidence remains the bicycles’ repeated timely completion,
+          rather than simply repeating that the workshop is good."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_connectors2026
     - umich_de_adverbs2026
@@ -60,11 +87,29 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_connectors2026
+        - umich_de_adverbs2026
+        - umich_de_word_order2026
+        - umich_de_comparison2026
+        - goethe_de_discussion2026
+        - guenthner_spoken_grammar2000
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

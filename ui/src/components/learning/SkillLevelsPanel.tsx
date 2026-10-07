@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../localization/i18n'
-import { SkillChart, useSkillChartView } from './SkillChart'
+import { SkillChart, shownOn, useSkillChartView } from './SkillChart'
 import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { holdingBack, languageSkillLevels, type ConversationSkillPoints, type SkillLevel } from '../../domain/learning/statistics/skill-levels'
 import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
@@ -16,9 +16,11 @@ const MAX_PIPS = 21
  * radar, row, chip and card all mark the same skill. Hover never changes the
  * selection, and the card keeps one size for every skill, so nothing moves
  * under the pointer. The first skill holding the level back starts selected.
- * `conversation`, when given, is one conversation's evidence, overlaid on the
- * chart as an outline. `languageName` names the language in the heading and the
- * selected skill's buttons, so the panel always says whose levels these are. */
+ * `conversation`, when given, is one conversation's evidence: the chart then
+ * offers the language's totals, that conversation alone, or both (the
+ * conversation outlined over the totals), and the key and legend follow the
+ * choice. `languageName` names the language in the heading and the selected
+ * skill's buttons, so the panel always says whose levels these are. */
 export function SkillLevelsPanel({ snapshot, languageName, conversation, onInspect, onPractice, practiceSkill }: {
   snapshot: SkillSnapshot; languageName: string; conversation: ConversationSkillPoints | null; onInspect: ((id: string) => void) | null
   onPractice?: (id: string) => void; practiceSkill?: string
@@ -32,6 +34,7 @@ export function SkillLevelsPanel({ snapshot, languageName, conversation, onInspe
   const bars = view.type === 'bars'
   const conversationPoints = conversation ? conversation.skills.map(skill => skill.points) : null
   const conversationTotal = conversationPoints?.reduce((sum, value) => sum + value, 0) ?? 0
+  const shown = shownOn(view, conversationPoints)
   const focused = levels.skills.find(skill => skill.id === selected)
   if (!focused) throw new Error(`Selected skill is not in this language's levels: ${selected}`)
   const nextLevel = levels.level + 1
@@ -53,14 +56,15 @@ export function SkillLevelsPanel({ snapshot, languageName, conversation, onInspe
       </div>
     </header>
 
-    <SkillChart levels={levels} conversation={conversationTotal > 0 ? conversationPoints : null} view={view} selected={selected} onSelect={setSelected}>
+    <SkillChart levels={levels} conversation={conversationPoints} view={view} selected={selected} onSelect={setSelected}>
       <ul className="skill-levels-key" aria-label={tr('How to read the chart')}>
-        <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <line className="skill-levels-key-goal" x1="8" y1="1" x2="8" y2="15" /> : <circle className="skill-levels-key-goal" cx="8" cy="8" r="6" />}</svg>{tr('Level {value0} goal', { value0: nextLevel })}</li>
-        {levels.level > 0 && <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <line className="skill-levels-key-reached" x1="8" y1="1" x2="8" y2="15" /> : <circle className="skill-levels-key-reached" cx="8" cy="8" r="6" />}</svg>{tr('Levels reached')}</li>}
-        <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <rect className="skill-levels-key-shape" x="1" y="5" width="14" height="6" rx="2" /> : <polygon className="skill-levels-key-shape" points="8,2 14,7 11,14 4,13 2,6" />}</svg>{tr('Your points')}</li>
+        {/* Shown alone and normalized, a conversation's busiest skill sits on the gold ring; a conversation has no earned levels. */}
+        <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <line className="skill-levels-key-goal" x1="8" y1="1" x2="8" y2="15" /> : <circle className="skill-levels-key-goal" cx="8" cy="8" r="6" />}</svg>{shown === 'conversation' && view.scale === 'normalized' ? tr('Busiest skill in this conversation') : tr('Level {value0} goal', { value0: nextLevel })}</li>
+        {levels.level > 0 && shown !== 'conversation' && <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <line className="skill-levels-key-reached" x1="8" y1="1" x2="8" y2="15" /> : <circle className="skill-levels-key-reached" cx="8" cy="8" r="6" />}</svg>{tr('Levels reached')}</li>}
+        <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <rect className="skill-levels-key-shape" x="1" y="5" width="14" height="6" rx="2" /> : <polygon className="skill-levels-key-shape" points="8,2 14,7 11,14 4,13 2,6" />}</svg>{shown === 'conversation' ? tr('This conversation') : tr('Your points')}</li>
       </ul>
-      {conversationPoints && <p className="skill-levels-legend">
-        <span className="skill-levels-legend-mark" aria-hidden="true" />
+      {conversationPoints && shown !== 'language' && <p className="skill-levels-legend">
+        {shown === 'both' && <span className="skill-levels-legend-mark" aria-hidden="true" />}
         {conversationTotal === 0
           ? tr('No skill points in this conversation yet')
           : view.scale === 'normalized'

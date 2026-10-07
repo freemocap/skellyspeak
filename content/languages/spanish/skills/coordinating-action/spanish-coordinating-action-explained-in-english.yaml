@@ -1,86 +1,169 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-teaching-english-2026-10-07
 skill_id: coordinating_action
 language: spanish
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: Ask for an action directly or with a conventional polite question. Poder in a request
-      is not necessarily a question about physical ability.
+    explanation: If a room is cold, you might ask another person to close the door. A question with
+      `poder` is a familiar way to request an action. In this situation, you want them to do
+      something; you are not testing their physical ability.
     examples:
       - text: ¿Puedes cerrar la puerta, por favor?
-        meaning: Can you close the door, please?
-        note: The expected response is closing the door.
+        meaning: “Can you close the door, please?” `Puedes` addresses one person informally, `cerrar` names
+          the action and `la puerta` names its object. `Por favor` adds please. The action stays in
+          the infinitive after `puedes`.
+        note: >-
+          **Adapt it.** `¿Puede cerrar la puerta, por favor?` addresses one person with `usted`.
+          `¿Puedes abrir la puerta?` asks for the opposite action. Politeness also depends on tone
+          and situation.
+
+
+          **Try it.** Ask someone informally to open the window, using `abrir la ventana`. Answer:
+          `¿Puedes abrir la ventana, por favor?`. Keep the action in its dictionary form.
   - subskill_id: offers_invitations
-    explanation: Offer your help or invite the other person to join an activity.
+    explanation: Inviting someone to dinner gives them an opportunity to join you. A question with
+      `querer` asks whether they want to take part. The setting turns a question about wanting into
+      an invitation, and leaves room for either acceptance or refusal.
     examples:
       - text: ¿Quieres venir a cenar?
-        meaning: Would you like to come for dinner?
-        note: In this setting the question invites participation.
+        meaning: "“Would you like to come for dinner?” `Quieres` asks whether you want to, `venir` means
+          come, and `a cenar` gives the purpose: to have dinner. The invitation addresses one person
+          informally."
+        note: >-
+          **Adapt it.** `¿Quieres venir a comer?` invites someone to a meal using `comer`. `¿Quieres
+          cenar?` asks whether they want dinner without explicitly inviting them to come somewhere.
+
+
+          **Try it.** Invite someone to come and walk, using `pasear`. Answer: `¿Quieres venir a
+          pasear?`. Keep `venir a` and replace the activity.
   - subskill_id: suggestions
-    explanation: Podemos followed by an infinitive can propose something to do together.
+    explanation: While planning an outing, you may want to put one option on the table. `Podemos`
+      followed by an activity can suggest something you could do together. It presents a possible
+      plan rather than an instruction or a settled agreement.
     examples:
       - text: Podemos ir mañana.
-        meaning: We could go tomorrow.
-        note: In a planning exchange, this proposes an option.
+        meaning: “We could go tomorrow.” `Podemos` includes the speaker in we; `ir` means go and `mañana`
+          gives the day. In a planning conversation this wording offers tomorrow as an option.
+        note: >-
+          **Compare.** `Tenemos que ir mañana` says you have to go tomorrow, so it adds a
+          requirement. `Podemos ir hoy` keeps the suggestion but changes the day.
+
+
+          **Try it.** Suggest eating here with `comer aquí`. Answer: `Podemos comer aquí`. Change
+          the activity after `podemos`, leaving it in the infinitive.
   - subskill_id: commitments
-    explanation: Use wording that undertakes responsibility when making a commitment; future time alone
-      is not a promise.
+    explanation: When someone needs to rely on you, an explicit promise makes your responsibility clear.
+      Saying what will happen in the future can merely describe a plan; `prometo` tells the listener
+      that you are undertaking to do it.
     examples:
       - text: Te prometo que voy a llamarte.
-        meaning: I promise I will call you.
-        note: Prometo makes the undertaking explicit.
+        meaning: “I promise I will call you.” `Te` names the listener as the recipient of the promise.
+          `Prometo que` introduces what is promised; `voy a llamarte` says I am going to call you.
+          The ending `te` on `llamarte` identifies the person to be called.
+        note: >-
+          **Adapt it.** `Voy a llamarte` states a plan without the explicit promise. The same call
+          can be expressed as `Te voy a llamar`: the object pronoun can come before the conjugated
+          verb instead.
+
+
+          **Try it.** Promise to call tomorrow. Answer: `Te prometo que voy a llamarte mañana`. Add
+          the time without changing who makes or receives the promise.
   - subskill_id: accepting_declining
-    explanation: A short acceptance or refusal depends on the proposal it answers. You can decline
-      politely without a long explanation.
+    explanation: An invitation does not need a long reply. If you cannot join, a brief apology followed
+      by a refusal can make your answer clear without giving private details. The invitation
+      supplies the activity that your reply leaves unspoken.
     examples:
       - text: Lo siento, no puedo.
-        meaning: Sorry, I cannot.
-        note: Following an invitation, this declines it.
+        meaning: “Sorry, I cannot.” `Lo siento` is a conventional apology; `no puedo` says I cannot do the
+          proposed activity. After an invitation to dinner, the listener understands that dinner is
+          what you cannot attend.
+        note: >-
+          **Compare.** `Sí, gracias` accepts the invitation. `No quiero` says you do not want to,
+          which is a different reason from being unable to. You can make the refusal explicit with
+          `No puedo ir`.
+
+
+          **Try it.** Decline an invitation and say you cannot go today. Answer: `Lo siento, hoy no
+          puedo ir`. `Hoy` gives the time and `ir` names the omitted activity.
   - subskill_id: negotiating_plans
-    explanation: Respond to a proposed plan with an alternative that addresses the obstacle.
+    explanation: When a proposed time does not work, another time helps the conversation move toward an
+      agreement. You can first name the obstacle and then offer a workable alternative. The two
+      parts show what needs to change.
     examples:
       - text: A las seis no puedo; ¿quedamos a las siete?
-        meaning: I cannot make six; shall we meet at seven?
-        note: The speaker changes the proposed time to resolve a constraint.
+        meaning: “I cannot at six; shall we meet at seven?” `A las seis` names the unavailable time and `no
+          puedo` explains the obstacle. `¿Quedamos a las siete?` proposes meeting at seven;
+          `quedamos` includes both people.
+        note: >-
+          **Adapt it.** `¿Nos vemos a las siete?` also proposes seeing each other at seven. A bare
+          `No puedo` rejects the time but supplies no alternative. The question remains a proposal
+          until the other person agrees.
+
+
+          **Try it.** You cannot at seven; suggest eight. Answer: `A las siete no puedo; ¿quedamos a
+          las ocho?`. Put the rejected time first and the new time in the question.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-english-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

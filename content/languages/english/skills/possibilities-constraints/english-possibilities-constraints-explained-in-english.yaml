@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-learner-first-english-2026-10-07
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: possibilities_constraints
 language: english
 explanation_language: english
@@ -110,8 +110,10 @@ varieties:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - bc_modals2026
         - bcCanCouldTeaching20261007
@@ -124,7 +126,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-english-2026-10-07
+        revision: english-teaching-expanded-english-2026-10-07
         scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core

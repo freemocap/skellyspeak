@@ -1,41 +1,54 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: A che ora 問時間；dove 等疑問詞問其他資料。一般意大利文問句唔會額外加相當於英文 do 嘅助動詞。
+    explanation: 想參加課程，開始時間就係要問嘅資料。`a che ora` 問幾點。問句講出活動同日子，對方先知道你要邊個開始時間。
     examples:
       - text: A che ora comincia il corso domani?
-        meaning: 聽日堂課幾點開始？
-        note: A che ora 問開始時間；comincia 已經係限定動詞。
+        meaning: 意思係「聽日個課程幾點開始？」`A che ora` 問鐘點。`Comincia` 係開始，`il corso` 指活動，`domani`
+          指日子。呢度主語喺動詞後面，唔使加另一個問句動詞。
+        note: |-
+          **比較。** `Dove comincia il corso?` 改問地方。`Quando comincia il corso?` 問時間較廣，可以用日期回答。
+
+          **試吓。** 用 `la riunione` 問會議幾點開始。答案：`A che ora comincia la riunione?`。換活動，保留單數動詞。
   - subskill_id: answering_information
-    explanation: 可以只用短語回答，但上句要清楚交代呢個短語回答乜嘢。
+    explanation: 問完開始時間，用短短鐘點短語就可以回答，唔使重複成個活動。之前問題已經指出乜活動同邊日，回答只需補上時間。
     examples:
       - text: Alle nove.
-        meaning: 九點。
-        note: 回應課堂幾點開始；alle 係 a 加 le。
+        meaning: 意思係「九點」。`Alle` 由 `a` 同 `le` 合成，`nove` 指鐘點。接住 `A che ora comincia il corso?`，對方會理解為課程九點開始。
+        note: |-
+          **改一改。** `Alle dieci` 換成十點。一點嘅表達用單數：`all’una`。只講鐘點唔可以回答課程喺邊度。
+
+          **試吓。** 用一點回答開始時間。答案：`All’una`。用單數鐘點表達，唔係 `alle`。
   - subskill_id: checking_facts
-    explanation: 命題後面加 vero? 可以尋求確認，核實已知資料，唔係問新定義。
+    explanation: 記得課程九點開始，可以請人核實。陳述後面加 `vero`? 提出你記得嘅資料，請對方同意或者更正。呢種唔同完全開放嘅時間問題。
     examples:
       - text: Il corso comincia alle nove, vero?
-        meaning: 堂課九點開始，係咪？
-        note: 之前有人提到九點開課；vero 請對方確認呢件事。
+        meaning: 意思係「課程九點開始，係咪？」`Il corso comincia alle nove` 講預期時間。`Vero?`
+          呢度解係咪，令句子成為確認請求。對方可以確認，亦可以提供另一個時間。
+        note: |-
+          **比較。** `A che ora comincia il corso?` 冇提出時間。`No, alle dieci` 直接更正估計。陳述主語換咗，`vero?` 都保持一樣。
+
+          **試吓。** 核實會議十點開始。答案：`La riunione comincia alle dieci, vero?`。先講要核實嘅資料，再加確認語。
   - subskill_id: useful_detail
-    explanation: 用具體位置或者分辨特徵，解決對方嘅資料需要。Vicino a 短語可以進一步縮窄位置。
+    explanation: 第一次去某棟樓，對方可能需要唔只地址。指出入口喺邊一面，再加附近地標，有助揀啱路入去。兩個地方短語可以更準確描述同一個入口。
     examples:
       - text: L’ingresso è sul retro, vicino al parcheggio.
-        meaning: 入口喺後面，近停車場。
-        note: 回應搵緊入口嘅人。Sul 係 su 加 il，al 係 a 加 il；停車場係有用地標。
+        meaning: 意思係「入口喺後面，近停車場」。`L’ingresso` 指入口。`Sul retro` 指後面；`vicino al parcheggio` 提供地標。`Sul` 由 `su` 同
+          `il` 合成；`al` 由 `a` 同 `il` 合成。
+        note: |-
+          **改一改。** `Vicino alla stazione` 換成車站，改用陰性 `alla`。加長答案時，每段資料有助搵入口先有用。
+
+          **試吓。** 講入口近車站。答案：`L’ingresso è vicino alla stazione`。`Vicino a` 保留介詞，同 `la` 合成一個字。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/information-exchange/italian-information-exchange-explained-in-english.yaml
-    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_questions2026
     - zanichelli_it_prepositions2026
@@ -43,18 +56,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/information-exchange/italian-information-exchange-explained-in-english.yaml
-        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - treccani_it_questions2026
         - zanichelli_it_prepositions2026
@@ -62,6 +73,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

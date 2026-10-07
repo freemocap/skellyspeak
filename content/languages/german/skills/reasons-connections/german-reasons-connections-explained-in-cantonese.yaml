@@ -1,48 +1,58 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: german-teaching-cantonese-2026-10-07
 language: german
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 呢度書面 weil 結構嘅限定動詞放從句尾。denn 亦可以畀理由，但後面保留主句語序。
+    explanation: 單車壞咗，解釋點解揀巴士。`weil` 引出原因，並改變原因分句入面嘅動詞次序。
     examples:
       - text: Ich nehme den Bus, weil mein Fahrrad kaputt ist.
-        meaning: 我搭巴士，因為架單車壞咗。
-        note: weil 連接選擇同原因；ist 喺嗰個從句尾。
+        meaning: "**例句。** 我搭巴士，因為架單車壞咗。 `Ich nehme den Bus` 係我搭巴士，男性賓格用 `den`。`mein Fahrrad` 係我架單車，`kaputt`
+          係壞咗。`weil` 後面變位 `ist` 放句尾：`weil mein Fahrrad kaputt ist`。"
+        note: "`denn` 都可以引出原因，但保留普通主句次序。試下用 `denn`：`Ich nehme den Bus, denn mein Fahrrad ist
+          kaputt`。換連接詞時，`ist` 移到 `kaputt` 前，原因唔變。"
   - subskill_id: consequences
-    explanation: deshalb 可以引入結果。放主句開頭時，限定動詞喺主語之前。
+    explanation: 道路封閉，要改路線。`Deshalb` 將封路連到後果：因為條路唔通，所以改經橋。
     examples:
       - text: Die Straße ist gesperrt. Deshalb fahren wir über die Brücke.
-        meaning: 條路封咗，所以我哋經條橋行。
-        note: deshalb 將改路線呈現為結果，後接 fahren；danach 就主要講先後。
+        meaning: "**例句。** 條路封咗，所以我哋經條橋行。 `Die Straße ist gesperrt` 係道路封閉。`Deshalb` 係所以，佔下一句第一位置；變位 `fahren`
+          喺第二，主語 `wir` 跟後。`über die Brücke` 講經橋嘅路線。"
+        note: 試下第二句主語放先：`Die Straße ist gesperrt. Wir fahren deshalb über die Brücke`。`fahren`
+          保持第二，`deshalb` 移後。`danach` 係之後，只講時間次序，本身冇表達因果。
   - subskill_id: conditions
-    explanation: falls 引入條件，限定動詞放尾。條件子句行先時，後面主句由限定動詞開始。
+    explanation: 聽日安排視乎天氣。`Falls` 引出未定條件：如果落雨就留喺屋企，但冇話一定落雨。
     examples:
       - text: Falls es morgen regnet, bleiben wir zu Hause.
-        meaning: 如果聽日落雨，我哋就留喺屋企。
-        note: regnet 喺條件尾，bleiben 喺主句開頭。呢種開放將來條件，用現在式就足夠。
+        meaning: "**例句。** 如果聽日落雨，我哋就留喺屋企。 `Falls es morgen regnet` 係如果聽日落雨，`falls` 後嘅 `regnet`
+          放句尾。成個條件放先，所以主句先係 `bleiben`，再係 `wir`。`zu Hause` 係喺屋企。現在形式可以講呢個未來安排。"
+        note: 試下先講安排，條件放後：`Wir bleiben zu Hause, falls es morgen regnet`。主句改由 `wir` 開始，條件仍然由 `regnet`
+          結尾。`weil` 會將落雨講成原因，唔係未定條件。
   - subskill_id: contrast
-    explanation: aber 連接對比並保留主句語序；obwohl 則可以用從句表達讓步。
+    explanation: 較短路線可能斜得多，行起嚟仍然辛苦。`aber` 連起優點同缺點，解釋點解淨係短未決定揀邊條。
     examples:
       - text: Der neue Weg ist kürzer, aber er ist viel steiler.
-        meaning: 新路線短啲，但斜好多。
-        note: aber 對比路短嘅好處同斜坡陡嘅缺點；kürzer、steiler 係比較級。
+        meaning: "**例句。** 新路線短啲，但斜好多。 `Der neue Weg` 係新路線。`kürzer` 由 `kurz` 加變音同比較級詞尾，係更短。`viel steiler`
+          係斜得多，由 `steil` 變成。`aber` 後 `er ist` 保留主語再動詞，`er` 指男性 `Weg`。"
+        note: 試下話較長但平坦得多：`Der neue Weg ist länger, aber er ist viel flacher`。`lang` 變 `länger`，`flach` 變
+          `flacher`。兩個新比較形容詞改變利弊，`viel` 加強第二個比較。
   - subskill_id: supporting_claims
-    explanation: 用理由子句或相關陳述提供支持判斷嘅依據。觀察可以支持立場，但唔等於毫無疑問嘅證明。
+    explanation: 話維修店可靠，如果交代相關經驗會更有說服力。呢句先評價間店，再用每次準時修好單車支持判斷。
     examples:
       - text: Ich halte die Werkstatt für zuverlässig, denn unsere Fahrräder waren jedes Mal pünktlich
           fertig.
-        meaning: 我覺得間維修舖可靠，因為我哋啲單車每次都準時整好。
-        note: halte … für 表達評價。denn 後面保留主句語序，交代支持評價嘅經驗。
+        meaning: "**例句。** 我覺得間維修舖可靠，因為我哋啲單車每次都準時整好。 `Ich halte die Werkstatt für zuverlässig`
+          係我認為維修店可靠，`halten … für` 引出評價。`denn` 講原因，唔將動詞移去句尾。`unsere Fahrräder waren`
+          係我哋啲單車之前係，`jedes Mal` 係每次，`pünktlich fertig` 係準時整好。"
+        note: 試下用 `weil` 支持同一主張：`Ich halte die Werkstatt für zuverlässig, weil unsere Fahrräder jedes Mal
+          pünktlich fertig waren`。`waren` 移到原因分句句尾。證據仍然係每次準時整好單車，唔係淨係再話間店好。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/german/skills/reasons-connections/german-reasons-connections-explained-in-english.yaml
-    at revision german-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_connectors2026
     - umich_de_adverbs2026
@@ -53,18 +63,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: german-teaching-cantonese-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/german/skills/reasons-connections/german-reasons-connections-explained-in-english.yaml
-        at revision german-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
       sources:
         - umich_de_connectors2026
         - umich_de_adverbs2026
@@ -75,6 +85,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: german-teaching-cantonese-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

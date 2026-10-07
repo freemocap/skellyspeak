@@ -1,55 +1,87 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: An infinitive with കഴിയും can express ability.
+    explanation: When deciding who can join a swim, saying you are able to swim gives useful
+      information. `എനിക്ക്` identifies you as the person with the capability. The activity comes
+      before `കഴിയും`, can or be able to.
     examples:
       - text: എനിക്ക് നീന്താൻ കഴിയും.
-        meaning: I can swim.
-        note: എനിക്ക് identifies the person with the capability.
+        meaning: "**The example.** I can swim. `എനിക്ക്` is the dative form referring to me, `നീന്താൻ` means
+          to swim, and `കഴിയും` expresses capability. The infinitive `നീന്താൻ` names what you can
+          do; it is not a separate conjugated action after an English-style can."
+        note: "Try reporting that you cannot swim. Answer: `എനിക്ക് നീന്താൻ കഴിയില്ല.` Replace `കഴിയും` with
+          `കഴിയില്ല`, cannot. Keep `എനിക്ക്` and the infinitive. A permission question about
+          swimming here would ask whether the activity is allowed, rather than report this
+          capability."
   - subskill_id: permission
-    explanation: A question ending in ആമോ can ask whether an action is permitted.
+    explanation: Before leaving a bag in someone else's space, you can ask the person responsible
+      whether it is permitted. The proposed action ends in `വെക്കാമോ`, may it be put? Who would put
+      it there is understood from the situation.
     examples:
       - text: ഇവിടെ ബാഗ് വെക്കാമോ?
-        meaning: May I leave the bag here?
-        note: Ask the person responsible for the space; the actor is recoverable from context.
+        meaning: "**The example.** May I leave the bag here? `ഇവിടെ` is here, `ബാഗ്` is bag, and `വെക്കാമോ`
+          asks whether putting it there is acceptable. It combines the putting action with the modal
+          question. The place and object precede that final action."
+        note: "Try asking to leave the bag there instead. Answer: `അവിടെ ബാഗ് വെക്കാമോ?` Change `ഇവിടെ` to
+          `അവിടെ`, there. A reply `വെക്കാം` can grant permission in this exchange. The same modal
+          question can have other readings, so permission comes from asking the person responsible
+          for the space."
   - subskill_id: obligation
-    explanation: The ending in കൊടുക്കണം can state a required action.
+    explanation: A borrowed key has to be returned today. `ഞാൻ` names the person responsible, and
+      `കൊടുക്കണം` makes giving it back a requirement in this deadline situation. It is stronger than
+      merely saying the return will happen.
     examples:
       - text: ഞാൻ ഇന്ന് താക്കോൽ തിരികെ കൊടുക്കണം.
-        meaning: I must return the key today.
-        note: The context is a return deadline, establishing obligation rather than a wish.
+        meaning: "**The example.** I must return the key today. `ഇന്ന്` is today, `താക്കോൽ` is key, and
+          `തിരികെ` is back. `തിരികെ കൊടുക്കണം` means must give back. The key and return direction
+          come before the final required action."
+        note: "Try moving the deadline to tomorrow. Answer: `ഞാൻ നാളെ താക്കോൽ തിരികെ കൊടുക്കണം.` Replace
+          `ഇന്ന്` with `നാളെ`. The negative form `വെക്കേണ്ട` is context-sensitive: it can remove a
+          need or tell someone not to put something there. It is not a reliable isolated way to
+          distinguish “need not” from “must not.”"
   - subskill_id: possibility
-    explanation: A form with ഏക്കാം can express a possible event.
+    explanation: An evening outing may be affected by uncertain weather. `പെയ്തേക്കാം` presents rain as
+      a possible outcome, leaving room for a different forecast. The evening is named before the
+      weather event.
     examples:
       - text: വൈകുന്നേരം മഴ പെയ്തേക്കാം.
-        meaning: It may rain in the evening.
-        note: The weather outcome is left uncertain.
+        meaning: "**The example.** It may rain in the evening. `വൈകുന്നേരം` is evening and `മഴ` is rain.
+          `പെയ്തേക്കാം` is may fall or may rain here; the rain noun is the thing that falls.
+          Malayalam does not need to add a separate weather pronoun corresponding to English it."
+        note: "Try placing the possible rain tomorrow instead. Answer: `നാളെ മഴ പെയ്തേക്കാം.` Replace the
+          time with `നാളെ`. `നാളെ മഴ പെയ്യും` presents a more direct rain prediction; `പെയ്തേക്കാം`
+          keeps the uncertainty explicit."
   - subskill_id: certainty
-    explanation: ഉറപ്പില്ല states lack of certainty about a proposition.
+    explanation: Before going to a shop, you may be unsure whether it is open. A question about the
+      shop's state can be placed inside a statement of uncertainty. `എനിക്ക് ഉറപ്പില്ല` says I do
+      not have certainty.
     examples:
       - text: കട തുറന്നിട്ടുണ്ടോ എന്ന് എനിക്ക് ഉറപ്പില്ല.
-        meaning: I am not sure whether the shop is open.
-        note: The embedded question identifies the uncertainty without asserting closure.
+        meaning: "**The example.** I am not sure whether the shop is open. `കട` is shop and
+          `തുറന്നിട്ടുണ്ടോ` asks whether it is open. `എന്ന്` links that question to `എനിക്ക്
+          ഉറപ്പില്ല`. The unresolved content comes first; the uncertainty comes at the end."
+        note: "Practice: Does `എനിക്ക് ഉറപ്പില്ല` say the shop is closed? Answer: No. It says the speaker is
+          not sure whether it is open. `കട തുറന്നിട്ടില്ല` instead says the shop is not open; it
+          rejects the open state rather than reporting uncertainty."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
+    - moagMalayalamTeaching20261007
     - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

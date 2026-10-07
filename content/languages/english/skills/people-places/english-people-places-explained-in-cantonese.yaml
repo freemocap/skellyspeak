@@ -1,85 +1,178 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: people_places
 language: english
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: 用名字、代名詞或名詞短語，講清楚你指邊個或乜嘢。
+    explanation: 識別係講清楚你指出嗰個係邊個或乜嘢。見到最近搬嚟附近嘅人，可以將眼前嗰個人同佢同你嘅關係連起嚟。對方要有足夠共同語境，先知你指邊個。
     examples:
       - text: That is our new neighbour.
-        meaning: 所指嘅人係新鄰居。
-        note: that 指向雙方情境中可以識別嘅對象。
+        meaning: "`That` 指眼前嗰個人。`Is` 將佢連到 `our new neighbour`；`our` 表示同你哋家庭或群體嘅關係，`new` 表示最近搬嚟。幾個人就講 `Those
+          are our new neighbours`。"
+        note: |-
+          `That is our new neighbour` 識別人物；`Our neighbour is friendly` 描述佢。情境中較近嘅人或物可以用 `this`。
+
+          **試一試。** 介紹企喺身邊嘅同事。答案係 `This is my colleague`；`this` 指近處嗰個人，`my colleague` 交代關係。
   - subskill_id: qualities_states
-    explanation: 形容詞放喺 be 後面，可以描述特徵或目前狀態。英文呢類句子通常需要 be，唔好照搬廣東話省略佢。
+    explanation: 描述幫人想像一個地方，或者判斷適唔適合。朋友要地方睇書，你可以話間房冇乜噪音。英文用 `be` 嘅合適形式，將所描述嘅嘢同特點連起嚟。
     examples:
       - text: The room is quiet.
-        meaning: 間房冇乜嘈音。
-        note: is 將 quiet 呢個特徵連到間房。
+        meaning: "`The room` 指地方，`is` 連到描述，`quiet` 形容少噪音。幾間房就講 `The rooms are quiet`；描述詞 `quiet` 唔變。"
+        note: >-
+          亦可以將描述詞放喺名詞前：`a quiet room`。完整陳述要保留連接動詞：`The room is quiet`，唔可以用錯誤嘅 `The room
+          quiet`。特點可以暫時或長期，按語境理解。
+
+
+          **試一試。** 描述兩間房暖。答案係 `The rooms are warm`；複數 `rooms` 配 `are`，`warm` 唔加複數字尾。
   - subskill_id: location_movement
-    explanation: 用位置詞語交代事物喺邊，或者描述移動路線。
+    explanation: 位置詞用地標幫人搵嘢。朋友睇唔到你架單車，就可以按工具棚交代位置。位置講嘢喺邊度；移動講去邊度。
     examples:
       - text: The bicycle is behind the shed.
-        meaning: 間棚喺架單車前面，即係單車喺棚後面。
-        note: behind 表達兩者嘅空間關係。
+        meaning: "`The bicycle is` 指明單車，並引出位置。`Behind the shed` 表示從相關視角睇，單車喺工具棚後面。呢度 `behind`
+          要有地標，對方先知係邊樣嘢後面。"
+        note: >-
+          `Beside the shed` 就係喺旁邊。移動可以講 `I moved the bicycle into the shed`；`into` 表示移入內部。`In the
+          shed` 描述入咗去之後嘅位置。
+
+
+          **試一試。** 講個袋喺門旁邊。答案係 `The bag is beside the door`；`beside` 用道門做地標，交代個袋嘅位置。
   - subskill_id: possession_relations
-    explanation: 所有格形式可以表達擁有同人際關係。
+    explanation: 所屬關係講清楚你指邊個人嘅物件；相關形式亦連到人同人嘅關係。訪客問架單車，可以用家庭關係指出主人，避免將你自己架車同阿哥或細佬架車混淆。
     examples:
       - text: This is my brother’s bicycle.
-        meaning: 架單車屬於講者嘅兄弟。
-        note: my 交代親屬關係；brother’s 表明單車同嗰位兄弟嘅所屬關係。
+        meaning: "`This is` 指出單車。`My brother` 按同你嘅關係講出嗰個人。`Brother’s` 嘅字尾將佢連到
+          `bicycle`，表示架車屬於佢。撇號係書寫所屬形式嘅一部分。"
+        note: >-
+          比較 `my bicycle`，屬於自己，同 `my brother’s bicycle`，屬於阿哥或細佬。規則複數嘅主人，撇號放複數字尾後：`my parents’
+          house`。
+
+
+          **試一試。** 指出一個屬於家姐或妹妹嘅袋。答案係 `This is my sister’s bag`；所屬字尾加喺 `sister`，因為佢先係主人。
   - subskill_id: quantity_comparison
-    explanation: 數量詞交代多少；比較結構將兩個數值或特徵作比較。
+    explanation: 比較幫你喺兩樣嘢之間揀。執行李時，可能想揀輕啲嗰個袋。比較級講一件物件同另一件有乜分別；數量詞就講有幾多。
     examples:
       - text: This bag is lighter than that one.
-        meaning: 第一個袋比第二個輕。
-        note: lighter than 構成比較句，唔可以將廣東話「輕啲」逐字搬入英文。
+        meaning: "`This bag` 係被描述嘅袋。`Lighter` 表示重量較低；`than that one` 引出另一個袋。`One` 避免重複 `bag`。短描述詞常加 `-er`，例如
+          `light` 變成 `lighter`。"
+        note: >-
+          部分較長嘅詞用 `more`：`This bag is more expensive than that one`。唔好兩種一齊用成錯誤嘅 `more lighter`。數量可以講
+          `two bags` 或 `less luggage`，同重量比較唔一樣。
+
+
+          **試一試。** 將細箱同較大嗰個比較。答案係 `This box is smaller than that one`；`smaller` 比較大小，`than` 引出第二個箱。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/people-places/english-people-places-explained-in-english.yaml at
-        revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/people-places/english-people-places-explained-in-english.yaml at
-        revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/people-places/english-people-places-explained-in-english.yaml at
-    revision english-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - bc_grammar2026
+    - bcPossessivesTeaching20261007
+    - bcComparativesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
+variety_sections:
+  english-united-states:
+    - subskill_id: identification
+      explanation: 識別係講清楚你指出嗰個係邊個或乜嘢。見到最近搬嚟附近嘅人，可以將眼前嗰個人同佢同你嘅關係連起嚟。對方要有足夠共同語境，先知你指邊個。
+      examples:
+        - text: That is our new neighbor.
+          meaning: "`That` 指眼前嗰個人。`Is` 將佢連到 `our new neighbor`；`our` 表示同你哋家庭或群體嘅關係，`new` 表示最近搬嚟。幾個人就講 `Those
+            are our new neighbors`。"
+          note: |-
+            `That is our new neighbor` 識別人物；`Our neighbor is friendly` 描述佢。情境中較近嘅人或物可以用 `this`。
+
+            **試一試。** 介紹企喺身邊嘅同事。答案係 `This is my colleague`；`this` 指近處嗰個人，`my colleague` 交代關係。
+    - subskill_id: qualities_states
+      explanation: 描述幫人想像一個地方，或者判斷適唔適合。朋友要地方睇書，你可以話間房冇乜噪音。英文用 `be` 嘅合適形式，將所描述嘅嘢同特點連起嚟。
+      examples:
+        - text: The room is quiet.
+          meaning: "`The room` 指地方，`is` 連到描述，`quiet` 形容少噪音。幾間房就講 `The rooms are quiet`；描述詞 `quiet` 唔變。"
+          note: >-
+            亦可以將描述詞放喺名詞前：`a quiet room`。完整陳述要保留連接動詞：`The room is quiet`，唔可以用錯誤嘅 `The room
+            quiet`。特點可以暫時或長期，按語境理解。
+
+
+            **試一試。** 描述兩間房暖。答案係 `The rooms are warm`；複數 `rooms` 配 `are`，`warm` 唔加複數字尾。
+    - subskill_id: location_movement
+      explanation: 位置詞用地標幫人搵嘢。朋友睇唔到你架單車，就可以按工具棚交代位置。位置講嘢喺邊度；移動講去邊度。
+      examples:
+        - text: The bicycle is behind the shed.
+          meaning: "`The bicycle is` 指明單車，並引出位置。`Behind the shed` 表示從相關視角睇，單車喺工具棚後面。呢度 `behind`
+            要有地標，對方先知係邊樣嘢後面。"
+          note: >-
+            `Beside the shed` 就係喺旁邊。移動可以講 `I moved the bicycle into the shed`；`into` 表示移入內部。`In the
+            shed` 描述入咗去之後嘅位置。
+
+
+            **試一試。** 講個袋喺門旁邊。答案係 `The bag is beside the door`；`beside` 用道門做地標，交代個袋嘅位置。
+    - subskill_id: possession_relations
+      explanation: 所屬關係講清楚你指邊個人嘅物件；相關形式亦連到人同人嘅關係。訪客問架單車，可以用家庭關係指出主人，避免將你自己架車同阿哥或細佬架車混淆。
+      examples:
+        - text: This is my brother’s bicycle.
+          meaning: "`This is` 指出單車。`My brother` 按同你嘅關係講出嗰個人。`Brother’s` 嘅字尾將佢連到
+            `bicycle`，表示架車屬於佢。撇號係書寫所屬形式嘅一部分。"
+          note: >-
+            比較 `my bicycle`，屬於自己，同 `my brother’s bicycle`，屬於阿哥或細佬。規則複數嘅主人，撇號放複數字尾後：`my parents’
+            house`。
+
+
+            **試一試。** 指出一個屬於家姐或妹妹嘅袋。答案係 `This is my sister’s bag`；所屬字尾加喺 `sister`，因為佢先係主人。
+    - subskill_id: quantity_comparison
+      explanation: 比較幫你喺兩樣嘢之間揀。執行李時，可能想揀輕啲嗰個袋。比較級講一件物件同另一件有乜分別；數量詞就講有幾多。
+      examples:
+        - text: This bag is lighter than that one.
+          meaning: "`This bag` 係被描述嘅袋。`Lighter` 表示重量較低；`than that one` 引出另一個袋。`One` 避免重複 `bag`。短描述詞常加 `-er`，例如
+            `light` 變成 `lighter`。"
+          note: >-
+            部分較長嘅詞用 `more`：`This bag is more expensive than that one`。唔好兩種一齊用成錯誤嘅 `more
+            lighter`。數量可以講 `two bags` 或 `less luggage`，同重量比較唔一樣。
+
+
+            **試一試。** 將細箱同較大嗰個比較。答案係 `This box is smaller than that one`；`smaller` 比較大小，`than`
+            引出第二個箱。

@@ -1,61 +1,95 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A benefactive compound in a question can politely request an action for the speaker.
+    explanation: A box is in the way, and you ask someone to move it for you. The question includes both
+      its destination and the help you want. The final compound presents moving as something done
+      for the speaker's benefit.
     examples:
       - text: ഈ പെട്ടി വാതിലിനടുത്തേക്ക് മാറ്റിത്തരാമോ?
-        meaning: Could you move this box near the door for me?
-        note: The destination is explicit; the actor is understood as the listener.
+        meaning: "**The example.** Could you move this box near the door for me? `ഈ പെട്ടി` is this box.
+          `വാതിലിനടുത്തേക്ക്` gives the destination, toward a place near the door. `മാറ്റിത്തരാമോ`
+          combines moving with giving that help to me and a modal question. The listener is the
+          understood actor."
+        note: "Try requesting that the bag be moved there instead. Answer: `ഈ ബാഗ് വാതിലിനടുത്തേക്ക്
+          മാറ്റിത്തരാമോ?` Replace `പെട്ടി` with `ബാഗ്`. Retaining `തരാമോ` in the compound keeps the
+          request for help to you; the destination remains before the final action."
   - subskill_id: offers_invitations
-    explanation: A first-person question with ട്ടെ can offer the speaker’s action.
+    explanation: A companion has a bag to lift, and you offer to do it for them. `ഞാൻ` names you as the
+      helper. The final question asks whether you should perform that helpful action, rather than
+      directing the other person to act.
     examples:
       - text: ഞാൻ ബാഗ് എടുത്തുതരട്ടെ?
-        meaning: Shall I pick up the bag for you?
-        note: The speaker volunteers help rather than directing the listener to act.
+        meaning: "**The example.** Shall I pick up the bag for you? `ബാഗ്` is bag and `എടുത്തു` is the
+          taking or picking-up part of the compound. `തരട്ടെ` adds doing it for the addressee and
+          the shall-I offer. Together `എടുത്തുതരട്ടെ` is one offered action."
+        note: "Try offering to pick up the box instead. Answer: `ഞാൻ പെട്ടി എടുത്തുതരട്ടെ?` Replace `ബാഗ്`
+          with `പെട്ടി`. The subject and ending keep you as the volunteer. In the request `ഈ പെട്ടി
+          മാറ്റിത്തരാമോ?`, the listener would instead do the moving for you."
   - subskill_id: suggestions
-    explanation: നമുക്ക് with an ആം form can propose shared action.
+    explanation: After working for a while, the group may need a break. `നമുക്ക്` includes the speaker
+      and listener in the proposed action, and the final modal form presents something they can do
+      together.
     examples:
       - text: നമുക്ക് ഒരു ചെറിയ ഇടവേള എടുക്കാം.
-        meaning: Let’s take a short break.
-        note: നമുക്ക് includes the listener in the proposed action.
+        meaning: "**The example.** Let's take a short break. `ഒരു` is one or a, `ചെറിയ` is small or short,
+          and `ഇടവേള` is a break. `എടുക്കാം` means let us take here. The description precedes the
+          break noun; the shared action comes last."
+        note: "Try suggesting a break tomorrow. Answer: `നാളെ നമുക്ക് ഒരു ചെറിയ ഇടവേള എടുക്കാം.` Add `നാളെ`,
+          tomorrow. The inclusive `നമുക്ക്` and action form retain the joint proposal. Simply
+          stating that someone took a break would report an event rather than invite agreement."
   - subskill_id: commitments
-    explanation: An ആം form can undertake a task in the right planning context.
+    explanation: During planning, you can take responsibility for tomorrow's tools. `ഞാൻ` identifies who
+      will do the task; `കൊണ്ടുവരാം` expresses your undertaking in this exchange. Its interpretation
+      comes from allocating work, not from the ending alone.
     examples:
       - text: നാളെ ഞാൻ ഉപകരണങ്ങൾ കൊണ്ടുവരാം.
-        meaning: I will bring the tools tomorrow.
-        note: Use when allocating tasks; the speaker takes responsibility for bringing them.
+        meaning: "**The example.** I will bring the tools tomorrow. `നാളെ` is tomorrow and `ഉപകരണങ്ങൾ` is
+          tools, a plural noun. `കൊണ്ടുവരാം` means I will bring here, combining carrying with
+          coming. The time and actor appear before the supplies and final action."
+        note: "Try committing to bringing the tools today. Answer: `ഇന്ന് ഞാൻ ഉപകരണങ്ങൾ കൊണ്ടുവരാം.` Replace
+          `നാളെ` with `ഇന്ന്`. The remaining phrase keeps the task and volunteer. A possible rain
+          forecast names no responsibility for you to undertake, even if it also concerns tomorrow."
   - subskill_id: accepting_declining
-    explanation: An inability statement can decline a preceding invitation.
+    explanation: Someone invites you today, but you cannot attend. A brief apology followed by the
+      inability makes your refusal understandable without saying you dislike the invitation.
     examples:
       - text: ക്ഷമിക്കണം, ഇന്ന് എനിക്ക് വരാൻ കഴിയില്ല.
-        meaning: Sorry, I cannot come today.
-        note: The invitation supplies the event being declined.
+        meaning: "**The example.** Sorry, I cannot come today. `ക്ഷമിക്കണം` is an apology, `ഇന്ന്` is today
+          and `എനിക്ക്` identifies you in the capability frame. `വരാൻ` means to come; `കഴിയില്ല`
+          means cannot. The infinitive precedes the negative capability expression."
+        note: "Try declining tomorrow's invitation. Answer: `ക്ഷമിക്കണം, നാളെ എനിക്ക് വരാൻ കഴിയില്ല.`
+          Replace `ഇന്ന്` with `നാളെ`; retain the inability frame. `വരാം` can accept an invitation
+          contextually, while inability to attend does not itself express dislike of the person."
   - subskill_id: negotiating_plans
-    explanation: State a constraint and propose another time.
+    explanation: A Friday meeting does not fit your schedule. Explaining that constraint and asking
+      about Saturday gives the other person a concrete replacement to consider.
     examples:
       - text: വെള്ളിയാഴ്ച എനിക്ക് തിരക്കാണ്. ശനിയാഴ്ച കാണാമോ?
-        meaning: I am busy on Friday. Can we meet on Saturday?
-        note: The question supplies a concrete replacement day.
+        meaning: "**The example.** I am busy on Friday. Can we meet on Saturday? `വെള്ളിയാഴ്ച` is Friday,
+          `എനിക്ക് തിരക്കാണ്` says I am busy, and `ശനിയാഴ്ച` is Saturday. `കാണാമോ` asks about
+          meeting here; the participants are clear from the proposed arrangement."
+        note: "Try keeping Friday busy but proposing Sunday. Answer: `വെള്ളിയാഴ്ച എനിക്ക് തിരക്കാണ്.
+          ഞായറാഴ്ച കാണാമോ?` Replace only `ശനിയാഴ്ച` with `ഞായറാഴ്ച`. The question checks the new day
+          rather than simply declaring that the meeting has already been agreed."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
-    - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
+    - moagMalayalamTeaching20261007
+    - ut_malayalam_time2026
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

@@ -1,55 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Mar can introduce a reason.
+    explanation: Explaining a decision to stay home, `D’fhan mé sa bhaile mar bhí sé ag cur báistí`
+      gives the rain as the reason. `D’fhan mé` says I stayed and `sa bhaile` at home. `Mar` links
+      that action to `bhí sé ag cur báistí`, it was raining. The first part reports the decision;
+      the second explains what prompted it.
     examples:
       - text: D’fhan mé sa bhaile mar bhí sé ag cur báistí.
         meaning: I stayed home because it was raining.
-        note: Rain is presented as the reason for staying home.
+        note: "The reason follows `mar`. Try explaining that you stayed home because you were sick, using
+          `bhí mé tinn`. Answer: `D’fhan mé sa bhaile mar bhí mé tinn.` The stay-at-home event is
+          unchanged; the new `mar` clause gives illness as its cause."
   - subskill_id: consequences
-    explanation: Mar sin can introduce a consequence.
+    explanation: Describing a disrupted journey, `Níor tháinig an bus, mar sin shiúil mé` links a
+      missing bus to walking. `Níor tháinig` says did not come, with the irregular past verb
+      `tháinig`. `Mar sin` means so or therefore; `shiúil mé` says I walked. The second clause is
+      presented as the consequence of the first.
     examples:
       - text: Níor tháinig an bus, mar sin shiúil mé.
         meaning: The bus did not come, so I walked.
-        note: Walking is presented as a response to the missing bus.
+        note: "A chronological link such as `ansin` says then; `mar sin` presents a result. Try saying that
+          the bus did not come, so you stayed home instead of walking. Answer: `Níor tháinig an bus,
+          mar sin d’fhan mé sa bhaile.` The same missing bus now leads to a different consequence,
+          still introduced by `mar sin`."
   - subskill_id: conditions
-    explanation: Má introduces an open condition with a dependent outcome.
+    explanation: For a weather-dependent plan, `Má bhíonn sé ag cur báistí amárach, fanfaimid sa bhaile`
+      says that if it rains tomorrow, we will stay home. `Má` introduces an open condition, followed
+      by `bhíonn`, a form of habitual `bí` used here with future reference. `Fanfaimid` means we
+      will stay; its ending includes we. The plan depends on the rain occurring.
     examples:
       - text: Má bhíonn sé ag cur báistí amárach, fanfaimid sa bhaile.
         meaning: If it is raining tomorrow, we will stay home.
-        note: Bíonn has the lenited form bhíonn after má; fanfaimid gives the result.
+        note: "A definite forecast such as `Beidh sé ag cur báistí amárach` predicts rain; the `Má` clause
+          does not. Try keeping the condition but changing the plan’s subject to I. Answer: `Má
+          bhíonn sé ag cur báistí amárach, fanfaidh mé sa bhaile.` The condition is unchanged;
+          `fanfaidh mé` makes the stay-at-home plan the speaker’s."
   - subskill_id: contrast
-    explanation: Ach links descriptions that contrast in the discussion.
+    explanation: "When assessing a route, `Tá an bealach gearr ach géar` says the route is short but
+      steep. `Tá an bealach` introduces the route, and both `gearr` and `géar` describe it. `Ach`
+      joins the two properties with a contrast: a short route may still be demanding because of its
+      steepness."
     examples:
       - text: Tá an bealach gearr ach géar.
         meaning: The route is short but steep.
-        note: The properties may matter differently when choosing a route.
+        note: "Using `agus` instead simply adds the second property. Try giving that neutral description.
+          Answer: `Tá an bealach gearr agus géar.` Both properties remain true; `agus` lists them
+          without highlighting the contrast signaled by `ach`."
   - subskill_id: supporting_claims
-    explanation: A reason clause can supply evidence for an inference.
+    explanation: "Seeing a light in a house, `Ceapaim go bhfuil duine sa teach mar tá solas ar siúl`
+      gives both an inference and its evidence. `Ceapaim go bhfuil` introduces I think that there
+      is, `duine sa teach` a person in the house. `Mar tá solas ar siúl` gives the reason: a light
+      is on. The light supports the inference without proving who is inside."
     examples:
       - text: Ceapaim go bhfuil duine sa teach mar tá solas ar siúl.
         meaning: I think someone is in the house because a light is on.
-        note: The light supports the inference rather than causing the person’s presence.
+        note: "The evidence follows `mar`, and `Ceapaim` keeps the claim an inference. Try supporting the
+          same belief with an open door, using `tá an doras oscailte`. Answer: `Ceapaim go bhfuil
+          duine sa teach mar tá an doras oscailte.` The evidence changes from a light to an open
+          door; the speaker still explains the belief rather than presenting proof."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - brasicke_irish_copula2026
     - teanglann_deisigh2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

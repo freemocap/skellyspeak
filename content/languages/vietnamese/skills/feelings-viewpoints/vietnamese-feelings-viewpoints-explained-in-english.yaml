@@ -1,55 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Muốn before an activity expresses wanting to do it.
+    explanation: A sewing class interests you, and you say what you would like to learn. `Tôi`
+      identifies the speaker; `muốn` means want, and `học may` means learn to sew. `May` names
+      sewing, while `học` makes it something to learn. The action phrase follows `muốn`
+      directly, without an English-style to word. `Tôi muốn học nấu ăn` changes the desired
+      skill to cooking. Wanting to learn does not assert that you have enrolled; `Tôi sẽ học
+      may` instead presents learning as a future action.
     examples:
       - text: Tôi muốn học may.
         meaning: I want to learn to sew.
-        note: Học may names the desired learning activity; this is not a promise.
+        note: "Say you want to learn cooking. `Tôi muốn học nấu ăn.` works: `nấu ăn` replaces sewing,
+          while `muốn học` retains the desire to learn."
   - subskill_id: preferences
-    explanation: Thích with hơn compares how much alternatives are liked.
+    explanation: Tea and coffee are both available, and you prefer tea. `Tôi thích trà` says I like
+      tea; adding `hơn cà phê` makes the comparison, more than coffee. The preferred option
+      comes first. `Tôi thích cà phê hơn trà` reverses the preference. `Thích` does not change
+      with the speaker's gender or number. Without `hơn` and a comparison supplied by context,
+      liking tea alone need not mean disliking coffee or choosing it over coffee.
     examples:
       - text: Tôi thích trà hơn cà phê.
         meaning: I prefer tea to coffee.
-        note: Trà is the favored option.
+        note: "Reverse the preference. `Tôi thích cà phê hơn trà.` is the answer: exchange the two
+          drinks while keeping `hơn` between the preferred and other option."
   - subskill_id: emotions
-    explanation: Vui describes happiness without an obligatory linking verb.
+    explanation: "You have heard welcome news and tell someone how happy it makes you. `Tôi rất vui`
+      means I am very happy: `rất` intensifies `vui`. `Khi nghe tin này` means when hearing this
+      news and explains the occasion. Vietnamese can describe the feeling with `vui` directly,
+      without adding `là`. `Tin này` puts this after news. `Tôi buồn khi nghe tin này` would
+      express sadness instead, so a change of feeling changes the descriptive word rather than a
+      verb ending."
     examples:
       - text: Tôi rất vui khi nghe tin này.
         meaning: I am very happy to hear this news.
-        note: Khi nghe tin này identifies the occasion for the feeling.
+        note: "Express sadness at the same news. `Tôi buồn khi nghe tin này.` works: `buồn` replaces
+          happiness while the occasion remains."
   - subskill_id: opinions
-    explanation: Tôi nghĩ can frame a following proposition as a judgment.
+    explanation: Two ways of doing a task have been discussed, and you think this one is easier.
+      `Tôi nghĩ` means I think and frames the judgement as yours. `Cách này` means this method;
+      `dễ hơn` says easier, with the other method understood from the conversation. `Dễ` stays
+      unchanged, and `hơn` supplies the comparison. `Cách này dễ` merely says this method is
+      easy. A stated opinion is easier to discuss when the task and the alternative are shared
+      rather than left completely unspecified.
     examples:
       - text: Tôi nghĩ cách này dễ hơn.
         meaning: I think this method is easier.
-        note: The comparison concerns methods under discussion.
+        note: "Give the opposite judgement, more difficult. `Tôi nghĩ cách này khó hơn.` works: `khó`
+          replaces `dễ`, and `hơn` keeps the comparison with the other method."
   - subskill_id: agreement_disagreement
-    explanation: Đồng ý expresses agreement, and không negates it.
+    explanation: Someone proposes a plan, and you state clearly that you disagree with it. `Tôi
+      không đồng ý` means I do not agree; `với đề xuất này` identifies this proposal as the
+      point of disagreement. `Không` negates the agreement expression before it. `Tôi đồng ý với
+      đề xuất này` removes the negative and agrees instead. `Tôi hiểu` says I understand, which
+      does not necessarily endorse the proposal. Naming the proposal avoids leaving the listener
+      unsure what you reject.
     examples:
       - text: Tôi không đồng ý với đề xuất này.
         meaning: I disagree with this proposal.
-        note: Với đề xuất này identifies what the speaker rejects.
+        note: "Agree with the proposal instead. `Tôi đồng ý với đề xuất này.` works: removing `không`
+          changes the stance while retaining its object."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_identity2026
     - msu_vietnamese_suggestions2026
+    - msuVietnameseComparisonTeaching20261007
+    - niuVietnameseComparisonTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

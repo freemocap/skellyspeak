@@ -1571,5 +1571,13 @@
   "Start conversation": "开始对话",
   "Ask coach": "询问教练",
   "Start with this sentence": "用这句话开始",
-  "Explain this sentence": "解释这句话"
+  "Explain this sentence": "解释这句话",
+  "Chart controls": "图表控件",
+  "Points shown": "显示的积分",
+  "Language": "语言",
+  "Both": "两者",
+  "{value0} pt": "{value0} 分",
+  "Busiest skill in this conversation": "本次对话中最常用的技能",
+  "{value0}: {value1} points in this conversation": "{value0}：本次对话 {value1} 分",
+  "Busiest skill · {value0} pt": "最常用的技能 · {value0} 分"
 }

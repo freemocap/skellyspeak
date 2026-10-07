@@ -1,87 +1,95 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: french-skills-2026-10-04
+revision: french-teaching-expanded-english-2026-10-07
 skill_id: reasons_connections
 language: french
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: >-
-      Parce que introduces a reason; puisque can present one as already accepted. A reason
-      phrase can answer pourquoi without restating the entire event.
+    explanation: "A closed road explains why your group is waiting. `Nous attendons` states what is
+      happening; `parce que` introduces the reason, `la route est fermée`. The words after it
+      form a complete clause with their own subject and verb. `Fermée` has a feminine ending
+      because it describes `route`. A short noun reason can use `à cause de`, as in `Nous
+      attendons à cause de la neige.` The two constructions take different kinds of complements:
+      the full explanation after `parce que`, a noun phrase after `à cause de`."
     examples:
-      - text: "Nous attendons parce que la route est fermée."
-        meaning: >-
-          We are waiting because the road is closed.
-        note: >-
-          Parce que relates the closure to the waiting as its reason, rather than merely
-          placing both events in time.
+      - text: Nous attendons parce que la route est fermée.
+        meaning: We are waiting because the road is closed.
+        note: "Explain that you are waiting because the shop is closed. `Nous attendons parce que le
+          magasin est fermé.` works: the reason is a clause, and `fermé` agrees with masculine
+          `magasin`."
   - subskill_id: consequences
-    explanation: >-
-      Donc, alors and suitable result constructions can connect a situation to a
-      consequence. Decide from the clauses whether a causal reading is actually intended.
+    explanation: The last bus has left, so the group decides to walk home. `Le dernier bus est
+      parti` gives the completed event. `Donc` connects it to the resulting decision, `nous
+      allons rentrer à pied`. `Allons rentrer` means are going to go home, and `à pied` means on
+      foot. `Parti` appears with `est` because this compound past of `partir` uses `être`; the
+      future plan uses present `aller` plus an infinitive. `Puis` would merely give sequence,
+      whereas `donc` presents the second statement as a consequence.
     examples:
-      - text: "Le dernier bus est parti, donc nous allons rentrer à pied."
-        meaning: >-
-          The last bus has left, so we are going to walk home.
-        note: >-
-          Donc presents walking home as the consequence of missing the bus; it is more
-          than a chronological next step.
+      - text: Le dernier bus est parti, donc nous allons rentrer à pied.
+        meaning: The last bus has left, so we are going to walk home.
+        note: "Change the resulting plan to waiting here. `Le dernier bus est parti, donc nous allons
+          attendre ici.` works: `donc` keeps the consequence link, and `attendre ici` supplies
+          the new plan."
   - subskill_id: conditions
-    explanation: >-
-      For an open future condition, si commonly takes a present form and the consequence
-      can take a future. Hypothetical conditions can pair imparfait with conditional;
-      choose according to meaning.
+    explanation: "You will work at the library only if it is open. `Si la bibliothèque est ouverte`
+      gives the condition; `nous y travaillerons` gives what will follow. `Y` stands for at the
+      library, avoiding repetition, and comes before `travaillerons`. A real future possibility
+      can use the present after `si` and the future in the result: the future reference does not
+      require a future verb immediately after conditional `si`. `Quand la bibliothèque sera
+      ouverte` instead means when it is open and treats the opening as an expected time."
     examples:
-      - text: "Si la bibliothèque est ouverte, nous y travaillerons."
-        meaning: >-
-          If the library is open, we will work there.
-        note: >-
-          Est is present after conditional si; travaillerons states the future
-          consequence. Y refers back to the library.
+      - text: Si la bibliothèque est ouverte, nous y travaillerons.
+        meaning: If the library is open, we will work there.
+        note: "Make the result studying there. `Si la bibliothèque est ouverte, nous y étudierons.`
+          works: the condition stays present, the result stays future, and `y` still refers to
+          the library."
   - subskill_id: contrast
-    explanation: >-
-      Mais contrasts propositions; pourtant can mark an unexpected contrast. A
-      coordinating word only demonstrates contrast when the linked meanings support it.
+    explanation: A small bag unexpectedly holds everything you need. `Le sac est petit` sets up the
+      expectation of limited capacity; `mais` introduces the contrasting fact, `il contient tout
+      mon matériel`. `Il` refers back to masculine `sac`; `tout mon matériel` means all my
+      equipment. `Matériel` is a collective singular noun here, so `tout` has a singular
+      masculine form. `Et` simply adds information; `mais` highlights why the second fact is
+      surprising in light of the first.
     examples:
-      - text: "Le sac est petit, mais il contient tout mon matériel."
-        meaning: >-
-          The bag is small, but it holds all my equipment.
-        note: >-
-          Mais contrasts its size with its capacity; the second clause is not a correction
-          of the first.
+      - text: Le sac est petit, mais il contient tout mon matériel.
+        meaning: The bag is small, but it holds all my equipment.
+        note: "Describe a small box that holds all your equipment. `La boîte est petite, mais elle
+          contient tout mon matériel.` works: the box takes feminine `petite` and `elle`; the
+          equipment phrase stays masculine singular."
   - subskill_id: supporting_claims
-    explanation: >-
-      Support a claim with an observation, example or explanation that bears on it. A
-      concrete basis is different from repeating the same judgement more strongly.
+    explanation: You recommend a route and give a recent observation to explain your judgement. `Ce
+      trajet est plus rapide` claims this route is faster. After the colon, `hier, j’ai gagné
+      vingt minutes` says yesterday I saved twenty minutes. `Ai gagné` presents the completed
+      experience, and the measured time makes the support concrete. The observation supports
+      this comparison in that situation; it does not prove the route is always faster. A bare
+      `C’est mieux` gives a judgement without such a checkable detail.
     examples:
       - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
-        meaning: >-
-          This route is faster; yesterday I saved twenty minutes.
-        note: >-
-          The stated time saving supports the comparison. It is the speaker’s evidence,
-          not a fact independently checked by the app.
-provenance: &provenance
+        meaning: This route is faster; yesterday I saved twenty minutes.
+        note: "Give ten minutes as the observed saving. `Ce trajet est plus rapide : hier, j’ai gagné
+          dix minutes.` works: the measured evidence changes, while the experience remains a
+          completed past event."
+provenance: &a1
   origin: ai
-  authorship: >-
-    AI-authored French explanations, assessment guidance and original examples, informed
-    by the cited sources; no independent linguistic review.
+  authorship: AI-authored French teaching and original examples informed by the cited sources; no
+    independent linguistic review.
   sources:
     - tex_si2026
     - threshold_general_notions
+    - texPlaceYTeaching20261007
+    - texCompoundPastTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: french-skills-2026-10-04
-    scope: >-
-      Entire document, including examples and applicability to both declared varieties.
-      References support the named grammatical or functional claims; they do not certify
-      generated examples.
+    revision: french-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1

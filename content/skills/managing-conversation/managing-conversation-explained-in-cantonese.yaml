@@ -1,35 +1,33 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: shared-teaching-pilot-cantonese-2026-10-07
+revision: shared-teaching-expansion-cantonese-2026-10-07
 skill_id: managing_conversation
 explanation_language: cantonese
 title: 管理對話
-introduction: 建立接觸、協調發言輪次，同修補理解上嘅分歧。
+introduction: 開始同結束對話、輪流講嘢，同埋釐清唔明白嘅地方。
 sections:
   - subskill_id: opening_closing
     title: 開場與結束
-    concept: 開始或結束一段對話交流。
+    concept: 開始一段對話，或者結束對話。
   - subskill_id: acknowledging
     title: 表示收到與回應
-    concept: 表示收到、留意到對方嘅話，或者作出合乎社交情境嘅回應。
+    concept: 表示你聽到對方講乜，並作出合適回應。
   - subskill_id: clarification
     title: 要求釐清
     concept: 指出有內容聽唔清或唔明，並請對方協助釐清。
   - subskill_id: rephrasing
     title: 換個講法
-    concept: 用另一種方式重述之前嘅意思，幫助雙方理解。
+    concept: 用另一種講法，令意思更清楚。
   - subskill_id: correcting_misunderstanding
     title: 糾正誤解
-    concept: 用本來想表達嘅意思，取代對方理解錯咗嘅內容。
+    concept: 對方理解錯咗時，講清楚你原本嘅意思。
   - subskill_id: turns_topics
     title: 安排發言與話題
-    concept: 協調邊個發言，同埋對話講緊咩。
+    concept: 輪流講嘢，並協助對話轉換話題。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    skills/managing-conversation/managing-conversation-explained-in-english.yaml at revision
-    shared-teaching-pilot-2026-10-07. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -40,6 +38,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: shared-teaching-pilot-cantonese-2026-10-07
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: shared-teaching-expansion-cantonese-2026-10-07
+    scope: Learner-facing introductions and concepts; translation review pending.

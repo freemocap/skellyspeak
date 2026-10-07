@@ -1,29 +1,27 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: shared-teaching-pilot-cantonese-2026-10-07
+revision: shared-teaching-expansion-cantonese-2026-10-07
 skill_id: information_exchange
 explanation_language: cantonese
 title: 交流資訊
-introduction: 查問、提供同核實對話相關資訊。
+introduction: 問問題、答問題，並確認資料清楚同正確。
 sections:
   - subskill_id: asking_information
     title: 查問資訊
     concept: 查問未知嘅事實、描述或解釋。
   - subskill_id: answering_information
     title: 切題回答
-    concept: 針對一個可以識別嘅問題，提供對應資訊。
+    concept: 答對方想問嘅資料。
   - subskill_id: checking_facts
     title: 核實事實
-    concept: 確認某個說法或轉述細節係咪正確。
+    concept: 確認一項細節或者聽到嘅消息係咪正確。
   - subskill_id: useful_detail
     title: 提供有用細節
-    concept: 按對話需要補充或概括資訊。
+    concept: 補充足夠細節，令資料對對方有用。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    skills/information-exchange/information-exchange-explained-in-english.yaml at revision
-    shared-teaching-pilot-2026-10-07. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -34,6 +32,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: shared-teaching-pilot-cantonese-2026-10-07
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: shared-teaching-expansion-cantonese-2026-10-07
+    scope: Learner-facing introductions and concepts; translation review pending.

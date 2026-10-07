@@ -1,58 +1,113 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: feelings_viewpoints
 language: english
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Want to and plan to introduce an action the subject desires or intends.
+    explanation: A wish and a plan do different jobs. You may want to study but have no time set aside;
+      saying you plan to study tells a friend that this is your intended activity. It still does not
+      guarantee the activity will happen.
     examples:
       - text: I plan to study tonight.
-        meaning: The speaker intends to study tonight.
-        note: The plan expresses intention; it does not promise another person anything.
+        meaning: "`I plan` states the intention, `to study` names the intended action, and `tonight` gives
+          its time. After `plan`, link the next action with `to` and its plain verb form. Change the
+          person to get `She plans to study tonight`."
+        note: >-
+          Compare `I want to study tonight`: it states a desire, which may not yet be a plan. `I am
+          studying tonight` can present it as an arrangement.
+
+
+          **Try it.** Say you intend to cook tomorrow. Answer: `I plan to cook tomorrow`. Keep `to`
+          before `cook`; it links planning to the intended action.
   - subskill_id: preferences
-    explanation: Use like, prefer or a comparison to state a choice or taste.
+    explanation: A preference tells someone which option you like better. When a host offers two drinks,
+      you can name tea as your first choice without saying you dislike coffee. `Prefer` makes the
+      comparison explicit.
     examples:
       - text: I prefer tea to coffee.
-        meaning: The speaker likes tea better than coffee.
-        note: Prefer links the preferred choice to the alternative.
+        meaning: "`I prefer` introduces your choice. `Tea` is the preferred option; `to coffee` gives the
+          alternative. In this comparison, `to` connects two things, rather than introducing an
+          action. Reversing them changes your preference: `I prefer coffee to tea`."
+        note: >-
+          Use `to` here rather than `than`: `I prefer tea to coffee`. Saying `I like tea` alone does
+          not compare the drinks. You can also describe activities: `I prefer walking to driving`.
+
+
+          **Try it.** You like mornings better than evenings. Answer: `I prefer mornings to
+          evenings`. Put your preferred choice first and the alternative after `to`.
   - subskill_id: emotions
-    explanation: Name a feeling and, when useful, what prompted it.
+    explanation: Naming a feeling helps another person understand your reaction. Before an interview,
+      you might be worried about what will happen. `Feel` followed by a describing word gives the
+      feeling; `about` can introduce what it concerns.
     examples:
       - text: I feel nervous about the interview.
-        meaning: The interview makes the speaker nervous.
-        note: Nervous describes an emotional state.
+        meaning: "`I feel` reports the speaker’s experience. `Nervous` describes the feeling, and `about the
+          interview` identifies its focus. The describing word does not change for a different
+          person: `She feels nervous`."
+        note: >-
+          `I am nervous` also describes the state. `Nervous` describes a person’s feeling;
+          `nerve-racking` can describe an experience that causes it: `The interview was
+          nerve-racking`. Do not use those words interchangeably.
+
+
+          **Try it.** Describe feeling excited about a trip. Answer: `I feel excited about the
+          trip`. `Excited` names your feeling, while `about the trip` explains what it concerns.
   - subskill_id: opinions
-    explanation: Mark an evaluation as your view when that distinction matters.
+    explanation: An opinion lets you contribute your judgement to a discussion. If a group is choosing a
+      plan, you may think its cost is a problem. `I think` presents the following statement as your
+      view and leaves room for others to respond.
     examples:
       - text: I think this plan is too expensive.
-        meaning: The speaker judges the plan to cost too much.
-        note: I think introduces a viewpoint rather than presenting agreement with an
-          earlier claim.
+        meaning: "`I think` introduces the judgement. `This plan is too expensive` states it: `too` means
+          the cost exceeds what is suitable, not simply that the cost is high. You can add a reason,
+          such as `It uses our whole budget`."
+        note: >-
+          Compare `very expensive`, which describes a high price without itself saying it is
+          excessive. `I don’t think this plan is affordable` is a common way to give a negative
+          opinion.
+
+
+          **Try it.** Give your view that a room is excessively small. Answer: `I think this room is
+          too small`. `Too` communicates a problem with its size.
   - subskill_id: agreement_disagreement
-    explanation: Connect your response to the position you accept or challenge.
+    explanation: Agreement responds to someone else’s view. If a teammate says the work needs another
+      day, you can accept that point explicitly. Naming what you agree with helps when a discussion
+      contains several different proposals.
     examples:
       - text: I agree that we need more time.
-        meaning: The speaker accepts the claim that more time is needed.
-        note: Agreement needs an identifiable proposition, stated here in the
-          that-clause.
+        meaning: "`I agree` says you share the view. `That we need more time` spells out the point accepted;
+          `that` links the agreement to a complete statement. With a person, use `with`: `I agree
+          with you`."
+        note: >-
+          To disagree without attacking the person, try `I see your point, but I think we have
+          enough time`. Understanding a point is not necessarily accepting it. Avoid the incorrect
+          form `I am agree`; `agree` is already the main verb.
+
+
+          **Try it.** Agree that the room is too small. Answer: `I agree that the room is too
+          small`. The words after `that` identify the shared judgement.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-teaching-expanded-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1

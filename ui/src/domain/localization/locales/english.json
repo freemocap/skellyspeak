@@ -1571,5 +1571,13 @@
   "Start conversation": "Start conversation",
   "Ask coach": "Ask coach",
   "Start with this sentence": "Start with this sentence",
-  "Explain this sentence": "Explain this sentence"
+  "Explain this sentence": "Explain this sentence",
+  "Chart controls": "Chart controls",
+  "Points shown": "Points shown",
+  "Language": "Language",
+  "Both": "Both",
+  "{value0} pt": "{value0} pt",
+  "Busiest skill in this conversation": "Busiest skill in this conversation",
+  "{value0}: {value1} points in this conversation": "{value0}: {value1} points in this conversation",
+  "Busiest skill · {value0} pt": "Busiest skill · {value0} pt"
 }

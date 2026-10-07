@@ -1,105 +1,144 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 現代標準語可以用表達想要嘅動詞，再接從屬動詞。黎凡特語常用 بَدّ 加人稱後綴，再接動詞。
+    explanation: 想學一項新技能，可以話畀人知你有乜興趣。呢句可以開始傾課程，但唔代表你已經報咗名。
     examples:
       - text: أُرِيدُ أَنْ أَتَعَلَّمَ السِّبَاحَةَ.
-        meaning: 我想學游水。
-        note: 現代標準阿拉伯語。表達願望，唔係承諾會上游水堂。
-      - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
-        meaning: 我想學游水。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。表達願望，唔係承諾會上游水堂。
+        meaning: "**例句。** 我想學游水。 `أُرِيدُ` 係「我想」。`أَنْ أَتَعَلَّمَ` 指想做嘅事「學習」，`السِّبَاحَةَ`
+          係游水。兩個動詞都指「我」，唔使另加人稱代詞。`أَنْ` 接上想做嘅動作。"
+        note: "`أَنْ` 後面呢個完整標音動作用短 a 元音收尾。試下講我哋想學游水：`نُرِيدُ أَنْ نَتَعَلَّمَ السِّبَاحَةَ`。兩個動詞都改成我哋，`أَنْ`
+          仍然接起願望同學習動作。"
   - subskill_id: preferences
-    explanation: 偏好可以用喜愛程度比較，或者意思係「較鍾意」嘅動詞表達。
+    explanation: 揀飲品時，偏好係比較兩個選擇，唔止係話其中一樣好飲。呢度講者較鍾意茶，多過咖啡。
     examples:
       - text: أُفَضِّلُ الشَّايَ عَلَى الْقَهْوَةِ.
-        meaning: 比起咖啡，我更鍾意茶。
-        note: 現代標準阿拉伯語。較鍾意嘅選項係茶。
-      - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
-        meaning: 比起咖啡，我更鍾意茶。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。較鍾意嘅選項係茶。
+        meaning: "**例句。** 比起咖啡，我更鍾意茶。 `أُفَضِّلُ` 係「我較鍾意」。`الشَّايَ` 指較鍾意嘅飲品茶。`عَلَى الْقَهْوَةِ`
+          帶出另一個選擇咖啡。次序好重要：動詞後面嗰樣先係你偏好嘅。"
+        note: 較鍾意嘅飲品跟住 `أُفَضِّلُ`，另一個選擇跟住 `عَلَى`。試下反轉偏好：`أُفَضِّلُ الْقَهْوَةَ عَلَى
+          الشَّايِ`。名詞換位置，完整標音詞尾亦配合新語法位置改。
   - subskill_id: emotions
-    explanation: 名詞句可以描述講者嘅情緒，唔一定需要相當於英文 be 嘅動詞。
+    explanation: 收到好消息，可以講自己嘅感受。呢句由女性講出，話自己因為消息而開心，唔係形容消息本身開心。
     examples:
       - text: أَنَا سَعِيدَةٌ بِهٰذَا الْخَبَرِ.
-        meaning: 呢個消息令我好開心。
-        note: 現代標準阿拉伯語。講者係女性，形容詞形式亦配合呢點。
-      - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
-        meaning: 呢個消息令我好開心。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者係女性，形容詞形式亦配合呢點。
+        meaning: "**例句。** 呢個消息令我好開心。 `أَنَا` 係「我」，`سَعِيدَةٌ` 係配合女性嘅「開心」。`بِهٰذَا الْخَبَرِ` 係「因為呢個消息」；`بِـ`
+          將感受連到原因。現在式唔使另加相當於英文 am 嘅詞。"
+        note: 男性可以講 `أَنَا سَعِيدٌ بِهٰذَا الْخَبَرِ`。感受形容詞配合講者，唔係配合「消息」個詞。試下：男性講時改邊部分？`سَعِيدَةٌ` 改成
+          `سَعِيدٌ`，消息短語保留。
   - subskill_id: opinions
-    explanation: 相當於「我認為」嘅用語，可以表明之後係講者嘅判斷。
+    explanation: 大家傾緊幾個解決方法。先表明係自己嘅睇法，可以清楚提出判斷，同時容許對方有另一個選擇。
     examples:
       - text: فِي رَأْيِي، هٰذَا الْحَلُّ أَفْضَلُ.
-        meaning: 我認為呢個方案比較好。
-        note: 現代標準阿拉伯語。比較對象可以從正討論嘅方案推知。
-      - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
-        meaning: 我認為呢個方案比較好。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。比較對象可以從正討論嘅方案推知。
+        meaning: "**例句。** 我認為呢個方案比較好。 `فِي رَأْيِي` 係「依我睇」，最後嘅後綴係「我嘅」。`هٰذَا الْحَلُّ` 係「呢個方法」，`أَفْضَلُ`
+          係「更好」。比較緊嘅另一個方法，對話已經交代咗，唔使重複。"
+        note: 開頭只係標明立場，唔係提供證據。如果唔清楚同乜比較，就要講明另一個方法。試下：邊部分指出係邊個嘅判斷？答案係 `فِي رَأْيِي`，尤其表示「我嘅」嘅後綴。
   - subskill_id: agreement_disagreement
-    explanation: 明確表示唔同意，可以否定一個清楚嘅提議。
+    explanation: 大家正考慮一個提議，你唔贊成。指出反對嘅係邊個提議，可以清楚表達立場，唔使批評提出嗰個人。
     examples:
       - text: لَا أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ.
-        meaning: 我唔同意呢個建議。
-        note: 現代標準阿拉伯語例句；同組黎凡特例句用男性形容詞形式，配合男性講者。
-      - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
-        meaning: 我唔同意呢個建議。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。呢度形容詞係男性形式，講者係男性。
+        meaning: "**例句。** 我唔同意呢個建議。 `لَا` 否定 `أُوَافِقُ`「我同意」。`عَلَى هٰذَا الِاقْتِرَاحِ`
+          係「呢個提議」。無論講者係男性定女性，第一人稱動詞都一樣；呢句唔係用「同意」形容詞。"
+        note: 刪走 `لَا` 就係同意：`أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ`。唔肯定同反對係兩回事。試下：邊個詞改變立場方向？答案係 `لَا`，所講嘅提議冇變。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/feelings-viewpoints/arabic-feelings-viewpoints-explained-in-english.yaml
-    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahMoodsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 黎凡特語常用 بِدِّي 表達「我想」。口語否定謂語可以按地區用 مِشْ 或 مُو。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/feelings-viewpoints/arabic-feelings-viewpoints-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: 現代標準語常用 أُرِيدُ 加 أَنْ 引入嘅子句表達想要。感受形容詞要配合被描述者嘅性別等語法特徵。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/feelings-viewpoints/arabic-feelings-viewpoints-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: wants_intentions
+      explanation: 想學一項新技能，可以話畀人知你有乜興趣。呢句可以開始傾課程，但唔代表你已經報咗名。
+      examples:
+        - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
+          meaning: "**例句。** 我想學游水。 `بِدِّي` 係「我想」，詞尾指出講者。`أَتْعَلَّمْ` 喺呢個依附位置表示「我學」，`السِّبَاحَة`
+            係游水。`بِدِّي` 後面嘅動作唔加一般 b 前綴。"
+          note: 想要表達後面嘅動作冇一般 b 前綴。試下講我哋想學游水：`بِدْنَا نِتْعَلَّمْ السِّبَاحَة`。想嘅後綴同學習動詞都改成我哋，游水仍然係想學嘅技能。
+    - subskill_id: preferences
+      explanation: 揀飲品時，偏好係比較兩個選擇，唔止係話其中一樣好飲。呢度講者較鍾意茶，多過咖啡。
+      examples:
+        - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
+          meaning: "**例句。** 比起咖啡，我更鍾意茶。 `بَحِبّ` 係「我鍾意」，`الشَّايْ` 係茶。`أَكْتَرْ مِنْ` 係「多過」，`الْقَهْوِة`
+            係咖啡。呢句比較鍾意嘅程度，嚟表達偏好。"
+          note: 比較飲品時保留 `أَكْتَرْ مِنْ`。試下話咖啡比茶更啱你：`بَحِبّ الْقَهْوِة أَكْتَرْ مِنْ
+            الشَّايْ`。調轉飲品就反轉偏好；刪走比較部分，只係話鍾意咖啡。
+    - subskill_id: emotions
+      explanation: 收到好消息，可以講自己嘅感受。呢句由女性講出，話自己因為消息而開心，唔係形容消息本身開心。
+      examples:
+        - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
+          meaning: "**例句。** 呢個消息令我好開心。 `أَنَا` 係「我」，`مَبْسُوطَة` 係配合女性嘅「開心、滿意」。`بِهَادْ الْخَبَرْ`
+            係「因為呢個消息」。開頭連住嘅介詞連起感受同原因；現在式唔使另加「係」。"
+          note: 男性用 `مَبْسُوطْ` 換走 `مَبْسُوطَة`。形容詞跟住感到開心嗰個人。試下：女性詞尾係咪形容消息？唔係；佢配合講緊嘢嘅女性，`الْخَبَرْ` 就指出令佢開心嘅事。
+    - subskill_id: opinions
+      explanation: 大家傾緊幾個解決方法。先表明係自己嘅睇法，可以清楚提出判斷，同時容許對方有另一個選擇。
+      examples:
+        - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
+          meaning: "**例句。** 我認為呢個方案比較好。 `بِرَأْيِي` 係「依我睇」。`هَادْ الْحَلّ` 係「呢個方法」，`أَحْسَنْ`
+            係「更好」。現在式唔使另加「係」，方法直接連到判斷。"
+          note: 可以喺開頭後面換另一個判斷，保留表示自己嘅後綴。「更好」要有已知比較對象，唔係話每一方面都完美。試下刪走 `بِرَأْيِي`：比較仍然存在，但冇咗明示「我嘅睇法」。
+    - subskill_id: agreement_disagreement
+      explanation: 大家正考慮一個提議，你唔贊成。指出反對嘅係邊個提議，可以清楚表達立場，唔使批評提出嗰個人。
+      examples:
+        - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
+          meaning: "**例句。** 我唔同意呢個建議。 `أَنَا` 係「我」，`مِشْ` 係「唔」，`مُوَافِقْ` 係配合男性嘅「同意」。`عَ هَادْ الِاقْتِرَاحْ`
+            指「呢個提議」。呢句用形容詞表達狀態，唔係否定一般現在式動詞。"
+          note: 女性用 `مُوَافِقَة`。否定詞有地區差異，呢課就練習 `مِشْ`。試下改成女性講：`أَنَا مِشْ مُوَافِقَة عَ هَادْ
+            الِاقْتِرَاحْ`；形容詞改咗，反對立場同提議保留。

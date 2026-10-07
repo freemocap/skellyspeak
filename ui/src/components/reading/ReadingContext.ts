@@ -32,6 +32,13 @@ export const ReadingActionsContext = createContext<{
   stop: () => void
   speaking: string | null
 } | null>(null)
+/** Where read-aloud status rises in flow instead of floating bottom-right: on a
+ * phone, the page's slot above its recording panel. Null floats it. */
+export const ReadAloudSlotContext = createContext<HTMLElement | null>(null)
+/** An open modal reading inspector registers its content here so read-aloud
+ * status is hosted inside the dialog: a modal makes everything outside its
+ * subtree inert, which would leave a floating Stop, Retry or Close unreachable. */
+export const ReadAloudHostContext = createContext<((element: HTMLElement | null) => void) | null>(null)
 export const speechKey = (selection: ReadingSelection) => JSON.stringify([selection.scope, selection.text.slice(selection.start, selection.end)])
 export function useReadingActions() {
   const actions = useContext(ReadingActionsContext)

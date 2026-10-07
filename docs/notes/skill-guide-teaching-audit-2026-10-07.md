@@ -1,11 +1,9 @@
 # Skill guide teaching audit and pilot plan
 
-Status: audit and accepted pilot direction, 2026-10-07. Following approval, the
-seven English pilot cards are implemented in authored source and checked in the
-production renderer through a local offline preview. The implementation checkpoint
-below records scope and verification. Spanish and Arabic expansion awaits review
-of this English pilot. No skill identity, assessment policy, evidence or UI runtime
-behavior changed.
+Status: accepted pilot implemented; full English/Spanish/Arabic content expansion
+authorized and in progress, 2026-10-07. Latest checkpoints below supersede the
+initial audit and proposed implementation details. Skill identities, assessment
+policy and learner evidence remain unchanged.
 
 The skill guides need to teach learners how to understand, construct and adapt
 language. Much of the sampled prose instead explains why a sentence qualifies
@@ -601,3 +599,154 @@ rendering, translation fields, exact example preservation, action indices and st
 fingerprints. Validation rejects undeclared varieties and incomplete/reordered/empty
 replacement sections. Cantonese explanations at 150% in the 360px preview panel
 had equal client/scroll widths for all five cards. No commit or deployment performed.
+
+## First complete-language batch: editorial brief and ownership
+
+User authorized the proposed delegation workflow. Three GPT-6.1 Sol workers own
+English, Spanish and Arabic target-language guide files respectively. The primary
+agent owns shared concepts, bibliography integration, preview and quality review.
+The initial batch covers all eight groups and 42 subskills in each language, including
+all existing explanation editions. Wider expansion follows review of this batch.
+
+User clarified during this batch that correct, useful content for each language
+takes priority over uniform file structure or parallel explanations. Keep the shared
+functional navigation, but choose constructions, depth and examples case by case.
+Do not introduce language-family abstractions now; extract them later only where
+finished, reviewed lessons justify them.
+
+Each card should introduce the communicative meaning and a plausible situation,
+explain a useful construction, unpack the principal example, then show an adaptation
+or meaningful contrast and a short exercise with an explained answer. This is an
+editorial standard rather than a compulsory sequence of identical labels. Avoid
+paraphrase-only notes, assessment jargon and unnecessary metalinguistic commands.
+Retain accepted pilot material when sound. Mark actual target forms with backticks;
+never mark explanation-language terms or abstract formulas as target text. Preserve
+principal strings unless a correction is documented. Teach the selected variety;
+do not make routine lessons into comparisons of varieties.
+
+Workers must research uncertain claims, identify source scope and leave linguistic
+review pending. They do not change skill IDs, assessments, schemas or UI behavior.
+The primary review checks section coverage, example parity across editions, source
+preservation/corrections, usable explanations and exercises, selected-variety
+composition, Markdown/action alignment and narrow-screen readability. Automated
+checks establish structural and integration correctness, not linguistic certification.
+
+### Batch implementation and review checkpoint
+
+Completed the first three languages: all 42 subskills in each of eight groups,
+across 56 target-language guide files. English has English/Cantonese explanations;
+Spanish has English/Spanish/Cantonese; Arabic has English/Cantonese. Existing strong
+pilot lessons were retained; remaining cards received contextual introductions,
+worked constructions and usable practice. Simplified 22 shared concept documents
+in the same explanation languages. No new language-family abstraction was added.
+
+| Target | Content outcome | Detail report |
+| --- | --- | --- |
+| English | Shared lessons with selected US spelling replacements in two groups; original UK examples retained. | [English audit](english-guide-expansion-2026-10-07.md) |
+| Spanish | Language-specific teaching shared where valid for Spain/Mexico; all three explanation editions completed. | [Spanish audit](spanish-guide-expansion-2026-10-07.md) |
+| Arabic | All eight groups now have separate selected MSA and Levantine lessons. | [Arabic audit](arabic-guide-expansion-2026-10-07.md) |
+
+Primary-agent review corrected scope gaps in Spanish explanation editions and sent
+weak Arabic caveats back for meaningful adaptations and complete answers. An
+additional read-only agent review covered all Spanish English-explanation cards
+and both Arabic selected section sets. It found no confirmed blocking linguistic
+defect; root incorporated its two Spanish clarity suggestions. This is model review,
+not independent human linguistic certification. Levantine regional consistency and
+vocalization, and Cantonese terminology/equivalence remain explicit review items.
+
+Final checks passed: authored-content validation for all 344 guide files; all 73
+configuration tests via languages:check; 55 affected UI regression tests; fast gate;
+production UI build (existing bundle-size advisory); documentation links; diff
+whitespace checks. The first content check rejected overly descriptive bibliography
+review-state values; changed them to the existing allowed states and retained exact
+review scope in the claim fields. UI tests required the existing Windows sandbox
+exception for Vite startup and passed on rerun.
+
+Parsed source comparison preserved every prior principal example. Added only three
+US spelling variants (neighbor, harbor, practice), in both explanation editions.
+Selected-variety examples agree across all editions. Verified Markdown boundaries
+and balanced inline target markers. Assessment files and skill IDs are unchanged.
+
+The local preview exports 112 exact native guide renderings across all groups,
+both varieties of each target, and every existing explanation edition. Reviewed
+English time/events, Spanish feelings/viewpoints explained in Spanish, and Levantine
+requests. Phrase action selection retained the correct visible example index and
+variety. All 42 Levantine/Cantonese cards had equal client/scroll widths at a 360px
+panel and 150% reading size. Preview screenshot:
+[Levantine requests](skill-guide-pilot-2026-10-07/full-batch-levantine-requests.png).
+The preview uses fixture word help; no live speech/provider check is claimed.
+
+The first batch is complete and uncommitted. The remaining 18 target languages have
+not received this full content rewrite. No commit, release or deployment performed.
+
+### Native startup follow-up
+
+The running development executable still embedded a bibliography from before the
+review-state correction. Cargo already tracks `references.bib`, but Tauri's outer
+development watcher only watched native sources and `content/`. Added the repository
+root to its watched directories, with `.taurignore` excluding frontend, tooling and
+documentation work from native restarts. Rebuilt and relaunched the development app.
+
+Verification: current content validation and the fast gate passed. Updating only
+the bibliography timestamp triggered a native rebuild; updating a frontend component
+timestamp triggered Vite HMR without a native rebuild. The rebuilt app's diagnostics
+record successful startup and language-totals IPC. These checks do not constitute visual or
+live-provider review of every lesson. The app can run while other languages await
+their content rewrite.
+
+### Continuing rollout and AI boundary audit
+
+The user approved a rolling queue of three language authors with root integration
+and cross-review. The current next batch is French, Italian and German, followed
+by Vietnamese, Mandarin and Cantonese. Earlier queue assignments are superseded.
+Completion of those batches is tracked separately from the first three languages.
+
+The [AI boundary audit](skill-ai-boundary-audit-2026-10-07.md) records existing
+assessment separation, live smoke results and unresolved generation/translation
+risks. Assessment instructions and definitions remain unchanged during teaching
+authoring. Contextual `section.explanation` is consumed by practice partners;
+learner exercises belong in `examples.note`. Each author also compares the lesson
+against the existing assessment for semantic contradictions without duplicating it.
+
+New bibliography entries are registered and validated by the integration agent
+before workers reference their keys. This avoids the invalid intermediate
+bibliography state encountered in the first batch. Changes remain uncommitted.
+
+### October 7 checkpoint: six-language rollout and Irish scope
+
+French, Italian, German, Vietnamese, Mandarin and Cantonese now have revised
+teaching for all 42 subskills in both existing English and Cantonese editions
+(96 guide files). French also has complete selected Canadian replacements where
+meal vocabulary changes the lesson. The integration audit confirms principal
+example preservation, matching example/ID structure between editions, balanced
+inline target markers and supported Markdown boundaries.
+
+Cross-review covered all six languages and their existing assessment guidance.
+Corrections included a Canadian French habitual-time example, Italian farewell
+wording, explicit German practice answers and small Cantonese explanation edits.
+No assessment contradiction was identified. These are AI editorial checks,
+not independent native-speaker certification; authored provenance remains
+`needs_review`. Individual language expansion reports record sources and limits.
+
+The integrated French composition test previously assumed every variety uses
+base sections. It now asserts the selected variety's explanations and examples,
+including what reaches partner focus. An initial concurrent validation also
+detected a bundled/disk fingerprint mismatch while content was being written;
+final validation must run after authoring settles.
+
+The user then narrowed the next checkpoint to Irish and Malayalam explained in
+English only, followed by a stop for their own commit. Other explanation editions and
+all remaining language queues are outside this checkpoint. No commit is
+authorized for the agent. Final integrated verification is recorded below when
+complete.
+
+### Follow-up requested: learner-visible citations
+
+The user wants language teaching to link to its supporting references, without
+expanding this checkpoint into a bibliography UI project. Existing provenance
+source keys and `references.bib` URLs are the starting point. A later design pass
+should make relevant citations available near the claims they support and offer
+a readable bibliography, distinguishing consulted source passages from original
+AI-authored examples and unresolved linguistic review. Source-wide attribution
+must not imply that every adaptation is independently attested. This is a
+requested follow-up, not implemented learner-facing citation behavior.

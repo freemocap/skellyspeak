@@ -1,68 +1,95 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: 正在 before an action verb explicitly presents it as ongoing. It does not conjugate
-      the verb for person or tense.
+    explanation: Someone asks what you are doing while you prepare directions. `正在` before the action
+      presents it as in progress. In this conversation, it is happening now; another time setting
+      could place an ongoing action elsewhere in time.
     examples:
       - text: 我正在画地图。
-        meaning: I am drawing a map.
-        note: 正在 makes the activity in progress explicit. Context anchors it to now in this example.
+        meaning: "**The example.** I am drawing a map. `我` is I, `正在` is in the middle of, `画` is draw, and
+          `地图` is map. The ongoing marker precedes the action, while the thing drawn follows it. `画`
+          does not change for the person doing it."
+        note: "Try saying your group is drawing the map. Answer: `我们正在画地图。` Replace `我` with `我们`, leaving
+          `正在画` unchanged. `我每周画地图` instead describes a weekly habit, rather than making a current
+          activity explicit."
   - subskill_id: past_events
-    explanation: A time word can locate an action in the past. Verb-final 了 can mark its occurrence
-      as a bounded event, but 了 is not simply a past-tense ending.
+    explanation: After a repair, you can say when you did it. `昨天` places the event yesterday, and `了`
+      after `修` reports the repair as an event that occurred. The verb itself has no past-tense
+      ending.
     examples:
       - text: 昨天我修了自行车。
-        meaning: Yesterday I repaired the bicycle.
-        note: 昨天 supplies the past anchor. 修了 reports the repair event.
+        meaning: "**The example.** Yesterday I repaired the bicycle. `昨天` is yesterday, `我` is I, and `修自行车`
+          is repair the bicycle. In `修了自行车`, the event marker follows the verb and precedes its
+          object. It reports the repair without specifically spelling out that every repair step
+          reached completion."
+        note: "Try reporting that you did not repair it yesterday. Answer: `昨天我没修自行车。` Use `没` before `修`
+          and remove the event `了`. `修好了自行车` would explicitly say you fixed the bicycle
+          successfully; the original does not contain that result word."
   - subskill_id: future_events
-    explanation: A future time expression can locate a planned action later without a dedicated
-      future-tense ending.
+    explanation: A planned errand can be placed tomorrow simply by naming the day. `明天` establishes when
+      you intend to go, and the following action says what you will collect.
     examples:
       - text: 明天我去取零件。
-        meaning: Tomorrow I will go and collect the parts.
-        note: 明天 establishes future time. 去取 combines going with the purpose of collecting.
+        meaning: "**The example.** Tomorrow I will go and collect the parts. `明天` is tomorrow, `我` is I, `去`
+          is go, `取` is collect, and `零件` is parts. `去取` combines going with the collecting purpose.
+          Neither verb takes a future ending."
+        note: "Try moving the errand to the day after tomorrow. Answer: `后天我去取零件。` Replace `明天` with `后天`.
+          `我会修自行车` can describe learned repair skill; adding `会` is not necessary to give the
+          original errand future time."
   - subskill_id: duration_frequency
-    explanation: 每 with a time period and a counted occurrence can express frequency. 次 counts
-      occasions rather than objects.
+    explanation: When discussing a regular exercise routine, frequency says how often the activity
+      happens. `每周` gives the weekly interval, and `两次` after the activity counts the occasions
+      within it.
     examples:
       - text: 我每周游泳两次。
-        meaning: I swim twice a week.
-        note: 每周 sets the interval, and 两次 gives the number of swimming occasions in it.
+        meaning: "**The example.** I swim twice a week. `我` is I, `每` is every, `周` is week, and `游泳` is
+          swim. `两次` is twice, with `次` counting occasions. The interval comes before swimming and
+          its occurrence count after it."
+        note: "Try saying you swim three times a week. Answer: `我每周游泳三次。` Replace `两次` with `三次`. `我每次游泳半小时`
+          instead says each swim lasts half an hour: `每次` gives each occasion and `半小时` its
+          duration."
   - subskill_id: event_sequence
-    explanation: 先 and 再 specify the first step and what follows. They establish sequence without
-      inherently asserting causation.
+    explanation: A food-preparation procedure needs the steps in the right order. `先` introduces the
+      first action, and `再` the one to do after it. The listener carrying out the procedure can
+      remain unstated.
     examples:
       - text: 先洗手，再准备食材。
-        meaning: First wash your hands, then prepare the ingredients.
-        note: 先 and 再 order the two actions. The implied addressee is the person following the
-          procedure.
+        meaning: "**The example.** First wash your hands, then prepare the ingredients. `洗手` is wash hands
+          and `准备食材` is prepare ingredients. Each ordering word comes before its action. `食材` refers
+          to the ingredients used in cooking."
+        note: "Try making tool preparation the second step. Answer: `先洗手，再准备工具。` Replace `食材` with `工具`,
+          tools. Here `再` points to the next action to carry out; `所以` would introduce a consequence
+          and would not express the same simple procedure order."
   - subskill_id: event_phase
-    explanation: 完 after an action verb can indicate reaching the activity’s endpoint. 已经 makes the
-      achieved status explicit.
+    explanation: Someone needs to know whether you still have instructions to read. `看完` explicitly says
+      the reading has reached its endpoint, and `已经` places that achievement before now.
     examples:
       - text: 我已经看完说明书了。
-        meaning: I have finished reading the instructions.
-        note: 看完 states completion of the reading. It is more specific than merely saying that reading
-          happened.
+        meaning: "**The example.** I have finished reading the instructions. `我已经` is I already, `看` is read
+          here, and `完` after it means finish. `说明书` is the instruction manual. Final `了` presents
+          the completed reading as the situation now."
+        note: "Try saying you have not finished yet. Answer: `我还没看完说明书。` Replace `已经` with `还没` and omit
+          final `了`. Keep `完` because reaching the endpoint is still what is in question. `我看了说明书`
+          reports reading but does not explicitly say you finished the whole manual."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

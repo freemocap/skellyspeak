@@ -1,69 +1,93 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A brief leave-taking can refer to the next encounter. Context makes it a closing
-      rather than a prediction about seeing someone.
+    explanation: When leaving a visit, you can announce your departure and look forward to another
+      meeting. `我先走了` is a natural leave-taking expression even while you are still saying goodbye.
     examples:
       - text: 我先走了，下次见！
-        meaning: I will get going. See you next time!
-        note: Use when leaving a visit. 我先走了 announces departure and 下次见 closes contact.
+        meaning: "**The example.** I will get going. See you next time! `先` means first or ahead of the
+          others here, and `走` means leave. Final `了` presents the new situation of departing; it is
+          not proof that you have already left. `下次见` is see you next time."
+        note: "Try saying see you tomorrow instead. Answer: `我先走了，明天见！` Replace `下次` with `明天`. `我昨天走了`
+          refers to leaving yesterday because `昨天` anchors it in the past; the original farewell
+          concerns leaving now."
   - subskill_id: acknowledging
-    explanation: 明白了 can register that an explanation has become clear. It need not express
-      agreement with a judgment.
+    explanation: After someone explains a procedure, you can show that the explanation has become clear.
+      `明白了` registers this new understanding without requiring you to agree with every opinion in
+      the explanation.
     examples:
       - text: 哦，我明白了。
-        meaning: Oh, I understand now.
-        note: Reply after the partner explains the procedure. 了 marks the achieved understanding here.
+        meaning: "**The example.** Oh, I understand now. `哦` marks recognition, `我` is I, and `明白` is
+          understand. Final `了` signals the change to understanding. The reply connects directly to
+          the explanation just heard."
+        note: "Try saying the group understands now. Answer: `哦，我们明白了。` Change `我` to `我们`; the expression
+          stays the same. `我也这么想` instead shares a previously expressed view, rather than only
+          acknowledging that it is clear."
   - subskill_id: clarification
-    explanation: 再说一遍 asks for one repetition. 一遍 counts going through the utterance once.
+    explanation: If you miss what someone just said, a request for repetition gives them a clear repair
+      to make. `再说一遍` asks them to go through the same utterance once more.
     examples:
       - text: 不好意思，请再说一遍。
-        meaning: Sorry, please say that again.
-        note: Use immediately after unclear speech. The preceding utterance supplies what should be
-          repeated.
+        meaning: "**The example.** Sorry, please say that again. `不好意思` apologizes for the interruption and
+          `请` politely introduces the request. `再` is again, `说` is say, and `一遍` counts one
+          complete repetition. The preceding speech supplies what to repeat."
+        note: "Try asking someone to read it once more instead. Answer: `不好意思，请再读一遍。` Replace `说` with `读`,
+          read. If you heard the words but do not understand them, `这是什么意思？` asks what this means
+          instead of requesting another repetition."
   - subskill_id: rephrasing
-    explanation: 换句话说 introduces another formulation of an earlier point. State the clearer meaning
-      after it.
+    explanation: An explanation that visits cannot be arranged on arrival can be restated as a practical
+      requirement. `换句话说` signals another way of expressing the same point, followed by what the
+      group must do.
     examples:
       - text: 换句话说，我们得提前预约。
-        meaning: In other words, we need to book in advance.
-        note: Rephrases an explanation that visitors cannot arrange a visit on arrival. 得 expresses
-          necessity here; it is not a complement marker.
+        meaning: "**The example.** In other words, we need to book in advance. `换句话说` is put it another way.
+          `我们得` is we have to, with `得` read `děi` here. `提前` means in advance and comes before
+          `预约`, make an appointment or reservation."
+        note: "Try making the requirement your own. Answer: `换句话说，我得提前预约。` Replace `我们` with `我`. Here `得`
+          precedes the action and expresses necessity; the lightly pronounced `得` in `说得很清楚`, speak
+          clearly, follows a verb and has a different job."
   - subskill_id: correcting_misunderstanding
-    explanation: 说的是 identifies what was said, and 不是 rejects the mistaken alternative. The contrast
-      corrects the interpretation explicitly.
+    explanation: The listener took your proposed day to be Friday, but you meant Saturday. Naming the
+      intended day and rejecting the mistaken one repairs the misunderstanding directly.
     examples:
       - text: 我说的是周六，不是周五。
-        meaning: I said Saturday, not Friday.
-        note: Use after the listener takes the proposed day to be Friday. The intended day is supplied
-          as the correction.
+        meaning: "**The example.** I said Saturday, not Friday. `我说的` refers to what I said; `是周六`
+          identifies it as Saturday. `不是周五` rejects Friday. The two day phrases occur after `是` and
+          `不是`, making the contrast explicit."
+        note: "Try correcting the misunderstanding in the opposite direction. Answer: `我说的是周五，不是周六。`
+          Exchange the days. `我没说周六` only says you did not say Saturday; it does not supply the
+          intended day."
   - subskill_id: turns_topics
-    explanation: 换个话题 explicitly names changing the subject. A follow-up question can introduce the
-      intended new topic.
+    explanation: During a discussion, you may want to move to next week’s plans. Stating the transition
+      and naming the new topic helps the listener follow. `可以吗` asks whether they are willing to
+      make that change.
     examples:
       - text: 我想换个话题，聊聊下周的安排，可以吗？
-        meaning: I would like to change the subject and talk about next week’s plans. Is that okay?
-        note: The speaker proposes a topic transition and gives its destination. 聊聊 makes the proposed
-          discussion conversational.
+        meaning: "**The example.** I would like to change the subject and talk about next week’s plans. Is
+          that okay? `我想` is I would like to, `换个话题` is change the topic, and `聊聊` is have a little
+          chat. `下周的安排` is next week’s plans, with the time linked to the plans by `的`."
+        note: "Try moving to tomorrow’s plans. Answer: `我想换个话题，聊聊明天的安排，可以吗？` Replace `下周` with `明天`.
+          Repeating `聊` makes the proposed chat sound light and conversational; simply naming a new
+          date would not clearly announce the topic transition."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

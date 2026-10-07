@@ -1,80 +1,153 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: feelings_viewpoints
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-spanish.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Querer con infinitivo expresa lo que el sujeto desea hacer.
+    explanation: Después de un día ocupado, quizá quieras descansar en vez de hacer otra actividad.
+      `Querer` seguido de un infinitivo expresa lo que deseas hacer tú. Describe un deseo; la frase
+      por sí sola no promete que lo cumplirás.
     examples:
       - text: Quiero descansar.
-        meaning: Tengo ganas de descansar.
-        note: Quien desea es también quien descansaría.
+        meaning: "`Quiero` expresa el deseo de quien habla y `descansar` nombra la actividad. Solo el primer
+          verbo cambia según la persona; la actividad conserva el infinitivo."
+        note: >-
+          **Adáptalo.** `Ella quiere descansar` describe su deseo. `Voy a descansar` presenta el
+          descanso como un plan. No conjugues los dos verbos como `quiero descanso`.
+
+
+          **Prueba.** Di que quieres comer usando `comer`. Respuesta: `Quiero comer`. Conserva
+          `quiero` y cambia el infinitivo.
   - subskill_id: preferences
-    explanation: Preferir expresa una preferencia. Con gustar, lo que gusta funciona como sujeto gramatical.
+    explanation: Hablar de los libros que disfrutas permite explicar tus gustos. Con `gustar`, la frase
+      se organiza alrededor de lo que resulta agradable y un pronombre indica a quién le gusta. El
+      verbo concuerda con aquello que gusta.
     examples:
       - text: Me gustan estos libros.
-        meaning: Estos libros son de mi agrado.
-        note: Gustan concuerda con libros, que está en plural.
+        meaning: "`Me` señala a la persona que disfruta de los libros: quien habla. `Gustan` está en plural
+          porque `estos libros` es plural. Los libros son el sujeto gramatical de esta
+          construcción."
+        note: >-
+          **Adáptalo.** `Me gusta este libro` habla de un libro, con verbo singular. `Me gusta leer`
+          expresa gusto por una actividad en infinitivo y también lleva `gusta`.
+
+
+          **Prueba.** Di que te gustan estas películas con `estas películas`. Respuesta: `Me gustan
+          estas películas`. Haz concordar `gustan` con las películas, no con `me`.
   - subskill_id: emotions
-    explanation: Nombra el sentimiento con una expresión adecuada. Los adjetivos con estar concuerdan
-      con la persona descrita.
+    explanation: Si una amistad pregunta cómo te sientes, un adjetivo con `estar` permite nombrar tu
+      estado emocional. El adjetivo concuerda con la persona que siente esa emoción. Aquí quien
+      habla se siente contenta.
     examples:
       - text: Estoy contenta.
-        meaning: Me siento feliz.
-        note: Una hablante usa la forma femenina contenta.
+        meaning: "`Estoy` presenta el estado de quien habla. `Contenta` es femenino singular; con
+          concordancia masculina se dice `contento`. La terminación describe a la persona, no la
+          causa de su alegría."
+        note: >-
+          **Compara.** `Estoy triste` expresa tristeza; `triste` no cambia entre masculino y
+          femenino. `Soy una persona alegre` describe una manera de ser, no solo una emoción del
+          momento.
+
+
+          **Prueba.** Expresa alegría con concordancia masculina. Respuesta: `Estoy contento`.
+          Cambia la terminación del adjetivo y conserva `estoy`.
   - subskill_id: opinions
-    explanation: Creo que introduce una opinión. También puedes expresar una valoración directamente.
+    explanation: Al hablar de un plan, puedes dar tu valoración sin atribuírsela a todo el mundo. `Creo
+      que` introduce lo que piensas. La oración que sigue expresa la opinión, por ejemplo si la idea
+      propuesta te parece buena.
     examples:
       - text: Creo que es una buena idea.
-        meaning: En mi opinión, la idea es buena.
-        note: La hablante presenta la valoración como su punto de vista.
+        meaning: "`Creo` indica tu opinión, `que` la conecta con su contenido y `es una buena idea` valora
+          la propuesta. `Buena` concuerda con el nombre femenino `idea`."
+        note: >-
+          **Adáptalo.** `Creo que es una mala idea` cambia la valoración. Para expresar que no lo
+          crees y expresar esa duda, puedes decir `No creo que sea una buena idea`. Para este
+          sentido de duda, usa el subjuntivo `sea` en lugar de `es`.
+
+
+          **Prueba.** Di que crees que es útil usando `útil`. Respuesta: `Creo que es útil`.
+          Conserva `que` para unir las dos partes.
   - subskill_id: agreement_disagreement
-    explanation: Responde a una postura con acuerdo, desacuerdo o una matización.
+    explanation: Dos personas pueden entender una propuesta y tener opiniones distintas. `Estar de
+      acuerdo` expresa coincidencia de opiniones; `no` delante del verbo expresa desacuerdo. La
+      frase responde a la opinión que se está comentando.
     examples:
       - text: No estoy de acuerdo.
-        meaning: No comparto esa postura.
-        note: Necesitamos conocer la postura anterior para saber qué se rechaza.
+        meaning: "`No` niega `estoy`, que identifica a quien habla. `De acuerdo` es la expresión de
+          coincidencia. La frase muestra una posición distinta sin explicar todavía el motivo."
+        note: >-
+          **Adáptalo.** `Estoy de acuerdo contigo` expresa coincidencia contigo. `No estoy de
+          acuerdo con el plan` identifica la propuesta que rechazas. Conserva `de` en la expresión y
+          usa `con` para introducir la persona o propuesta.
+
+
+          **Prueba.** Expresa acuerdo con `el plan`. Respuesta: `Estoy de acuerdo con el plan`.
+          Quita `no` y añade con qué estás de acuerdo.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

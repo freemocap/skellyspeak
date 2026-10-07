@@ -1,5 +1,144 @@
 use super::*;
 
+#[test]
+#[ignore = "Explicit synthetic prompt export path required; no network or user workspace"]
+fn export_skill_ai_boundary_prompts() {
+    use crate::configuration::guide_translation::GuideCoachFocus;
+    use crate::conversations::direction::TopicChoice;
+    use std::io::Write;
+
+    let output = std::env::var("SKILL_AI_BOUNDARY_OUTPUT").expect("output path required");
+    let mut cases = Vec::new();
+    for (language, variety, learner) in [
+        (
+            "english",
+            "english-united-states",
+            "I can cook. What can you cook?",
+        ),
+        (
+            "spanish",
+            "spanish-spain",
+            "Sé cocinar. ¿Qué sabes cocinar?",
+        ),
+        (
+            "arabic",
+            "arabic-levantine",
+            "بعرف اطبخ. إنت شو بتعرف تطبخ؟",
+        ),
+    ] {
+        for kind in ["coach_reply", "persona_reply"] {
+            let (_directory, mut store, _) = setup();
+            apply(
+                &mut store,
+                Action::CreateContact {
+                    language_id: language.into(),
+                    details: crate::partners::persona::starter(language).unwrap(),
+                },
+            );
+            let contact: String = store
+                .connection
+                .query_row(
+                    "SELECT id FROM contacts ORDER BY rowid DESC LIMIT 1",
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let conversation = apply(
+                &mut store,
+                Action::CreateConversation {
+                    contact_id: contact,
+                    title: "Synthetic skill AI boundary".into(),
+                },
+            )
+            .entity_id;
+            let snapshot = store.snapshot().unwrap();
+            let current = snapshot
+                .conversations
+                .iter()
+                .find(|c| c.id == conversation)
+                .unwrap();
+            let mut settings = current.settings.clone();
+            settings.variety_id = variety.into();
+            settings.explanation_language = "english".into();
+            settings.explanation_variety_id = "english-united-states".into();
+            settings.difficulty = Difficulty::Beginner;
+            settings.read_aloud = false;
+            settings.direction.use_persona_details = false;
+            settings.direction.topic = if kind == "persona_reply" {
+                Some(TopicChoice::Skill {
+                    skill_id: "possibilities_constraints".into(),
+                    subskill_id: Some("ability".into()),
+                })
+            } else {
+                None
+            };
+            apply(
+                &mut store,
+                Action::UpdateSettings {
+                    conversation_id: conversation.clone(),
+                    expected_revision: current.settings_revision,
+                    settings,
+                },
+            );
+            let owner = store
+                .snapshot()
+                .unwrap()
+                .conversations
+                .into_iter()
+                .find(|c| c.id == conversation)
+                .unwrap();
+            let turn = if kind == "coach_reply" {
+                let guide = store
+                    .config
+                    .guide_edition(language, "english", "possibilities_constraints")
+                    .unwrap()
+                    .unwrap()
+                    .context(variety)
+                    .reference;
+                apply(
+                    &mut store,
+                    Action::AskGuideCoach {
+                        conversation_id: conversation.clone(),
+                        text: "Explain this ability pattern and one useful contrast. I am asking about the guide, not asking you to assess my performance.".into(),
+                        guide,
+                        focus: Some(GuideCoachFocus::Subskill { subskill_id: "ability".into() }),
+                        expected_revision: owner.revision,
+                    },
+                ).entity_id
+            } else {
+                apply(
+                    &mut store,
+                    Action::SendMessage {
+                        input: crate::learning::coaching::InputEvidence::default(),
+                        conversation_id: conversation.clone(),
+                        text: learner.into(),
+                        expected_revision: owner.revision,
+                    },
+                )
+                .entity_id
+            };
+            let captured = wave2_context(&store, &turn);
+            let messages = captured["messages"].clone();
+            assert!(messages.is_array());
+            assert_eq!(captured["targetLanguage"], language);
+            cases.push(serde_json::json!({
+                "id":format!("{language}-ability-{kind}"),
+                "kind":kind,"language":language,"variety":variety,
+                "explanationLanguage":"english","skillId":"possibilities_constraints",
+                "subskillId":"ability","synthetic":true,"messages":messages
+            }));
+        }
+    }
+    let document = serde_json::json!({"schemaVersion":1,"source":"native captured synthetic turns","cases":cases});
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(output)
+        .unwrap();
+    file.write_all(&serde_json::to_vec_pretty(&document).unwrap())
+        .unwrap();
+}
+
 fn reference(
     store: &Store,
     conversation: &str,

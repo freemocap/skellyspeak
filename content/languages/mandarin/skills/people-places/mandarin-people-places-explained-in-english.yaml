@@ -1,59 +1,80 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: 是 links a referent with an identifying noun phrase. 的 can connect the person to the
-      speaker through a relationship.
+    explanation: Introducing a neighbor tells the listener who the person is and how you know them. `这是`
+      begins an identification; `我的邻居` gives the relationship rather than describing a quality.
     examples:
       - text: 这是我的邻居。
-        meaning: This is my neighbour.
-        note: 这 introduces the person, and 我的邻居 identifies the relationship.
+        meaning: "**The example.** This is my neighbor. `这` points to this person, `是` links them to the
+          identifying phrase, and `邻居` means neighbor. `我的` means my: the owner or related person
+          comes before `的`, and the noun follows."
+        note: "Try introducing the other person’s neighbor. Answer: `这是你的邻居。` Replace `我` with `你` before
+          `的`. `这是我姐姐` also introduces a relationship; close family terms such as `姐姐`, older
+          sister, commonly occur without `的`."
   - subskill_id: qualities_states
-    explanation: An adjective can be the predicate without 是. 很 often makes a neutral descriptive
-      predicate natural without strongly emphasizing degree.
+    explanation: When choosing a route for carrying something bulky, road width matters. `窄` describes
+      being narrow directly. In this ordinary description, `很` makes the adjective statement natural
+      without necessarily emphasizing very narrow.
     examples:
       - text: 这条路很窄。
-        meaning: This road is narrow.
-        note: 条 is the classifier for this road. 很窄 describes its width.
+        meaning: "**The example.** This road is narrow. `这条路` is this road: `这` points to it, `条` is its
+          classifier, and `路` is road. `很窄` gives the quality. There is no `是` between the road and
+          this neutral adjective description."
+        note: "Try saying this road is wide. Answer: `这条路很宽。` Replace `窄` with `宽`, wide. To say it is not
+          narrow, use `这条路不窄`; `不` precedes the adjective rather than retaining `很`."
   - subskill_id: location_movement
-    explanation: 在 with a place expression locates something. A position word such as 上 specifies
-      the relation to the reference object.
+    explanation: When someone cannot find the key, naming its position helps them retrieve it. `在` links
+      the key to a location. The reference object comes before the position word, so the table is
+      named before on top.
     examples:
       - text: 钥匙在桌子上。
-        meaning: The key is on the table.
-        note: 桌子上 supplies the location; 在 relates the key to it.
+        meaning: "**The example.** The key is on the table. `钥匙` is key, `桌子` is table, and `上` means on or
+          above; together `桌子上` is on the table. `在桌子上` gives where the key is, not a movement
+          toward the table."
+        note: "Try locating the key under the table. Answer: `钥匙在桌子下。` Replace `上` with `下`, below. In
+          `把钥匙放在桌子上`, put the key on the table, `放` adds a placement action; the original sentence
+          only describes the location."
   - subskill_id: possession_relations
-    explanation: 有 expresses having something. A number and classifier can specify what is possessed.
+    explanation: Before arranging seats, saying how many chairs you have makes the available supplies
+      clear. `有` expresses possession, and the number and classifier precede the item being counted.
     examples:
       - text: 我有两把折叠椅。
-        meaning: I have two folding chairs.
-        note: 两把 counts chairs with 把 as classifier. 有 states possession; it does not mark a past event.
+        meaning: "**The example.** I have two folding chairs. `我有` is I have, `两` is two in this counting
+          phrase, `把` is the classifier for chairs here, and `折叠椅` is folding chair. The noun does
+          not take an added plural ending."
+        note: "Try saying you have three folding chairs. Answer: `我有三把折叠椅。` Replace `两` with `三`, retaining
+          `把`. Here `把` counts chairs; in `把椅子搬到门口`, move the chair to the doorway, it instead
+          introduces the object being moved."
   - subskill_id: quantity_comparison
-    explanation: Place 比 and the standard of comparison before the adjective. A degree phrase can
-      specify how large the difference is.
+    explanation: If one box is easier to carry, a weight comparison helps assign it. `比` names the other
+      box before the quality being compared; `一点` after the quality says the difference is small.
     examples:
       - text: 这个箱子比那个轻一点。
-        meaning: This box is a little lighter than that one.
-        note: 一点 limits the difference in weight. The noun after 那个 is recoverable and need not be
-          repeated.
+        meaning: "**The example.** This box is a little lighter than that one. `这个箱子` is this box, `比那个` is
+          compared with that one, `轻` is light, and `一点` is a little. `那个` stands for the other box
+          because boxes are already clear."
+        note: "Try saying this box is a little heavier. Answer: `这个箱子比那个重一点。` Replace `轻` with `重`; keep the
+          comparison and small difference. For equal weight, `这个箱子和那个一样重` says this box and that one
+          are equally heavy, rather than comparing a difference."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

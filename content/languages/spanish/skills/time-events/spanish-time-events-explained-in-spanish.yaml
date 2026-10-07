@@ -1,90 +1,174 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: time_events
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
 sections:
   - subskill_id: present_events
-    explanation: El presente puede describir situaciones actuales o hábitos. El contexto permite distinguirlos.
+    explanation: Cuando alguien pregunta por tu empleo, el presente puede describir tu situación laboral
+      actual. No tiene que significar que trabajas justo en este segundo. El lugar y el contexto
+      aclaran la situación que quieres expresar.
     examples:
       - text: Trabajo aquí.
-        meaning: Este es mi lugar de trabajo.
-        note: El presente describe la situación laboral actual.
+        meaning: "`Trabajo` es la forma de presente de `trabajar` para quien habla; `aquí` indica este
+          lugar. La terminación ya identifica a la persona, así que puedes omitir `yo`. Al
+          presentarte en un lugar de trabajo, describes dónde trabajas."
+        note: >-
+          **Adáptalo.** `Ella trabaja aquí` cambia la persona. `Estoy trabajando` destaca una
+          actividad en curso. El presente simple también puede expresar acciones en marcha; el
+          progresivo no es obligatorio para todas ellas.
+
+
+          **Prueba.** Di que trabajas en casa. Respuesta: `Trabajo en casa`. Cambia el lugar y
+          conserva `trabajo`.
   - subskill_id: past_events
-    explanation: Elige la construcción de pasado según el significado. Fui puede presentar un viaje
-      completo; iba puede describir una situación en curso o habitual. Una respuesta breve puede
-      tomar su referencia temporal de la pregunta.
+    explanation: Contar una visita al mercado de ayer presenta un hecho terminado. El pretérito permite
+      mostrar así la visita. Otras formas pasadas pueden presentar un hábito o un fondo; la elección
+      depende de cómo cuentas el hecho.
     examples:
       - text: Ayer fui al mercado.
-        meaning: El viaje al mercado ocurrió ayer.
-        note: Fui y ayer expresan un viaje anterior y completo. Un error ajeno a esta construcción no la
-          invalida.
+        meaning: "`Ayer` sitúa el hecho en el día anterior; `fui` es el pretérito de `ir` para quien habla.
+          `Al mercado` indica el destino: `al` une `a` y `el`. El conjunto describe una visita
+          terminada."
+        note: >-
+          **Compara.** `Iba al mercado todos los días` describe una rutina pasada con el imperfecto
+          `iba`. `Fui` también puede ser una forma de `ser`, pero aquí el destino aclara que
+          significa ir.
+
+
+          **Prueba.** Di que ella fue al mercado ayer. Respuesta: `Ayer fue al mercado`. Cambia
+          `fui` por `fue` y conserva el día y el destino.
   - subskill_id: future_events
-    explanation: Ir a con infinitivo permite hablar de una acción futura prevista. También puedes usar
-      el futuro o un presente con referencia futura clara.
+    explanation: Un plan para mañana se refiere a una acción que todavía no ha ocurrido. `Ir a` seguido
+      de un infinitivo es una forma habitual de expresarlo. La forma de `ir` indica quién tiene ese
+      plan.
     examples:
       - text: Mañana voy a cocinar.
-        meaning: Tengo previsto cocinar mañana.
-        note: Mañana y voy a cocinar establecen la referencia futura.
+        meaning: "`Mañana` indica el día; `voy` identifica a quien habla y `a cocinar` da la acción
+          prevista. Aquí `voy a` expresa futuro, no necesariamente un desplazamiento a otro lugar."
+        note: >-
+          **Adáptalo.** `Ella va a cocinar` cambia la persona; `cocinar` sigue en infinitivo.
+          `Cocinaré mañana` también expresa futuro. No omitas la `a` entre `voy` y la actividad.
+
+
+          **Prueba.** Di que mañana vas a estudiar usando `estudiar`. Respuesta: `Mañana voy a
+          estudiar`. Conserva `voy a` y cambia la actividad.
   - subskill_id: duration_frequency
-    explanation: Usa expresiones temporales para indicar duración o frecuencia.
+    explanation: "Puedes describir una rutina de estudio por su frecuencia o por la duración de cada
+      sesión. Son preguntas distintas. `Todos los días` indica frecuencia: la actividad ocurre cada
+      día, sin decir cuántos minutos dura."
     examples:
       - text: Estudio español todos los días.
-        meaning: Dedico tiempo al español diariamente.
-        note: Todos los días expresa la frecuencia.
+        meaning: "`Estudio` identifica la actividad de quien habla; `español` nombra lo que estudia. `Todos
+          los días` expresa una frecuencia diaria. El nombre de la lengua se escribe aquí con
+          inicial minúscula."
+        note: >-
+          **Compara.** `Estudio español durante una hora` da la duración de una sesión, no su
+          frecuencia. `Dos veces por semana` indica dos ocasiones semanales. Conserva `los` en
+          `todos los días`.
+
+
+          **Prueba.** Di que estudias español dos veces por semana. Respuesta: `Estudio español dos
+          veces por semana`. Sustituye la frecuencia y conserva la actividad.
   - subskill_id: event_sequence
-    explanation: Primero y después ordenan acontecimientos, sin indicar necesariamente que uno cause el otro.
+    explanation: Al contar una noche, ordenar los hechos ayuda a seguir el relato. `Primero` señala el
+      primer paso y `después` introduce uno posterior. Indican orden sin afirmar que un hecho causó
+      el otro.
     examples:
       - text: Primero cenamos y después salimos.
-        meaning: Cenamos antes de salir.
-        note: El orden es explícito; el contexto permite interpretar las formas como pasadas.
+        meaning: En un relato de anoche, `primero cenamos` da el primer hecho y `y después salimos` añade el
+          siguiente. `Cenamos` y `salimos` pueden ser formas de presente o de pretérito; el relato
+          aporta la interpretación pasada.
+        note: >-
+          **Compara.** En un plan para esta noche, las mismas formas pueden referirse al futuro.
+          Añadir `anoche` aclara que hablas del pasado. `Por eso` expresaría una consecuencia, no
+          solamente un orden.
+
+
+          **Prueba.** Cuenta que anoche el grupo cenó y luego salió, incluyendo a quien habla en el
+          grupo. Respuesta: `Anoche primero cenamos y después salimos`. `Anoche` aclara el contexto
+          pasado.
   - subskill_id: event_phase
-    explanation: Estar con gerundio puede presentar una actividad en curso. Para acciones terminadas,
-      usa una construcción adecuada al marco temporal.
+    explanation: Si alguien te interrumpe mientras tienes un libro abierto, puedes decir que la lectura
+      está en curso. `Estar` con gerundio destaca una actividad en marcha. El gerundio es la forma
+      de acción usada aquí, como `leyendo`, de `leer`.
     examples:
       - text: Estoy leyendo.
-        meaning: La lectura está en curso.
-        note: Estoy y leyendo presentan una actividad que se está desarrollando.
+        meaning: "`Estoy` identifica a quien habla y sitúa la actividad en el presente; `leyendo` da la
+          acción en curso. El gerundio no cambia por género ni número. `Estamos leyendo` cambia solo
+          el primer verbo para hablar del grupo."
+        note: >-
+          **Compara.** `Leo todos los días` describe una rutina. `Ya terminé de leer` indica que la
+          lectura terminó. No pongas el infinitivo `leer` directamente después de `estoy` para este
+          sentido.
+
+
+          **Prueba.** Di que ella está leyendo. Respuesta: `Ella está leyendo`. Cambia `estoy` por
+          `está` y conserva `leyendo`.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

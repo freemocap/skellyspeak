@@ -1,105 +1,138 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 原因子句可以解釋採取行動嘅理由。
+    explanation: 有人問點解你留喺屋企，用生病做理由，就可以連起決定同原因。呢句由女性講出。
     examples:
       - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
-        meaning: 我留喺屋企，因為我病咗。
-        note: 現代標準阿拉伯語。女性講者解釋留喺屋企嘅決定。
-      - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
-        meaning: 我留喺屋企，因為我病咗。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。女性講者解釋留喺屋企嘅決定。
+        meaning: "**例句。** 我留喺屋企，因為我病咗。 `بَقِيتُ` 係我留咗，`فِي الْبَيْتِ` 係喺屋企，`لِأَنَّنِي` 係因為我。`مَرِيضَةٌ`
+          係配合女性嘅生病形容詞。過去動詞指之前留低，理由分句解釋嗰次決定。"
+        note: 男性用 `مَرِيضٌ`，留低嘅第一人稱動詞唔使改。原因跟住「因為」，唔係另一件無關事件。試下：邊部分答點解？答案係 `لِأَنَّنِي مَرِيضَةٌ`，將生病同留喺屋企連起。
   - subskill_id: consequences
-    explanation: 結果用語將一個情況同後果連起嚟。
+    explanation: 去到間舖發現閂咗，就決定聽日再嚟。結果表達令聽者知道，新安排點樣由眼前情況引起。
     examples:
       - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
-        meaning: 間舖閂咗，所以我哋聽日再嚟。
-        note: 現代標準阿拉伯語。關門係稍後再嚟嘅原因。
-      - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
-        meaning: 間舖閂咗，所以我哋聽日再嚟。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。關門係稍後再嚟嘅原因。
+        meaning: "**例句。** 間舖閂咗，所以我哋聽日再嚟。 `الْمَحَلُّ مُغْلَقٌ` 話間舖閂咗。`لِذٰلِكَ` 係所以，`سَنَعُودُ`
+          係我哋會返嚟，`غَدًا` 係聽日。第一句交代情況，第二句講因應情況而做嘅安排。"
+        note: 將來前綴 `سَـ` 連住「我哋」形式 `نَعُودُ`。普通「同埋」未必會解釋返嚟嘅原因。試下：邊個短語明示閂舖同計劃嘅關係？答案係 `لِذٰلِكَ`，指返閂舖係理由。
   - subskill_id: conditions
-    explanation: إِذَا 可以引入開放條件，結果取決於條件係咪成立。
+    explanation: 你交代到達時點做，但唔知對方會唔會早到。「如果」分句令等候指示只喺早到嗰個情況適用。
     examples:
       - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
-        meaning: 如果你早到，就喺呢度等。
-        note: 現代標準阿拉伯語。對一位男性講；到達係條件，唔係斷言已發生嘅過去事實。
-      - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
-        meaning: 如果你早到，就喺呢度等。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對一位男性講；到達係條件，唔係斷言已發生嘅過去事實。
+        meaning: "**例句。** 如果你早到，就喺呢度等。 `إِذَا` 帶出如果；`وَصَلْتَ`
+          形式上係向男性講「你到咗」，呢度卻指可能嘅將來到達，唔係已發生事實。`مُبَكِّرًا` 係早，`فَانْتَظِرْ هُنَا` 係咁就喺呢度等。"
+        note: 連住嘅 `فَـ` 將條件接到呢個命令。唔好見到 `إِذَا` 後面完成式就一律當過去。試下：冇早到係咪都一定要等？呢句只講早到嗰個條件下要噉做。
   - subskill_id: contrast
-    explanation: 「但係」子句可以對比兩個特徵，而唔否定任何一個。
+    explanation: 細箱睇落可能易搬，卻可以好重。「但係」連起兩個都係真嘅描述，同時指出後面嗰點點解令人意外。
     examples:
       - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
-        meaning: 呢個箱細，但係好重。
-        note: 現代標準阿拉伯語。重量同人根據體積作出嘅預期形成對比。
-      - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
-        meaning: 呢個箱細，但係好重。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。重量同人根據體積作出嘅預期形成對比。
+        meaning: "**例句。** 呢個箱細，但係好重。 `هٰذَا الصُّنْدُوقُ` 係呢個箱，`صَغِيرٌ` 係細。`وَلٰكِنَّهُ`
+          係「但係佢」，後綴指返個箱。`ثَقِيلٌ` 係重。呢個轉折冇否定個箱細。"
+        note: "`وَلٰكِنَّهُ` 嘅後綴配合男性名詞箱。換另一個所指物，後綴同形容詞可能都要改。試下：邊兩個特徵仍然成立？答案係細同重；「但係」轉折嘅係預期，唔係推翻事實。"
   - subskill_id: supporting_claims
-    explanation: 可以用具體觀察作理由，支持一個說法。
+    explanation: 你話一條路較短，人哋可能問你點知。提到量過距離，就係提供具體根據，唔止係重複自己鍾意邊條路。
     examples:
       - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
-        meaning: 呢條路較短，因為我哋量過距離。
-        note: 現代標準阿拉伯語。量度結果支持比較判斷，唔係只描述另一件事。
-      - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
-        meaning: 呢條路較短，因為我哋量過距離。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。量度結果支持比較判斷，唔係只描述另一件事。
+        meaning: "**例句。** 呢條路較短，因為我哋量過距離。 `هٰذَا الطَّرِيقُ أَقْصَرُ` 係呢條路較短。`لِأَنَّنَا` 係因為我哋，`قِسْنَا`
+          係我哋量過，`الْمَسَافَةَ` 係距離。過去動詞嘅「我哋」後綴指出邊個量度。"
+        note: 量度要同所比較路線有關，先係支持呢個判斷嘅證據。「因為」喺其他句可以講個人動機，呢度就係知識根據。試下：邊部分交代證據？答案係 `قِسْنَا
+          الْمَسَافَةَ`，講出判斷背後嘅量度。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/reasons-connections/arabic-reasons-connections-explained-in-english.yaml
-    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahVerbFormsTeaching20261007
+    - madinahNominalTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 口語連接詞包括表示「因為」嘅 لِأَنّ、「所以」嘅 عَشَانْ هَيْكْ 同「但係」嘅 بَسّ；其他地區講法亦常見。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/reasons-connections/arabic-reasons-connections-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: إِذَا 後面嘅完成式動詞可以描述開放嘅將來條件，唔代表事件已經發生。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/reasons-connections/arabic-reasons-connections-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: causes_reasons
+      explanation: 有人問點解你留喺屋企，用生病做理由，就可以連起決定同原因。呢句由女性講出。
+      examples:
+        - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+          meaning: "**例句。** 我留喺屋企，因為我病咗。 `ضَلِّيتْ` 喺呢個情境係我留咗，`بِالْبَيْتْ` 係喺屋企，`لِأَنِّي` 係因為我，`مَرِيضَة`
+            係配合女性嘅生病形容詞。之前留低同生病，連成動作同理由。"
+          note: 男性改用形容詞 `مَرِيضْ`。「因為」短語解釋原因；普通「同埋」只會連起資訊。試下：呢句係咪話留喺屋企導致生病？唔係；生病係留喺屋企嘅理由。
+    - subskill_id: consequences
+      explanation: 去到間舖發現閂咗，就決定聽日再嚟。結果表達令聽者知道，新安排點樣由眼前情況引起。
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+          meaning: "**例句。** 間舖閂咗，所以我哋聽日再嚟。 `الْمَحَلّ مْسَكَّرْ` 係間舖閂咗。`عَشَانْ هَيْكْ` 係所以、因為噉。`رَحْ
+            نِرْجَعْ` 係我哋會返嚟，`بُكْرَا` 係聽日。`رَحْ` 後面動作冇一般 b 前綴。"
+          note: "`مْسَكَّرْ` 描述間舖嘅狀態，唔係命令閂舖。試下：邊個分句交代結果？答案係 `رَحْ نِرْجَعْ بُكْرَا`，因為閂舖而定嘅新計劃。"
+    - subskill_id: conditions
+      explanation: 你交代到達時點做，但唔知對方會唔會早到。「如果」分句令等候指示只喺早到嗰個情況適用。
+      examples:
+        - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+          meaning: "**例句。** 如果你早到，就喺呢度等。 `إِذَا` 係如果，`وِصِلْتْ` 喺呢個條件情境係你到達，`بَكِّيرْ` 係早。`اِسْتَنَّى`
+            叫一位男性等，`هُونْ` 係呢度。前半設定情況，後半交代指示。"
+          note: 到達形式睇落似過去，但呢度「如果」令佢係未確定嘅可能。條件指示唔係報告對方已到。試下：邊個詞令等候有條件？答案係 `إِذَا`；冇咗呢個框架，指示就冇同樣限制。
+    - subskill_id: contrast
+      explanation: 細箱睇落可能易搬，卻可以好重。「但係」連起兩個都係真嘅描述，同時指出後面嗰點點解令人意外。
+      examples:
+        - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+          meaning: "**例句。** 呢個箱細，但係好重。 `هَادْ الصُّنْدُوقْ` 係呢個箱，`صْغِيرْ` 係細。`بَسّ` 呢句係但係，`تْقِيلْ`
+            係重。同一個箱有兩個特徵，現在式唔使另加「係」。"
+          note: 其他情境下 `بَسّ` 可以係「只係」，所以要睇成句。呢度佢接起描述並標示意外。試下：第二個描述係咪取代第一個？唔係；個箱仍然細，同時亦重。
+    - subskill_id: supporting_claims
+      explanation: 你話一條路較短，人哋可能問你點知。提到量過距離，就係提供具體根據，唔止係重複自己鍾意邊條路。
+      examples:
+        - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+          meaning: "**例句。** 呢條路較短，因為我哋量過距離。 `هَادْ الطَّرِيقْ أَقْصَرْ` 係呢條路較短。呢度 `لِأَنُّه` 喺 `إِحْنَا
+            قِسْنَا الْمَسَافَة`「我哋量過距離」之前用作因為。`إِحْنَا` 明講我哋，`قِسْنَا` 亦帶「我哋」詞尾。"
+          note: 唔好將呢度連接詞機械地譯成「因為佢」；後面「我哋」分句先係理由。量度亦要真係支持比較。試下：邊個量度？答案係我哋，由 `إِحْنَا` 同 `قِسْنَا`
+            嘅詞尾指出，唔係由連接詞最後個音決定。

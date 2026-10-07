@@ -1,0 +1,6 @@
+.user-demo { margin: 1.5rem 0 2rem; border: 1px solid var(--ifm-color-emphasis-300); border-radius: 12px; overflow: hidden; }
+.user-demo figcaption { padding: 1rem; display: flex; flex-direction: column; gap: .25rem; background: var(--ifm-background-surface-color); }
+.user-demo figcaption span, .user-demo > p { font-size: .875rem; }
+.user-demo iframe { display: block; width: 100%; height: 640px; border: 0; background: #eceef0; }
+.user-demo > p { padding: .75rem 1rem; margin: 0; }
+@media (max-width: 600px) { .user-demo iframe { height: 720px; } }

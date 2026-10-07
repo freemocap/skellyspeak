@@ -1,69 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Vì引出情況原因。
+    explanation: 落雨解釋點解你留喺屋企。`Tôi ở nhà` 係我喺屋企或者留喺屋企，`vì trời mưa` 係因為落雨。`Vì` 將原因連到要解釋嘅情況；`ở nhà`
+      提供位置，`trời mưa` 係天氣句子。`Vì sao?` 問點解，呢度嘅陳述就係提供答案。淨係用 `và` 即同，唔會明確講因果關係。
     examples:
       - text: Tôi ở nhà vì trời mưa.
         meaning: 因為落緊雨，我留喺屋企。
-        note: 落雨係留家原因；語境提供當前時間。
+        note: 試下用 `tôi đi bộ` 同 `xe buýt không đến` 解釋因為巴士唔嚟所以行路。`Tôi đi bộ vì xe buýt không đến.`
+          可以；先講行動，再提供原因。
   - subskill_id: consequences
-    explanation: Nên引出前述情況嘅結果。
+    explanation: 巴士冇到，所以你改為步行。`Xe buýt không đến` 講冇到達，`nên` 連到結果 `tôi đi bộ`
+      即我行路。喺講過去旅程嘅情境，動詞唔使加過去詞尾都可以理解為過去。`Nên` 仲可以喺活動前面畀建議，例如 `Bạn nên nghỉ`
+      即你應該休息；但呢度連起兩句，意思係所以，唔係應該。
     examples:
       - text: Xe buýt không đến nên tôi đi bộ.
         meaning: 架巴士冇嚟，所以我行路。
-        note: 講述過去行程時，行路係結果；動詞唔需要時態詞尾。
+        note: 試下將結果改成留喺屋企。`Xe buýt không đến nên tôi ở nhà.` 可以；原因仍然喺前面，`nên` 引出改咗嘅回應。
   - subskill_id: conditions
-    explanation: Nếu同thì可以將條件連到相應結果。
+    explanation: 聽日計劃要睇天氣。`Nếu ngày mai trời mưa` 係如果聽日落雨，`thì chúng ta ở nhà` 係噉我哋留喺屋企。`Nếu`
+      引出條件，呢度 `thì` 引出結果；`ngày mai` 定咗將來時間，所以 `ở` 唔需要變形，亦唔一定加將來標記。`Vì trời mưa` 會將落雨講成原因，而 `nếu`
+      只係保留可能，冇話已經發生。
     examples:
       - text: Nếu ngày mai trời mưa thì chúng ta ở nhà.
         meaning: 如果聽日落雨，我哋就留喺屋企。
-        note: 將來時間短語定位計劃，唔一定要加sẽ。
+        note: 試下用 `đọc sách ở nhà` 講如果聽日落雨，大家喺屋企睇書。`Nếu ngày mai trời mưa thì chúng ta đọc sách ở nhà.`
+          可以；結果改變，條件仍然保留可能性。
   - subskill_id: contrast
-    explanation: Nhưng連接語境中有對比嘅描述。
+    explanation: 條路短，可能令人覺得容易行，但斜度係缺點。`Đường ngắn` 講條路短，`nhưng dốc` 加上但斜。兩個描述都指條路，所以主語唔使重複。`Nhưng`
+      突出反差，`và` 就只係加另一個特徵。`Ngắn` 係短，唔係比另一條路短；加 `hơn` 先係比較，而另一條路要由對話提供。
     examples:
       - text: Đường ngắn nhưng dốc.
         meaning: 條路短，但好斜。
-        note: 揀路線時，兩個性質有唔同影響。
+        note: 試下用 `dài` 同 `bằng phẳng` 講條路長但平坦。`Đường dài nhưng bằng phẳng.` 可以；兩個新特徵保留缺點同優點之間嘅反差。
   - subskill_id: supporting_claims
-    explanation: 理由可以提供證據，支持帶保留嘅結論。
+    explanation: 盞燈仲着住，你用呢個觀察推斷有人喺屋企。`Tôi nghĩ` 標示係你嘅推斷，`có người ở nhà` 係有人喺屋企；`vì đèn vẫn sáng`
+      提供證據，即因為盞燈仍然着住。呢度 `có` 係講有人存在，唔係某個人擁有嘢。`Vẫn` 表示持續；燈着住支持推斷但唔保證，所以 `tôi nghĩ` 配合呢種有限證據。
     examples:
       - text: Tôi nghĩ có người ở nhà vì đèn vẫn sáng.
         meaning: 我諗有人喺屋企，因為盞燈仲開住。
-        note: 燈光支持推論，唔係造成有人喺屋企嘅原因。
-provenance:
+        note: 試下用 `cửa vẫn mở` 即道門仲開住作證據。`Tôi nghĩ có người ở nhà vì cửa vẫn mở.` 可以；推斷保留，`vì` 後面嘅觀察改變。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/reasons-connections/vietnamese-reasons-connections-explained-in-english.yaml
-    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_purpose2026
+    - msuVietnameseTravelConversationTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/reasons-connections/vietnamese-reasons-connections-explained-in-english.yaml
-        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - msu_vietnamese_purpose2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

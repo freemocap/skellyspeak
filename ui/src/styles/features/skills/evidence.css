@@ -88,9 +88,8 @@
 .skill-detail-evidence .skill-evidence-record { margin-block: 0; }
 .skill-detail-empty { margin: 0; color: var(--ink-2); }
 /* The guide as an open panel: its summary is the panel title. */
-.skill-detail-guide > .practice-skill { padding: 0; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); overflow: hidden; }
+.skill-detail-guide > .practice-skill, .skill-detail-guide > .skill-guide-panel { padding: 0; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); overflow: hidden; }
 .skill-detail-guide > .practice-skill > summary { padding: var(--space-6) var(--space-8); background: var(--chrome); font-size: var(--type-title); font-weight: var(--weight-semibold); }
-.skill-detail-guide > .practice-skill > .learner-model-controls { margin: 0; padding: var(--space-4) var(--space-8); border-bottom: var(--border-width) solid var(--line-soft); }
 /* On a skill's page the guide's subskill sections are cards in a grid; the title and introduction span it. */
 .skill-detail-guide .skill-guide-document { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); align-items: stretch; gap: var(--space-7); padding: var(--space-8); background: var(--bg); }
 .skill-detail-guide .skill-guide-document > :not(.skill-guide-section) { grid-column: 1 / -1; margin: 0; }

@@ -1,54 +1,83 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Vì introduces the reason for a situation.
+    explanation: Rain explains why you stay at home. `Tôi ở nhà` means I am at home or stay home;
+      `vì trời mưa` introduces because it is raining. `Vì` links the reason to the situation it
+      explains. `Ở nhà` supplies the location and `trời mưa` is a weather clause. `Vì sao?` asks
+      why, but the statement here provides the answer. Simply joining the two facts with `và`,
+      and, would not make their causal relationship explicit.
     examples:
       - text: Tôi ở nhà vì trời mưa.
         meaning: I am staying home because it is raining.
-        note: The rain is the reason for staying home; context supplies current time.
+        note: "Explain that you walk because the bus does not come, using `tôi đi bộ` and `xe buýt không
+          đến`. `Tôi đi bộ vì xe buýt không đến.` works: the action precedes its reason."
   - subskill_id: consequences
-    explanation: Nên introduces a consequence of the preceding situation.
+    explanation: The bus failed to arrive, so you walked instead. `Xe buýt không đến` gives the
+      failed arrival; `nên` connects it to the consequence `tôi đi bộ`, I walk. In the past
+      travel story, the unchanged verbs are understood as past without requiring a past ending.
+      `Nên` has another common use before an action for advice, as in `Bạn nên nghỉ`, you should
+      rest. Here it connects two clauses, so it means so rather than should.
     examples:
       - text: Xe buýt không đến nên tôi đi bộ.
         meaning: The bus did not come, so I walked.
-        note: In a past-trip account, walking is the consequence; verbs do not need tense endings.
+        note: "Give staying home as the consequence. `Xe buýt không đến nên tôi ở nhà.` works: the cause
+          stays first and `nên` introduces the changed response."
   - subskill_id: conditions
-    explanation: Nếu and thì can connect a condition to its dependent outcome.
+    explanation: Tomorrow's plan depends on the weather. `Nếu ngày mai trời mưa` means if it rains
+      tomorrow; `thì chúng ta ở nhà` gives then we stay home. `Nếu` introduces the condition,
+      and `thì` marks its result in this sentence. `Ngày mai` sets the future time, so `ở` need
+      not change form or take a mandatory future marker. `Vì trời mưa` would treat rain as the
+      reason, whereas `nếu` leaves it as a possibility rather than saying it has happened.
     examples:
       - text: Nếu ngày mai trời mưa thì chúng ta ở nhà.
         meaning: If it rains tomorrow, we will stay home.
-        note: The future time phrase anchors the plan without requiring sẽ.
+        note: "Say that if it rains tomorrow, the group reads at home, using `đọc sách ở nhà`. `Nếu ngày
+          mai trời mưa thì chúng ta đọc sách ở nhà.` works: the result changes while the
+          condition remains open."
   - subskill_id: contrast
-    explanation: Nhưng connects descriptions that contrast in context.
+    explanation: A short road might seem an easy choice, but its slope is a drawback. `Đường ngắn`
+      says the road is short; `nhưng dốc` adds but steep. The road is understood as the subject
+      of both descriptions, so it need not be repeated. `Nhưng` highlights the contrast, while
+      `và` would simply add another quality. `Ngắn` gives shortness, not shorter than a
+      different road; adding `hơn` would make a comparison whose other route needs to be
+      understood.
     examples:
       - text: Đường ngắn nhưng dốc.
         meaning: The road is short but steep.
-        note: The properties matter differently when choosing a route.
+        note: "Say the road is long but flat, using `dài` and `bằng phẳng`. `Đường dài nhưng bằng
+          phẳng.` works: two new qualities keep the contrast between a drawback and an
+          advantage."
   - subskill_id: supporting_claims
-    explanation: A reason can provide evidence for a tentative conclusion.
+    explanation: A light is still on, and you use that observation as a reason to think someone is
+      home. `Tôi nghĩ` marks your inference; `có người ở nhà` means there is someone at home.
+      `Vì đèn vẫn sáng` gives the evidence, because the light is still on. Here `có` introduces
+      someone's presence rather than saying a person owns something. `Vẫn` marks continuation. A
+      lit light supports the inference but does not guarantee it, so `tôi nghĩ` fits the limited
+      evidence.
     examples:
       - text: Tôi nghĩ có người ở nhà vì đèn vẫn sáng.
         meaning: I think someone is home because the light is still on.
-        note: The light supports an inference rather than causing someone to be home.
+        note: "Use an open door as your evidence, with `cửa vẫn mở`. `Tôi nghĩ có người ở nhà vì cửa vẫn
+          mở.` works: the inference remains, and the observation after `vì` changes."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_purpose2026
+    - msuVietnameseTravelConversationTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

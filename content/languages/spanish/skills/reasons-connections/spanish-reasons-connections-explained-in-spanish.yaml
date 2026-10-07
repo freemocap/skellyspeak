@@ -1,80 +1,149 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: reasons_connections
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-spanish.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Porque introduce el motivo de una acción o decisión.
+    explanation: Si alguien pregunta por qué te quedas, explicar el motivo permite entender tu decisión.
+      `Porque` une la acción con su explicación. Aquí el cansancio explica que quien habla se quede
+      en vez de salir.
     examples:
       - text: Me quedo porque estoy cansada.
-        meaning: El cansancio es la razón por la que me quedo.
-        note: La segunda oración explica la decisión de quedarse.
+        meaning: "`Me quedo` expresa que no te vas; el pronombre forma parte de `quedarse` con este sentido.
+          `Porque` introduce el motivo y `estoy cansada` nombra el estado de quien habla. `Cansada`
+          lleva concordancia femenina."
+        note: >-
+          **Compara.** `¿Por qué te quedas?` pregunta el motivo con dos palabras y tilde. En la
+          respuesta, `porque` es una palabra sin tilde. Con concordancia masculina se dice
+          `cansado`.
+
+
+          **Prueba.** Explica que te quedas por enfermedad con `estoy enfermo`. Respuesta: `Me quedo
+          porque estoy enfermo`. Pon el motivo después de `porque`.
   - subskill_id: consequences
-    explanation: Por eso presenta una consecuencia de lo que se acaba de mencionar.
+    explanation: Una situación puede explicar la acción que tomas como respuesta. `Por eso` remite a esa
+      situación e introduce su resultado. Aquí la lluvia explica por qué quien habla lleva paraguas.
     examples:
       - text: Llueve; por eso llevo paraguas.
-        meaning: Llevo paraguas debido a la lluvia.
-        note: Llevar paraguas se presenta como respuesta a la lluvia.
+        meaning: "`Llueve` afirma que hay lluvia; no hace falta un pronombre sujeto para el tiempo. `Por
+          eso` significa por ese motivo. `Llevo paraguas` presenta la respuesta a la lluvia."
+        note: >-
+          **Compara.** `Llevo paraguas porque llueve` empieza por la acción y luego la explica. Con
+          `por eso`, primero aparece el motivo y después el resultado. No lo uses solo para unir
+          hechos sin relación.
+
+
+          **Prueba.** Llueve y, por ese motivo, te quedas en casa. Respuesta: `Llueve; por eso me
+          quedo en casa`. La segunda parte se explica por la lluvia.
   - subskill_id: conditions
-    explanation: Si introduce una condición. En una condición abierta, puede usarse el presente de indicativo.
+    explanation: Algunos planes dependen de lo que ocurra. `Si` introduce la condición necesaria para
+      que se aplique la otra parte de la frase. Aquí quedarse en casa es el plan en caso de lluvia;
+      no se afirma que vaya a llover.
     examples:
       - text: Si llueve, me quedo en casa.
-        meaning: Quedarme en casa depende de que llueva.
-        note: La lluvia es la condición para quedarse en casa.
+        meaning: "`Si llueve` presenta la condición con `llueve` en presente de indicativo. `Me quedo en
+          casa` da el plan que depende de ella. Aunque los verbos están en presente, el contexto de
+          planificación puede situarlos en el futuro."
+        note: >-
+          **Compara.** `Porque llueve, me quedo en casa` presenta la lluvia como un motivo real. La
+          condición abierta usa `si llueve`, no `si llueva`. `Sí` con tilde afirma; el `si`
+          condicional no lleva tilde.
+
+
+          **Prueba.** Di que sales si no llueve. Respuesta: `Si no llueve, salgo`. `No` niega la
+          condición y `salgo` presenta el plan.
   - subskill_id: contrast
-    explanation: Pero conecta hechos o valoraciones que contrastan.
+    explanation: Un precio puede ser un inconveniente y la utilidad seguir siendo una ventaja. `Pero`
+      une dos hechos cuya combinación contrasta con una expectativa. Aquí se equilibra una
+      valoración negativa con otra positiva.
     examples:
       - text: Es caro, pero es útil.
-        meaning: Aunque cuesta mucho, tiene utilidad.
-        note: La utilidad contrasta con la valoración negativa del precio.
+        meaning: "`Es caro` valora el precio; `pero` introduce el contraste y `es útil` presenta la ventaja.
+          Las dos descripciones se refieren al mismo objeto ya mencionado en la conversación."
+        note: >-
+          **Adáptalo.** `Es cara, pero es útil` describe un nombre femenino como `la herramienta`.
+          `Útil` mantiene su forma; `caro` cambia a `cara`. `Y` añadiría un dato sin señalar el
+          contraste.
+
+
+          **Prueba.** Describe una herramienta cara pero útil. Respuesta: `La herramienta es cara,
+          pero es útil`. Haz concordar `cara` con el nombre femenino.
   - subskill_id: supporting_claims
-    explanation: Ofrece una razón u observación que apoye la afirmación; repetirla con más énfasis no
-      aporta una prueba.
+    explanation: Si no puedes ver directamente si alguien está en casa, una observación puede apoyar tu
+      suposición. `Creo que` introduce la conclusión y `porque` explica en qué te basas. La
+      observación la apoya sin demostrarla por completo.
     examples:
       - text: Creo que está en casa porque la luz está encendida.
-        meaning: La luz encendida me lleva a pensar que esa persona está en casa.
-        note: La luz funciona como indicio para la inferencia.
+        meaning: "`Creo que` señala tu creencia; `está en casa` es la conclusión sobre una persona. `Porque
+          la luz está encendida` aporta la observación. `Encendida` concuerda con el nombre femenino
+          `luz`."
+        note: >-
+          **Compara.** Repetir `Está en casa` no aporta una razón. `Sé que está en casa` afirma
+          conocimiento en vez de una suposición. La luz podría quedar encendida sin nadie en casa,
+          por eso la frase original admite que te equivoques.
+
+
+          **Prueba.** Apoya la misma suposición con `su coche está aquí`. Respuesta: `Creo que está
+          en casa porque su coche está aquí`. El coche es una observación, no una certeza.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

@@ -1,60 +1,78 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-learner-first-cantonese-2026-10-07
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: managing_conversation
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 喺實際見面時打招呼或道別，同單純引述呢個詞唔同。
+    explanation: 傾完偈時，講句道別就可以清楚結束對話。`Hasta luego` 係常見嘅再見。雖然帶有遲啲再見嘅意思，日常使用唔一定真係約定咗下一次時間。
     examples:
       - text: Hasta luego.
-        meaning: 遲啲見。
-        note: 呢句結束一次見面；喺詞彙練習重複佢，就冇呢個作用。
+        meaning: 意思係「遲啲見」。`Hasta` 係直到，`luego` 係稍後。兩個字合埋係慣常道別；逐字翻譯唔完全表達到佢結束對話嘅作用。
+        note: |-
+          **改一改。** 預期聽日見，可以講 `Hasta mañana`。`Hola` 就用嚟開始對話。道別本身唔等於約好下一次見面。
+
+          **試吓。** 聽日會再見，依家道別。答案：`Hasta mañana`。將 `luego` 換成預期日子。
   - subskill_id: acknowledging
-    explanation: 表示收到對方發言，或者回應社交行為；entiendo唔一定表示同意。
+    explanation: 有人通知你計劃改咗，道謝可以表示你收到而且重視個消息。西班牙文用 `gracias por` 感謝某個行動。呢度 `por` 後面嘅動作用不定式。
     examples:
       - text: Gracias por avisarme.
-        meaning: 多謝你話我知。
-        note: 回應確認收到有用資料，同時多謝講者。
+        meaning: 意思係「多謝你通知我」。`Gracias` 係道謝；`por avisarme` 講原因。`Avisar` 係通知，附喺後面嘅 `me` 指收到通知嘅人：講者。
+        note: |-
+          **改一改。** `Gracias por ayudarme` 感謝對方幫你。`Entendido` 只確認明白咗，冇道謝。唔好喺 `por` 後面直接放變位動詞。
+
+          **試吓。** 用 `llamarme` 感謝對方打電話畀你。答案：`Gracias por llamarme`。尾嘅 `me` 指接電話嘅人。
   - subskill_id: clarification
-    explanation: 就算每個字都聽到，仍然可能唔明對方想講乜。西班牙文可以用 `querer decir` 問意思；字面係「想講」，但經常解「意思係」。下面例句請對方解釋頭先講過嘅說話。
+    explanation: 有時你聽到每個字，但仍然唔明對方想表達乜。澄清問句請對方解釋意思，等你唔會按錯誤理解回答。
     examples:
       - text: ¿Qué quieres decir?
-        meaning: "**拆開睇。** 「你係乜嘢意思？」請對方解釋未明嘅說話。`Quieres` 嘅人物資訊已經包含喺動詞，所以通常唔使另外寫主語 `tú`。用 `usted` 稱呼對方時，講
-          `¿Qué quiere decir?`，由語境指出係問對方。"
+        meaning: 意思係「你係咩意思？」`Qué` 問乜，`quieres` 指聽者，`decir` 係講。成個 `querer decir` 喺呢度問意思，唔只係想開口講嘢。
         note: >-
-          **揀啱補救方法。** 聽到字句但唔明，就問意思；聽唔清楚，可以用 `¿Puedes repetirlo?` 請對方再講一次；`lo`
-          指頭先講過嘅說話。平和語氣可以減少直接問句聽落似質問。
+          **比較。** `¿Puedes repetirlo?` 請人重複，聽唔清時有用。`¿Qué significa esta palabra?` 問一個字嘅意思。問句嘅 `qué`
+          要保留重音符號。
 
 
-          **試吓。** 加 `con eso` 表示「你咁講」。答案：`¿Qué quieres decir con eso?` 指返頭先唔明嗰句。
+          **試吓。** 聽清咗句子，但唔明訊息。可以問 `¿Qué quieres decir?`。呢句要求解釋，唔係只講返同一句。
   - subskill_id: rephrasing
-    explanation: Quiero decir引出另一種講法，表達自己原意。
+    explanation: 第一次解釋唔清楚，可以用更直接嘅話講返意思。`Quiero decir que` 引出你想表達嘅內容。後面嘅分句要提供重要細節，解開誤會。
     examples:
       - text: Quiero decir que llego después de las ocho.
-        meaning: 我意思係我八點之後先到。
-        note: 修正對話入面，呢句重述講者到達時間。
+        meaning: 意思係「我係話，我八點之後到」。`Quiero decir que` 引出解釋，`llego` 係我到。`Después de las ocho` 指八點之後，唔係正正八點。
+        note: >-
+          **比較。** `Llego a las ocho` 指八點到。`Llego antes de las ocho` 指八點之前到。`Después` 後面接鐘點時，要保留
+          `de`。
+
+
+          **試吓。** 澄清你九點之前到。答案：`Quiero decir que llego antes de las nueve`。換時間描述，保留澄清開頭。
   - subskill_id: correcting_misunderstanding
-    explanation: 將錯誤理解同原意作對比。
+    explanation: 對方混淆咗兩日，清楚嘅更正會講出正確日子同搞錯嗰日。`Me refiero a` 引出你所指嘅對象，唔會只講唔係，留對方估。
     examples:
       - text: No, me refiero al martes, no al jueves.
-        meaning: 唔係，我係指星期二，唔係星期四。
-        note: 講者更正對方理解嘅日子。
+        meaning: 意思係「唔係，我指星期二，唔係星期四」。`No` 否定錯誤理解。`Me refiero al martes` 指明星期二，`no al jueves` 排除星期四。`Al` 由
+          `a` 同 `el` 合成。
+        note: |-
+          **改一改。** `Me refiero a Ana, no a Luis` 更正人物身份。保留介詞 `a`，但呢啲人名唔加日子所用嘅冠詞。
+
+          **試吓。** 將星期四更正為星期五。答案：`No, me refiero al viernes, no al jueves`。先講正確日子，再講搞錯嗰日。
   - subskill_id: turns_topics
-    explanation: 轉換對話方向時，用過渡語或管理發言嘅表達。
+    explanation: 傾偈時，可能突然諗起另一件相關嘅事。`Por cierto` 提示轉話題，等對方跟得上。呢度由原本話題轉去問對方姊妹近況。
     examples:
       - text: Por cierto, ¿cómo está tu hermana?
-        meaning: 係喎，你姊妹近排點呀？
-        note: Por cierto標示轉去另一個話題。
+        meaning: 意思係「順帶一提，你姊妹點呀？」`Por cierto` 引出旁邊一個話題；`cómo está` 問狀況。`Tu hermana` 指出人物。問句嘅 `cómo`
+          有重音符號，物主詞 `tu` 就冇。
+        note: |-
+          **比較。** `¿Dónde está tu hermana?` 問佢喺邊，唔係問近況。`Por cierto` 提示新話題，唔係表示事情原因嘅詞。
+
+          **試吓。** 用 `tu hermano` 轉話題問對方兄弟。答案：`Por cierto, ¿cómo está tu hermano?`。換人物，保留話題提示同問句。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -65,18 +83,19 @@ varieties:
         - yepesQuestionsTeaching20261007
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -87,16 +106,17 @@ varieties:
         - yepesQuestionsTeaching20261007
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -107,9 +127,10 @@ provenance:
     - yepesQuestionsTeaching20261007
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-learner-first-cantonese-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

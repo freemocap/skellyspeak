@@ -1,57 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Das ist followed by a noun phrase can identify a person or thing. Possessive
-      articles take the endings appropriate to that noun phrase.
+    explanation: Introducing a neighbor links the person you see to a relationship and a place. `Das
+      ist` means that is in this introduction. The following noun phrase identifies the woman as our
+      neighbor from the second floor.
     examples:
       - text: Das ist unsere Nachbarin aus dem zweiten Stock.
-        meaning: That is our neighbour from the second floor.
-        note: Unsere agrees with feminine singular Nachbarin. The example identifies a woman; Nachbar is
-          the corresponding masculine noun.
+        meaning: "**The example.** That is our neighbour from the second floor. `unsere Nachbarin` means our
+          female neighbor; `unsere` takes the feminine singular ending. `aus dem zweiten Stock`
+          means from the second floor. `aus` takes dative `dem`, and the ordinal `zweiten` has the
+          ending required in that phrase."
+        note: "Try it: introduce a male neighbor from the same floor. Answer: `Das ist unser Nachbar aus dem
+          zweiten Stock`. `Nachbarin` becomes `Nachbar` and `unsere` becomes `unser`. The
+          introductory `Das` remains unchanged; it does not have to imitate the neighbor noun’s
+          gender."
   - subskill_id: qualities_states
-    explanation: An adjective used after sein to describe the subject normally has no adjective
-      ending. An adjective before a noun follows a different pattern.
+    explanation: When dividing luggage to carry, weight matters. `schwer` and `leicht` describe how
+      heavy the two bags are. As descriptions after `ist`, these adjectives have no added
+      noun-agreement endings.
     examples:
       - text: Der Rucksack ist schwer, aber die Tasche ist leicht.
-        meaning: The backpack is heavy, but the bag is light.
-        note: Schwer and leicht describe the two objects without endings; aber introduces a contrast.
+        meaning: "**The example.** The backpack is heavy, but the bag is light. `Der Rucksack` is the
+          backpack and `die Tasche` is the bag. Both use `ist`, is, followed by the describing word.
+          `aber`, but, links the contrast between the heavy backpack and light bag."
+        note: "Compare `ein schwerer Rucksack`, a heavy backpack: before a noun, the adjective takes an
+          ending. Try it: describe the backpack as light instead. Answer: `Der Rucksack ist leicht`.
+          Use `leicht` without an ending because it remains after the verb."
   - subskill_id: location_movement
-    explanation: With spatial in, use dative for the location of an action and accusative for its
-      destination. Physical movement alone does not decide the case.
+    explanation: Children can run around inside a garden or run from outside into it. German
+      distinguishes where the running happens from where it is directed. With spatial `in`, location
+      takes dative and a destination takes accusative—even when both actions involve movement.
     examples:
       - text: Die Kinder laufen im Garten.
-        meaning: The children are running in the garden.
-        note: "Im is in dem: dative marks the garden as the location where they run."
+        meaning: "**The example.** The children are running in the garden. `Die Kinder` means the children
+          and `laufen` is run. `im Garten` means in the garden; `im` combines `in dem`. Dative `dem`
+          identifies the garden as the place where they are running."
+        note: "Try it: make the children enter the garden instead. Answer: `Die Kinder laufen in den
+          Garten`. Change `im` to `in den`; running alone does not choose the case. The new place
+          phrase specifies a destination."
       - text: Die Kinder laufen in den Garten.
-        meaning: The children are running into the garden.
-        note: In den Garten uses masculine accusative to mark the destination. The contrast is location
-          versus entry, not stillness versus movement.
+        meaning: "**The example.** The children are running into the garden. `in den Garten` means into the
+          garden. Masculine accusative `den` marks the garden as the destination. The subject and
+          action are unchanged; the case change tells us they enter the garden."
+        note: "Try it: say they are already inside and running there. Answer: `Die Kinder laufen im Garten`.
+          The dative location phrase replaces the accusative destination phrase. They still move,
+          but this sentence does not describe entry."
   - subskill_id: possession_relations
-    explanation: Use haben with an accusative object to say what someone has. A possessive article
-      such as mein also expresses belonging or a relationship, with endings suited to its noun.
+    explanation: Comparing available bicycles can involve both possession and family relationships.
+      `haben` says who has something; a possessive such as `meine` links a person or object to the
+      speaker.
     examples:
       - text: Ich habe ein Fahrrad. Meine Schwester hat zwei.
-        meaning: I have a bicycle. My sister has two.
-        note: Ein Fahrrad is the object of habe. Meine Schwester identifies the family relationship;
-          zwei refers back to bicycles.
+        meaning: "**The example.** I have a bicycle. My sister has two. `Ich habe ein Fahrrad` is I have a
+          bicycle; the neuter object uses `ein`. `Meine Schwester hat zwei` is my sister has two.
+          `hat` agrees with the sister, and `zwei` stands for two bicycles already introduced."
+        note: "Try it: say your brother has two instead. Answer: `Mein Bruder hat zwei`. `meine` becomes
+          masculine `mein`, and the noun changes; `hat` remains singular. A complete version is
+          `Mein Bruder hat zwei Fahrräder`, useful when bicycles are not already clear."
   - subskill_id: quantity_comparison
-    explanation: Numbers specify amounts. German adjective comparatives commonly add -er; als
-      introduces the other term of an unequal comparison.
+    explanation: There are three crates to carry, and one is easier because it weighs less. A number
+      gives the count; a comparative adjective with `als` compares that crate with the others.
     examples:
       - text: Wir haben drei Kisten. Diese Kiste ist leichter als die anderen.
-        meaning: We have three crates. This crate is lighter than the others.
-        note: Drei counts crates; leichter als compares weight. The number and comparison each express
-          their own relation.
-provenance: &a1
+        meaning: "**The example.** We have three crates. This crate is lighter than the others. `Wir haben
+          drei Kisten` means we have three crates. `Diese Kiste` is this crate; `leichter` means
+          lighter, formed from `leicht`. `als die anderen` is than the others, referring back to the
+          remaining crates."
+        note: "Equal weight uses `so leicht wie`, as light as; unequal comparison uses `leichter als`. Try
+          it: say this crate is as light as the others. Answer: `Diese Kiste ist so leicht wie die
+          anderen`. Replace the whole comparison frame, not just its connecting word."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_articles2026
     - umich_de_adjectives2026
@@ -61,11 +89,28 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_articles2026
+        - umich_de_adjectives2026
+        - umich_de_prepositions2026
+        - umich_de_comparison2026
+        - umich_de_tenses2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

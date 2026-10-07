@@ -1,61 +1,117 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: A verbal-noun construction with ആണ് can present an action as ongoing.
+    explanation: "During a repair, you can describe what is happening now. `ഇപ്പോൾ` means “now,” `ഞാൻ`
+      is “I,” and `സൈക്കിൾ` is “bicycle.” `നന്നാക്കുകയാണ്` presents repairing as in progress: the
+      activity form `നന്നാക്കുക` joins the auxiliary `ആണ്`. The object comes before the final action
+      description."
     examples:
       - text: ഇപ്പോൾ ഞാൻ സൈക്കിൾ നന്നാക്കുകയാണ്.
         meaning: I am repairing a bicycle now.
-        note: ഇപ്പോൾ anchors the repair to now.
+        note: >-
+          The progressive focuses on the work under way, not on a completed result. A time word
+          helps situate that activity.
+
+
+          Practice: Which form describes repairing now: `നന്നാക്കുകയാണ്` or `നന്നാക്കി`? Answer:
+          `നന്നാക്കുകയാണ്`, because the action is in progress; `നന്നാക്കി` reports the past repair.
   - subskill_id: past_events
-    explanation: A past verb form can report an earlier completed action.
+    explanation: After a repair, you can report the earlier event. `ഇന്നലെ` means “yesterday,” so the
+      listener knows when it happened. `ഞാൻ സൈക്കിൾ നന്നാക്കി` names the person, the bicycle, and
+      the past repairing action. `നന്നാക്കി` is the past form in this example, rather than the
+      ongoing `നന്നാക്കുകയാണ്`.
     examples:
       - text: ഇന്നലെ ഞാൻ സൈക്കിൾ നന്നാക്കി.
         meaning: Yesterday I repaired a bicycle.
-        note: നന്നാക്കി is past; it does not change for the speaker’s gender.
+        note: >-
+          Past forms need to be learned with their verbs; Malayalam does not have one ending that
+          can simply be attached to every verb. The verb does not acquire a different ending for the
+          speaker’s gender.
+
+
+          Practice: Which word places this repair yesterday? Answer: `ഇന്നലെ`. The past verb
+          `നന്നാക്കി` reports the event, while `ഇന്നലെ` specifies its day.
   - subskill_id: future_events
-    explanation: A future verb form can describe a later plan.
+    explanation: Planning tomorrow’s shopping gives a clear setting for a future action. `നാളെ` is
+      “tomorrow,” `ഞാൻ` is “I,” and `സാധനങ്ങൾ` refers to the supplies or items. `വാങ്ങും` gives
+      buying in this future setting. The things to buy precede the verb.
     examples:
       - text: നാളെ ഞാൻ സാധനങ്ങൾ വാങ്ങും.
         meaning: Tomorrow I will buy the supplies.
-        note: നാളെ establishes future time for വാങ്ങും.
+        note: >-
+          The ending in `വാങ്ങും` can also occur in statements of regular activity, so the time and
+          situation matter. Here `നാളെ` makes the statement a plan for tomorrow, not a shopping
+          habit.
+
+
+          Practice: What makes the future reading clear in this sentence? Answer: `നാളെ`, because it
+          places the buying tomorrow rather than presenting it as a repeated activity.
   - subskill_id: duration_frequency
-    explanation: A time interval and occurrence count express frequency.
+    explanation: A swimming routine can be described by counting occasions within a week. `ആഴ്ചയിൽ`
+      means “in a week,” and `രണ്ടു പ്രാവശ്യം` means “two times.” `നീന്താറുണ്ട്` presents swimming
+      as a repeated activity. The interval and count come before that final activity description.
     examples:
       - text: ഞാൻ ആഴ്ചയിൽ രണ്ടു പ്രാവശ്യം നീന്താറുണ്ട്.
         meaning: I swim twice a week.
-        note: നീന്താറുണ്ട് presents a habitual activity; രണ്ടു പ്രാവശ്യം counts occasions.
+        note: >-
+          The sentence counts swims; it does not say that a swim lasts two weeks or two hours. The
+          repeated-action form fits a routine rather than one swim taking place right now.
+
+
+          Practice: Which fragment gives the number of occasions: `ആഴ്ചയിൽ` or `രണ്ടു പ്രാവശ്യം`?
+          Answer: `രണ്ടു പ്രാവശ്യം`, “two times.” `ആഴ്ചയിൽ` supplies the interval in which those
+          occasions occur.
   - subskill_id: event_sequence
-    explanation: ആദ്യം and പിന്നെ establish first and subsequent steps.
+    explanation: Recipe instructions often need an explicit order. `ആദ്യം` means “first” and `പിന്നെ`
+      means “then.” `കൈ കഴുകുക` gives washing the hands; `പച്ചക്കറി മുറിക്കുക` gives cutting
+      vegetables. The action forms here function as impersonal procedural directions, suited to
+      written steps.
     examples:
       - text: ആദ്യം കൈ കഴുകുക, പിന്നെ പച്ചക്കറി മുറിക്കുക.
         meaning: First wash your hands, then cut the vegetables.
-        note: These procedural instructions give order rather than cause.
+        note: >-
+          The connectors give sequence, not a cause or an alternative. Procedural action forms are
+          useful in written instructions; their role here is different from an ongoing statement
+          ending in `ആണ്`.
+
+
+          Practice: Which action comes first? Answer: `കൈ കഴുകുക`, washing the hands, because it
+          follows `ആദ്യം`. Cutting the vegetables follows `പിന്നെ`.
   - subskill_id: event_phase
-    explanation: A compound with തീർക്കുക can specify finishing an activity.
+    explanation: After working through a book, you may want to say that the reading reached its
+      endpoint. `ഞാൻ` is “I” and `പുസ്തകം` is “book.” `വായിച്ചു` supplies the reading action, while
+      `തീർത്തു` supplies finishing. Together `വായിച്ചു തീർത്തു` reports completed reading of the
+      book.
     examples:
       - text: ഞാൻ പുസ്തകം വായിച്ചു തീർത്തു.
         meaning: I finished reading the book.
-        note: The reading reaches its endpoint, rather than merely occurring in the past.
+        note: >-
+          In this compound, the first verb supplies the activity and the final verb adds its
+          completion and carries the past form. A simple past report of reading does not by itself
+          make the same explicit claim that the book was finished.
+
+
+          Practice: Which part explicitly tells the listener that the reading was finished? Answer:
+          `തീർത്തു`. `വായിച്ചു` identifies the activity; `തീർത്തു` marks its endpoint.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
+    - moagMalayalamTeaching20261007
     - ut_malayalam_time2026
-    - ut_malayalam_dialogues2026
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

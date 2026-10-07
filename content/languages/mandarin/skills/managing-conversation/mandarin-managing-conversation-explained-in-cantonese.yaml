@@ -1,75 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 道別可以提到下一次見面。語境令呢句成為結束語，唔係純粹預測會見到對方。
+    explanation: 離開探訪時，可以交代要走，再期待下次見。`我先走了` 係自然道別，即使講緊再見、未離開都可以用。
     examples:
       - text: 我先走了，下次见！
-        meaning: 我行先喇，下次見！
-        note: 探訪完離開時可以用。我先走了 表示準備離開，下次见 結束交流。
+        meaning: "**例句。** 我先走喇，下次見！`先` 呢度係先行一步，`走` 係離開。句尾 `了` 帶出要走呢個新情況，唔係證明已經走咗。`下次见` 係下次見。"
+        note: 試下改成聽日見：`我先走了，明天见！` `下次` 換成 `明天`。`我昨天走了` 有 `昨天` 將離開放喺昨日；原本道別係而家要走。
   - subskill_id: acknowledging
-    explanation: 明白了 可以表示經過解釋之後明白咗，但唔一定代表同意對方判斷。
+    explanation: 人哋解釋步驟後，可以表示而家明白。`明白了` 確認新理解，唔要求你同意解釋入面所有意見。
     examples:
       - text: 哦，我明白了。
-        meaning: 哦，我而家明喇。
-        note: 夥伴解釋步驟後嘅回應。了 喺呢度標示達到理解嘅狀態，唔好一律解成過去式。
+        meaning: "**例句。** 哦，我明白喇。`哦` 表突然理解，`我` 係我，`明白` 係理解。句尾 `了` 表由未明變成明白，回應啱啱聽過嘅解釋。"
+        note: 試下話成班人明白：`哦，我们明白了。` `我` 換成 `我们`，其餘保留。`我也这么想` 就係分享前面意見，唔只係確認聽明。
   - subskill_id: clarification
-    explanation: 再说一遍 請對方再講一次。一遍 計算由頭講到尾一次。
+    explanation: 漏聽人哋啱啱講嘅嘢，可以清楚叫佢重複。`再说一遍` 請對方將同一段話再講一次。
     examples:
       - text: 不好意思，请再说一遍。
-        meaning: 唔好意思，唔該再講一次。
-        note: 聽唔清之後即刻用。要重複嘅內容由之前嗰句交代。
+        meaning: "**例句。** 唔好意思，請再講一次。`不好意思` 為打斷道歉，`请` 客氣引出請求。`再` 係再一次，`说` 係講，`一遍` 數一次完整重複。前面說話交代要重複乜。"
+        note: 試下請人再讀一次：`不好意思，请再读一遍。` 將 `说` 換成 `读`。如果聽到字但唔明意思，`这是什么意思？` 係問呢個意思係乜，唔係淨係叫人重複。
   - subskill_id: rephrasing
-    explanation: 换句话说 引入之前意思嘅另一個講法，後面接較清楚嘅內容。
+    explanation: 解釋唔可以到場先安排探訪後，可以重講成實際要求。`换句话说` 表用另一講法講同一點，後面交代大家要做乜。
     examples:
       - text: 换句话说，我们得提前预约。
-        meaning: 即係話，我哋要預先預約。
-        note: 重述訪客唔可以到場先安排參觀呢點。得 喺呢度讀 děi，表示需要，唔係引入補語嘅 de。
+        meaning: "**例句。** 即係話，我哋要提前預約。`换句话说` 係換個講法，`我们得` 係我哋要，呢度 `得` 讀 `děi`。`提前` 係預先，放喺 `预约` 前，`预约` 係預約。"
+        note: 試下改成自己要預約：`换句话说，我得提前预约。` `我们` 換成 `我`。呢度 `得` 喺動作前表示必要；`说得很清楚` 入面輕讀嘅 `得` 喺動詞後，連接講得點，作用唔同。
   - subskill_id: correcting_misunderstanding
-    explanation: 说的是 指明本來講乜；不是 排除理解錯咗嘅選項。兩者對比可以清楚糾正誤解。
+    explanation: 聽者以為你提議星期五，但你指星期六。講出正確日子，再排除聽錯嗰日，就直接修補誤解。
     examples:
       - text: 我说的是周六，不是周五。
-        meaning: 我講嘅係星期六，唔係星期五。
-        note: 對方誤以為提議星期五時用，並直接補上正確日子。
+        meaning: "**例句。** 我講嘅係星期六，唔係星期五。`我说的` 指我講嘅內容，`是周六` 話係星期六，`不是周五` 排除星期五。兩個日子分別跟喺 `是` 同 `不是` 後，對比清楚。"
+        note: 試下反方向糾正：`我说的是周五，不是周六。` 交換日子。`我没说周六` 只話冇講星期六，未提供真正想指嘅日子。
   - subskill_id: turns_topics
-    explanation: 换个话题 明確表示轉話題；之後可以用問題引入新話題。
+    explanation: 討論期間想轉去下星期安排，講明轉話題同新內容，就容易跟。`可以吗` 問對方願唔願意咁轉。
     examples:
       - text: 我想换个话题，聊聊下周的安排，可以吗？
-        meaning: 我想轉個話題，傾下下星期嘅計劃，得唔得？
-        note: 講者提出轉話題並交代新內容。聊聊 令提議較有閒談感。
+        meaning: "**例句。** 我想轉個話題，傾下下星期安排，得唔得？`我想` 係我想做，`换个话题` 係換個話題，`聊聊` 係輕鬆傾一傾。`下周的安排` 係下星期安排，`的` 將時間接到安排。"
+        note: 試下轉去聽日安排：`我想换个话题，聊聊明天的安排，可以吗？` 將 `下周` 換成 `明天`。重複 `聊` 令聊天建議輕鬆啲；只講新日子，未清楚交代想轉話題。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/managing-conversation/mandarin-managing-conversation-explained-in-english.yaml
-    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/managing-conversation/mandarin-managing-conversation-explained-in-english.yaml
-        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

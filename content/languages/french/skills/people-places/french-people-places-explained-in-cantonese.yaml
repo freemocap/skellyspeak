@@ -1,88 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: people_places
 language: french
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: c’est 加名字或名詞短語可以識別人物；il est、elle est 後面無修飾嘅職業名稱通常唔加冠詞。
+    explanation: 你介紹一個鄰居，再講佢做乜。`C’est mon voisin` 係呢位係我鄰居；`c’est` 用嚟指出身份，`mon voisin` 指我嘅男鄰居。`Il est
+      vétérinaire` 講佢係獸醫。`Il est` 後面直接講冇修飾嘅職業，通常唔加冠詞；用 `C’est un vétérinaire` 指出佢係一位獸醫，就要
+      `un`。女性可以講 `C’est ma voisine. Elle est vétérinaire.`；鄰居同代詞形式改變，呢度 `vétérinaire` 本身唔變。
     examples:
       - text: C’est mon voisin. Il est vétérinaire.
         meaning: 嗰位係我鄰居，佢係獸醫。
-        note: c’est 引入人物；il est vétérinaire 交代職業，唔加不定冠詞。
+        note: 試下介紹一位做獸醫嘅女鄰居。`C’est ma voisine. Elle est vétérinaire.` 可以；`ma voisine` 同 `elle` 指佢，`elle
+          est` 後面嘅職業仍然唔加冠詞。
   - subskill_id: qualities_states
-    explanation: 形容詞要配合所描述名詞或代名詞嘅性同數。好多描述用 être；avoir faim 等固定用語則用 avoir。
+    explanation: 你形容單位入面嘅廚房，講佢細同光猛。`La petite cuisine` 係細廚房，`est lumineuse` 係佢好光猛。`Petite` 同
+      `lumineuse` 都配合陰性單數嘅 `cuisine`。呢度常用嘅大小形容詞 `petite` 喺名詞前面，光線描述就放喺 `est` 後面。換成陽性嘅客廳
+      `salon`，就係 `Le petit salon est lumineux.`。法文唔係所有形容詞都放同一位置，要連同名詞同常用說法一齊學。
     examples:
       - text: La petite cuisine est lumineuse.
         meaning: 個細廚房好光猛。
-        note: petite 同 lumineuse 配合陰性單數 cuisine。廣東話形容詞冇呢種變化，但法文要保留。
+        note: 試下形容細而光猛嘅客廳。`Le petit salon est lumineux.` 可以；冠詞同兩個形容詞都用配合 `salon` 嘅陽性單數形式。
   - subskill_id: location_movement
-    explanation: 介詞要分清位置、目的地同出發點。à、de 遇到 le、les 會縮合。
+    explanation: 一班人去博物館，用車站嚟指出係邊間。`Nous allons` 係我哋去，`au musée` 講目的地，`près de la gare` 係車站附近。`Au` 係
+      `à` 同 `le` 合併；陰性名詞前就分開寫，例如 `à la gare`。呢句講向一個地方移動；`Nous sommes au musée`
+      就係我哋已經喺博物館。位置片語可以相同，動詞先係分清去緊定已經喺度嘅關鍵。
     examples:
       - text: Nous allons au musée près de la gare.
         meaning: 我哋去車站附近嘅博物館。
-        note: au 係 à 同 le 嘅縮合；près de 表示博物館同車站嘅相對位置。
+        note: 試下講你哋已經喺博物館。`Nous sommes au musée près de la gare.` 可以；`sommes` 表示身處位置，唔係去緊嗰度。
   - subskill_id: possession_relations
-    explanation: 物主限定詞要配合被擁有名詞，唔係按擁有人性別決定。de 短語可以交代擁有人或關係。
+    explanation: 你透過同事嘅關係介紹一個人。`C’est la sœur` 係呢位係姊妹，`de mon collègue` 講明係我同事嘅姊妹。法文用 `de`
+      連起兩個名詞，唔會加英文嗰種所有格詞尾。呢度 `mon` 配合陽性單數 `collègue`；女同事可以用 `de ma collègue`。所有詞配合後面嘅名詞，例如 `sa
+      sœur` 可以係佢嘅姊妹，唔論佢係男定女，因為陰性嗰個係 `sœur`。
     examples:
       - text: C’est la sœur de mon collègue.
         meaning: 嗰位係我同事嘅姊妹。
-        note: de mon collègue 交代關係；無論同事係男定女，sœur 呢個名詞都係陰性。
+        note: 試下介紹同事嘅兄弟。`C’est le frère de mon collègue.` 可以；關係換成陽性嘅 `le frère`，後面 `de` 片語仍然指出同事。
   - subskill_id: quantity_comparison
-    explanation: 數字同數量短語交代多少；plus… que、moins… que 比較特徵，形容詞仍要配合名詞。
+    explanation: 搬行李之前，你比較兩件行李。`Cette valise` 係呢個喼，`plus légère que mon sac` 係比我個袋輕。`Plus`
+      表示比較，`que` 引出另一件嘢。`Légère` 配合陰性 `valise`；改講陽性嘅袋就係 `Ce sac est plus léger que ma
+      valise`。重量一樣可以用 `aussi légère que`，即一樣咁輕。`Deux valises` 呢種數字講數量，本身唔會比較重量。
     examples:
       - text: Cette valise est plus légère que mon sac.
         meaning: 呢個行李箱比我個袋輕。
-        note: plus légère que 比較重量；légère 配合 valise，唔係另加一個比較級詞尾。
-provenance:
+        note: 試下講你個袋比你個喼輕。`Mon sac est plus léger que ma valise.` 可以；`léger` 配合被形容嘅袋，唔係配合 `que` 後面嗰件嘢。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/people-places/french-people-places-explained-in-english.yaml at revision
-    french-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - tex_identity2026
     - tex_possessives2026
+    - texAdjectivesTeaching20261007
+    - texComparativesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/people-places/french-people-places-explained-in-english.yaml at
-        revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_identity2026
-        - tex_possessives2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/people-places/french-people-places-explained-in-english.yaml at
-        revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_identity2026
-        - tex_possessives2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

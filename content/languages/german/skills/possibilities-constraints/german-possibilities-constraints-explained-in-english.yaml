@@ -1,57 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Können with an infinitive can express learned skill or practical capacity. In a
-      main clause the modal is finite and the other verb appears as a bare infinitive at the
-      end.
+    explanation: When a repair is needed, saying what you can do helps decide who will handle it. `Ich
+      kann` means I can; the action appears as an infinitive at the end. Here `wechseln` names
+      changing a tyre, and `kann` identifies the speaker’s ability.
     examples:
       - text: Ich kann einen Fahrradreifen wechseln.
-        meaning: I can change a bicycle tyre.
-        note: Kann wechseln expresses skill when discussing what repairs the speaker knows how to do; it
-          does not itself grant permission.
+        meaning: "**The example.** I can change a bicycle tyre. `einen Fahrradreifen` is a bicycle tyre, the
+          object being changed. The masculine object takes `einen`. `wechseln` stays unchanged after
+          `kann`; the person-marked verb is `kann`, not the final action."
+        note: "Try it: say that your group can do this repair. Answer: `Wir können einen Fahrradreifen
+          wechseln`. `ich` becomes `wir` and `kann` becomes `können`, while the infinitive stays at
+          the end. Permission to use someone’s tools would require a separate question."
   - subskill_id: permission
-    explanation: Dürfen expresses permission. A verb-first question with darf ich asks whether the
-      speaker’s action is allowed; this differs from asking someone else to perform it.
+    explanation: Before leaving a bicycle in someone’s space, you may need permission. `Darf ich` asks
+      may I. The question starts with the person-marked permission verb and ends with the action
+      `abstellen`, leave or park something.
     examples:
       - text: Darf ich mein Fahrrad hier abstellen?
-        meaning: May I leave my bicycle here?
-        note: Asked of the person responsible for the space, this seeks permission. Abstellen is a bare
-          infinitive after darf.
+        meaning: "**The example.** May I leave my bicycle here? `mein Fahrrad` is my bicycle and `hier` is
+          here. `Darf` comes before `ich` in this yes/no question. The final `abstellen` stays
+          together as an infinitive after the modal, even though its prefix separates in an ordinary
+          main clause."
+        note: "Replace `hier` with `dort` for there. Try it: ask to leave your bicycle there. Answer: `Darf
+          ich mein Fahrrad dort abstellen?` The permission frame remains. `Kann ich` can ask about
+          feasibility; `Darf ich` makes permission explicit."
   - subskill_id: obligation
-    explanation: Müssen can express a requirement with a bare infinitive. Nicht müssen removes
-      necessity; nicht dürfen instead expresses prohibition.
+    explanation: On a train, a ticket check makes showing tickets necessary. `Wir müssen` means we must.
+      The action `vorzeigen`, show for inspection, comes at the end as an infinitive; the
+      requirement applies to the group.
     examples:
       - text: Wir müssen die Fahrkarten vorzeigen.
-        meaning: We must show the tickets.
-        note: Müssen vorzeigen states a requirement. The compound verb stays together as the infinitive
-          after the modal.
+        meaning: "**The example.** We must show the tickets. `die Fahrkarten` means the tickets. `müssen`
+          carries the we-form; `vorzeigen` names what must happen. Its prefix remains attached in
+          this infinitive rather than separating into two parts."
+        note: "`Wir dürfen die Fahrkarten nicht vorzeigen` says we must not show them. Try it: instead
+          remove the requirement to show them. Answer: `Wir müssen die Fahrkarten nicht vorzeigen`.
+          `nicht müssen` removes necessity; `nicht dürfen` forbids the action."
   - subskill_id: possibility
-    explanation: Vielleicht can qualify an event as possible. At the start of a main clause it is
-      followed by the finite verb; no additional modal is necessary.
+    explanation: A service disruption is possible but not confirmed. `Vielleicht` means perhaps and lets
+      you mention the risk without saying the cancellation is certain. At the start of this
+      statement, it is followed immediately by the person-marked verb.
     examples:
       - text: Vielleicht fällt der letzte Zug heute aus.
-        meaning: The last train may be cancelled today.
-        note: Vielleicht leaves the outcome open. Ausfallen separates into fällt … aus in this main
-          clause.
+        meaning: "**The example.** The last train may be cancelled today. `der letzte Zug` is the last train
+          and `heute` is today. `fällt … aus` comes from `ausfallen`, be cancelled here. The
+          changing verb part `fällt` is near the start; the separated prefix `aus` closes the
+          clause."
+        note: "Try it: put the train at the beginning without losing uncertainty. Answer: `Der letzte Zug
+          fällt heute vielleicht aus`. `fällt` remains second and `aus` stays last. Removing
+          `vielleicht` would present the cancellation as a statement."
   - subskill_id: certainty
-    explanation: Sicher sein, dass … expresses confidence; nicht sicher sein, ob … expresses
-      uncertainty about whether something holds. Ob introduces a subordinate question with the
-      finite verb at the end.
+    explanation: When you do not know whether a shop is still open, you can state that limit directly.
+      `Ich bin nicht sicher` means I am not sure. `ob` introduces the unresolved question, whether
+      the shop is open.
     examples:
       - text: Ich bin nicht sicher, ob der Laden noch offen ist.
-        meaning: I am not sure whether the shop is still open.
-        note: Nicht sicher marks a knowledge limit; ob gives the proposition in doubt. This does not
-          claim that the shop must be closed.
-provenance: &a1
+        meaning: "**The example.** I am not sure whether the shop is still open. `der Laden` is the shop,
+          `noch` is still, and `offen` is open. The final `ist` belongs to the clause after `ob`.
+          This subordinate clause keeps its person-marked verb at the end, unlike the opening `Ich
+          bin` statement."
+        note: "Try it: express the group’s uncertainty. Answer: `Wir sind nicht sicher, ob der Laden noch
+          offen ist`. Only the first subject and its verb change. `ist` remains singular because its
+          subject is the shop."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_modals2026
     - umich_de_word_order2026
@@ -63,11 +85,30 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_modals2026
+        - umich_de_word_order2026
+        - ids_de_epistemic2026
+        - goethe_de_discussion2026
+        - umich_de_connectors2026
+        - leo_de_modal_negation2026
+        - leo_de_permission2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

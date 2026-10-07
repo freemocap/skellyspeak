@@ -1,61 +1,99 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A singular imperative with le do thoil requests an action.
+    explanation: When someone is helping you move things, a direct instruction can name the action and
+      its destination. In `Bog an bosca seo go dtí an doras, le do thoil`, `Bog` tells one person to
+      move something, `an bosca seo` is this box, and `go dtí an doras` gives the destination. The
+      verb comes first. `Le do thoil` adds please; the action still uses the singular command form.
     examples:
       - text: Bog an bosca seo go dtí an doras, le do thoil.
         meaning: Please move this box to the door.
-        note: Go dtí an doras gives the destination; the request addresses one person.
+        note: "The object comes after `Bog`, and `seo` follows the noun to identify this box. `An bosca sin`
+          identifies that box instead. Try asking for that box to be moved to the door. Answer: `Bog
+          an bosca sin go dtí an doras, le do thoil.` Only the identifying word changes; the
+          destination and courteous ending stay the same."
   - subskill_id: offers_invitations
-    explanation: Ar mhaith leat can offer something by asking whether the listener would like it.
+    explanation: A host can offer a drink by asking whether the visitor would like it. `Ar mhaith leat
+      cupán tae?` contains the offer frame `Ar mhaith leat`, followed by `cupán tae`, a cup of tea.
+      `Leat` refers to the person addressed; `liom` refers to the speaker in the reply `Ba mhaith
+      liom cupán tae`. The question leaves the visitor free to accept or decline.
     examples:
       - text: Ar mhaith leat cupán tae?
         meaning: Would you like a cup of tea?
-        note: Use while offering tea, not merely researching someone’s tastes.
+        note: "This offer asks about the visitor’s wishes, whereas `Ba mhaith liom cupán tae` says what I
+          would like. Try offering a cup of coffee, using `caife`. Answer: `Ar mhaith leat cupán
+          caife?` The offered drink changes after `cupán`; `Ar mhaith leat` still addresses one
+          visitor."
   - subskill_id: suggestions
-    explanation: A first-person plural imperative can propose joint action.
+    explanation: "During shared work, `Glacaimis sos gairid` proposes a short break for the group,
+      including the speaker. `Glacaimis` means let us take: its ending already includes we. `Sos` is
+      a break and `gairid` follows it to describe it as short. This makes a joint proposal rather
+      than telling only the listener what to do."
     examples:
       - text: Glacaimis sos gairid.
         meaning: Let’s take a short break.
-        note: Glacaimis includes the speaker in the proposal.
+        note: "Compare `Glac sos gairid`, take a short break, addressed to one person, with the inclusive
+          `Glacaimis sos gairid`. Try proposing a long break, using `fada`. Answer: `Glacaimis sos
+          fada.` The shared-action verb stays; the adjective after `sos` changes."
   - subskill_id: commitments
-    explanation: A future statement can accept responsibility in a shared plan.
+    explanation: When a group needs tools for tomorrow, `Tabharfaidh mé na huirlisí liom amárach` can
+      commit the speaker to bringing them. `Tabharfaidh` is the future of `tabhair`, bring or give;
+      `mé` names the speaker, `na huirlisí` the tools, and `liom` with me. `Amárach` sets tomorrow.
+      Bringing something along uses this combination of the verb and a with-person phrase.
     examples:
       - text: Tabharfaidh mé na huirlisí liom amárach.
         meaning: I will bring the tools with me tomorrow.
-        note: Use when allocating tasks; liom relates bringing the tools to the speaker.
+        note: "A future statement becomes a commitment when it answers what the speaker will do for the
+          plan. `Inniu` changes the time to today. Try committing to bringing the tools today.
+          Answer: `Tabharfaidh mé na huirlisí liom inniu.` The future action is still promised, but
+          its time is today."
   - subskill_id: accepting_declining
-    explanation: An inability statement can politely decline an invitation.
+    explanation: "A person who cannot attend can decline while acknowledging the inconvenience: `Tá brón
+      orm, ní féidir liom teacht inniu`. `Tá brón orm` is sorry, with `orm` referring to the
+      speaker. `Ní féidir liom` says I cannot, and `teacht` names coming. `Inniu` limits the refusal
+      to today; it does not reject every future invitation."
     examples:
       - text: Tá brón orm, ní féidir liom teacht inniu.
         meaning: Sorry, I cannot come today.
-        note: The prior invitation identifies the event being declined.
+        note: "The positive reply `Is féidir liom teacht inniu` says I can come today. Try declining for
+          tomorrow instead. Answer: `Tá brón orm, ní féidir liom teacht amárach.` `Amárach` changes
+          the day, while the apology and inability to come remain."
   - subskill_id: negotiating_plans
-    explanation: State a constraint and propose a concrete alternative.
+    explanation: "An unavailable day can be followed by a concrete alternative: `Nílim saor Dé hAoine.
+      An mbuailfimid le chéile Dé Sathairn?` `Nílim` means I am not and `saor` free. `An
+      mbuailfimid` asks whether we will meet; its ending includes we, and the question particle
+      introduces the written initial change in `mbuailfimid`. `Le chéile` means together. Friday is
+      rejected and Saturday proposed."
     examples:
       - text: Nílim saor Dé hAoine. An mbuailfimid le chéile Dé Sathairn?
         meaning: I am not free on Friday. Shall we meet on Saturday?
-        note: The question proposes a replacement day for the meeting.
+        note: "The second sentence matters because it gives the other person a plan to respond to. Try
+          keeping Friday unavailable but proposing tomorrow. Answer: `Nílim saor Dé hAoine. An
+          mbuailfimid le chéile amárach?` The meeting question stays intact; only its proposed time
+          changes."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - brasicke_irish_copula2026
     - teanglann_cead2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
+    - teanglannGlacTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

@@ -1,55 +1,83 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: ആണ് can identify a referent with a noun phrase and join to its final word.
+    explanation: When showing someone a house, you can identify it as yours. `ഇത്` points to this one
+      and `എന്റെ` gives the relationship to you. The identifying noun joins to `ആണ്` at the end.
     examples:
       - text: ഇത് എന്റെ വീടാണ്.
-        meaning: This is my house.
-        note: എന്റെ marks my; വീടാണ് combines വീട് and ആണ്.
+        meaning: "**The example.** This is my house. `വീട്` means house, and `വീടാണ്` is its joined form
+          with `ആണ്`, is. `എന്റെ വീട്` means my house, with the possessor before the noun. The whole
+          identifying phrase follows `ഇത്`."
+        note: "Try pointing to that house instead. Answer: `അത് എന്റെ വീടാണ്.` Replace `ഇത്` with `അത്`,
+          that. `എനിക്ക് വീടുണ്ട്` instead says you have a house; it uses the possession frame
+          rather than identifying the house in front of you."
   - subskill_id: qualities_states
-    explanation: An adjectival description can form a predicate with a nominal ending and ആണ്.
+    explanation: Before choosing a route for a large load, you need to know whether the path is narrow.
+      `ഈ വഴി` names this path. The descriptive expression ends in a nominal form joined to `ആണ്`.
     examples:
       - text: ഈ വഴി ഇടുങ്ങിയതാണ്.
-        meaning: This path is narrow.
-        note: ഇടുങ്ങിയതാണ് predicates narrowness of the path.
+        meaning: "**The example.** This path is narrow. `ഈ` is this, `വഴി` is path or way, and `ഇടുങ്ങിയ`
+          describes narrowness. `ഇടുങ്ങിയതാണ്` packages that description as a predicate, combining
+          the nominalized form with `ആണ്`. It is not an English adjective with gender agreement."
+        note: "Try describing that path rather than this one. Answer: `ആ വഴി ഇടുങ്ങിയതാണ്.` Replace `ഈ` with
+          `ആ`, that before a noun. Keep the whole predicate. `ഇടുങ്ങിയ വഴി` instead means a narrow
+          path, with the description before the noun rather than a complete statement about it."
   - subskill_id: location_movement
-    explanation: A spatial expression with ഉണ്ട് can locate an object.
+    explanation: When someone is looking for a key, a table provides a recognizable location. The place
+      expression precedes the existence or location predicate `ഉണ്ട്`; its joined spelling is part
+      of the written phrase.
     examples:
       - text: താക്കോൽ മേശപ്പുറത്തുണ്ട്.
-        meaning: The key is on the table.
-        note: മേശപ്പുറത്ത് gives the location and joins with ഉണ്ട്.
+        meaning: "**The example.** The key is on the table. `താക്കോൽ` is key and `മേശ` is table.
+          `മേശപ്പുറത്ത്` means on the table, and `മേശപ്പുറത്തുണ്ട്` joins that location to `ഉണ്ട്`,
+          is there. The sentence locates the key rather than directing its movement."
+        note: "Try locating a bag on the table. Answer: `ബാഗ് മേശപ്പുറത്തുണ്ട്.` Replace the object with
+          `ബാഗ്`. `മേശപ്പുറത്ത്` alone can answer a question about where the key is; it need not
+          repeat the already known object."
   - subskill_id: possession_relations
-    explanation: A dative possessor with ഉണ്ട് can state possession.
+    explanation: When arranging seats, saying you have two chairs tells the group what is available.
+      `എനിക്ക്` introduces you as the possessor, and the things possessed come before final `ഉണ്ട്`.
     examples:
       - text: എനിക്ക് രണ്ട് കസേരകളുണ്ട്.
-        meaning: I have two chairs.
-        note: എനിക്ക് identifies the possessor; രണ്ട് supplies the count.
+        meaning: "**The example.** I have two chairs. `രണ്ട്` is two, and `കസേരകൾ` is chairs, with the
+          plural ending on `കസേര`. `കസേരകളുണ്ട്` joins that plural form to `ഉണ്ട്`. The construction
+          expresses possession without a separate verb directly matching English have."
+        note: "Try saying you have three chairs. Answer: `എനിക്ക് മൂന്ന് കസേരകളുണ്ട്.` Replace `രണ്ട്` with
+          `മൂന്ന്`. `എന്റെ കസേരകൾ` means my chairs inside a noun phrase; it does not itself make the
+          possession statement expressed with `എനിക്ക്` and `ഉണ്ട്`."
   - subskill_id: quantity_comparison
-    explanation: A comparison with കാൾ can contrast a measured property.
+    explanation: Two boxes need carrying, and their weights differ. This comparison describes one box as
+      having less weight than the other. The reference box is introduced with a than-expression
+      before the measured property.
     examples:
       - text: ഈ പെട്ടിക്ക് അതിനെക്കാൾ ഭാരം കുറവാണ്.
-        meaning: This box is lighter than that one.
-        note: The sentence compares weight; അതിനെക്കാൾ identifies the other box as the standard.
+        meaning: "**The example.** This box is lighter than that one. `ഈ പെട്ടിക്ക്` is for this box,
+          `അതിനെക്കാൾ` is than that one, and `ഭാരം` is weight. `കുറവാണ്` says is less. The phrase
+          compares the boxes through lower weight rather than an English-style lighter ending."
+        note: "Try comparing the other way round. Answer: `ആ പെട്ടിക്ക് ഇതിനെക്കാൾ ഭാരം കുറവാണ്.` `ആ
+          പെട്ടിക്ക്` selects that box and `ഇതിനെക്കാൾ` compares it with this one. Switching both
+          references reverses the comparison; changing only one could make the box compared with
+          itself."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
+    - moagMalayalamTeaching20261007
     - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
+    - utMalayalamSandhiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

@@ -1,54 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 几点 asks for a clock time and stays before the event predicate here. No
-      English-style auxiliary inversion is needed.
+    explanation: Before visiting a shop, knowing its closing hour helps you arrive in time. `几点` asks
+      for that hour in the same position where an answer such as `五点` would go. The shop remains at
+      the beginning.
     examples:
       - text: 商店几点关门？
-        meaning: What time does the shop close?
-        note: 几点 supplies the unknown closing hour. 关门 describes closing for business.
+        meaning: "**The example.** What time does the shop close? `商店` is shop, `几点` is what time, and `关门`
+          is close for business. The order is shop, unknown time, closing action; the question word
+          supplies the question without a final `吗`."
+        note: "Try asking when the shop opens. Answer: `商店几点开门？` Replace `关门` with `开门`, open for business.
+          `商店五点关门吗？` instead asks whether five is the closing time, with a proposed hour and final
+          `吗`."
   - subskill_id: answering_information
-    explanation: A short time phrase can supply the answer without repeating the event. The prior
-      question identifies what is being timed.
+    explanation: After a question about closing time, the event is already clear. A clock-time phrase
+      can answer directly. `点` after a number identifies an hour rather than a count of objects.
     examples:
       - text: 五点。
-        meaning: At five o’clock.
-        note: Reply to the question about the shop’s closing hour. 点 makes this clock time rather than
-          five objects.
+        meaning: "**The example.** At five o’clock. `五` is five and `点` marks clock time. The short answer
+          supplies precisely the missing hour in `商店几点关门？`; it does not need to repeat the shop or
+          closing action."
+        note: "Try answering six o’clock. Answer: `六点。` Replace the number and retain `点`. A fuller answer
+          is `商店六点关门。` Both work after the closing-time question; `六个` counts six items and is not a
+          clock time."
   - subskill_id: checking_facts
-    explanation: A proposition followed by 对吗 asks whether the supplied information is correct. It
-      checks an available candidate answer.
+    explanation: You have heard that the shop closes at five and want to check before leaving. `对吗`
+      follows the proposed information and asks whether it is right. This gives the listener a
+      specific fact to confirm or correct.
     examples:
       - text: 商店五点关门，对吗？
-        meaning: The shop closes at five, right?
-        note: The speaker checks five o’clock, rather than asking an entirely open time question.
+        meaning: "**The example.** The shop closes at five, right? `商店五点关门` gives the shop, hour and closing
+          event. `对` means correct, and `吗` makes the short confirmation question. The comma
+          separates that check from the proposed fact."
+        note: "Try checking a six-o’clock closing time. Answer: `商店六点关门，对吗？` Change the proposed hour. If
+          the hour is completely unknown, `商店几点关门？` asks openly rather than presenting an answer to
+          check."
   - subskill_id: useful_detail
-    explanation: A description before 的 can identify a particular item. A demonstrative and
-      classifier can further specify it.
+    explanation: When someone asks which table to use, a nearby landmark distinguishes the right one.
+      `靠窗的` describes the table before naming it, and `那张` points to that particular table.
     examples:
       - text: 请用靠窗的那张桌子。
-        meaning: Please use the table by the window.
-        note: When the listener asks which table to use, 靠窗的 supplies the distinguishing location and 那张
-          refers to the table.
+        meaning: "**The example.** Please use the table by the window. `请用` is please use, `靠窗` is by the
+          window, and `的` links that description to `桌子`, table. `那` is that and `张` is the
+          classifier used for tables here. The whole identifying phrase follows `用`."
+        note: "Try specifying the table by the door. Answer: `请用靠门的那张桌子。` Replace `窗` with `门` inside the
+          description. `请用桌子` merely says use a table and loses the clue needed to choose among
+          them."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

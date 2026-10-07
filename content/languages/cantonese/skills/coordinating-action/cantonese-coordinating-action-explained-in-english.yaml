@@ -1,68 +1,110 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: 唔該 frames a request for a service; 幫我 identifies who benefits. A request need not be a
-      question.
+    explanation: Your hands are full and you need someone to open the door. `唔該` introduces a polite
+      request for this help. The listener can be understood without an explicit you; the sentence
+      directly names the action rather than asking a question.
     examples:
       - text: 唔該，幫我開門。
-        meaning: Please open the door for me.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: Please open the door for me. `幫我` means help me or do it for me, followed by `開門`, open the
+          door. `我` is the person benefiting, not the person being asked to open it. The action
+          follows the help phrase.
+        note: "Try it: ask for the door to be closed instead. Answer: `唔該，幫我閂門。` Replace `開` with `閂`,
+          close. `我幫你開門` instead offers your own help: exchanging the two people changes who helps
+          whom."
   - subskill_id: offers_invitations
-    explanation: 一齊 proposes joint action; 好唔好 asks the other person to accept or decline.
+    explanation: A friend is deciding what to do next, and you invite them to share a meal. `一齊` means
+      together; the activity is presented for their agreement with `好唔好`, rather than announced as
+      already arranged.
     examples:
       - text: 一齊去食飯，好唔好？
-        meaning: Shall we go and eat together?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: Shall we go and eat together? `去食飯` means go and have a meal; `食飯` need not mean eating
+          only rice. `好唔好` puts the positive and negative alternatives together, asking whether this
+          proposal is okay. The people joining are understood from the invitation.
+        note: "Try it: invite the friend for tea instead. Answer: `一齊去飲茶，好唔好？` The activity changes to `飲茶`,
+          while the invitation remains open. A reply `好呀，一齊去。` accepts; `唔好意思，我唔得閒。` declines
+          politely."
   - subskill_id: suggestions
-    explanation: 不如 introduces a proposed alternative; the exchange supplies the destination.
+    explanation: You are discussing a visit, but today may not suit everyone. `不如` introduces an
+      alternative worth considering. The short suggestion can leave out the destination because it
+      is already the topic.
     examples:
       - text: 不如聽日去。
-        meaning: How about going tomorrow?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: How about going tomorrow? `聽日` means tomorrow and appears before `去`, go. There is no need
+          to change the action word for future time. The proposal asks the group to consider a day;
+          it does not say everyone has agreed.
+        note: "Try it: propose Saturday. Answer: `不如星期六去。` Replace the day and retain the suggestion. `我聽日去`
+          states your own arrangement, while `不如聽日去` proposes an option. Adding `先`, as in `不如聽日先去`,
+          specifically suggests waiting until tomorrow."
   - subskill_id: commitments
-    explanation: 答應 makes the commitment explicit. A future prediction alone is not necessarily a promise.
+    explanation: A friend needs the book and you take responsibility for bringing it. `我答應你` explicitly
+      makes a promise to that person. The following clause says what you undertake and when.
     examples:
       - text: 我答應你，聽日會帶本書嚟。
-        meaning: I promise you I will bring the book tomorrow.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I promise you I will bring the book tomorrow. `聽日` gives tomorrow, `會帶` says will bring,
+          and `本書` identifies the book in context, using classifier `本`. Final `嚟` directs the
+          bringing towards the speaker’s relevant meeting place or the listener’s location.
+        note: "Try it: promise to bring the book on Friday. Answer: `我答應你，星期五會帶本書嚟。` Change only the day.
+          `我可能會帶本書嚟` expresses a possibility instead; `可能` leaves the action uncertain and does not
+          replace the explicit promise."
   - subskill_id: accepting_declining
-    explanation: After an invitation, unavailability can decline it indirectly. Without that context it
-      may only report a fact.
+    explanation: Someone has invited you for tomorrow, but you have no time available. A short apology
+      followed by your lack of availability lets them understand that you cannot join.
     examples:
       - text: 唔好意思，我聽日唔得閒。
-        meaning: Sorry, I am not free tomorrow.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: Sorry, I am not free tomorrow. `唔好意思` softens the refusal. `我聽日` identifies whose day is
+          affected, and `唔得閒` means not free. `唔` negates the availability word `得閒`; it does not
+          say you dislike the invitation.
+        note: "Try it: decline an invitation for Saturday. Answer: `唔好意思，我星期六唔得閒。` Replace the day. An
+          accepting answer could be `好呀，我聽日得閒。` The invitation makes availability relevant to
+          joining; outside that exchange the sentence can simply report your schedule."
   - subskill_id: negotiating_plans
-    explanation: The speaker rejects one time and checks another with 得唔得.
+    explanation: A meeting at three conflicts with another appointment. You reject that time and check
+      whether four would work, giving the other person a specific alternative to consider.
     examples:
       - text: 三點唔得，四點得唔得？
-        meaning: Three does not work; would four work?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: Three does not work; would four work? `三點` and `四點` name clock times. `唔得` rejects the
+          first arrangement. `得唔得` repeats the positive and negative form of `得`, workable or okay,
+          to ask about the second. The meeting itself need not be repeated.
+        note: "Try it: keep three unavailable but propose five. Answer: `三點唔得，五點得唔得？` Only the proposed time
+          changes. `五點得` states that five works; `五點得唔得` asks the listener to confirm instead of
+          deciding for them."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

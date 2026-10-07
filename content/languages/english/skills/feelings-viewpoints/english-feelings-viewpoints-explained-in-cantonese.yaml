@@ -1,85 +1,121 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: feelings_viewpoints
 language: english
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: want to 同 plan to 後面接行動，分別表達想做或計劃做嘅事。
+    explanation: 願望同計劃用途唔同。你可能想溫習，但未安排時間；講打算溫習，就話畀朋友知呢個係你預計做嘅活動，仍然唔保證一定做到。
     examples:
       - text: I plan to study tonight.
-        meaning: 講者打算今晚溫習。
-        note: 呢度表達個人打算，唔係向另一個人作承諾。
+        meaning: "`I plan` 講意向，`to study` 指打算做嘅事，`tonight` 交代時間。`Plan` 後用 `to` 接動詞原形。改主語就可以講 `She plans to
+          study tonight`。"
+        note: |-
+          比較 `I want to study tonight`：呢句表達願望，未必已有計劃。`I am studying tonight` 可以表示已安排嘅活動。
+
+          **試一試。** 講打算聽日煮飯。答案係 `I plan to cook tomorrow`；`cook` 前要有 `to`，將計劃同想做嘅動作連起嚟。
   - subskill_id: preferences
-    explanation: 可以用 like、prefer 或比較句，講自己嘅喜好同選擇。
+    explanation: 喜好比較話畀對方知你較鍾意邊個選擇。主人提供兩款飲品時，可以講茶係首選，唔代表你唔鍾意咖啡。`Prefer` 清楚作出比較。
     examples:
       - text: I prefer tea to coffee.
-        meaning: 比起咖啡，講者更鍾意茶。
-        note: prefer 將較鍾意嘅選項同另一個選項連起嚟。
+        meaning: "`I prefer` 引出選擇。`Tea` 係較鍾意嗰樣；`to coffee` 指另一選項。呢度 `to` 連接兩樣嘢，唔係引出動作。調轉就改咗喜好：`I prefer
+          coffee to tea`。"
+        note: >-
+          呢個講法用 `to`，唔用 `than`：`I prefer tea to coffee`。只講 `I like tea` 冇比較兩款飲品。活動亦可以比較：`I prefer
+          walking to driving`。
+
+
+          **試一試。** 你較鍾意早上多過夜晚。答案係 `I prefer mornings to evenings`；首選放前面，另一選項放喺 `to` 後面。
   - subskill_id: emotions
-    explanation: 講出感受；有需要時再交代引起呢種感受嘅事。
+    explanation: 講出感受可以幫對方理解你嘅反應。面試前，你可能擔心會發生乜。`Feel` 後加描述詞講感受；`about` 可以引出感受關於乜。
     examples:
       - text: I feel nervous about the interview.
-        meaning: 個面試令講者緊張。
-        note: nervous 描述情緒狀態。
+        meaning: "`I feel` 講自己嘅感受。`Nervous` 係緊張，`about the interview` 指感受集中喺面試。換另一個人，描述詞唔變：`She feels
+          nervous`。"
+        note: >-
+          `I am nervous` 亦描述呢個狀態。`Nervous` 描述人嘅感受；`nerve-racking` 可以描述令人緊張嘅經歷：`The interview was
+          nerve-racking`。兩個詞唔可以直接互換。
+
+
+          **試一試。** 講對旅行感到興奮。答案係 `I feel excited about the trip`；`excited` 指感受，`about the trip`
+          交代關於乜。
   - subskill_id: opinions
-    explanation: 當區分事實同意見有需要時，要表明呢個係你嘅評價。
+    explanation: 意見畀你喺討論中提出自己嘅判斷。一班人揀計劃時，你可能覺得費用有問題。`I think` 將後面嘅句子標明為自己嘅看法，留空間畀其他人回應。
     examples:
       - text: I think this plan is too expensive.
-        meaning: 講者認為呢個計劃太貴。
-        note: I think 引入個人觀點，唔係表示同意上文某個說法。
+        meaning: "`I think` 引出判斷。`This plan is too expensive` 講出評價：`too` 表示超過合適程度，唔係只話價錢高。可以加理由，例如 `It uses
+          our whole budget`。"
+        note: |-
+          比較 `very expensive`，只形容好貴，本身未話貴得過分。`I don’t think this plan is affordable` 係常見嘅否定意見講法。
+
+          **試一試。** 表達覺得房間細得過分。答案係 `I think this room is too small`；`too` 指出個大小有問題。
   - subskill_id: agreement_disagreement
-    explanation: 回應要連到你贊同或質疑嘅立場。
+    explanation: 同意係回應另一個人嘅看法。隊友話工作要多一日，你可以明確贊同。討論有幾個提案時，講清楚同意邊一點尤其有用。
     examples:
       - text: I agree that we need more time.
-        meaning: 講者同意需要多啲時間。
-        note: 同意要有清楚對象；呢度由 that 後面嘅子句交代贊同乜嘢。
+        meaning: "`I agree` 表示你有同樣看法。`That we need more time` 講出所同意嘅內容；`that` 將同意連到一個完整陳述。跟人就用 `with`：`I
+          agree with you`。"
+        note: >-
+          可以唔針對人而表達反對：`I see your point, but I think we have enough time`。明白對方唔等於同意。`I am agree`
+          係錯誤形式；`agree` 本身已經係主要動詞。
+
+
+          **試一試。** 同意間房太細。答案係 `I agree that the room is too small`；`that` 後面講清楚共同嘅判斷。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/feelings-viewpoints/english-feelings-viewpoints-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/feelings-viewpoints/english-feelings-viewpoints-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/feelings-viewpoints/english-feelings-viewpoints-explained-in-english.yaml
-    at revision english-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - cefr2020
+    - bcAgreementTeaching20261007
+    - bcInfinitivesTeaching20261007
+    - bbcPreferencesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

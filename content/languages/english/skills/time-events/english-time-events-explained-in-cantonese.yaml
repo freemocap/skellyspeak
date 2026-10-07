@@ -1,94 +1,217 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: time_events
 language: english
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 按目前狀態、習慣或進行中活動，選擇合適嘅現在時結構。英文會用動詞形式區分，唔係只加「而家」就得。
+    explanation: 現在嘅事情包括固定情況同呢一刻做緊嘅嘢。講一個人嘅工作時，通常指平日工作地點，即使今日佢喺屋企。一般現在式適合呢種固定情況。
     examples:
       - text: She works at the museum.
-        meaning: 喺博物館返工係佢目前嘅固定工作情況。
-        note: works 表達平常或固定情況，唔一定係講呢一刻做緊嘅活動。
+        meaning: "`She` 指嗰個人。`Works` 有配合 `she` 嘅字尾；`at the museum` 指工作地點。`I` 或 `they` 就用 `work`：`They work
+          at the museum`。呢句冇話佢哋呢一刻一定做緊嘢。"
+        note: >-
+          `She is working at the museum today` 着重今日前後正進行嘅活動。否定固定工作就講 `She doesn’t work at the
+          museum`；`doesn’t` 後 `work` 保持原形。
+
+
+          **試一試。** 講阿哥或細佬平日喺圖書館返工。答案係 `He works at the library`；`he` 配 `works`，即使講工作而唔係呢一刻嘅動作。
   - subskill_id: past_events
-    explanation: 較早發生嘅事件要用合適過去時結構。好多常見動詞有不規則過去式；唔可以只加時間詞而完全唔理動詞形式。
+    explanation: 過去事件話畀對方知之前發生咗乜。講噚日出遊時，時間詞同動詞一齊將行程放喺過去。加過去時間詞，通常唔代表動詞可以唔變。
     examples:
       - text: Yesterday we went to the harbour.
-        meaning: 嗰次行程發生喺噚日。
-        note: went 係 go 嘅過去式；yesterday 交代時間。
+        meaning: "`Yesterday` 交代時間。`We` 係出遊嘅人；`went` 係 `go` 嘅過去式，`to the harbour` 指目的地。換人都用同一個 `went`：`I
+          went`、`she went`、`they went`。"
+        note: >-
+          部分過去式加 `-ed`，例如 `walked`；`go` 就用不規則形式 `went`。問句由 `did` 表示過去：`Did you go?`，唔係錯誤嘅 `Did you
+          went?`。
+
+
+          **試一試。** 講噚日去咗市場。答案係 `Yesterday I went to the market`；已發生嘅行程用 `went`。
   - subskill_id: future_events
-    explanation: 將來計劃同事件可以用 going to、will，或者配合適當語境嘅現在時形式。
+    explanation: 講將來可以講安排、意向或預測。如果已約好聽日喺邊度見，現在進行式可以表達落實咗嘅安排。將來時間詞講清楚唔係而家見面。
     examples:
       - text: We are meeting at the station tomorrow.
-        meaning: 見面已安排喺聽日。
-        note: 現在進行式喺呢度講將來安排；tomorrow 支持呢個理解。
+        meaning: "`We are meeting` 將 `are` 同 `meeting` 配合。`At the station` 交代地方，`tomorrow`
+          將安排放喺將來。改一個人，連接形式亦變：`She is meeting us tomorrow`。"
+        note: |-
+          `We are going to meet` 可以講意向。`I’ll meet you there` 可以表達講嘢嗰刻作出嘅決定。幾種形式有重疊，要按情境揀，唔係每句都可以互換。
+
+          **試一試。** 講聽日已安排嘅晚飯。答案係 `We are having dinner tomorrow`；`are having` 表達安排，`tomorrow` 指將來時間。
   - subskill_id: duration_frequency
-    explanation: 時間短語可以表達持續幾耐，或者幾密發生一次。
+    explanation: 時長講一次活動持續幾耐；頻率講幾密發生。描述練習習慣時，可能兩樣都需要，對方先分到係每日短時間，定係偶爾長時間。
     examples:
       - text: I practise for twenty minutes every evening.
-        meaning: 每晚練習二十分鐘。
-        note: for twenty minutes 交代時長；every evening 交代頻率。
+        meaning: "`I practise` 指固定活動。`For twenty minutes` 講每次持續時間；`every evening` 表示每晚。兩個短語可以分開改：`for ten
+          minutes every morning` 係另一個習慣。"
+        note: >-
+          `For` 引出一段時長。`Since Monday` 就指起點，例如 `I have practised every day since Monday`。唔可以將 `for
+          twenty minutes` 改成錯誤嘅 `since twenty minutes`。
+
+
+          **試一試。** 講每日睇書半小時。答案係 `I read for thirty minutes every day`；`for thirty minutes`
+          答幾耐，`every day` 答幾密。
   - subskill_id: event_sequence
-    explanation: 用 first、then、before、after 等詞交代事件次序。
+    explanation: 先後次序幫聽者重組經過，或者跟住步驟做。講旅行時，交代邊件事先發生，可以避免對方混淆叫車同執行李嘅次序。
     examples:
       - text: First we packed, then we called a taxi.
-        meaning: 先執好行李，之後先叫的士。
-        note: then 表示先後，本身唔表示因果。
+        meaning: "`First` 將執行李標為第一件事。`Packed` 係完成咗嘅過去動作；`then` 引出下一件 `called a
+          taxi`。兩個動詞都有規則過去字尾。句子講先後，冇話一定有因果。"
+        note: >-
+          同一次序亦可以講 `After we packed, we called a taxi`。`Before we packed, we called a taxi`
+          就調轉次序。指示用原形：`First pack, then call a taxi`。
+
+
+          **試一試。** 排兩件過去嘅事：食完，之後走。答案係 `First I ate, then I left`；過去式講之前嘅事，`first` 同 `then` 交代次序。
   - subskill_id: event_phase
-    explanation: 進行式可以表達事件當時正進行；其他結構可以標示完成。呢啲動詞形式唔可以同廣東話嘅「緊」「咗」逐個固定配對。
+    explanation: 一件事可以從正進行嘅角度講，亦可以當成整件事講。解釋停電時，你可能想講嗰刻做緊乜，持續活動就成為突然事件嘅背景。
     examples:
       - text: I was cooking when the lights went out.
-        meaning: 突然停電嗰陣，煮飯活動正進行緊。
-        note: was cooking 交代持續中嘅背景；went out 引入打斷嗰個背景嘅事件。
+        meaning: "`I was cooking` 表示相關過去時刻煮飯正進行。`Was` 配 `I`；`cooking` 指持續動作。`When the lights went out`
+          引出期間發生嘅事；呢度 `went out` 係燈熄咗。"
+        note: >-
+          `I cooked dinner` 將煮飯當成整件過去事件。`I was cooking` 本身冇講煮完未。幾個人就用 `We were cooking`。
+
+
+          **試一試。** 電話響嗰陣你睇緊書。答案係 `I was reading when the phone rang`；`was reading` 交代持續背景，`rang`
+          指期間發生嘅事。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/time-events/english-time-events-explained-in-english.yaml at
-        revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_present2026
         - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/time-events/english-time-events-explained-in-english.yaml at
-        revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_present2026
         - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/time-events/english-time-events-explained-in-english.yaml at revision
-    english-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - bc_present2026
     - bc_past2026
+    - bcPresentSimpleTeaching20261007
+    - bcPastContinuousTeaching20261007
+    - bcFutureTeaching20261007
+    - bcDurationTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.
+variety_sections:
+  english-united-states:
+    - subskill_id: present_events
+      explanation: 現在嘅事情包括固定情況同呢一刻做緊嘅嘢。講一個人嘅工作時，通常指平日工作地點，即使今日佢喺屋企。一般現在式適合呢種固定情況。
+      examples:
+        - text: She works at the museum.
+          meaning: "`She` 指嗰個人。`Works` 有配合 `she` 嘅字尾；`at the museum` 指工作地點。`I` 或 `they` 就用 `work`：`They work
+            at the museum`。呢句冇話佢哋呢一刻一定做緊嘢。"
+          note: >-
+            `She is working at the museum today` 着重今日前後正進行嘅活動。否定固定工作就講 `She doesn’t work at the
+            museum`；`doesn’t` 後 `work` 保持原形。
+
+
+            **試一試。** 講阿哥或細佬平日喺圖書館返工。答案係 `He works at the library`；`he` 配 `works`，即使講工作而唔係呢一刻嘅動作。
+    - subskill_id: past_events
+      explanation: 過去事件話畀對方知之前發生咗乜。講噚日出遊時，時間詞同動詞一齊將行程放喺過去。加過去時間詞，通常唔代表動詞可以唔變。
+      examples:
+        - text: Yesterday we went to the harbor.
+          meaning: "`Yesterday` 交代時間。`We` 係出遊嘅人；`went` 係 `go` 嘅過去式，`to the harbor` 指目的地。換人都用同一個 `went`：`I
+            went`、`she went`、`they went`。"
+          note: >-
+            部分過去式加 `-ed`，例如 `walked`；`go` 就用不規則形式 `went`。問句由 `did` 表示過去：`Did you go?`，唔係錯誤嘅 `Did you
+            went?`。
+
+
+            **試一試。** 講噚日去咗市場。答案係 `Yesterday I went to the market`；已發生嘅行程用 `went`。
+    - subskill_id: future_events
+      explanation: 講將來可以講安排、意向或預測。如果已約好聽日喺邊度見，現在進行式可以表達落實咗嘅安排。將來時間詞講清楚唔係而家見面。
+      examples:
+        - text: We are meeting at the station tomorrow.
+          meaning: "`We are meeting` 將 `are` 同 `meeting` 配合。`At the station` 交代地方，`tomorrow`
+            將安排放喺將來。改一個人，連接形式亦變：`She is meeting us tomorrow`。"
+          note: >-
+            `We are going to meet` 可以講意向。`I’ll meet you there`
+            可以表達講嘢嗰刻作出嘅決定。幾種形式有重疊，要按情境揀，唔係每句都可以互換。
+
+
+            **試一試。** 講聽日已安排嘅晚飯。答案係 `We are having dinner tomorrow`；`are having` 表達安排，`tomorrow`
+            指將來時間。
+    - subskill_id: duration_frequency
+      explanation: 時長講一次活動持續幾耐；頻率講幾密發生。描述練習習慣時，可能兩樣都需要，對方先分到係每日短時間，定係偶爾長時間。
+      examples:
+        - text: I practice for twenty minutes every evening.
+          meaning: "`I practice` 指固定活動。`For twenty minutes` 講每次持續時間；`every evening` 表示每晚。兩個短語可以分開改：`for ten
+            minutes every morning` 係另一個習慣。"
+          note: >-
+            `For` 引出一段時長。`Since Monday` 就指起點，例如 `I have practiced every day since Monday`。唔可以將 `for
+            twenty minutes` 改成錯誤嘅 `since twenty minutes`。
+
+
+            **試一試。** 講每日睇書半小時。答案係 `I read for thirty minutes every day`；`for thirty minutes`
+            答幾耐，`every day` 答幾密。
+    - subskill_id: event_sequence
+      explanation: 先後次序幫聽者重組經過，或者跟住步驟做。講旅行時，交代邊件事先發生，可以避免對方混淆叫車同執行李嘅次序。
+      examples:
+        - text: First we packed, then we called a taxi.
+          meaning: "`First` 將執行李標為第一件事。`Packed` 係完成咗嘅過去動作；`then` 引出下一件 `called a
+            taxi`。兩個動詞都有規則過去字尾。句子講先後，冇話一定有因果。"
+          note: >-
+            同一次序亦可以講 `After we packed, we called a taxi`。`Before we packed, we called a taxi`
+            就調轉次序。指示用原形：`First pack, then call a taxi`。
+
+
+            **試一試。** 排兩件過去嘅事：食完，之後走。答案係 `First I ate, then I left`；過去式講之前嘅事，`first` 同 `then` 交代次序。
+    - subskill_id: event_phase
+      explanation: 一件事可以從正進行嘅角度講，亦可以當成整件事講。解釋停電時，你可能想講嗰刻做緊乜，持續活動就成為突然事件嘅背景。
+      examples:
+        - text: I was cooking when the lights went out.
+          meaning: "`I was cooking` 表示相關過去時刻煮飯正進行。`Was` 配 `I`；`cooking` 指持續動作。`When the lights went out`
+            引出期間發生嘅事；呢度 `went out` 係燈熄咗。"
+          note: >-
+            `I cooked dinner` 將煮飯當成整件過去事件。`I was cooking` 本身冇講煮完未。幾個人就用 `We were cooking`。
+
+
+            **試一試。** 電話響嗰陣你睇緊書。答案係 `I was reading when the phone rang`；`was reading` 交代持續背景，`rang`
+            指期間發生嘅事。

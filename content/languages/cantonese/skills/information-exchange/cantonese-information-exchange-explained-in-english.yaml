@@ -1,54 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 幾點 asks for clock time within the clause; English-style auxiliary inversion is not required.
+    explanation: Before visiting the shop, you need to know its closing time. `幾點` asks for the missing
+      clock time in the place where a time expression belongs; the shop stays at the beginning.
     examples:
       - text: 間舖頭幾點閂門？
-        meaning: What time does the shop close?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: What time does the shop close? `間舖頭` means the shop; the classifier `間` can identify the
+          place already under discussion. `幾點` asks what time, and `閂門` means close the doors or
+          close for business here. The question does not propose a closing time.
+        note: "Try it: ask when the shop opens. Answer: `間舖頭幾點開門？` Replace `閂門` with `開門`. A possible answer
+          is `六點` or `六點開門`; the time fills the question’s `幾點` slot instead of moving to a
+          different question order."
   - subskill_id: answering_information
-    explanation: After a closing-time question, a short time phrase supplies the answer. Its function
-      depends on that context.
+    explanation: The other person has just asked when the shop closes. Since the shop and closing are
+      already known, a clock time alone provides a complete conversational answer.
     examples:
       - text: 六點。
-        meaning: At six.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: At six. `六` is six and `點` gives the clock hour. A fuller answer is `間舖頭六點閂門`. Without a
+          morning or afternoon expression, the exchange determines which six o’clock is meant.
+        note: "Try it: give 6:30 as the closing time. Answer: `六點半。` `半` adds half an hour after six. For
+          precision, `下晝六點半` specifies the afternoon. A duration such as `六個鐘` means six hours and
+          would not give the required clock time."
   - subskill_id: checking_facts
-    explanation: 係咪 checks a candidate answer rather than asking for entirely unknown information.
+    explanation: You remember that the shop closes at six and want someone to confirm it. The statement
+      gives your candidate time, and the tag `係咪呀` invites confirmation or correction.
     examples:
       - text: 間舖頭六點閂門，係咪呀？
-        meaning: The shop closes at six, right?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: The shop closes at six, right? `間舖頭六點閂門` puts the known shop before the proposed time and
+          action. `係咪` is a common shortened form of `係唔係`, is it or is it not; final `呀` suits the
+          conversational question.
+        note: "Try it: check a seven-o’clock closing time. Answer: `間舖頭七點閂門，係咪呀？` Change only the proposed
+          time. A correcting reply can say `唔係，六點閂門。` It rejects the proposed fact and supplies the
+          correct time rather than leaving the listener to guess."
   - subskill_id: useful_detail
-    explanation: The location and 嗰張 identify which table to use. Detail is useful when it resolves a
-      relevant distinction.
+    explanation: Several tables are available, so naming the one beside the window makes the instruction
+      usable. The location description goes before the phrase selecting that particular table.
     examples:
       - text: 用窗口旁邊嗰張枱。
-        meaning: Use the table beside the window.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: Use the table beside the window. `用` is use, `窗口旁邊` means beside the window, and `嗰張枱`
+          means that table. `張` is the classifier for the table. Together the location and
+          demonstrative distinguish it from the other tables.
+        note: "Try it: choose the table beside the door instead. Answer: `用門口旁邊嗰張枱。` Replace the landmark
+          with `門口`. `嗰張枱` selects one table; `嗰啲枱` selects those tables, using `啲` for the plural
+          group."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

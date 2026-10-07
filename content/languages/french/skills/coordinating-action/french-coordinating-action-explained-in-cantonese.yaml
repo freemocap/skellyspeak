@@ -1,94 +1,132 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: coordinating_action
 language: french
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 可以用祈使句或合適問句請人行動。pourriez-vous 呢類條件式可以令請求柔和啲；tu 同 vous 要配合雙方關係。
+    explanation: 一張大椅擋住門口，來客可以請人移開。`Pourriez-vous` 即係可唔可以請你，語氣較客氣；`déplacer cette chaise`
+      指移開呢張椅。問句嘅動詞同 `vous` 用連字號連住，`S’il vous plaît` 就係唔該。後面嘅動作保持原形，例如 `Pourriez-vous fermer la
+      porte ?` 係請人關門。對熟人講 `Tu peux déplacer cette chaise ?` 較直接；`vous` 亦可以指幾個人。
     examples:
       - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
         meaning: 唔該，你可唔可以搬開呢張椅？
-        note: pourriez-vous 後接不定式，禮貌咁要求行動，唔係測試對方能力。
+        note: 試下客氣噉請人開窗。可以答 `Pourriez-vous ouvrir la fenêtre, s’il vous plaît ?`，保留
+          `pourriez-vous`，將動作換成 `ouvrir la fenêtre`；`ouvrir` 保持原形。
   - subskill_id: offers_invitations
-    explanation: 提出對方可以接受或拒絕嘅幫忙或邀請。用 vouloir 嘅問句，喺合適語境可以有呢個功能。
+    explanation: 朋友打算星期六去市集，邀請你同行。`Tu veux` 問你想唔想，`venir` 係嚟，`avec nous` 即同我哋一齊，`samedi`
+      指星期六。日常對話可以用升調，將呢種陳述句語序變成問句。`Tu veux venir au cinéma avec nous ?`
+      保留邀請方式，只換目的地。呢句畀對方選擇，比直接講 `Viens avec nous !` 冇咁似命令。
     examples:
       - text: Tu veux venir au marché avec nous samedi ?
         meaning: 你想唔想星期六同我哋去街市？
-        note: 邀請對方參與具體計劃，唔係一般喜好調查。
+        note: 試下改為邀請熟朋友星期日同行。`Tu veux venir au marché avec nous dimanche ?` 就可以，只需要換日期。對稱呼為 `vous`
+          嘅人，開頭要用 `Vous voulez venir`。
   - subskill_id: suggestions
-    explanation: 提出一個未定案選項。on pourrait 加不定式，或者 si 加未完成過去式問句，都可以引入建議。
+    explanation: 商量午餐去邊度食時，一個人提議去車站附近。呢度 `on` 指我哋，`pourrait` 表示一個可考慮嘅選擇，未係定案。`Déjeuner` 係食午餐，`près
+      de la gare` 係車站附近。`Pourrait` 後面嘅動詞保持原形，例如 `On pourrait manger dehors.`。相對地，`On va déjeuner
+      près de la gare.` 係講我哋打算噉做；條件式嘅 `pourrait` 留低商量空間。
     examples:
       - text: On pourrait déjeuner près de la gare.
         meaning: 我哋可以考慮喺車站附近食午飯。
-        note: pourrait 將午飯地點表達為建議；on 呢度指參與對話嘅人，唔係泛指所有人。
+        note: 試下提議出面食。可以講 `On pourrait manger dehors.`；換上 `manger dehors` 就改咗活動，但仍然係提議，未變成承諾。
   - subskill_id: commitments
-    explanation: 講清楚自己會負責乜。回應共同計劃時，將來式可以作承諾，但單靠時態唔能夠證明係承諾。
+    explanation: 大家分工準備聚餐，一個人答應帶碟。`D’accord` 係接受安排，`j’apporterai` 即我會帶，`les assiettes`
+      係啲碟。`Apporterai` 嘅將來式詞尾配合 `je`；元音前 `je` 縮成 `j’`。改成 `Nous apporterons`
+      就係我哋會帶。呢個情境嘅將來式表達承諾，而 `Je pourrais apporter les assiettes.` 只係提出可能幫手。
     examples:
       - text: D’accord, j’apporterai les assiettes.
         meaning: 好，由我帶碟嚟。
-        note: 商量分工之後，apporterai 表示講者負責帶碟。
+        note: 試下答應帶玻璃杯。`D’accord, j’apporterai les verres.` 可以：將來式動詞保留承諾，`les verres` 就換咗要帶嘅嘢。
   - subskill_id: accepting_declining
-    explanation: 要回應實際邀請或提議。簡短接受或有禮貌拒絕可以足夠；除非場合需要，否則理由唔係必須。
+    explanation: 收到邀請但出席唔到，都可以清楚又客氣噉答。`Merci pour l’invitation` 先多謝邀請，`mais` 引出婉拒。`Je ne pourrai pas
+      venir` 係我將會嚟唔到：`ne` 同 `pas` 夾住將來式 `pourrai`，`venir` 保持原形。呢句表達唔能夠出席；`Je ne veux pas venir`
+      就係唔想嚟，可能冇咁婉轉。接受邀請可以講 `Merci, je viendrai avec plaisir.`。
     examples:
       - text: Merci pour l’invitation, mais je ne pourrai pas venir.
         meaning: 多謝邀請，不過我嚟唔到。
-        note: 道謝回應邀請，ne pourrai pas 拒絕出席，唔係否定邀請者。
+        note: 試下因為留唔到而婉拒。`Merci, mais je ne pourrai pas rester.` 保留將來嚟講做唔到嘅意思，將 `venir` 換成留低嘅 `rester`。
   - subskill_id: negotiating_plans
-    explanation: 就對方嘅安排提出可行替代、限制或確認問題，講清楚新舊選項嘅關係。
+    explanation: 星期五唔啱你嘅時間表，所以提出星期六。`Ne me convient pas` 係唔適合我，`me` 指受影響嗰個人。`Est-ce que samedi vous
+      irait ?` 問星期六對你會唔會方便。呢度 `irait` 係 `aller` 嘅條件式，用嚟講是否合適，唔係真係去邊度。對熟人可以用 `te`，講 `Est-ce que
+      samedi t’irait ?`；另一個實用問法係 `Samedi vous convient ?`。
     examples:
       - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
         meaning: 星期五我唔方便。星期六啱唔啱你？
-        note: 第一句講限制；條件式 irait 提出替代，留待對方同意。
-provenance:
+        note: 試下仍然客氣噉提議星期日。`Est-ce que dimanche vous irait ?` 可以：換咗建議日期，而 `vous irait` 仍然問對方方唔方便。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/coordinating-action/french-coordinating-action-explained-in-english.yaml
-    at revision french-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - tex_conditional2026
     - waystage_language_functions
+    - texQuestionsTeaching20261007
+    - tex_modals2026
+    - oqlfMealsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/coordinating-action/french-coordinating-action-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_conditional2026
-        - waystage_language_functions
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/coordinating-action/french-coordinating-action-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_conditional2026
-        - waystage_language_functions
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: requests
+      explanation: 一張大椅擋住門口，來客可以請人移開。`Pourriez-vous` 即係可唔可以請你，語氣較客氣；`déplacer cette chaise`
+        指移開呢張椅。問句嘅動詞同 `vous` 用連字號連住，`S’il vous plaît` 就係唔該。後面嘅動作保持原形，例如 `Pourriez-vous fermer la
+        porte ?` 係請人關門。對熟人講 `Tu peux déplacer cette chaise ?` 較直接；`vous` 亦可以指幾個人。
+      examples:
+        - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+          meaning: 唔該，你可唔可以搬開呢張椅？
+          note: 試下客氣噉請人開窗。可以答 `Pourriez-vous ouvrir la fenêtre, s’il vous plaît ?`，保留
+            `pourriez-vous`，將動作換成 `ouvrir la fenêtre`；`ouvrir` 保持原形。
+    - subskill_id: offers_invitations
+      explanation: 朋友打算星期六去市集，邀請你同行。`Tu veux` 問你想唔想，`venir` 係嚟，`avec nous` 即同我哋一齊，`samedi`
+        指星期六。日常對話可以用升調，將呢種陳述句語序變成問句。`Tu veux venir au cinéma avec nous ?`
+        保留邀請方式，只換目的地。呢句畀對方選擇，比直接講 `Viens avec nous !` 冇咁似命令。
+      examples:
+        - text: Tu veux venir au marché avec nous samedi ?
+          meaning: 你想唔想星期六同我哋去街市？
+          note: 試下改為邀請熟朋友星期日同行。`Tu veux venir au marché avec nous dimanche ?` 就可以，只需要換日期。對稱呼為 `vous`
+            嘅人，開頭要用 `Vous voulez venir`。
+    - subskill_id: suggestions
+      explanation: 商量早餐去邊度食時，一個人提議去車站附近。呢度 `on` 指我哋，`pourrait` 表示一個可考慮嘅選擇，未係定案。`Déjeuner` 係食早餐，`près
+        de la gare` 係車站附近。`Pourrait` 後面嘅動詞保持原形，例如 `On pourrait manger dehors.`。相對地，`On va
+        déjeuner près de la gare.` 係講我哋打算噉做；條件式嘅 `pourrait` 留低商量空間。
+      examples:
+        - text: On pourrait déjeuner près de la gare.
+          meaning: 我哋可以喺車站附近食早餐。
+          note: 試下提議出面食。可以講 `On pourrait manger dehors.`；換上 `manger dehors` 就改咗活動，但仍然係提議，未變成承諾。
+    - subskill_id: commitments
+      explanation: 大家分工準備聚餐，一個人答應帶碟。`D’accord` 係接受安排，`j’apporterai` 即我會帶，`les assiettes`
+        係啲碟。`Apporterai` 嘅將來式詞尾配合 `je`；元音前 `je` 縮成 `j’`。改成 `Nous apporterons`
+        就係我哋會帶。呢個情境嘅將來式表達承諾，而 `Je pourrais apporter les assiettes.` 只係提出可能幫手。
+      examples:
+        - text: D’accord, j’apporterai les assiettes.
+          meaning: 好，由我帶碟嚟。
+          note: 試下答應帶玻璃杯。`D’accord, j’apporterai les verres.` 可以：將來式動詞保留承諾，`les verres` 就換咗要帶嘅嘢。
+    - subskill_id: accepting_declining
+      explanation: 收到邀請但出席唔到，都可以清楚又客氣噉答。`Merci pour l’invitation` 先多謝邀請，`mais` 引出婉拒。`Je ne pourrai pas
+        venir` 係我將會嚟唔到：`ne` 同 `pas` 夾住將來式 `pourrai`，`venir` 保持原形。呢句表達唔能夠出席；`Je ne veux pas
+        venir` 就係唔想嚟，可能冇咁婉轉。接受邀請可以講 `Merci, je viendrai avec plaisir.`。
+      examples:
+        - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+          meaning: 多謝邀請，不過我嚟唔到。
+          note: 試下因為留唔到而婉拒。`Merci, mais je ne pourrai pas rester.` 保留將來嚟講做唔到嘅意思，將 `venir` 換成留低嘅 `rester`。
+    - subskill_id: negotiating_plans
+      explanation: 星期五唔啱你嘅時間表，所以提出星期六。`Ne me convient pas` 係唔適合我，`me` 指受影響嗰個人。`Est-ce que samedi vous
+        irait ?` 問星期六對你會唔會方便。呢度 `irait` 係 `aller` 嘅條件式，用嚟講是否合適，唔係真係去邊度。對熟人可以用 `te`，講 `Est-ce que
+        samedi t’irait ?`；另一個實用問法係 `Samedi vous convient ?`。
+      examples:
+        - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+          meaning: 星期五我唔方便。星期六啱唔啱你？
+          note: 試下仍然客氣噉提議星期日。`Est-ce que dimanche vous irait ?` 可以：換咗建議日期，而 `vous irait` 仍然問對方方唔方便。

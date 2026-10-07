@@ -1,86 +1,187 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: A demonstrative and noun phrase can identify a person without an overt
-      present-tense copula. The demonstrative differs by variety.
+    explanation: Introducing a neighbor means linking the person in front of you to a relationship. You
+      can say this is my neighbor without a separate present-tense word for is.
     examples:
       - text: هٰذِهِ جَارَتِي.
-        meaning: This is my neighbor.
-        note: Modern Standard Arabic. The referent is a woman; the final possessive suffix means my.
-      - text: هَايْ جَارْتِي.
-        meaning: This is my neighbor.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          referent is a woman; the final possessive suffix means my.
+        meaning: "**The example.** This is my neighbor. `هٰذِهِ` means this for a feminine referent.
+          `جَارَتِي` means my female neighbor: the noun identifies her relationship to you and the
+          attached ending means my. The demonstrative and noun together make a complete
+          introduction."
+        note: "For a male neighbor, change both the demonstrative and noun. Try it: introduce your male
+          neighbor. Answer: `هٰذَا جَارِي`. `هٰذَا` points to him and `جَارِي` names the
+          relationship; the attached my suffix remains."
   - subskill_id: qualities_states
-    explanation: A nominal sentence can predicate a property. Modern Standard marks the adjective
-      with case; Levantine does not use these case endings.
+    explanation: When someone asks whether a road is easy to pass, describing its width gives useful
+      information. This sentence says something about the road rather than just naming it.
     examples:
       - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
-        meaning: This road is narrow.
-        note: Modern Standard Arabic. The adjective describes the road.
-      - text: هَادْ الطَّرِيقْ ضَيِّقْ.
-        meaning: This road is narrow.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          adjective describes the road.
+        meaning: "**The example.** This road is narrow. `هٰذَا الطَّرِيقُ` means this road. `ضَيِّقٌ` means
+          narrow and supplies the description. There is no present-tense is. In fully vocalized
+          writing, the road and its predicate here have nominative endings."
+        note: "Compare `الطَّرِيقُ الضَّيِّقُ`, the narrow road: adding the definite article to the
+          adjective makes a noun phrase rather than this complete description. Try it: which word
+          makes the statement a description? Answer: `ضَيِّقٌ`, saying what the road is like."
   - subskill_id: location_movement
-    explanation: A prepositional predicate can locate an object without an overt present-tense be verb.
+    explanation: Someone is looking for a key. A location statement tells them where it is now; it does
+      not ask them to take it somewhere.
     examples:
       - text: الْمِفْتَاحُ فِي الْبَيْتِ.
-        meaning: The key is in the house.
-        note: Modern Standard Arabic. The location belongs to the key; it is not a motion instruction.
-      - text: الْمِفْتَاحْ بِالْبَيْتْ.
-        meaning: The key is in the house.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          location belongs to the key; it is not a motion instruction.
+        meaning: "**The example.** The key is in the house. `الْمِفْتَاحُ` is the key. `فِي` means in and
+          `الْبَيْتِ` is the house. The place phrase tells us where the key is without a separate
+          present-tense is. The noun after `فِي` has a genitive ending in fully vocalized writing."
+        note: "Replace the place with `فِي الْمَكْتَبِ`, in the office, to adapt the answer. Location is
+          different from destination: this sentence contains no going or carrying action. Try it:
+          place the key in the office. Answer: `الْمِفْتَاحُ فِي الْمَكْتَبِ` keeps the object and
+          changes its location."
   - subskill_id: possession_relations
-    explanation: عِنْدِي expresses possession. Dual endings differ between the formal case system
-      and colloquial usage.
+    explanation: You are checking how many chairs you can provide. Arabic can express having something
+      by saying it is with you; the chair noun itself can mark a count of two.
     examples:
       - text: عِنْدِي كُرْسِيَّانِ.
-        meaning: I have two chairs.
-        note: Modern Standard Arabic. The dual noun supplies the count of two.
-      - text: عِنْدِي كُرْسِيَّيْنْ.
-        meaning: I have two chairs.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The dual
-          noun supplies the count of two.
+        meaning: "**The example.** I have two chairs. `عِنْدِي` means I have, literally at me; its suffix
+          means me or my in this expression. `كُرْسِيَّانِ` means two chairs, using the dual ending.
+          No separate word for two is needed in this example."
+        note: "Here the dual is nominative, ending in `ـانِ`. Other grammatical positions use a different
+          dual ending, so this is not an ending to attach everywhere. Try it: where is the number
+          two expressed? Answer: inside `كُرْسِيَّانِ`; `عِنْدِي` identifies who has them."
   - subskill_id: quantity_comparison
-    explanation: A comparative adjective and مِنْ identify a comparison and its standard.
+    explanation: Choosing which box to carry may depend on weight. A comparison names the box you are
+      judging and the other box used as the reference.
     examples:
       - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
-        meaning: This box is lighter than that one.
-        note: Modern Standard Arabic. The comparison concerns weight, not size.
-      - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
-        meaning: This box is lighter than that one.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          comparison concerns weight, not size.
-provenance: &a1
+        meaning: "**The example.** This box is lighter than that one. `هٰذَا الصُّنْدُوقُ` means this box.
+          `أَخَفُّ` means lighter; `مِنْ ذٰلِكَ` means than that one. The second demonstrative
+          stands for the box already visible or mentioned, so the noun need not be repeated."
+        note: "Keep `مِنْ` before the comparison reference. Try it: say that box is lighter than this one
+          instead. Answer: `ذٰلِكَ الصُّنْدُوقُ أَخَفُّ مِنْ هٰذَا`. The first box is the one judged
+          lighter; the demonstrative after `مِنْ` names the reference."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahDualTeaching20261007
+    - madinahDemonstrativesTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahPossessiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: The Levantine examples use Southern forms such as هَادْ and هَايْ. Other regional
-      demonstratives are also used; colloquial nouns do not take formal case endings.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: Modern Standard marks case on nouns and adjectives. Its demonstratives and dual endings
-      differ from the conversational examples.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: identification
+      explanation: Introducing a neighbor means linking the person in front of you to a relationship. You
+        can say this is my neighbor without a separate present-tense word for is.
+      examples:
+        - text: هَايْ جَارْتِي.
+          meaning: "**The example.** This is my neighbor. `هَايْ` points to a feminine referent nearby;
+            `جَارْتِي` means my female neighbor. The possessive suffix stays attached to the noun.
+            The sentence identifies someone rather than describing what she is doing."
+          note: "These demonstratives are Southern forms; local alternatives exist. Try it: introduce your
+            male neighbor using this model. Answer: `هَادْ جَارِي`. Change `هَايْ` to `هَادْ` and
+            the female-neighbor noun to its male form, keeping the my suffix."
+    - subskill_id: qualities_states
+      explanation: When someone asks whether a road is easy to pass, describing its width gives useful
+        information. This sentence says something about the road rather than just naming it.
+      examples:
+        - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+          meaning: "**The example.** This road is narrow. `هَادْ` means this, `الطَّرِيقْ` is the road, and
+            `ضَيِّقْ` is narrow. Linking the road directly to the adjective gives a present
+            description. The adjective is the new information, rather than part of the road’s name."
+          note: "`الطَّرِيقْ الضَّيِّقْ` means the narrow road: both noun and adjective are definite. The
+            worked statement leaves the descriptive adjective without the article. Try it: is the
+            example telling you to move? Answer: no; it describes width, without a movement verb."
+    - subskill_id: location_movement
+      explanation: Someone is looking for a key. A location statement tells them where it is now; it does
+        not ask them to take it somewhere.
+      examples:
+        - text: الْمِفْتَاحْ بِالْبَيْتْ.
+          meaning: "**The example.** The key is in the house. `الْمِفْتَاحْ` names the key. `بِالْبَيْتْ`
+            combines the attached preposition `بِـ` with the house, giving in the house here. There
+            is no separate present-tense is; the place completes the statement."
+          note: "Use `بِالْمَكْتَبْ` for in the office. Keep the attached preposition when changing the place.
+            Try it: which part should you replace to give a different location? Answer:
+            `بِالْبَيْتْ`; the key stays the object being located."
+    - subskill_id: possession_relations
+      explanation: You are checking how many chairs you can provide. Arabic can express having something
+        by saying it is with you; the chair noun itself can mark a count of two.
+      examples:
+        - text: عِنْدِي كُرْسِيَّيْنْ.
+          meaning: "**The example.** I have two chairs. `عِنْدِي` means I have. `كُرْسِيَّيْنْ` is two chairs,
+            with the spoken dual ending. The count belongs to the chairs; the suffix on `عِنْدِي`
+            identifies their holder."
+          note: "For one chair, say `عِنْدِي كُرْسِي`. Do not keep the dual ending when the count changes to
+            one. Try it: change two chairs to one. Answer: replace `كُرْسِيَّيْنْ` with `كُرْسِي`;
+            the possession expression stays the same."
+    - subskill_id: quantity_comparison
+      explanation: Choosing which box to carry may depend on weight. A comparison names the box you are
+        judging and the other box used as the reference.
+      examples:
+        - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+          meaning: "**The example.** This box is lighter than that one. `هَادْ الصُّنْدُوقْ` is this box.
+            `أَخَفّ` means lighter and `مِنْ هَدَاكْ` means than that one. Near this and farther
+            that let you compare two objects without repeating the word box."
+          note: "Keep `مِنْ` before the reference object. Try it: say that box is lighter than this one.
+            Answer: `هَدَاكْ الصُّنْدُوقْ أَخَفّ مِنْ هَادْ`. Reversing the demonstratives reverses
+            the comparison, while the adjective and relation word remain."

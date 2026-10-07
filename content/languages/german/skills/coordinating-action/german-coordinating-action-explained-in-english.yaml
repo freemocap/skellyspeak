@@ -1,63 +1,91 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A question with könntest du or könnten Sie and an infinitive can politely request
-      an action. Choose informal du or formal Sie according to the relationship.
+    explanation: An open courtyard door may need closing or opening for someone carrying things. A
+      request with `Könntest du bitte` asks a familiar person to act politely. `könntest` softens
+      the request; the action follows as a final infinitive.
     examples:
       - text: Könntest du bitte die Tür zum Hof öffnen?
-        meaning: Could you please open the door to the courtyard?
-        note: Könntest softens the request to one familiar addressee; öffnen is a bare infinitive, not a
-          second finite verb.
+        meaning: "**The example.** Could you please open the door to the courtyard? `die Tür` is the door
+          and `zum Hof` means to the courtyard, with `zum` combining `zu dem`. `öffnen` is open. The
+          question starts with `Könntest`, then names the listener `du`, and leaves the action until
+          the end."
+        note: "Try it: ask an unfamiliar adult formally. Answer: `Könnten Sie bitte die Tür zum Hof öffnen?`
+          `Sie` and `Könnten` replace `du` and `Könntest`. The infinitive stays unchanged; the
+          polite form concerns the current request."
   - subskill_id: offers_invitations
-    explanation: Soll ich …? can offer to undertake an action for someone. Context distinguishes
-      this from asking which duty has been assigned.
+    explanation: A travelling companion has a heavy bag. `Soll ich` can offer to take on a helpful
+      action, giving the other person a chance to accept. The speaker, rather than the listener, is
+      the proposed helper.
     examples:
       - text: Soll ich deine Tasche zum Bahnhof tragen?
-        meaning: Shall I carry your bag to the station?
-        note: Said to a travelling companion who has a heavy bag, this offers help. Tragen remains an
-          infinitive after soll.
+        meaning: "**The example.** Shall I carry your bag to the station? `deine Tasche` is your bag and
+          `zum Bahnhof` is to the station. `tragen` means carry and stays at the end after `Soll
+          ich`. The informal possessive `deine` fits the feminine noun `Tasche`."
+        note: "Try it: offer the same help formally. Answer: `Soll ich Ihre Tasche zum Bahnhof tragen?`
+          `Ihre` addresses the bag’s owner formally, while `ich` remains the helper. `Können Sie
+          meine Tasche tragen?` instead requests the other person’s help."
   - subskill_id: suggestions
-    explanation: Wir könnten with an infinitive presents a possible shared action for consideration.
-      Könnten is a Konjunktiv II form, not a statement that the plan is already agreed.
+    explanation: You are choosing a shared Sunday activity. `Wir könnten` offers a possible plan for
+      discussion, rather than announcing that everyone has agreed. The activity can be named with an
+      infinitive phrase at the end.
     examples:
       - text: Wir könnten am Sonntag am Fluss spazieren gehen.
-        meaning: We could go for a walk by the river on Sunday.
-        note: This proposes an outing. Könnten softens the proposal; am Sonntag supplies the proposed
-          day.
+        meaning: "**The example.** We could go for a walk by the river on Sunday. `am Sonntag` is on Sunday
+          and `am Fluss` is by the river; each `am` combines `an dem`. `spazieren gehen` means go
+          for a walk. The two-word action stays together at the end after `könnten`."
+        note: "Change the day with `am Samstag`. Try it: propose Saturday instead. Answer: `Wir könnten am
+          Samstag am Fluss spazieren gehen`. Keep `könnten` to make it a suggestion; `Wir gehen …`
+          would state the outing more directly."
   - subskill_id: commitments
-    explanation: German can undertake a future contribution with Präsens when the planning context
-      makes the promise clear. A future auxiliary is not necessary for a commitment.
+    explanation: When picnic supplies are being divided up, saying you will bring the blanket takes
+      responsibility for that contribution. German can make this commitment with an ordinary
+      present-tense statement; the planning context supplies the future meaning.
     examples:
       - text: Ich bringe die Decke mit.
-        meaning: I will bring the blanket.
-        note: During a discussion of who will bring picnic supplies, this takes responsibility.
-          Mitbringen separates into bringe … mit in the main clause.
+        meaning: "**The example.** I will bring the blanket. `Ich bringe` is I bring and `die Decke` is the
+          blanket. The final `mit` belongs to `mitbringen`, bring along. The verb separates in this
+          main clause, so the short final word is part of the action, not an extra object."
+        note: "Try it: take responsibility together. Answer: `Wir bringen die Decke mit`. The subject and
+          ending change to we, and `mit` stays last. `Ich habe die Decke` only says you have it; it
+          does not state the promised contribution."
   - subskill_id: accepting_declining
-    explanation: Gern can accept an identifiable invitation or offer. A refusal can use leider nicht
-      and a reason; acknowledgment alone need not settle participation.
+    explanation: You appreciate an invitation but cannot come on Saturday. Thanks acknowledges the
+      invitation; a clear negative answer prevents the inviter from mistaking your courtesy for
+      acceptance.
     examples:
       - text: Danke für die Einladung, aber ich kann am Samstag leider nicht kommen.
-        meaning: Thank you for the invitation, but unfortunately I cannot come on Saturday.
-        note: This explicitly declines Saturday’s invitation. Danke acknowledges it; kann … nicht kommen
-          supplies the refusal rather than leaving acceptance unresolved.
+        meaning: "**The example.** Thank you for the invitation, but unfortunately I cannot come on
+          Saturday. `Danke für die Einladung` means thank you for the invitation. `aber` introduces
+          the obstacle. `ich kann` is I can, `am Samstag` is on Saturday, and `leider nicht kommen`
+          gives unfortunately not come. The final infinitive belongs with `kann`."
+        note: "For Sunday replace the day with `am Sonntag`. Try it: decline Sunday’s invitation. Answer:
+          `Danke für die Einladung, aber ich kann am Sonntag leider nicht kommen`. Keep `nicht`
+          before the coming action; without it, the answer says you can come."
   - subskill_id: negotiating_plans
-    explanation: Respond to a proposed day, place or constraint and offer an adjustment. Stattdessen
-      signals that the proposed option replaces an earlier one.
+    explanation: Friday has been proposed, but it does not work for you. Negotiating gives a concrete
+      alternative so both people can keep the meeting while changing its day. `stattdessen` means
+      instead and links Saturday to the earlier proposal.
     examples:
       - text: Am Freitag kann ich nicht. Können wir uns stattdessen am Samstag treffen?
-        meaning: I cannot make Friday. Can we meet on Saturday instead?
-        note: Reply to a proposed Friday meeting. Stattdessen links the new day to that proposal; uns
-          belongs to sich treffen, referring to the participants meeting each other.
-provenance: &a1
+        meaning: "**The example.** I cannot make Friday. Can we meet on Saturday instead? `Am Freitag kann
+          ich nicht` is I cannot on Friday, with the activity understood. `Können wir uns …
+          treffen?` asks can we meet; `uns` refers to the participants meeting each other. `am
+          Samstag` supplies the replacement day and `treffen` stays final."
+        note: "Try it: keep Friday unavailable but propose Sunday. Answer: `Am Freitag kann ich nicht.
+          Können wir uns stattdessen am Sonntag treffen?` Only the proposed day changes. The first
+          sentence puts time first, so `kann` precedes `ich`; the question puts `Können` first."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_subjunctive2026
     - umich_de_modals2026
@@ -68,11 +96,29 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_subjunctive2026
+        - umich_de_modals2026
+        - umich_de_word_order2026
+        - umich_de_reflexive2026
+        - goethe_de_discussion2026
+        - goethe_de_discourse2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

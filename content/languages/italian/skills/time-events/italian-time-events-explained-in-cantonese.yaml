@@ -1,56 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: Stare 加副動詞明確表示進行中活動；簡單現在式亦可按語境描述當前或習慣活動。
+    explanation: 工作坊入面，對方可能問你依家做緊乜。`stare` 加副動詞形式呈現進行中嘅活動。第一個動詞指出人物；副動詞形式講活動。
     examples:
       - text: Sto sistemando gli attrezzi.
-        meaning: 我整理緊啲工具。
-        note: Sto 係 stare 嘅第一人稱現在式；sistemando 係 sistemare 嘅副動詞。
+        meaning: 意思係「我整理緊工具」。`Sto` 係 `stare` 表示講者嘅現在式。`Sistemando` 來自解整理嘅 `sistemare`；`gli attrezzi`
+          指工具。呢個複數名詞以元音開頭，冠詞用 `gli`。
+        note: |-
+          **比較。** `Sistemo gli attrezzi ogni sera` 講每晚嘅習慣。有清楚情境時，簡單現在式亦可以講當刻活動；進行式就強調做緊。
+
+          **試吓。** 講我哋整理緊工具。答案：`Stiamo sistemando gli attrezzi`。將 `sto` 換成 `stiamo`，副動詞形式唔變。
   - subskill_id: past_events
-    explanation: 近過去時用 avere 或 essere 嘅現在式加過去分詞。仲有其他過去時，選擇要睇事件、語境同用法。
+    explanation: 買完畫班用品，可以講一次完成咗嘅購買。passato prossimo 由現在式助動詞同過去分詞組成。解買嘅 `comprare` 用 `avere` 做助動詞。
     examples:
       - text: Ieri ho comprato due pennelli.
-        meaning: 我尋日買咗兩支畫筆。
-        note: Ho comprato 用 avere 加分詞 comprato；ieri 明確將購買放喺過去。
+        meaning: 意思係「尋日我買咗兩支畫筆」。`Ieri` 指尋日。`Ho comprato` 由講者嘅 `ho` 同分詞 `comprato` 組成；`due pennelli`
+          指買嘅物件。數字令名詞變複數，唔係動詞。
+        note: >-
+          **改一改。** `Abbiamo comprato due pennelli` 係我哋買咗，助動詞改成 `abbiamo`。passato prossimo
+          唔只用於好近期嘅事；過去式選擇亦要睇情境同用法。
+
+
+          **試吓。** 講尋日買咗一支畫筆。答案：`Ieri ho comprato un pennello`。保留 `ho comprato`，物件改成單數。
   - subskill_id: future_events
-    explanation: 有時間詞定位時，現在式可以描述安排好嘅將來事件。將來式係另一個選擇，唔係所有稍後事件都必須用。
+    explanation: 時間表可以講仲未發生嘅活動。意大利文可以用現在式講已安排嘅將來事件，只要時間描述講清楚。呢度課程有聽日嘅開始時間。
     examples:
       - text: Domani il corso comincia alle nove.
-        meaning: 聽日堂課九點開始。
-        note: Domani 指明將來；alle 引出鐘點，comincia 本身係現在式。
+        meaning: 意思係「聽日個課程九點開始」。`Domani` 指將來日子。`Il corso comincia` 講課程同開始，`alle nove` 指九點。`Alle` 由 `a` 同
+          `le` 合成。
+        note: |-
+          **比較。** `Il corso comincerà domani` 改用將來式動詞。原句用現在式講已安排嘅活動自然，唔代表依家開始。一點講 `all’una`。
+
+          **試吓。** 講聽日課程十點開始。答案：`Domani il corso comincia alle dieci`。換時間，已安排活動嘅現在式可以保留。
   - subskill_id: duration_frequency
-    explanation: 仍然持續嘅情況，可以用現在式加 da 同時長，交代持續咗幾耐；ogni venerdì 等表達就交代頻率。
+    explanation: 對方問喺某度返工幾耐，可以講由以前開始、依家仲繼續嘅情況。意大利文常用現在式加 `da` 同一段時間表達呢個意思。例句冇話份工已經完咗。
     examples:
       - text: Lavoro qui da sei mesi.
-        meaning: 我喺呢度做咗六個月。
-        note: 呢份工作而家仲繼續。意大利文用現在式；廣東話可以加時長表達延續至今。
+        meaning: 意思係「我喺呢度返咗六個月工，依家仲返緊」。`Lavoro` 係講者嘅現在式，`qui` 係呢度。`Da sei mesi` 計算持續到依家嘅六個月。唔使加過去助動詞。
+        note: |-
+          **比較。** `Ho lavorato qui per sei mesi` 可以講已完結嘅六個月。`Lavoro qui ogni venerdì` 就講頻率：逢星期五。
+
+          **試吓。** 講兩個月前開始，依家仲喺呢度工作。答案：`Lavoro qui da due mesi`。保留現在式，用 `da` 講持續到依家嘅時間。
   - subskill_id: event_sequence
-    explanation: Prima 同 poi 排列先後，但時間次序本身唔表示第一件事造成第二件事。
+    explanation: 準備食飯時，有先後次序會清楚啲。`prima` 引出較早一步，`poi` 引出下一步。兩個動詞都可以包括講者，成為大家一齊做嘅計劃。
     examples:
       - text: Prima prepariamo il tavolo, poi mettiamo i piatti.
-        meaning: 我哋先準備張枱，再擺碟。
-        note: Prima 同 poi 交代呢兩個活動嘅次序。
+        meaning: 意思係「先準備張枱，再擺碟」。`Prima prepariamo il tavolo` 講第一步；`poi mettiamo i piatti` 講下一步。`Prepariamo`
+          同 `mettiamo` 嘅詞尾指出我哋，唔一定要加 `noi`。
+        note: >-
+          **比較。** `Prima mettiamo i piatti, poi prepariamo il tavolo` 反轉次序。`Quindi` 可以引出結果；呢度 `poi`
+          只講下一步。
+
+
+          **試吓。** 準備張枱後，用 `i bicchieri` 講擺杯。答案：`Prima prepariamo il tavolo, poi mettiamo i
+          bicchieri`。只換第二步嘅物件。
   - subskill_id: event_phase
-    explanation: Finire di 加不定式表示做完一個過程；仲做緊或者中途停低係唔同階段。
+    explanation: 問油漆工程進度時，已完成同仲做緊係唔同答案。`finire di` 加不定式標示工作完結。`stare` 加副動詞形式講進行中；`ancora` 可以指出仍然繼續。
     examples:
       - text: Ho finito di dipingere la porta.
-        meaning: 我已經油完道門。
-        note: Finito di dipingere 表示油門工序完成。
+        meaning: 意思係「我已經油完道門」。`Ho finito` 講完成；`di dipingere` 指完成咗嘅活動。`La porta` 指油漆對象。呢度 `di`
+          後面用不定式，唔係副動詞形式。
+        note: |-
+          **比較。** `Ho smesso di dipingere` 只講停咗油漆，唔保證道門油完。`Finito` 重要意思係完成。
+
+          **試吓。** 用 `la finestra` 講油完隻窗。答案：`Ho finito di dipingere la finestra`。保留 `finito di`，換物件。
       - text: Sto ancora dipingendo la porta.
-        meaning: 我仲油緊道門。
-        note: Sto dipingendo 表示進行中，ancora 表示繼續；同完成工作形成對比。
+        meaning: 意思係「我仲油緊道門」。`Sto dipingendo` 描述進行中嘅油漆。`Ancora` 話活動繼續，所以唔係講道門已經完成。
+        note: |-
+          **改一改。** `Stiamo ancora dipingendo` 換成我哋做；`dipingendo` 保持一樣。
+
+          **試吓。** 講佢仲油緊道門。答案：`Sta ancora dipingendo la porta`。第一個動詞改成 `sta`，保留進行中活動。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/time-events/italian-time-events-explained-in-english.yaml at revision
-    italian-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_present2026
     - treccani_it_past2026
@@ -60,18 +89,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/time-events/italian-time-events-explained-in-english.yaml at
-        revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - treccani_it_present2026
         - treccani_it_past2026
@@ -81,6 +108,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

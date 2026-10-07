@@ -1,69 +1,92 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: 请 can introduce a request. 把 brings the affected object before a verb phrase that
-      specifies what happens to it.
+    explanation: When a box blocks the work area, a request can name exactly where it should go. `请`
+      makes a direct request polite, and `把` puts the known object before the action and its
+      destination.
     examples:
       - text: 请把这个箱子搬到门口。
-        meaning: Please move this box to the doorway.
-        note: 搬到门口 supplies the destination of the requested move. 把 is not left with a bare unsupported
-          verb.
+        meaning: "**The example.** Please move this box to the doorway. `这个箱子` is this box, introduced by
+          `把`. `搬` means move or carry a bulky object, `到` leads to its destination, and `门口` is the
+          doorway. `搬到门口` says what should happen to the box."
+        note: "Try requesting a different box at the same destination. Answer: `请把那个箱子搬到门口。` Replace `这个`
+          with `那个`; retain the complete action and destination. `请搬箱子` simply asks for box moving,
+          without identifying this box or where it should end up."
   - subskill_id: offers_invitations
-    explanation: 要不要 with the speaker as actor can offer help. The question asks whether the
-      listener wants that assistance.
+    explanation: A companion has tools to carry, and you can offer your help. `要不要` asks whether the
+      listener wants the proposed assistance. The helper is explicitly `我`, so this offers your
+      action rather than asking the listener to act.
     examples:
       - text: 要不要我帮你拿工具？
-        meaning: Would you like me to help carry the tools?
-        note: 我 is the proposed helper, and 你 is the person offered help. The offer is not yet an
-          accepted obligation.
+        meaning: "**The example.** Would you like me to help carry the tools? `要不要` presents want or not
+          want. `我帮你` is I help you, and `拿工具` is carry or take the tools. The roles stay clear: I
+          help, you receive help, and the tools are carried."
+        note: "Try offering help carrying a bag. Answer: `要不要我帮你拿包？` Replace `工具` with `包`. `你能帮我拿工具吗？`
+          reverses the roles and asks the other person to help you."
   - subskill_id: suggestions
-    explanation: 吧 can soften a proposed action. 我们 can explicitly include the speaker in the shared plan.
+    explanation: After walking for a while, the group may need a short break. `我们` includes you in the
+      proposed activity. Final `吧` presents the rest as a suggestion for the group to take up.
     examples:
       - text: 我们在这里休息一下吧。
-        meaning: Let us rest here for a little while.
-        note: 一下 presents a short break, and 吧 makes this a suggestion rather than a report.
+        meaning: "**The example.** Let us rest here for a little while. `在这里` is here and precedes `休息`,
+          rest. `一下` makes this a brief rest, while `吧` gives the proposal its conversational tone.
+          The sentence is not a report that the group is already resting."
+        note: "Try suggesting a rest over there. Answer: `我们在那里休息一下吧。` Replace `这里` with `那里`, keeping the
+          place before the action. `我们在这里休息` can state where the group rests; final `吧` makes the
+          proposal explicit here."
   - subskill_id: commitments
-    explanation: 我来 can volunteer the speaker for a task. The planning context makes it an undertaking.
+    explanation: While dividing tomorrow’s tasks, volunteering to bring tools settles who takes that
+      responsibility. `我来` assigns the task to you in this planning context. Here `来` does not
+      require a separate journey toward the listener.
     examples:
       - text: 明天我来带工具。
-        meaning: I will bring the tools tomorrow.
-        note: Use while dividing responsibilities for a group activity. 我来 identifies who will take this
-          task.
+        meaning: "**The example.** I will bring the tools tomorrow. `明天` is tomorrow, `我来` is I will take
+          this on, and `带工具` is bring the tools. The time is stated first, followed by the volunteer
+          and task. No future verb ending is added."
+        note: "Try volunteering to bring water instead. Answer: `明天我来带水。` Replace `工具` with `水`; retain `我来`
+          in the task-sharing exchange. `明天可能下雨` predicts a possible event and does not volunteer
+          anyone for a responsibility."
   - subskill_id: accepting_declining
-    explanation: An apology and a statement of inability can decline an invitation. 来不了 expresses
-      not being able to come.
+    explanation: An invitation for tonight may be impossible to accept. A brief apology followed by the
+      attendance problem makes the refusal clear. `来不了` says you cannot manage to come.
     examples:
       - text: 不好意思，我今晚来不了。
-        meaning: Sorry, I cannot come tonight.
-        note: Reply to an invitation for tonight. The refusal concerns attendance, not a general dislike
-          of the partner.
+        meaning: "**The example.** Sorry, I cannot come tonight. `不好意思` is an apologetic opener, `我今晚` is I
+          tonight, and `来不了` is cannot come. In this expression `了` is read `liǎo`, not the sentence
+          particle `le`; the whole ending expresses inability to carry out the action."
+        note: "Try declining an invitation for tomorrow evening. Answer: `不好意思，我明晚来不了。` Replace `今晚` with
+          `明晚`. `我今晚不来` says you are not coming, without expressing the same obstacle or inability
+          as `来不了`."
   - subskill_id: negotiating_plans
-    explanation: 不行 can rule out a proposed option, and 怎么样 can ask about an alternative. The
-      earlier proposal supplies the action under negotiation.
+    explanation: Someone proposes meeting Friday, but that day does not work for you. Naming an
+      alternative keeps the plan open. `怎么样` after the new day asks how that option suits the
+      listener.
     examples:
       - text: 周五不行，周六怎么样？
-        meaning: Friday will not work. How about Saturday?
-        note: Reply to a proposed Friday meeting. The utterance revises its timing instead of merely
-          naming dates.
+        meaning: "**The example.** Friday will not work. How about Saturday? `周五` is Friday and `不行` rules
+          it out. `周六` is Saturday, followed by `怎么样`, how about it. The meeting itself can remain
+          unstated because it is already being discussed."
+        note: "Try proposing Sunday instead. Answer: `周五不行，周日怎么样？` Replace only the alternative day. `周六可以`
+          says Saturday works; `周六怎么样` invites the other person’s response before settling it."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

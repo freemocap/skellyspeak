@@ -1,69 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: 係 將人物同名詞描述連起嚟；位 係較有禮貌嘅人物量詞。
+    explanation: 介紹一個人畀另一個人識，可以交代自己同佢嘅關係。`呢位` 客氣噉指呢個人，`係` 連到身份名詞片語。
     examples:
       - text: 呢位係我朋友。
-        meaning: 呢位係我朋友。
-        note: 呢位 指人，係我朋友 交代佢同講者嘅關係。
+        meaning: 意思係介紹自己朋友。`呢` 指呢個，`位` 係較客氣嘅人物量詞。`我朋友` 講自己朋友，熟悉人際關係可以唔加 `嘅`。`係` 後面係名詞身份，唔係心情或者大小描述。
+        note: 試下介紹老師：`呢位係我老師。`關係換成 `老師`。`呢個係我朋友` 都可以識別朋友，用一般量詞 `個`；`位` 就令介紹較尊重客氣。
   - subskill_id: qualities_states
-    explanation: 好靜 可以直接描述特徵，唔需要因為英文有 is 就加 係。
+    explanation: 揀地方睇書時，可以描述呢間房安靜。`靜` 呢類特徵可以直接作描述，`好` 令肯定特徵片語自然。
     examples:
       - text: 呢間房好靜。
-        meaning: 呢間房好靜。
-        note: 好靜 係謂語，直接描述間房。
+        meaning: 意思係呢間房安靜。`呢間房` 用量詞 `間` 放喺 `呢` 同 `房` 之間。`好靜` 講安靜或者好安靜，普通形容詞描述前唔加 `係`；`係` 可以用嚟連名詞身份。
+        note: 試下話間房光猛：`呢間房好光猛。``靜` 換成 `光猛`。`呢間房唔靜` 用 `唔` 否定特徵；`呢間房係課室` 就識別為課室，所以用 `係`。
   - subskill_id: location_movement
-    explanation: 喺 交代人物位置。單數 佢 唔似英文 he、she 咁區分性別。
+    explanation: 想搵一個人，可以答佢喺圖書館。`喺` 交代身處位置，換成 `去` 加目的地就係講去某度。
     examples:
       - text: 佢喺圖書館。
-        meaning: 佢喺圖書館。
-        note: 唔可以單憑 佢 就推斷嗰個人嘅性別。
+        meaning: 意思係嗰個人喺圖書館。`佢` 指一個人，唔標示性別；`喺圖書館` 將地方放喺 `喺` 後面，講身處位置，唔係去緊嘅路程。
+        note: 試下講成班人喺嗰度：`佢哋喺圖書館。`單數 `佢` 換複數 `佢哋`，位置表達唔變。`佢去圖書館` 就用 `去` 講向圖書館移動。
   - subskill_id: possession_relations
-    explanation: 我嘅 指出擁有人，唔使再重複 書。
+    explanation: 幾本書放咗喺枱，可以指出邊本屬於自己。先講本書，再用片語講擁有人。
     examples:
       - text: 呢本書係我嘅。
-        meaning: 呢本書係我嘅。
-        note: 我嘅 可以獨立指「屬於我嗰本」。
+        meaning: 意思係呢本屬於我。`呢本書` 用書嘅量詞 `本`。`係我嘅` 話係自己嘅，`嘅` 跟住擁有人 `我`，唔使再重複書。加名詞成 `我嘅書` 就係我本書。
+        note: 試下話本書係聽者嘅：`呢本書係你嘅。``係` 後面 `我` 換成 `你`。`我有呢本書` 用 `有` 講持有，唔係同一個識別擁有人框架。
   - subskill_id: quantity_comparison
-    explanation: 本 喺呢度係 書 嘅量詞。表示數量時，書 唔需要複數詞尾。
+    explanation: 數有幾本書可以借出時，數字加書嘅量詞放名詞前面，名詞本身唔使加複數詞尾。
     examples:
       - text: 我有三本書。
-        meaning: 我有三本書。
-        note: 三本 已經交代數量，唔會將 書 加成類似英文 -s 嘅形式。
+        meaning: 意思係有三本書。`我有` 講自己持有，`三本書` 按數字 `三`、量詞 `本`、名詞 `書` 次序，交代數量同物件。
+        note: 試下話有兩本：`我有兩本書。`一般數量喺量詞前用 `兩`，呢度記住 `兩本`。要比較總數可以講 `我有三本書，你有兩本，我多一本。`，即自己多一本。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/people-places/cantonese-people-places-explained-in-english.yaml at
-    revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/people-places/cantonese-people-places-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

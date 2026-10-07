@@ -1571,5 +1571,13 @@
   "Start conversation": "بدء محادثة",
   "Ask coach": "اسأل المدرّب",
   "Start with this sentence": "ابدأ بهذه الجملة",
-  "Explain this sentence": "اشرح هذه الجملة"
+  "Explain this sentence": "اشرح هذه الجملة",
+  "Chart controls": "عناصر التحكم في المخطط",
+  "Points shown": "النقاط المعروضة",
+  "Language": "اللغة",
+  "Both": "كلاهما",
+  "{value0} pt": "{value0} نقطة",
+  "Busiest skill in this conversation": "أكثر مهارة استخدامًا في هذه المحادثة",
+  "{value0}: {value1} points in this conversation": "{value0}: {value1} نقاط في هذه المحادثة",
+  "Busiest skill · {value0} pt": "أكثر مهارة استخدامًا · {value0} نقطة"
 }

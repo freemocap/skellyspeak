@@ -103,7 +103,7 @@ export default function DownloadPage() {
       <div className="dl-page"><div className="dl-container">
         <section className="dl-section-block" aria-labelledby="app-installer">
           <p className="dl-access">Sign in with Google to use hosted access, or run your own local server and connect through Custom URL in Settings.</p>
-          <p className="dl-access">Revisit this page on an Android phone to download the APK. iPhone testing is limited to known parties at this time.</p>
+          <p className="dl-access">Revisit this page on an Android phone to download the APK.</p>
           <div className="dl-section-header">
             <h2 className="dl-section-title" id="app-installer">App Installer</h2>
             <div className="dl-section-lead-row">
@@ -124,12 +124,15 @@ export default function DownloadPage() {
               </div>
             </div>
           </div>
+          {system.os === 'ios' && <aside className="dl-testflight-notice" aria-labelledby="dl-testflight-title">
+            <h3 id="dl-testflight-title">iPhone &amp; iPad testing</h3>
+            <p>iPhone and iPad testing is limited to known parties at this time.</p>
+            <p>To use SkellySpeak on your iPhone or iPad, <strong>contact the developers to request a TestFlight invitation.</strong></p>
+          </aside>}
           <div aria-live="polite" aria-busy={state.status === 'loading'}>
             {state.status === 'loading' && <p className="dl-no-detect">Loading the latest published release…</p>}
             {state.status === 'error' && <div className="dl-no-detect" role="alert"><p>Couldn’t load downloads: {state.message}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Try again</button> · <a href={RELEASES_URL}>Open GitHub releases</a></div>}
-            {state.status === 'ready' && <>
-              {system.os === 'ios' ? <div className="dl-section-details-content"><p>iPhone testing is limited to known parties at this time. Install through your TestFlight invitation. The release IPA is not a direct-install download.</p><Link to="/docs/platforms#ios">iOS distribution details →</Link></div>
-                : <>
+            {state.status === 'ready' && system.os !== 'ios' && <>
                   {needsProcessor && recommended && <p className="dl-no-detect">Suggested: {architectureLabel(recommended.arch, system.os)}. Your browser does not expose the processor; choose another installer below if needed.</p>}
                   {recommended && <div className="dl-downloads"><DownloadCard installer={recommended} primary /></div>}
                   {!recommended && <p className="dl-no-detect">{system.os === 'unknown' ? 'Could not detect your OS. All available downloads are shown below with their system and processor labels.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
@@ -138,7 +141,6 @@ export default function DownloadPage() {
                     <div className="dl-downloads">{alternatives.map(installer => <DownloadCard key={installer.asset.name} installer={installer} primary={false} />)}</div>
                   </details>}
                   {recommended && <div className="dl-section-details-content"><InstallSteps installer={recommended} /></div>}
-                </>}
             </>}
           </div>
         </section>

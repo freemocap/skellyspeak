@@ -1,55 +1,83 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Là links a referent to an identifying noun phrase.
+    explanation: You point out a neighbour to someone who has not met them. `Đây` means this here;
+      `là` links it to the identifying phrase `hàng xóm của tôi`, my neighbour. `Của tôi`
+      follows the noun to show the relationship to me. `Đó là hàng xóm của tôi` points to that
+      person rather than this one here. `Là` is useful for identification with a noun;
+      describing someone as tall uses `cao` directly, as in `Hàng xóm của tôi cao`.
     examples:
       - text: Đây là hàng xóm của tôi.
         meaning: This is my neighbour.
-        note: Của tôi relates the neighbour to the speaker; the sentence does not specify gender.
+        note: "Identify that person as your neighbour. `Đó là hàng xóm của tôi.` works: `đó` changes the
+          pointing reference while the relationship phrase stays."
   - subskill_id: qualities_states
-    explanation: An adjective can directly predicate a property without là.
+    explanation: You are deciding whether a road is suitable for a vehicle and describe its width.
+      `Con đường này` means this road; `con` is the classifier used here, and `này` follows
+      road. `Hẹp` says it is narrow, directly after the subject without `là`. `Con đường này
+      rộng` gives the opposite quality, wide. The descriptive word does not acquire endings for
+      singular versus plural or for gender. This is a property claim; the surrounding discussion
+      explains why width matters.
     examples:
       - text: Con đường này hẹp.
         meaning: This road is narrow.
-        note: Này follows the noun phrase and hẹp supplies its property.
+        note: Describe this road as wide. `Con đường này rộng.` works because `rộng` replaces the
+          quality; the subject and classifier phrase remain.
   - subskill_id: location_movement
-    explanation: Ở and a positional phrase locate an object.
+    explanation: Someone is looking for a key, and you tell them where it is. `Chìa khóa` names the
+      key; `ở` introduces its location and `trên bàn` means on the table. The sentence
+      identifies a position, not movement. `Tôi đặt chìa khóa lên bàn` says I put the key onto
+      the table, using the action `đặt` and the direction `lên`. Keeping the location phrase
+      intact makes `Chìa khóa ở dưới bàn` an alternative when the key is under the table.
     examples:
       - text: Chìa khóa ở trên bàn.
         meaning: The key is on the table.
-        note: Trên bàn identifies the supporting surface.
+        note: "Locate the key under the table. `Chìa khóa ở dưới bàn.` works: `dưới` replaces `trên`,
+          and `ở` still locates the key."
   - subskill_id: possession_relations
-    explanation: Có states possession, and a classifier can accompany a counted object.
+    explanation: The group needs seats and you say you have two folding chairs available. `Tôi có`
+      means I have; `hai cái ghế gấp` names two folding chairs. The number comes before
+      classifier `cái`, then `ghế`, chair, and the description `gấp`, folding. `Cái` helps count
+      individual chairs in this phrase. `Tôi không có ghế gấp` denies having folding chairs.
+      Vietnamese classifiers have different uses and are not an English plural ending; the noun
+      `ghế` itself stays the same.
     examples:
       - text: Tôi có hai cái ghế gấp.
         meaning: I have two folding chairs.
-        note: Hai cái ghế gấp counts the possessed chairs; the noun has no plural ending.
+        note: "Say you have three folding chairs. `Tôi có ba cái ghế gấp.` works: `ba` changes the
+          count, while the classifier, noun and description stay."
   - subskill_id: quantity_comparison
-    explanation: Hơn introduces the comparison with another item.
+    explanation: You compare two boxes before choosing which to carry. `Cái hộp này` names this box;
+      `nhẹ hơn` means lighter, and `cái kia` names that one. `Hơn` follows the quality `nhẹ`; no
+      comparative ending is added to the adjective. The classifier `cái` can stand without
+      repeating `hộp` when the boxes are already understood. `Cái hộp này nặng hơn cái kia`
+      compares the opposite quality, heavier. A comparison needs another item, but it may be
+      supplied by the conversation.
     examples:
       - text: Cái hộp này nhẹ hơn cái kia.
         meaning: This box is lighter than that one.
-        note: Cái kia refers to the other box without repeating hộp.
+        note: "Say this box is heavier than that one. `Cái hộp này nặng hơn cái kia.` works: `nặng`
+          changes the quality but the two comparison targets keep their order."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_identity2026
     - niu_vietnamese_patterns2026
+    - niuVietnameseComparisonTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

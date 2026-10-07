@@ -1,56 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: In ann with a verbal noun can express ability.
+    explanation: When discussing activities you can do, `Tá mé in ann snámh` says I can swim. `Tá mé`
+      identifies the speaker, `in ann` expresses ability, and `snámh` names the activity as a verbal
+      noun. This states capability rather than permission from another person.
     examples:
       - text: Tá mé in ann snámh.
         meaning: I can swim.
-        note: The construction reports capability rather than permission.
+        note: "Permission to swim can instead be expressed with `cead`: `Tá cead agam snámh`. Try saying the
+          listener can swim. Answer: `Tá tú in ann snámh.` `Tú` changes the person with the ability;
+          the ability phrase and activity remain."
   - subskill_id: permission
-    explanation: Cead with ag explicitly concerns permission.
+    explanation: At a reception desk, `An bhfuil cead agam an mála a fhágáil anseo?` asks whether the
+      speaker may leave the bag here. `An bhfuil` is the question form of `Tá`, and `cead agam`
+      means permission for me. `An mála` comes before `a fhágáil`, to leave; `a` gives the lenited
+      initial in `fhágáil`. `Anseo` supplies here.
     examples:
       - text: An bhfuil cead agam an mála a fhágáil anseo?
         meaning: May I leave the bag here?
-        note: Agam identifies who seeks permission; an mála precedes a fhágáil.
+        note: "This asks for authorization, rather than claiming the speaker is physically able to leave a
+          bag. Try asking permission to leave it there, using `ansin`. Answer: `An bhfuil cead agam
+          an mála a fhágáil ansin?` The permission and object-before-action construction stay; the
+          proposed place changes."
   - subskill_id: obligation
-    explanation: Caithfidh can express necessity and take a verbal-noun construction.
+    explanation: When a borrowed key must be returned today, `Caithfidh mé an eochair a thabhairt ar ais
+      inniu` states that requirement. `Caithfidh mé` means I must. `An eochair` is placed before `a
+      thabhairt ar ais`, to give back. `Inniu` makes the deadline today. Although `caithfidh` is a
+      future form, this use expresses necessity, not simply a prediction.
     examples:
       - text: Caithfidh mé an eochair a thabhairt ar ais inniu.
         meaning: I must return the key today.
-        note: The object precedes a thabhairt; inniu gives the deadline.
+        note: "The ordinary future `Tabharfaidh mé an eochair ar ais inniu` says I will return it;
+          `Caithfidh mé` emphasizes that I must. Try changing the required day to tomorrow. Answer:
+          `Caithfidh mé an eochair a thabhairt ar ais amárach.` Only the deadline changes."
   - subskill_id: possibility
-    explanation: B’fhéidir with a following clause presents an uncertain possibility.
+    explanation: Planning an outdoor afternoon, `B’fhéidir go mbeidh sé ag cur báistí tráthnóna` leaves
+      rain as a possibility. `B’fhéidir` means perhaps, and `go mbeidh` introduces the future form
+      of `bí`. `Sé ag cur báistí` is the weather expression for it raining; `tráthnóna` supplies the
+      afternoon or evening period. The statement does not guarantee rain.
     examples:
       - text: B’fhéidir go mbeidh sé ag cur báistí tráthnóna.
         meaning: It may rain in the evening.
-        note: Go mbeidh introduces the possible future weather situation.
+        note: "Without the uncertainty opening, `Beidh sé ag cur báistí tráthnóna` predicts rain directly.
+          Try making the uncertain forecast for tomorrow. Answer: `B’fhéidir go mbeidh sé ag cur
+          báistí amárach.` `Amárach` changes the time; `B’fhéidir go mbeidh` preserves the
+          uncertainty and future form."
   - subskill_id: certainty
-    explanation: Nílim cinnte explicitly limits confidence in a proposition.
+    explanation: Before setting off, `Nílim cinnte go bhfuil an siopa oscailte` says I am not sure the
+      shop is open. `Nílim cinnte` describes the speaker’s uncertainty. The following `go bhfuil`
+      introduces the proposition being considered, and `oscailte` describes the shop as open.
+      Uncertainty about that proposition does not establish that the shop is closed.
     examples:
       - text: Nílim cinnte go bhfuil an siopa oscailte.
         meaning: I am not sure the shop is open.
-        note: The speaker is uncertain and does not assert that it is closed.
+        note: "The confident counterpart is `Tá mé cinnte go bhfuil an siopa oscailte`. Try stating that
+          confidence. Answer: `Tá mé cinnte go bhfuil an siopa oscailte.` The shop’s possible state
+          stays the same; the speaker now claims certainty about it."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - teanglann_cead2026
     - teanglann_caith2026
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

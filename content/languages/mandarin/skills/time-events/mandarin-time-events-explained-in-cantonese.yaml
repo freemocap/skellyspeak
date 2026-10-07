@@ -1,75 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 正在 放喺動作動詞前面，明確表示活動進行中。動詞唔會因為人稱或時態而變位；亦唔好將 正在 放到廣東話 緊 慣用嘅動詞後位置。
+    explanation: 準備指路時，人哋問你做緊乜。動作前嘅 `正在` 表示進行中。呢個對話係而家做緊；換咗時間情境，亦可以講其他時間進行緊嘅動作。
     examples:
       - text: 我正在画地图。
-        meaning: 我畫緊地圖。
-        note: 正在 明確標示進行中，呢個例子由語境定位為而家。
+        meaning: "**例句。** 我畫緊地圖。`我` 係我，`正在` 表正做緊，`画` 係畫，`地图` 係地圖。進行標記喺動作前，被畫嘅嘢喺後，`画` 唔跟做嗰個人改詞尾。"
+        note: 試下話成班人畫緊：`我们正在画地图。` `我` 換成 `我们`，`正在画` 保留。`我每周画地图` 就講每星期習慣，唔係明確話而家做緊。
   - subskill_id: past_events
-    explanation: 時間詞可以將活動放喺過去。動詞後嘅 了 可以將活動呈現為一個有界限事件，但 了 唔等於過去式，亦唔係所有廣東話 咗 都可以機械式換成 了。
+    explanation: 修理之後，可以報告幾時做。`昨天` 將事件放喺昨日，`修` 後嘅 `了` 報告修理發生咗。動詞本身冇過去時詞尾。
     examples:
       - text: 昨天我修了自行车。
-        meaning: 噚日我整咗架單車。
-        note: 昨天 交代過去時間；修了 報告維修事件。
+        meaning: "**例句。** 噚日我整咗架單車。`昨天` 係昨日，`我` 係我，`修自行车` 係修理單車。`修了自行车` 嘅事件標記喺動詞後、賓語前，報告修理發生，但冇逐步明講所有修理已完成。"
+        note: 試下話噚日冇整：`昨天我没修自行车。` 用 `没` 放喺 `修` 前，刪走事件 `了`。`修好了自行车` 就明確話成功整好，原句冇嗰個結果詞。
   - subskill_id: future_events
-    explanation: 將來時間詞可以將計劃中活動定位喺之後，唔需要專門嘅將來時詞尾。
+    explanation: 計劃去辦事，講聽日就可以定將來時間。`明天` 交代打算幾時去，後面動作講去攞乜。
     examples:
       - text: 明天我去取零件。
-        meaning: 聽日我去攞零件。
-        note: 明天 交代將來時間；去取 將前往同取件目的連起嚟。
+        meaning: "**例句。** 聽日我去攞零件。`明天` 係聽日，`我` 係我，`去` 係去，`取` 係領取，`零件` 係零件。`去取` 將去同領取目的接起，兩個動詞都唔加將來詞尾。"
+        note: 試下改成後日辦事：`后天我去取零件。` `明天` 換成 `后天`。`我会修自行车` 可以講識整單車；原來辦事句唔需要加 `会` 先有將來時間。
   - subskill_id: duration_frequency
-    explanation: 每 加時段，再加次數，可以表達頻率。次 計活動發生次數，唔係物件數目。
+    explanation: 傾日常運動時，頻率交代幾密做。`每周` 定每星期間隔，活動後嘅 `两次` 數嗰段時間做幾次。
     examples:
       - text: 我每周游泳两次。
-        meaning: 我每個禮拜游兩次水。
-        note: 每周 交代時段；两次 交代當中游水嘅次數。
+        meaning: "**例句。** 我每星期游水兩次。`我` 係我，`每` 係每，`周` 係星期，`游泳` 係游水。`两次` 係兩次，`次` 數次數。間隔放游水前，次數放後。"
+        note: 試下話每星期三次：`我每周游泳三次。` `两次` 換成 `三次`。`我每次游泳半小时` 就話每次游半個鐘，`每次` 係每一次，`半小时` 交代每次時間長度。
   - subskill_id: event_sequence
-    explanation: 先 同 再 交代第一步同後續步驟。佢哋表達次序，本身唔保證有因果關係。
+    explanation: 準備食物步驟要次序啱。`先` 引出第一個動作，`再` 引出做完之後嗰個。跟程序做嘅聽者可以唔明講。
     examples:
       - text: 先洗手，再准备食材。
-        meaning: 先洗手，再準備食材。
-        note: 先 同 再 排列兩項動作；省略咗嘅行動者係跟住步驟做嘅人。
+        meaning: "**例句。** 先洗手，再準備食材。`洗手` 係洗手，`准备食材` 係準備煮食材料。兩個次序詞都放動作前，`食材` 指煮食用嘅原料。"
+        note: 試下第二步改成準備工具：`先洗手，再准备工具。` 將 `食材` 換成 `工具`。呢度 `再` 指下一個要做嘅動作；`所以` 就引出結果，唔係同樣嘅程序先後。
   - subskill_id: event_phase
-    explanation: 完 放喺動作動詞後面，可以表示活動達到終點；已经 明確指出已達到嗰個狀態。
+    explanation: 人哋要知道你仲有冇說明書未睇，`看完` 就清楚話閱讀去到終點，`已经` 將完成放喺而家之前。
     examples:
       - text: 我已经看完说明书了。
-        meaning: 我已經睇完說明書喇。
-        note: 看完 明確表示閱讀完成，比單純話發生過閱讀活動更具體。
+        meaning: "**例句。** 我已經睇完說明書喇。`我已经` 係我已經，呢度 `看` 係閱讀，後面 `完` 係完成。`说明书` 係說明書，句尾 `了` 帶出而家已睇完呢個情況。"
+        note: 試下話仲未睇完：`我还没看完说明书。` `已经` 換成 `还没`，刪走句尾 `了`。保留 `完`，因為問題仍然係去唔去到終點。`我看了说明书` 報告睇過，但冇明講成份都睇完。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/time-events/mandarin-time-events-explained-in-english.yaml at revision
-    mandarin-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/time-events/mandarin-time-events-explained-in-english.yaml at
-        revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

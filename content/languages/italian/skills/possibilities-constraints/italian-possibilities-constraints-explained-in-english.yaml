@@ -1,53 +1,100 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Sapere + infinitive can express knowing how to do something. Potere can instead
-      concern whether circumstances allow the action; neither verb has only one conversational
-      role.
+    explanation: A wheel needs repair, and someone wants to know whether you have the skill to do it.
+      `Sapere` followed by an infinitive can express knowing how. It describes a learned ability,
+      rather than whether you have the tools or time available today.
     examples:
       - text: So riparare una ruota.
-        meaning: I know how to repair a wheel.
-        note: So is the first-person present of sapere. Riparare remains an infinitive and names the
+        meaning: “I know how to repair a wheel.” `So` is the speaker’s form of `sapere`; `riparare` names
+          the skill in the infinitive. `Una ruota` is a wheel. There is no intervening preposition
+          between `so` and `riparare`.
+        note: >-
+          **Compare.** `Posso riparare la ruota oggi` says circumstances allow the repair today.
+          Knowing how and being able today can differ. `Non so riparare una ruota` negates the
           skill.
+
+
+          **Try it.** Say she knows how to repair a wheel. Answer: `Sa riparare una ruota`. Change
+          `so` to `sa`; the activity stays in the infinitive.
   - subskill_id: permission
-    explanation: Posso + infinitive in a question can seek permission. Asking about one’s own
-      allowed action differs from requesting that the partner perform it.
+    explanation: Before leaving a bag in someone else’s space, you may need their permission. A question
+      with `posso` asks whether your own action is allowed. The infinitive names what you want
+      permission to do.
     examples:
       - text: Posso lasciare la borsa qui?
-        meaning: May I leave the bag here?
-        note: Asked of the person responsible for the space, this asks for permission to leave the bag.
+        meaning: “May I leave the bag here?” `Posso` identifies the speaker, `lasciare` means leave, `la
+          borsa` names the bag and `qui` names this place. Asked of the person responsible for the
+          space, it seeks permission.
+        note: >-
+          **Compare.** `Puoi lasciare la borsa qui?` asks about the other person’s action instead.
+          `Potrei lasciare la borsa qui?` is a more tentative request for yourself. Tone and context
+          also matter.
+
+
+          **Try it.** Ask permission to leave your coat here with `il cappotto`. Answer: `Posso
+          lasciare il cappotto qui?`. Replace the object, retaining `posso` for your own permission.
   - subskill_id: obligation
-    explanation: Dovere + infinitive can express a requirement. The context must establish necessity
-      rather than merely suggesting what the speaker would like.
+    explanation: At an event entrance, checking tickets may be a requirement for everyone in your group.
+      Dovere followed by an infinitive expresses what the group must do. The sentence reports the
+      requirement; the setting supplies who imposes it.
     examples:
       - text: Dobbiamo mostrare i biglietti all’ingresso.
-        meaning: We must show the tickets at the entrance.
-        note: Dobbiamo is plural and mostrare is an infinitive. The sentence states an entry
-          requirement.
+        meaning: “We must show the tickets at the entrance.” `Dobbiamo` identifies we and expresses
+          necessity. `Mostrare` is show; `i biglietti` names the tickets. `All’ingresso` gives the
+          place, combining `a` with `l’ingresso`.
+        note: >-
+          **Adapt it.** `Devo mostrare il biglietto` changes the speaker group to I and the tickets
+          to one. To say showing the ticket is optional without ambiguity, `Non è necessario
+          mostrare il biglietto` is clearer than relying on a negated obligation alone.
+
+
+          **Try it.** Say we must show the document with `il documento`. Answer: `Dobbiamo mostrare
+          il documento`. The object becomes singular, while the people remain we.
   - subskill_id: possibility
-    explanation: Forse can present a proposition as possible without adding a modal verb. The rest
-      of the clause states the event or situation under consideration.
+    explanation: When deciding whether to visit a shop, you may think it could still be open without
+      knowing for sure. `Forse` marks the statement as a possibility. The rest of the sentence gives
+      the situation you are considering.
     examples:
       - text: Forse il negozio è ancora aperto.
-        meaning: Perhaps the shop is still open.
-        note: Forse leaves the claim open; ancora says that the shop may remain open.
+        meaning: “Perhaps the shop is still open.” `Forse` expresses uncertainty, `il negozio è aperto`
+          describes the shop’s state and `ancora` means still. `Aperto` agrees with masculine
+          singular `negozio`.
+        note: >-
+          **Compare.** Removing `forse` gives `Il negozio è ancora aperto`, an assertion rather than
+          a guess. `È già chiuso` means it is already closed, changing both the state and the time
+          relation.
+
+
+          **Try it.** Say perhaps the pharmacy is still open with `la farmacia`. Answer: `Forse la
+          farmacia è ancora aperta`. Change the noun and give `aperta` feminine agreement.
   - subskill_id: certainty
-    explanation: Non so se introduces a limit on what the speaker knows. Se here means whether and
-      introduces an indirect question, rather than an if-condition with a consequence.
+    explanation: Sometimes you lack the information to confirm whether a shop is open. `Non so se`
+      introduces the unanswered question. It describes what you do not know rather than claiming
+      that the shop is closed.
     examples:
       - text: Non so se il negozio è aperto.
-        meaning: I do not know whether the shop is open.
-        note: The speaker is uncertain about the shop’s state. This does not assert that it is closed.
+        meaning: "“I do not know whether the shop is open.” `Non so` means I do not know. `Se il negozio è
+          aperto` supplies what is unknown: whether the shop is open. Here `se` introduces an
+          indirect question, not a condition for another action."
+        note: >-
+          **Compare.** `Se il negozio è aperto, entriamo` is a condition: if the shop is open, we go
+          in. `So che il negozio è aperto` claims knowledge and uses `che` to introduce that known
+          fact.
+
+
+          **Try it.** Say you do not know whether the course starts at nine. Answer: `Non so se il
+          corso comincia alle nove`. Keep the uncertainty frame and replace its question.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - zanichelli_it_modals2026
     - treccani_it_conditional2026
@@ -55,10 +102,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

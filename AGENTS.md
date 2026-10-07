@@ -8,8 +8,8 @@ The root README and layer READMEs describe this layout.
 Internal module organization is a separate follow-up. Deployment requires explicit authorization.
 
 Historical `DESIGN.md` and `BUILD-PLAN.md` files are archived under `old/notes/`;
-they are not current specifications. Existing website documentation under
-`docs/docs-site` is pending a content audit. Keep proposals, decisions, implemented
+they are not current specifications. User guides live in `docs/docs-site`; retained
+planning references live in `docs/notes/docs-site-archive`. Keep proposals, decisions, implemented
 behavior, verification results and unresolved questions distinct.
 Discuss ownership and user behavior before choosing storage,
 frameworks, IPC or provider contracts. Do not present plans as working features.
@@ -325,9 +325,9 @@ a generative LLM call per observation.
 ## Coaching plan and research
 
 Coaching, learner-model, new-chat and game-layer work follows
-`docs/docs-site`, executed per
-`docs/docs-site`, with the seams between work areas in
-`docs/docs-site`. Cite research through
+`docs/notes/docs-site-archive/coaching-plan.md`, executed per
+`docs/notes/docs-site-archive/coaching-work-plan.md`, with the seams between work areas in
+`docs/notes/docs-site-archive/coaching-contracts.md`. Cite research through
 `references.bib` keys at the repo root (`sources: [key]` in YAML, `// [@key]` in
 code, `[@key]` in docs). When research informs a change, add its entry with `url`,
 `review` and `claim` in the same change.

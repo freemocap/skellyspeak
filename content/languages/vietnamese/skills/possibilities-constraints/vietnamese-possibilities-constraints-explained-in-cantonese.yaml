@@ -1,71 +1,66 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: Biết後接活動，可以表達識做嗰件事。
+    explanation: 單車要整，而你學識咗點整。`Tôi biết` 喺呢度係我識，`sửa xe đạp` 係整單車，可以講一般技能或者情境入面嗰架。`Biết`
+      放喺活動前面表達識點做；`tôi sửa được xe đạp` 可以強調做得到，實際工具同工作難度都影響能力。`Tôi không biết sửa xe đạp`
+      就否定識呢個技能。換做動作嗰個人時，`sửa` 唔使變形。
     examples:
       - text: Tôi biết sửa xe đạp.
         meaning: 我識整單車。
-        note: 呢度biết講學識嘅技能，唔係知道某個事實。
+        note: 試下講唔識整單車。`Tôi không biết sửa xe đạp.` 可以；`không` 否定 `biết` 表達嘅識點做。
   - subskill_id: permission
-    explanation: 動作後加được không，可以請求許可。
+    explanation: 你想將袋放喺人哋地方，問可唔可以。`Tôi để túi ở đây` 係我將袋留喺呢度，句尾 `được không?` 將動作變成可唔可以嘅問句。呢度 `để`
+      係放或者留，`ở đây` 指呢度。向管理地方嘅人問，就係請求准許。呢種唔同主動幫手嘅 `Để tôi xách túi giúp bạn`；後者開頭 `để tôi` 係等我嚟。
     examples:
       - text: Tôi để túi ở đây được không?
         meaning: 我可唔可以放個袋喺度？
-        note: 向管理地方嘅人詢問，確立許可語境。
+        note: 試下問可唔可以將袋放喺嗰度。`Tôi để túi ở đó được không?` 可以；`ở đó` 換咗位置，句尾仍然問准許。
   - subskill_id: obligation
-    explanation: 動作前面嘅phải表達要求。
+    explanation: 你借咗鎖匙，今日一定要交返。`Tôi phải` 係我必須，`trả chìa khóa` 係還鎖匙，`hôm nay` 交代限期。`Phải`
+      放喺所需動作前面。`Tôi không phải trả chìa khóa hôm nay` 可以講今日唔使交，唔係簡單噉表示禁止交。清楚禁止動作可以用 `không
+      được`，例如 `Không được để chìa khóa ở đây` 係唔准將鎖匙放喺呢度。
     examples:
       - text: Tôi phải trả chìa khóa hôm nay.
         meaning: 我今日一定要還鎖匙。
-        note: Hôm nay交代限期，phải令行動成為必要。
+        note: 試下將限期改成聽日。`Tôi phải trả chìa khóa ngày mai.` 可以；`ngày mai` 改咗幾時要做，`phải` 保留義務。
   - subskill_id: possibility
-    explanation: Có thể可以將整個命題限定為可能。
+    explanation: 下晝天氣未確定，落雨係其中一個可能結果。`Có thể` 喺呢度係可能，`chiều nay` 係今日下晝，`trời sẽ mưa` 講將會落雨。`Trời`
+      指天氣或者天空，`sẽ` 將落雨放喺稍後。開頭令預測保留不確定性，唔係保證落雨。刪走 `có thể` 嘅 `Trời sẽ mưa chiều nay` 較肯定。`Tôi có
+      thể đi` 入面，同一說法可以講我有能力或者機會去，要睇情境。
     examples:
       - text: Có thể chiều nay trời sẽ mưa.
         meaning: 今日下晝可能落雨。
-        note: 即使用咗將來標記sẽ，結果仍然未肯定。
+        note: 試下預測聽日可能落雨。`Có thể ngày mai trời sẽ mưa.` 可以；`ngày mai` 換咗下晝，`có thể` 保留不確定性。
   - subskill_id: certainty
-    explanation: Không chắc明確表示對命題冇十足把握。
+    explanation: 你未查看過舖頭，冇把握話佢仲開住。`Tôi không chắc` 係我唔肯定，`cửa hàng còn mở cửa` 提供未肯定嘅內容。`Còn`
+      係仍然，所以係唔知開門狀態有冇持續。呢句冇話間舖閂咗。`Tôi chắc cửa hàng còn mở cửa` 改講有把握；`tôi không biết`
+      係唔知。把握程度由字詞同情境表達，唔能夠單靠標點推斷。
     examples:
       - text: Tôi không chắc cửa hàng còn mở cửa.
         meaning: 我唔肯定間舖頭係咪仲開緊。
-        note: 講者冇斷言舖頭閂咗。
-provenance:
+        note: 試下講肯定舖頭仲開住。`Tôi chắc cửa hàng còn mở cửa.` 可以；刪走 `không` 改咗把握程度，內容保持一樣。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/possibilities-constraints/vietnamese-possibilities-constraints-explained-in-english.yaml
-    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_suggestions2026
     - niu_vietnamese_patterns2026
+    - msuVietnameseTravelConversationTeaching20261007
+    - niuVietnameseOffersCompletionTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/possibilities-constraints/vietnamese-possibilities-constraints-explained-in-english.yaml
-        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - msu_vietnamese_suggestions2026
-        - niu_vietnamese_patterns2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

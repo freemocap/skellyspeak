@@ -1,54 +1,103 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Perché can introduce the reason for an action or situation. Its because use differs
-      from asking perché? to find out why.
+    explanation: If someone asks why you take the bus, the weather can explain your choice. `Perché`
+      introduces a reason after the action it explains. This connects your travel decision to the
+      rain, rather than merely mentioning two separate facts.
     examples:
       - text: Prendo l’autobus perché piove.
-        meaning: I am taking the bus because it is raining.
-        note: The clause after perché supplies the reason for the transport choice. Both verbs use the
-          present indicative here.
+        meaning: “I take the bus because it is raining.” `Prendo l’autobus` gives the action; `perché piove`
+          gives the reason. `Piove` describes rain without a separate subject pronoun. `Perché`
+          keeps its final written accent.
+        note: >-
+          **Compare.** `Perché prendi l’autobus?` uses the same word to ask why. In a reply,
+          `perché` introduces because; its role comes from the sentence.
+
+
+          **Try it.** Explain that you stay home because it rains, using `resto a casa`. Answer:
+          `Resto a casa perché piove`. Put the action first and its reason after `perché`.
   - subskill_id: consequences
-    explanation: Quindi can connect a situation with its consequence. It conveys a result rather
-      than simply saying what happens next.
+    explanation: A closed bridge can force a change of route. `Quindi` connects that situation to what
+      follows from it. The second clause gives the response to the closure, not just something that
+      happens later in time.
     examples:
       - text: Il ponte è chiuso, quindi cambiamo strada.
-        meaning: The bridge is closed, so we are taking another road.
-        note: Quindi presents the route change as a response to the bridge closure.
+        meaning: “The bridge is closed, so we change route.” `Il ponte è chiuso` gives the obstacle.
+          `Quindi` introduces the consequence; `cambiamo strada` says we change route. `Cambiamo`
+          includes the speaker in the group.
+        note: >-
+          **Compare.** `Poi cambiamo strada` says we change route afterwards, without explicitly
+          making the bridge the reason. `Cambiamo strada perché il ponte è chiuso` presents the
+          action first and then its cause.
+
+
+          **Try it.** A closed shop means you go home, using `il negozio è chiuso` and `torniamo a
+          casa`. Answer: `Il negozio è chiuso, quindi torniamo a casa`. The second part gives the
+          response to the first.
   - subskill_id: conditions
-    explanation: Se can introduce an open condition with an indicative verb. The following clause
-      gives what depends on that condition; it need not be an English-style would construction.
+    explanation: A walk can depend on tomorrow’s weather. `Se` introduces the situation that determines
+      your plan. This open condition allows for rain without asserting that it will happen; the
+      other clause gives what you will do if it does.
     examples:
       - text: Se domani piove, rimandiamo la passeggiata.
-        meaning: If it rains tomorrow, we will postpone the walk.
-        note: The postponement depends on tomorrow’s rain. These present forms express an open future
-          contingency.
+        meaning: “If it rains tomorrow, we postpone the walk.” `Se domani piove` states the condition.
+          `Rimandiamo la passeggiata` gives the dependent plan. Both verbs are present forms, and
+          `domani` makes the future setting clear.
+        note: >-
+          **Compare.** `Piove, quindi rimandiamo la passeggiata` treats rain as an actual reason.
+          Italian can also use future forms in suitable open conditions; it does not have a blanket
+          ban on a future verb after `se`.
+
+
+          **Try it.** Make the walk depend on no rain, using `facciamo la passeggiata`. Answer: `Se
+          domani non piove, facciamo la passeggiata`. Negate the condition and give the new plan.
   - subskill_id: contrast
-    explanation: Ma links properties or ideas that pull in different directions. The words on each
-      side must supply the contrast; ma alone is not enough.
+    explanation: A shorter route may sound easier, but a steep slope can be a drawback. `Ma` marks the
+      contrast between that advantage and an unexpected difficulty. The sentence keeps both facts
+      rather than treating either as false.
     examples:
       - text: Il percorso è più breve, ma è molto ripido.
-        meaning: The route is shorter, but it is very steep.
-        note: The advantage of a shorter route is contrasted with its steepness. Più breve is a
-          comparative description.
+        meaning: “The route is shorter, but it is very steep.” `Il percorso è più breve` gives the
+          advantage; `più` makes shorter a comparison with a route understood from context. `Ma è
+          molto ripido` adds the contrasting drawback.
+        note: >-
+          **Compare.** `E` would simply add the second description without highlighting the
+          contrast. `Più breve` compares length; `molto ripido` gives a high degree of steepness
+          without comparing two slopes.
+
+
+          **Try it.** Say the route is longer but less steep with `più lungo` and `meno ripido`.
+          Answer: `Il percorso è più lungo, ma è meno ripido`. Both qualities now compare it with
+          another route.
   - subskill_id: supporting_claims
-    explanation: A linked statement can give grounds for a judgment. Explicit perché is one option;
-      a clearly presented explanation can also support the claim.
+    explanation: When recommending a workshop, a concrete experience can explain why you trust it. A
+      judgment followed by a supporting observation helps the listener evaluate your reason. The
+      observation supports reliability without guaranteeing every future job.
     examples:
       - text: "Questo laboratorio è affidabile: consegna sempre i lavori in tempo."
-        meaning: "This workshop is reliable: it always delivers the work on time."
-        note: The reported pattern of timely delivery supports the reliability judgment; it is not
-          offered as unrelated extra detail.
+        meaning: "“This workshop is reliable: it always delivers the work on time.” `Questo laboratorio è
+          affidabile` gives the judgment. `Consegna sempre i lavori in tempo` gives the supporting
+          pattern: it consistently delivers on time. The workshop remains the understood subject of
+          `consegna`."
+        note: >-
+          **Compare.** Repeating `È molto affidabile` strengthens the wording but adds no
+          observation. `Sempre` claims a regular pattern; `una volta` would describe only one
+          occasion.
+
+
+          **Try it.** Support reliability with a pattern of respecting deadlines, `rispetta sempre
+          le scadenze`. Answer: `Questo laboratorio è affidabile: rispetta sempre le scadenze`. The
+          second clause supplies the basis for the judgment.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_causal2026
     - treccani_it_conditions2026
@@ -57,10 +106,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

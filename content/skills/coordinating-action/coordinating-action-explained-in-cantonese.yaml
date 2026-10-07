@@ -1,35 +1,33 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: shared-teaching-expansion-cantonese-2026-10-07
 skill_id: coordinating_action
 explanation_language: cantonese
 title: 協調行動
-introduction: 就共同或個人行動提出請求、建議同協商。
+introduction: 請人幫忙、提出建議，同埋一齊商量點做。
 sections:
   - subskill_id: requests
     title: 提出請求
-    concept: 請對方做某件事，或者停止做某件事。
+    concept: 請人做一件事，或者停止做。
   - subskill_id: offers_invitations
     title: 主動幫忙與邀請
-    concept: 提出幫忙，或者邀請對方參與。
+    concept: 主動提出幫忙，或者邀請人參與。
   - subskill_id: suggestions
     title: 提出建議
-    concept: 提出一個可行做法，畀大家考慮。
+    concept: 提出一個做法，畀對方考慮。
   - subskill_id: commitments
     title: 作出承諾
-    concept: 答應負責之後嘅某項行動。
+    concept: 講你答應負責做乜。
   - subskill_id: accepting_declining
     title: 接受與婉拒
-    concept: 回應請求、幫忙、邀請或行動建議。
+    concept: 接受或者婉拒請求、幫忙、邀請或建議。
   - subskill_id: negotiating_plans
     title: 協商計劃
-    concept: 調整建議嘅行動，配合各人嘅需要或限制。
+    concept: 一齊調整計劃，配合參與者嘅需要。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    skills/coordinating-action/coordinating-action-explained-in-english.yaml at revision
-    spanish-communication-2026-10-03. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -40,6 +38,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: shared-teaching-expansion-cantonese-2026-10-07
+    scope: Learner-facing introductions and concepts; translation review pending.

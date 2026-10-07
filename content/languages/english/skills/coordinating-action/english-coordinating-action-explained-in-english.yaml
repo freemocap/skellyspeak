@@ -1,70 +1,128 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: coordinating_action
 language: english
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: Use a direct request or a polite question when asking someone to act.
+    explanation: A request asks another person to do something. When your hands are full, you may need
+      someone to hold a box briefly. A question with `Could you` makes the request less direct than
+      an instruction such as `Hold this box`.
     examples:
       - text: Could you hold this box for a moment?
-        meaning: The speaker asks the listener to hold the box.
-        note: This seeks an action, not a report about physical ability.
+        meaning: "`Could you` addresses the helper; `hold this box` names the action. `For a moment` says
+          the help is brief. After `could`, use the plain verb `hold`, without `to`."
+        note: >-
+          `Could you hold this box?` asks the listener to act. `Could I put this box here?` asks
+          permission for your own action. A possible response is `Sure`, followed by taking the box.
+
+
+          **Try it.** Ask someone to close a door politely. Answer: `Could you close the door,
+          please?` The person is `you`, and `close` remains in its plain form.
   - subskill_id: offers_invitations
-    explanation: Offer your own help or invite the listener to participate. The
-      expected response is acceptance or refusal.
+    explanation: An invitation gives someone the choice to join an activity. If your group is going for
+      lunch, `Would you like to` welcomes another person without assuming they will come. The same
+      opening can offer something they might want.
     examples:
       - text: Would you like to join us for lunch?
-        meaning: The listener is invited to lunch.
-        note: The question proposes participation rather than merely asking about a
-          preference.
+        meaning: "`Would you like to` introduces the proposed action. `Join us` means take part with our
+          group; `for lunch` names the occasion. Keep `to` before `join` in this expression."
+        note: >-
+          Compare `Would you like some tea?`: a thing follows `like`, so there is no action verb or
+          `to`. To offer your own help, try `Shall I carry that?`; now you would do the action.
+
+
+          **Try it.** Invite a friend for a walk. Answer: `Would you like to go for a walk?` Use `to
+          go` because walking is the proposed activity. `Yes, thanks` accepts; `Sorry, I cannot
+          today` declines.
   - subskill_id: suggestions
-    explanation: Present an action as a proposal that others can consider.
+    explanation: A suggestion puts an option into a shared decision. While choosing a route, you can
+      mention a quieter way without insisting on it. `We could` presents something available for the
+      group to consider.
     examples:
       - text: We could take the quieter route.
-        meaning: Taking the quieter route is proposed.
-        note: Could presents an option; context determines whether this is a suggestion
-          or a statement of possibility.
+        meaning: "`We` includes the speaker and companions. `Could take` proposes a possible action; `the
+          quieter route` identifies a route with less noise than another. The action verb after
+          `could` is `take`, not `to take`."
+        note: >-
+          `We should take the quieter route` recommends that choice more strongly. `We will take it`
+          can announce a decision. A suggestion still leaves space for a response such as `Good
+          idea` or `That takes too long`.
+
+
+          **Try it.** Suggest going by bus without announcing a decision. Answer: `We could take the
+          bus`. `Could` leaves it as an option for discussion.
   - subskill_id: commitments
-    explanation: State what you undertake to do. A prediction alone does not
-      necessarily make a promise.
+    explanation: A commitment tells someone what they can count on you to do. If a friend needs an
+      address, a reply about sending it tonight can settle who will take care of that task. `I will`
+      can express this decision or promise.
     examples:
       - text: I will send you the address tonight.
-        meaning: The speaker undertakes to send the address.
-        note: In response to a request for the address, this commits the speaker to an
-          action.
+        meaning: "`I` names the person responsible. `Will send` commits to the action in this exchange;
+          `you` is the recipient, `the address` is what will be sent, and `tonight` states when. The
+          everyday contraction is `I’ll`."
+        note: >-
+          Context distinguishes a commitment from a prediction. `It will rain tonight` predicts
+          weather; it does not promise an action. A useful commitment names a task and a time you
+          can meet.
+
+
+          **Try it.** A friend asks you to call tomorrow, and you agree. Answer: `I’ll call you
+          tomorrow`. `Will` takes the plain form `call`, and `tomorrow` makes the timing clear.
   - subskill_id: accepting_declining
-    explanation: Respond to the actual proposal. A short response can be complete
-      when the preceding exchange supplies its content.
+    explanation: A clear answer lets someone know whether to include you in their plan. When invited to
+      dinner, you can thank the host and then say you cannot stay. A brief reason is optional; you
+      do not need a long excuse.
     examples:
       - text: Thanks, but I cannot stay for dinner.
-        meaning: The speaker declines the dinner invitation.
-        note: The refusal responds to an invitation; it is not simply a statement about
-          time.
+        meaning: "`Thanks` acknowledges the invitation warmly. `But` introduces the limit; `cannot stay`
+          says you are unable to remain, and `for dinner` identifies the invitation being declined.
+          In everyday speech, `can’t` is common."
+        note: >-
+          `Thanks, I’d love to` accepts an invitation. `Maybe` leaves the answer unsettled, so avoid
+          it if you already know you cannot come. You may offer an alternative: `Could we have lunch
+          tomorrow?`
+
+
+          **Try it.** Decline an invitation to stay for coffee. One answer: `Thanks, but I can’t
+          stay for coffee`. This keeps the thanks and states the refusal directly.
   - subskill_id: negotiating_plans
-    explanation: Offer an alternative that addresses a constraint in an existing plan.
+    explanation: Negotiating a plan means finding an option that works for both people. If five is too
+      early, propose six while keeping the meeting itself. A specific alternative is easier to
+      respond to than simply saying the plan does not work.
     examples:
       - text: Could we meet at six instead of five?
-        meaning: The speaker proposes changing the meeting time.
-        note: Instead of relates the counterproposal to the previous plan.
+        meaning: "`Could we meet` asks the group to consider a change. `At six` proposes the new time;
+          `instead of five` identifies what it would replace. After `could`, `meet` stays in its
+          plain form."
+        note: >-
+          `At six or five?` offers a choice without clearly proposing replacement. `Instead of`
+          makes your intended change explicit. Your partner may accept or counter with `Six is too
+          late. How about half past five?`
+
+
+          **Try it.** Keep the activity but move it from Monday to Wednesday. Answer: `Could we meet
+          on Wednesday instead of Monday?` Use `on` with days, while clock times use `at`.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - bc_modals2026
         - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-teaching-expanded-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1

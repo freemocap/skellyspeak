@@ -1,59 +1,97 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 想 introduces a desire; a firm plan requires additional contextual evidence.
+    explanation: A baking class sounds appealing, and you describe the skill you would like to learn.
+      `想` introduces the wish before the activity; `學` adds learning rather than claiming you
+      already have the skill.
     examples:
       - text: 我想學整麵包。
-        meaning: I want to learn to make bread.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: "I want to learn to make bread. `我` is I, `想學` means want to learn, and `整麵包` means make
+          bread. The words form a chain of related actions: wanting, learning, making. The same
+          person is understood as doing each one."
+        note: "Try it: want to learn to cook instead. Answer: `我想學煮飯。` Replace the activity with `煮飯`, cook
+          a meal. `我識整麵包` says you already know how; `我想學整麵包` only states the wish to learn, not
+          enrollment or a promise."
   - subskill_id: preferences
-    explanation: 鍾意 with 多過 compares preferences rather than merely naming drinks.
+    explanation: Asked to choose a drink, you can compare how much you like the two activities. `鍾意`
+      expresses liking, and `多過` puts the more liked activity before the less liked alternative.
     examples:
       - text: 我鍾意飲茶多過飲咖啡。
-        meaning: I prefer drinking tea to drinking coffee.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I prefer drinking tea to drinking coffee. `我鍾意` means I like, `飲茶` is drinking tea and
+          `飲咖啡` is drinking coffee. `多過` means more than here and compares liking, because both
+          activities follow `鍾意`; it does not count cups.
+        note: "Try it: prefer coffee instead. Answer: `我鍾意飲咖啡多過飲茶。` Exchange the two activities. `我鍾意飲茶`
+          expresses liking tea without ranking it against coffee; the comparison needs the other
+          choice after `多過`."
   - subskill_id: emotions
-    explanation: 開心 names an emotional state. No copula is needed before 好開心.
+    explanation: Good news has made today a happy day. A feeling such as `開心` can directly describe the
+      person; `好` gives its degree without a separate word meaning be.
     examples:
       - text: 我今日好開心。
-        meaning: I am happy today.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I am happy today. `我` identifies the person, `今日` gives today and `好開心` says happy or very
+          happy. The time comes before the feeling. `好` often supports a natural positive
+          description; its strength depends on context and emphasis.
+        note: "Try it: say your group is happy today. Answer: `我哋今日好開心。` Replace `我` with `我哋`; the feeling
+          has no person or plural ending. `我今日唔開心` expresses unhappiness with `唔` before `開心`,
+          rather than keeping positive `好`."
   - subskill_id: opinions
-    explanation: 我覺得 frames the evaluation as the speaker’s view.
+    explanation: People are comparing ways to solve a problem, and you give your own assessment of one.
+      `我覺得` introduces what you think; the following description explains your assessment.
     examples:
       - text: 我覺得呢個辦法幾好。
-        meaning: I think this method is quite good.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: "I think this method is quite good. `呢個辦法` is this method: `呢` points to it and `個` is its
+          classifier. `幾好` means quite good; `幾` gives degree here. It does not ask how many,
+          because it modifies the quality `好` in an assessment."
+        note: "Try it: judge the method quite useful. Answer: `我覺得呢個辦法幾有用。` Replace `好` with `有用`, useful.
+          `呢個辦法有三個步驟` simply reports that it has three steps; the opinion frame lets you state how
+          you evaluate it."
   - subskill_id: agreement_disagreement
-    explanation: Understanding and agreement are distinct; 不過 introduces the contrasting position.
+    explanation: You have understood a proposal but still do not support it. A reply can acknowledge the
+      meaning and then state your disagreement, keeping those two responses distinct.
     examples:
       - text: 我明你嘅意思，不過我唔同意。
-        meaning: I understand what you mean, but I disagree.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: I understand what you mean, but I disagree. `我明` means I understand; `你嘅意思` is your
+          meaning, with `嘅` linking you to that meaning. `不過` introduces but, and `唔同意` puts
+          negation before `同意`, agree.
+        note: "Try it: disagree on behalf of the group. Answer: `我哋明你嘅意思，不過我哋唔同意。` Change both speaker
+          subjects to `我哋`. To express agreement instead, `我明你嘅意思，我同意。` removes the refusal and does
+          not need a contrasting `不過`."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

@@ -1,62 +1,116 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: A question with puoi and an infinitive can request an action. Per favore makes the
-      request polite; a conditional such as potresti is another option.
+    explanation: If a room is cold, asking a person to close the window gives them a clear action to
+      take. A question with `puoi` is a common informal request to one person. In this setting it
+      asks for cooperation, rather than merely testing physical ability.
     examples:
       - text: Puoi chiudere la finestra, per favore?
-        meaning: Could you close the window, please?
-        note: Said to someone able to help nearby, this requests closing the window. Chiudere stays an
-          infinitive after puoi.
+        meaning: “Can you close the window, please?” `Puoi` addresses one person informally; `chiudere`
+          names the action and `la finestra` names its object. `Per favore` adds please. The action
+          stays in its infinitive form after `puoi`.
+        note: >-
+          **Adapt it.** `Può chiudere la finestra, per favore?` uses the formal address `Lei`.
+          `Potresti chiudere la finestra?` makes the informal request more tentative.
+
+
+          **Try it.** Ask someone informally to open the door with `aprire la porta`. Answer: `Puoi
+          aprire la porta, per favore?`. Replace the action and object, keeping `puoi`.
   - subskill_id: offers_invitations
-    explanation: A question with vuoi venire can invite the addressee to join an activity. Context
-      distinguishes the invitation from a detached question about preferences.
+    explanation: An invitation offers someone the chance to join an activity. A question with `vuoi`
+      asks about their willingness. Here the workshop and the group make clear what participation
+      would involve.
     examples:
       - text: Vuoi venire al laboratorio con noi?
-        meaning: Would you like to come to the workshop with us?
-        note: Said while arranging a visit, this offers participation. Vuoi addresses one person
-          informally.
+        meaning: “Would you like to come to the workshop with us?” `Vuoi` asks whether you want to; `venire`
+          means come. `Al laboratorio` gives the destination and `con noi` means with us. `Al` joins
+          `a` and `il`.
+        note: >-
+          **Compare.** `Vuoi venire?` leaves the destination to the context. `Devi venire` expresses
+          a requirement instead of an invitation. The listener can accept or decline the original
+          question.
+
+
+          **Try it.** Invite someone to the park with you, using `il parco`. Answer: `Vuoi venire al
+          parco con noi?`. Replace the destination and retain the invitation frame.
   - subskill_id: suggestions
-    explanation: Potremmo + infinitive presents a possible shared action for consideration. The
-      conditional softens the suggestion without claiming that it has been agreed.
+    explanation: During shared work, a break may be one possible next step. `Potremmo` presents
+      something we could do, making it available for discussion. It is a conditional form of potere;
+      in this suggestion it does not refer to a past event.
     examples:
       - text: Potremmo fare una pausa in giardino.
-        meaning: We could take a break in the garden.
-        note: Potremmo is first-person plural conditional of potere; fare names the proposed action.
+        meaning: “We could take a break in the garden.” `Potremmo` includes the speaker in we. `Fare una
+          pausa` means take a break, and `in giardino` gives the place. The action `fare` remains an
+          infinitive.
+        note: >-
+          **Compare.** `Dobbiamo fare una pausa` expresses a necessity. `Possiamo fare una pausa`
+          can describe an available option more directly. The conditional makes the proposal more
+          tentative.
+
+
+          **Try it.** Suggest a coffee with `prendere un caffè`. Answer: `Potremmo prendere un
+          caffè`. Keep the shared tentative proposal and replace the activity.
   - subskill_id: commitments
-    explanation: A present verb can undertake a future contribution when the planning context
-      supplies that role. A promise does not require a future inflection.
+    explanation: When a group is dividing up workshop supplies, stating what you will bring can take
+      responsibility for a task. A present-tense statement can serve as a commitment in that
+      planning exchange. The same words outside that exchange could simply describe a routine.
     examples:
       - text: Porto i pennelli per tutti.
-        meaning: I will bring the paintbrushes for everyone.
-        note: During a discussion of who will bring workshop supplies, the speaker takes responsibility
-          for the brushes.
+        meaning: “I will bring the paintbrushes for everyone.” `Porto` means I bring; `i pennelli` names the
+          brushes and `per tutti` says they are for everyone. The planning context supplies the
+          commitment and future interpretation.
+        note: >-
+          **Compare.** `Porto i pennelli ogni settimana` describes a habit. `Ti prometto che porto i
+          pennelli` makes the promise explicit. A future time word alone does not necessarily turn a
+          statement into a promise.
+
+
+          **Try it.** Take responsibility for bringing the paints with `i colori`. Answer in the
+          planning exchange: `Porto i colori per tutti`. Change the supplies; the context still
+          gives the undertaking.
   - subskill_id: accepting_declining
-    explanation: A response must settle participation in an identifiable offer or invitation. Non
-      posso venire can decline while grazie acknowledges the invitation.
+    explanation: A person inviting you to a workshop needs a clear answer. Thanking them and explaining
+      that you cannot come on that day declines the invitation while acknowledging it. The reply
+      names the obstacle without needing a long personal explanation.
     examples:
       - text: Grazie, ma domani non posso venire.
-        meaning: Thank you, but I cannot come tomorrow.
-        note: Reply to an invitation for tomorrow. The second clause explicitly declines; grazie alone
-          would leave participation unresolved.
+        meaning: “Thank you, but I cannot come tomorrow.” `Grazie` acknowledges the invitation. `Ma`
+          introduces the refusal; `domani` names the day and `non posso venire` says you cannot
+          come. `Non` precedes the conjugated verb.
+        note: >-
+          **Compare.** `Sì, grazie, vengo volentieri` accepts willingly. `Non voglio venire` says
+          you do not want to come, which differs from being unable to.
+
+
+          **Try it.** Decline because you cannot come on Friday with `venerdì`. Answer: `Grazie, ma
+          venerdì non posso venire`. Replace the day, retaining the polite refusal.
   - subskill_id: negotiating_plans
-    explanation: Propose a change to an identifiable arrangement, using a question or another
-      appropriate action move. Naming a day without a prior plan does not itself negotiate.
+    explanation: When Friday does not work, suggesting Saturday gives the group a way forward. A useful
+      negotiation names the constraint and proposes a specific adjustment. A question with
+      `possiamo` keeps the alternative open for everyone to agree on.
     examples:
       - text: Venerdì non posso. Possiamo spostare l’incontro a sabato?
-        meaning: I cannot make Friday. Can we move the meeting to Saturday?
-        note: Reply to a proposed Friday meeting. The constraint and replacement day revise that actual
-          proposal.
+        meaning: “I cannot on Friday. Can we move the meeting to Saturday?” `Venerdì non posso` gives the
+          unavailable day. `Possiamo spostare l’incontro` asks about moving the meeting, and `a
+          sabato` gives the new day.
+        note: >-
+          **Compare.** `L’incontro è sabato` announces a day rather than proposing a change. A bare
+          `Non posso` supplies no alternative. `Spostare` remains in the infinitive after
+          `possiamo`.
+
+
+          **Try it.** Friday is unavailable; suggest Sunday with `domenica`. Answer: `Venerdì non
+          posso. Possiamo spostare l’incontro a domenica?`. Change only the proposed day.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - zanichelli_it_modals2026
     - treccani_it_conditional2026
@@ -66,10 +120,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

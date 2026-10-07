@@ -1,114 +1,163 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 祈使句加禮貌用語，可以請人採取行動。
+    explanation: 請求係想對方做一件事。例如門開住，風吹入嚟，你想對方閂門，就可以加一句客氣說話。
     examples:
       - text: أَغْلِقِ الْبَابَ، مِنْ فَضْلِكَ.
-        meaning: 唔該閂門。
-        note: 現代標準阿拉伯語。對一位男性講；要求嘅行動係閂門。
-      - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
-        meaning: 唔該閂門。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對一位男性講；要求嘅行動係閂門。
+        meaning: "**例句。** 唔該閂門。 `أَغْلِقِ` 叫一位男性閂上某樣嘢；`الْبَابَ` 係道門。`مِنْ فَضْلِكَ`
+          係向嗰位男性講「唔該」。仔細連讀時，命令詞尾嘅短元音幫助接上下一個詞。"
+        note: 向一位女性講，用 `أَغْلِقِي` 同客氣語 `مِنْ فَضْلِكِ`。試下請一位女性閂門：`أَغْلِقِي الْبَابَ، مِنْ
+          فَضْلِكِ`。命令加咗長詞尾元音，客氣語後綴亦配合聽者。
   - subskill_id: offers_invitations
-    explanation: 問對方需唔需要自己幫忙，可以構成主動提議。
+    explanation: 見到人做一件事有困難，你可以主動提出幫忙。用一個簡短問題，對方就可以接受或者婉拒。
     examples:
       - text: هَلْ أُسَاعِدُكَ؟
-        meaning: 要唔要我幫你？
-        note: 現代標準阿拉伯語。對一位男性講；講者主動提出幫忙。
-      - text: أَسَاعْدَكْ؟
-        meaning: 要唔要我幫你？
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對一位男性講；講者主動提出幫忙。
+        meaning: "**例句。** 要唔要我幫你？ `هَلْ` 帶出可以答係或唔係嘅問題。`أُسَاعِدُ` 係「我幫助」，連住嘅 `كَ`
+          係「你」，對象係一位男性。「我」嘅動詞形式指出提出幫手嘅人；後綴指出接受幫助嘅人。"
+        note: 向一位女性問，用 `هَلْ أُسَاعِدُكِ؟`。比較向男性問 `هَلْ تُسَاعِدُنِي؟`「你幫我好嗎？」：幫手者變成你，接受者變成我。試下向女性提出幫忙：`هَلْ
+          أُسَاعِدُكِ؟`，保留我嘅動詞，只改聽者後綴。
   - subskill_id: suggestions
-    explanation: 「點解唔……」形式嘅問題，可以建議大家一齊做某件事。
+    explanation: 一班人想搵地方坐。問「不如坐呢度？」可以提出共同選擇，唔需要命令人一定照做。
     examples:
       - text: لِمَاذَا لَا نَجْلِسُ هُنَا؟
-        meaning: 不如我哋坐喺呢度？
-        note: 現代標準阿拉伯語。呢個係畀大家嘅建議，唔一定要求解釋原因。
-      - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
-        meaning: 不如我哋坐喺呢度？
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。呢個係畀大家嘅建議，唔一定要求解釋原因。
+        meaning: "**例句。** 不如我哋坐喺呢度？ `لِمَاذَا` 係「點解」，`لَا` 否定後面嘅動作。`نَجْلِسُ` 係「我哋坐」，`هُنَا`
+          係「呢度」。喺呢個情境，成句係建議坐呢度，唔一定真係追問反對理由。"
+        note: 用 `هُنَاكَ` 表示「嗰度」，保留「我哋」嘅動詞。換咗情境或語氣，「點解唔」亦可以真係問有乜阻礙。試下建議坐嗰度：`لِمَاذَا لَا نَجْلِسُ
+          هُنَاكَ؟`，只改地方。
   - subskill_id: commitments
-    explanation: 喺對話中接受責任時，講將來會做嘅事可以構成承諾。
+    explanation: 大家需要有人帶鎖匙。你接咗呢項責任，講清楚自己會做乜，其他人就知道可以點樣安排。
     examples:
       - text: سَأُحْضِرُ الْمَفَاتِيحَ غَدًا.
-        meaning: 聽日我會帶鎖匙嚟。
-        note: 現代標準阿拉伯語。答應負責帶鎖匙時用。
-      - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
-        meaning: 聽日我會帶鎖匙嚟。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。答應負責帶鎖匙時用。
+        meaning: "**例句。** 聽日我會帶鎖匙嚟。 `سَأُحْضِرُ` 開頭嘅 `سَـ` 表示將來；`أُحْضِرُ` 係「我帶嚟」。`الْمَفَاتِيحَ`
+          係鎖匙，`غَدًا` 係聽日。因為係接下責任嘅情境，呢句將來陳述就成為承諾。"
+        note: 安排改咗，可以用 `الْيَوْمَ` 表示今日。將來動詞亦可以講預測，唔係每句都係承諾。試下將承諾改成今日：`سَأُحْضِرُ الْمَفَاتِيحَ
+          الْيَوْمَ`，動作保留，只改時間。
   - subskill_id: accepting_declining
-    explanation: 表示做唔到嘅否定能力句，可以有禮貌咁拒絕邀請。
+    explanation: 有人邀請你今日出席，但你去唔到。先多謝對方，再講清楚限制，可以客氣而明確噉婉拒。
     examples:
       - text: شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ الْيَوْمَ.
-        meaning: 多謝，不過我今日嚟唔到。
-        note: 現代標準阿拉伯語。回應今日嘅邀請。
-      - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
-        meaning: 多謝，不過我今日嚟唔到。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。回應今日嘅邀請。
+        meaning: "**例句。** 多謝，不過我今日嚟唔到。 `شُكْرًا` 係多謝，`لٰكِنَّنِي` 係「但係我」，`لَا أَسْتَطِيعُ`
+          係「我唔能夠」。`الْحُضُورَ` 係出席，`الْيَوْمَ` 將限制放喺今日。呢度能力動詞後面接活動名詞。"
+        note: 邀請係聽日，就用 `غَدًا` 換走 `الْيَوْمَ`，保留否定詞 `لَا`。試下婉拒聽日邀請：`شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ
+          الْحُضُورَ غَدًا`。多謝同去唔到保留，只改日期。
   - subskill_id: negotiating_plans
-    explanation: 可以用新時間取代之前商量緊嘅時間。
+    explanation: 本來約咗今日見面，但聽日會方便啲。商量安排時，可以提出改一部分，同時保留原本要見面嘅計劃。
     examples:
       - text: هَلْ يُمْكِنُ أَنْ نَلْتَقِيَ غَدًا بَدَلًا مِنَ الْيَوْمِ؟
-        meaning: 可唔可以改為聽日見，唔係今日？
-        note: 現代標準阿拉伯語。講者修改原有計劃嘅其中一部分。
-      - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
-        meaning: 可唔可以改為聽日見，唔係今日？
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者修改原有計劃嘅其中一部分。
+        meaning: "**例句。** 可唔可以改為聽日見，唔係今日？ `هَلْ يُمْكِنُ` 問係咪可行。`أَنْ نَلْتَقِيَ` 指共同動作「我哋見面」。`غَدًا`
+          係提議嘅日子；`بَدَلًا مِنَ الْيَوْمِ` 係「代替今日」，指出想改邊部分。"
+        note: 新日子放喺「代替」短語之前，兩個選擇就清楚。呢句係問對方同唔同意，唔係宣布已經改好。試下：被取代嘅係邊日？答案係 `بَدَلًا مِنَ` 後面嘅今日；聽日先係新提議。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/coordinating-action/arabic-coordinating-action-explained-in-english.yaml
-    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 口語請求可以用口語祈使句或問句。لَيْشْ مَا 可以提出共同行動；禮貌措辭要配合雙方關係。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/coordinating-action/arabic-coordinating-action-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: 現代標準語請求同提議可以使用唔同祈使句或問句結構。對方係邊個，會影響稱呼同動詞形式。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/coordinating-action/arabic-coordinating-action-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: requests
+      explanation: 請求係想對方做一件事。例如門開住，風吹入嚟，你想對方閂門，就可以加一句客氣說話。
+      examples:
+        - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
+          meaning: "**例句。** 唔該閂門。 `سَكِّرْ` 係叫一位男性「閂上」；`الْبَابْ` 係道門。`لَوْ سَمَحْتْ`
+            係慣用嘅「唔該」，字面係「如果你容許」。呢度係客氣語，唔係未講完嘅條件。"
+          note: 向一位女性講，用 `سَكِّرِي` 同 `لَوْ سَمَحْتِي`。試下講完整請求：`سَكِّرِي الْبَابْ، لَوْ
+            سَمَحْتِي`。兩個詞尾都改，門同要求動作保留。
+    - subskill_id: offers_invitations
+      explanation: 見到人做一件事有困難，你可以主動提出幫忙。用一個簡短問題，對方就可以接受或者婉拒。
+      examples:
+        - text: أَسَاعْدَكْ؟
+          meaning: "**例句。** 要唔要我幫你？ `أَسَاعْدَكْ` 合埋「我幫助」同表示「你」嘅後綴，呢度向一位男性講。疑問語氣令呢個可能做嘅動作變成提議幫忙；呢個提議格式冇一般現在式嘅
+            b 前綴。"
+          note: 呢個口語示例向女性提出幫忙，用 `أَسَاعْدِكْ؟`。比較 `تْسَاعْدْنِي؟`「你幫我好嗎？」係請聽者幫手。試下：你主動幫一位男性，揀邊句？答案係
+            `أَسَاعْدَكْ؟`，開頭我嘅形式保留你做幫手者。
+    - subskill_id: suggestions
+      explanation: 一班人想搵地方坐。問「不如坐呢度？」可以提出共同選擇，唔需要命令人一定照做。
+      examples:
+        - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
+          meaning: "**例句。** 不如我哋坐喺呢度？ `لَيْشْ` 係「點解」，`مَا` 係否定，`نِقْعُدْ` 係「我哋坐」，`هُونْ`
+            係「呢度」。合埋係提出一齊做嘅事。「我哋」包括講者，唔係淨係叫聽者坐。"
+          note: 將 `هُونْ` 換成 `هُنِيكْ`，就係建議坐嗰度。可以成個口語句式一齊學；另一個情境下，同樣嘅「點解唔」可能真係問阻礙。試下：邊個詞將講者包括喺計劃入面？答案係「我哋」形式
+            `نِقْعُدْ`。
+    - subskill_id: commitments
+      explanation: 大家需要有人帶鎖匙。你接咗呢項責任，講清楚自己會做乜，其他人就知道可以點樣安排。
+      examples:
+        - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
+          meaning: "**例句。** 聽日我會帶鎖匙嚟。 `رَحْ` 指將來，`أَجِيبْ` 係「我帶嚟」，`الْمَفَاتِيحْ` 係鎖匙，`بُكْرَا` 係聽日。`رَحْ`
+            後面呢個動詞唔加一般 b 前綴。因為你接下咗任務，所以呢句係承諾。"
+          note: "`رَحْ` 後面保留冇一般 b 前綴嘅動作。試下承諾今日帶鎖匙：`رَحْ أَجِيبْ الْمَفَاتِيحْ الْيَوْمْ`。`بُكْرَا` 換成
+            `الْيَوْمْ` 就改日子，責任同動作保留。"
+    - subskill_id: accepting_declining
+      explanation: 有人邀請你今日出席，但你去唔到。先多謝對方，再講清楚限制，可以客氣而明確噉婉拒。
+      examples:
+        - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
+          meaning: "**例句。** 多謝，不過我今日嚟唔到。 `شُكْرًا` 多謝邀請者，`بَسّ` 帶出「但係」。`مَا بَقْدَرْ` 係「我唔能夠」；後面 `أَجِي`
+            係「嚟」，呢個依附動作冇 b 前綴。`الْيَوْمْ` 係今日；去唔到係婉拒嘅原因。"
+          note: 聽日邀請用 `بُكْرَا`，能力動詞前保留 `مَا`。試下婉拒聽日邀請：`شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي بُكْرَا`。依附嘅「嚟」形式仍然冇
+            b 前綴，只改時間。
+    - subskill_id: negotiating_plans
+      explanation: 本來約咗今日見面，但聽日會方便啲。商量安排時，可以提出改一部分，同時保留原本要見面嘅計劃。
+      examples:
+        - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
+          meaning: "**例句。** 可唔可以改為聽日見，唔係今日？ `مُمْكِنْ` 開始一個問可唔可行嘅問題，`نِلْتَقِي` 係「我哋見面」。`بُكْرَا` 係聽日，`بَدَلْ
+            الْيَوْمْ` 係「代替今日」。「我哋」包括雙方，兩個時間詞就指出要改嘅部分。"
+          note: "`مُمْكِنْ` 後面呢個提議動作冇一般 b 前綴。將兩個日子調轉，改期方向亦會相反。試下：係咪完全取消見面？唔係；`نِلْتَقِي` 仍然係計劃，只係再商量日子。"

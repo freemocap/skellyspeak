@@ -1,94 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: managing_conversation
 language: french
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 按互動情境用問候或道別。bonjour 同 au revoir 用喺對話唔同位置；道別亦可以提到下次見面。
+    explanation: 你要離開，但預計聽日再見到對方。`Je dois partir` 即我要走，交代結束對話嘅原因；`À demain !` 就係聽日見。`Dois` 係配合 `je`
+      嘅 `devoir` 形式，`partir` 保持原形。如果未定幾時再見，`À bientôt !` 係遲啲見，冇承諾聽日。`Bonjour !` 用嚟開始見面，唔係同一種結尾。
     examples:
       - text: Je dois partir. À demain !
         meaning: 我要走喇，聽日見！
-        note: 離開陳述為結束作準備；à demain 結束交流，同時提到再見。
+        note: 試下用星期一見嚟結尾。`Je dois partir. À lundi !` 可以；`à` 後面加星期幾，就指預計下次見面嗰日。
   - subskill_id: acknowledging
-    explanation: je vois、d’accord 等短回應可以表示收到或明白；係咪同時同意，要睇回應乜。
+    explanation: 對方解釋咗個意思，你表示而家明白。`Ah` 標示明白咗嗰一刻；`je vois` 字面係我睇到，但呢度係我明白，`ce que tu veux dire`
+      即你想表達嘅意思。呢句表示理解，未必表示贊成；`Je suis d’accord` 就進一步講同意。客氣稱呼或者對幾個人，可以用 `Je vois ce que vous
+      voulez dire`。
     examples:
       - text: Ah, je vois ce que tu veux dire.
         meaning: 哦，我明你意思喇。
-        note: 表示明白之前嘅解釋，唔一定贊同夥伴意見。
+        note: 試下對稱呼為 `vous` 嘅人表示理解。`Ah, je vois ce que vous voulez dire.` 可以；將 `tu veux` 換成 `vous
+          voulez` 只係改稱呼，唔會變成表示同意。
   - subskill_id: clarification
-    explanation: 指出要解釋嘅詞或重點。qu’est-ce que… veut dire 可以問意思；要求重複則主要處理聽唔清。
+    explanation: 你聽到臨時呢個字，但唔清楚對方喺度指乜。`Qu’est-ce que` 問乜嘢，`tu veux dire` 係你想表達，`par « provisoire »`
+      就指出需要解釋嘅詞。引號表示你係問呢個字嘅用法，唔係自己形容一件事。`Qu’est-ce que tu veux dire par « urgent » ?`
+      可以改問另一個唔清楚嘅詞。`Tu peux répéter ?` 只係請對方重講，可能仍然唔明意思。
     examples:
       - text: Qu’est-ce que tu veux dire par « provisoire » ?
         meaning: 你講「暫時」係咩意思？
-        note: par 引入被問嘅講法；問題釐清之前內容。
+        note: 試下問對方重要係指乜。`Qu’est-ce que tu veux dire par « important » ?` 可以；引號入面嘅字指出你唔明嘅確切地方。
   - subskill_id: rephrasing
-    explanation: 用 autrement dit 或 c’est-à-dire 引入另一個講法。新措辭要保留或釐清原意。
+    explanation: 有人詳細解釋預約規則，你再講一次實際意思。`Autrement dit` 係換句話講，`nous devons réserver` 係我哋要預約，`avant de
+      payer` 係付款之前。兩個動作由同一班人做時，`avant de` 可以接原形
+      `payer`。呢個說法表示先後，唔係解釋點解一定要預約。開頭標示係同一意思嘅重述，所以應該保留原有規則，唔好暗中加新條件。
     examples:
       - text: Autrement dit, nous devons réserver avant de payer.
         meaning: 即係話，我哋要先預約，之後先付款。
-        note: autrement dit 連到上文；加一個無關新事實唔算成功重述。
+        note: 試下重述離開之前要預約嘅規則。`Autrement dit, nous devons réserver avant de partir.` 可以；只換第二個動作，`partir`
+          仍然係原形。
   - subskill_id: correcting_misunderstanding
-    explanation: 將對方理解同原意作對比。je voulais dire 常用嚟引入修正，唔需要重講全部經過。
+    explanation: 對方記咗星期四，但你原本想講星期二。`Je voulais dire` 即我原本係想講；未完成過去式 `voulais` 回頭講當時嘅意思。`Mardi, pas
+      jeudi` 用正確日期取代誤會咗嗰日。呢種講法集中改正自己嘅訊息，唔係責怪對方。`Je veux dire mardi` 可以即場改口；`je voulais dire`
+      就較自然噉指返已經講過嘅話。
     examples:
       - text: Je voulais dire mardi, pas jeudi.
         meaning: 我意思係星期二，唔係星期四。
-        note: voulais dire 引入修正，pas jeudi 指出錯誤選項。
+        note: 試下將星期五改正為星期六。`Je voulais dire samedi, pas vendredi.` 可以；想講嘅日期擺前面，誤會咗嗰日放喺 `pas` 後面。
   - subskill_id: turns_topics
-    explanation: 用清楚轉接或發言請求，幫對方跟住焦點變化。au fait 常引入相關新重點。
+    explanation: 大家準備轉話題，但你仲想問價錢。`Avant de changer de sujet` 係轉話題之前，`puis-je` 係較正式、客氣嘅可唔可以容許我，後面接原形
+      `poser`。`Poser une question sur le prix` 即問一條關於價錢嘅問題。日常對話可以用冇咁正式嘅 `Est-ce que je peux
+      poser une question ?`。開頭交代點解想暫時留喺呢個話題，唔係突然插入無關嘅內容。
     examples:
       - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
         meaning: 轉話題之前，我可唔可以問一條關於價錢嘅問題？
-        note: 開頭安排討論流程；puis-je 請求發言，唔係定位外部事件時間。
-provenance:
+        note: 試下暫時保留話題，問日期。`Avant de changer de sujet, puis-je poser une question sur la date ?` 可以；`sur
+          la date` 講明仲想了解邊一點。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/managing-conversation/french-managing-conversation-explained-in-english.yaml
-    at revision french-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - dingemanse2015_communication_repair
     - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/managing-conversation/french-managing-conversation-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - dingemanse2015_communication_repair
-        - oqlf_questions2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/managing-conversation/french-managing-conversation-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - dingemanse2015_communication_repair
-        - oqlf_questions2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

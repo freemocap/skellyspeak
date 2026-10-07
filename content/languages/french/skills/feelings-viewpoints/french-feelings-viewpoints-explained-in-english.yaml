@@ -1,86 +1,155 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: french-skills-2026-10-04
+revision: french-teaching-expanded-english-2026-10-07
 skill_id: feelings_viewpoints
 language: french
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: >-
-      Vouloir or avoir envie de can express a desire. Avoir l’intention de makes an
-      intention explicit; these constructions do not all have the same interpersonal
-      force.
+    explanation: "A walk after lunch sounds appealing, but the speaker is expressing a wish rather
+      than a fixed arrangement. `J’ai envie de` means I feel like or I want to; `marcher un peu`
+      means walk a little, and `après le déjeuner` gives the time. The phrase contains `avoir`,
+      so the form changes with the person: `Nous avons envie de marcher.` The action after `de`
+      stays infinitive. `Je vais marcher` states an intention more directly; having a desire
+      does not itself mean a plan is settled."
     examples:
-      - text: "J’ai envie de marcher un peu après le déjeuner."
-        meaning: >-
-          I feel like walking a little after lunch.
-        note: >-
-          Avoir envie de introduces an infinitive describing the desired activity; this
-          states a wish rather than promising a walk.
+      - text: J’ai envie de marcher un peu après le déjeuner.
+        meaning: I feel like walking a little after lunch.
+        note: "Express a desire to rest instead. `J’ai envie de me reposer un peu après le déjeuner.`
+          works: `me reposer` means rest and includes the reflexive `me` belonging to the
+          speaker."
   - subskill_id: preferences
-    explanation: >-
-      Préférer compares or selects alternatives; aimer mieux is another resource. State
-      what is preferred rather than relying on a positive adjective alone.
+    explanation: Two ways of travelling are available, and the speaker prefers the train for this
+      journey. `Je préfère` states the preference; `le train à l’avion` puts the preferred
+      choice first and the other choice after `à`. `Pour ce trajet` limits the claim to this
+      trip, so it need not describe every journey. `L’avion` has an apostrophe because `avion`
+      begins with a vowel. Simply liking something, `J’aime le train`, does not explicitly
+      compare it with another option.
     examples:
-      - text: "Je préfère le train à l’avion pour ce trajet."
-        meaning: >-
-          I prefer the train to the plane for this journey.
-        note: >-
-          Préférer A à B explicitly ranks the two options within the stated journey.
+      - text: Je préfère le train à l’avion pour ce trajet.
+        meaning: I prefer the train to the plane for this journey.
+        note: "Reverse the preference. `Je préfère l’avion au train pour ce trajet.` works: `au`
+          combines `à` and `le`, and the preferred choice now comes first."
   - subskill_id: emotions
-    explanation: >-
-      Describe an emotional state with an appropriate adjective or expression. Adjectival
-      forms reflect the referent, while expressions such as avoir peur use avoir.
+    explanation: You hear welcome news and describe its effect on you. `Cette nouvelle` means this
+      piece of news; `me fait plaisir` means gives me pleasure or makes me happy. `Me`
+      identifies the person who feels it, while `fait` agrees with the singular news. `Cette
+      nouvelle nous fait plaisir` changes the affected people to us without changing `fait`. In
+      `Je suis contente`, the adjective instead describes the speaker and has the feminine form;
+      `Je suis content` has the masculine form.
     examples:
-      - text: "Cette nouvelle me fait plaisir."
-        meaning: >-
-          I am pleased by this news.
-        note: >-
-          Me identifies the person experiencing pleasure; the expression conveys a
-          reaction to the news rather than evaluating its truth.
+      - text: Cette nouvelle me fait plaisir.
+        meaning: I am pleased by this news.
+        note: "Say that the news makes your group happy. `Cette nouvelle nous fait plaisir.` is the
+          answer: `nous` replaces `me`, while the singular subject still takes `fait`."
   - subskill_id: opinions
-    explanation: >-
-      Je pense que, je trouve que and à mon avis frame an evaluation as the speaker’s
-      view. An opinion is not automatically a claim of certainty.
+    explanation: A narrow path may be unsuitable for bicycles, and the speaker presents that as a
+      judgement. `À mon avis` means in my opinion. `Ce chemin` is this path; `trop étroit` means
+      too narrow, not merely very narrow, and `pour les vélos` names what it is unsuitable for.
+      `Étroit` agrees with masculine `chemin`; a street would be `Cette rue est trop étroite.`
+      The opening signals a viewpoint, but a reason such as limited space can make it easier to
+      discuss.
     examples:
-      - text: "À mon avis, ce chemin est trop étroit pour les vélos."
-        meaning: >-
-          In my opinion, this path is too narrow for bicycles.
-        note: >-
-          À mon avis marks the viewpoint; trop étroit states the judgement and pour les
-          vélos gives its practical scope.
+      - text: À mon avis, ce chemin est trop étroit pour les vélos.
+        meaning: In my opinion, this path is too narrow for bicycles.
+        note: Judge a street rather than a path. `À mon avis, cette rue est trop étroite pour les
+          vélos.` works because both `cette` and `étroite` agree with feminine `rue`.
   - subskill_id: agreement_disagreement
-    explanation: >-
-      Express agreement or disagreement with the proposition actually under discussion.
-      D’accord alone may instead accept a practical proposal, depending on context.
+    explanation: You accept the price of an arrangement but still need to discuss its date. `Je suis
+      d’accord` means I agree, and `sur le prix` specifies the point of agreement. `Mais pas sur
+      la date` leaves out the repeated words while keeping the disagreement clear. `D’accord
+      avec vous` identifies the person you agree with; `d’accord sur la date` identifies the
+      topic. A partial agreement avoids suggesting that the entire arrangement has been
+      accepted.
     examples:
-      - text: "Je suis d’accord sur le prix, mais pas sur la date."
-        meaning: >-
-          I agree about the price, but not the date.
-        note: >-
-          Sur identifies each point; mais pas limits the agreement rather than rejecting
-          everything the partner said.
-provenance: &provenance
+      - text: Je suis d’accord sur le prix, mais pas sur la date.
+        meaning: I agree about the price, but not the date.
+        note: "Agree on the date but not the price. `Je suis d’accord sur la date, mais pas sur le
+          prix.` works: exchanging the two topics reverses the scope of agreement."
+provenance: &a1
   origin: ai
-  authorship: >-
-    AI-authored French explanations, assessment guidance and original examples, informed
-    by the cited sources; no independent linguistic review.
+  authorship: AI-authored French teaching and original examples informed by the cited sources; no
+    independent linguistic review.
   sources:
     - tex_modals2026
     - waystage_language_functions
+    - texAdjectivesTeaching20261007
+    - texObjectPronounsTeaching20261007
+    - oqlfMealsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: french-skills-2026-10-04
-    scope: >-
-      Entire document, including examples and applicability to both declared varieties.
-      References support the named grammatical or functional claims; they do not certify
-      generated examples.
+    revision: french-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: wants_intentions
+      explanation: "A walk after breakfast sounds appealing, but the speaker is expressing a wish
+        rather than a fixed arrangement. `J’ai envie de` means I feel like or I want to;
+        `marcher un peu` means walk a little, and `après le déjeuner` gives the time. The phrase
+        contains `avoir`, so the form changes with the person: `Nous avons envie de marcher.`
+        The action after `de` stays infinitive. `Je vais marcher` states an intention more
+        directly; having a desire does not itself mean a plan is settled."
+      examples:
+        - text: J’ai envie de marcher un peu après le déjeuner.
+          meaning: I feel like walking a little after breakfast.
+          note: "Express a desire to rest instead. `J’ai envie de me reposer un peu après le déjeuner.`
+            works: `me reposer` means rest and includes the reflexive `me` belonging to the
+            speaker."
+    - subskill_id: preferences
+      explanation: Two ways of travelling are available, and the speaker prefers the train for this
+        journey. `Je préfère` states the preference; `le train à l’avion` puts the preferred
+        choice first and the other choice after `à`. `Pour ce trajet` limits the claim to this
+        trip, so it need not describe every journey. `L’avion` has an apostrophe because `avion`
+        begins with a vowel. Simply liking something, `J’aime le train`, does not explicitly
+        compare it with another option.
+      examples:
+        - text: Je préfère le train à l’avion pour ce trajet.
+          meaning: I prefer the train to the plane for this journey.
+          note: "Reverse the preference. `Je préfère l’avion au train pour ce trajet.` works: `au`
+            combines `à` and `le`, and the preferred choice now comes first."
+    - subskill_id: emotions
+      explanation: You hear welcome news and describe its effect on you. `Cette nouvelle` means this
+        piece of news; `me fait plaisir` means gives me pleasure or makes me happy. `Me`
+        identifies the person who feels it, while `fait` agrees with the singular news. `Cette
+        nouvelle nous fait plaisir` changes the affected people to us without changing `fait`.
+        In `Je suis contente`, the adjective instead describes the speaker and has the feminine
+        form; `Je suis content` has the masculine form.
+      examples:
+        - text: Cette nouvelle me fait plaisir.
+          meaning: I am pleased by this news.
+          note: "Say that the news makes your group happy. `Cette nouvelle nous fait plaisir.` is the
+            answer: `nous` replaces `me`, while the singular subject still takes `fait`."
+    - subskill_id: opinions
+      explanation: A narrow path may be unsuitable for bicycles, and the speaker presents that as a
+        judgement. `À mon avis` means in my opinion. `Ce chemin` is this path; `trop étroit`
+        means too narrow, not merely very narrow, and `pour les vélos` names what it is
+        unsuitable for. `Étroit` agrees with masculine `chemin`; a street would be `Cette rue
+        est trop étroite.` The opening signals a viewpoint, but a reason such as limited space
+        can make it easier to discuss.
+      examples:
+        - text: À mon avis, ce chemin est trop étroit pour les vélos.
+          meaning: In my opinion, this path is too narrow for bicycles.
+          note: Judge a street rather than a path. `À mon avis, cette rue est trop étroite pour les
+            vélos.` works because both `cette` and `étroite` agree with feminine `rue`.
+    - subskill_id: agreement_disagreement
+      explanation: You accept the price of an arrangement but still need to discuss its date. `Je suis
+        d’accord` means I agree, and `sur le prix` specifies the point of agreement. `Mais pas
+        sur la date` leaves out the repeated words while keeping the disagreement clear.
+        `D’accord avec vous` identifies the person you agree with; `d’accord sur la date`
+        identifies the topic. A partial agreement avoids suggesting that the entire arrangement
+        has been accepted.
+      examples:
+        - text: Je suis d’accord sur le prix, mais pas sur la date.
+          meaning: I agree about the price, but not the date.
+          note: "Agree on the date but not the price. `Je suis d’accord sur la date, mais pas sur le
+            prix.` works: exchanging the two topics reverses the scope of agreement."

@@ -1,60 +1,96 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 因為 connects the weather to the decision. Look for a causal relation, not just a connector.
+    explanation: Rain changes your group’s plan to go out. Giving the reason first with `因為` lets the
+      listener understand why you are staying home; the following clause gives the decision.
     examples:
       - text: 因為落雨，我哋留喺屋企。
-        meaning: Because it is raining, we are staying home.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: "Because it is raining, we are staying home. `因為落雨` gives because of the rain, using the
+          weather expression `落雨`. `我哋留喺屋企` is we stay at home: `留` means stay, `喺` introduces the
+          location, and `屋企` is home."
+        note: "Try it: put the decision before the reason. Answer: `我哋留喺屋企，因為落雨。` Exchange the clauses while
+          keeping `因為` with the reason. `因為落雨，所以我哋留喺屋企` can make both reason and result explicit;
+          both connecting expressions can appear together."
   - subskill_id: consequences
-    explanation: 所以 introduces a consequence supported by the first clause.
+    explanation: The shop you planned to visit has closed, so the group chooses another one. `所以`
+      introduces the change of plan as a consequence of the closure.
     examples:
       - text: 間舖頭閂咗，所以我哋去第二間。
-        meaning: The shop has closed, so we are going to another one.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: The shop has closed, so we are going to another one. `間舖頭閂咗` presents closing as
+          accomplished, with `咗` after `閂`. `我哋去第二間` means we go to another shop. `第二間` can mean
+          another one in this setting; it need not count a literal second item in a queue.
+        note: "Try it: make going home the result. Answer: `間舖頭閂咗，所以我哋返屋企。` Replace the response with `返屋企`,
+          return home. `跟住我哋返屋企` says next we return home and orders events, while `所以` explicitly
+          connects the response to its reason."
   - subskill_id: conditions
-    explanation: 如果 establishes a condition and 就 introduces the dependent outcome; the condition is not
-      asserted as fact.
+    explanation: You would like to go together, but it depends on the other person being free. `如果`
+      presents that open condition; `就` introduces the plan that follows if it is met.
     examples:
       - text: 如果你得閒，我哋就一齊去。
-        meaning: If you are free, we will go together.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: If you are free, we will go together. `你得閒` means you are free. `我哋就一齊去` gives we then go
+          together; `一齊` sits before the action. The sentence leaves the listener’s availability
+          unresolved rather than stating they are free.
+        note: "Try it: make going together depend on no rain. Answer: `如果聽日唔落雨，我哋就一齊去。` Replace the
+          condition, keeping `就` in the result. `因為你得閒，我哋一齊去` instead presents your availability as
+          the reason, not an open possibility."
   - subskill_id: contrast
-    explanation: 但係 contrasts evaluations along different dimensions; the two facts are compatible.
+    explanation: A small food shop may look unpromising, but the food gives you a positive surprise.
+      `但係` contrasts the limited size with a different quality, its tasty food.
     examples:
       - text: 呢間舖頭細，但係啲嘢幾好食。
-        meaning: This shop is small, but the food is quite tasty.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: "This shop is small, but the food is quite tasty. `呢間舖頭細` directly describes its size,
+          without `係`. `啲嘢` means the things here, understood as food. `幾好食` means quite tasty: `好食`
+          is the quality and `幾` marks its degree."
+        note: "Try it: contrast a small shop with cheap food. Answer: `呢間舖頭細，但係啲嘢幾平。` Replace `好食` with `平`,
+          inexpensive. Both statements can be true; `但係` highlights the favourable quality despite
+          the initial impression rather than correcting the size statement."
   - subskill_id: supporting_claims
-    explanation: The station is evidence for the evaluation. Assess relevance rather than answer length.
+    explanation: Someone asks why this location is convenient. A nearby MTR station gives a concrete
+      reason for your assessment, connecting ease of travel to a feature of the place.
     examples:
       - text: 我覺得呢度方便，因為附近有地鐵站。
-        meaning: I think this place is convenient because there is an MTR station nearby.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: I think this place is convenient because there is an MTR station nearby. `我覺得` introduces
+          your view, `呢度方便` evaluates this place, and `因為附近有地鐵站` gives the reason. `附近` sets the
+          nearby area before `有`, which means there is in this clause.
+        note: "Try it: support convenience with a nearby bus stop. Answer: `我覺得呢度方便，因為附近有巴士站。` Replace the
+          facility; keep `因為` linking it to the assessment. `我覺得呢度好方便` strengthens the judgement
+          with `好` but does not supply that concrete reason."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

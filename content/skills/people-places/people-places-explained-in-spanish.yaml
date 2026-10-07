@@ -1,30 +1,30 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: shared-teaching-expansion-spanish-2026-10-07
 skill_id: people_places
 explanation_language: spanish
 title: Personas, cosas y lugares
-introduction: Identificar referentes y describir sus propiedades, ubicación, cantidad y relaciones.
+introduction: Presentar y describir personas y cosas, indicar dónde están y explicar sus relaciones.
 sections:
   - subskill_id: identification
     title: Identificación
-    concept: Establecer quién es una persona o qué es una cosa.
+    concept: Decir quién es alguien o qué es algo.
   - subskill_id: qualities_states
     title: Cualidades y estados
-    concept: Describir las propiedades o el estado de algo o alguien.
+    concept: Describir cómo es alguien o algo, o cómo se encuentra ahora.
   - subskill_id: location_movement
     title: Ubicación y movimiento
-    concept: Situar algo y describir relaciones espaciales o recorridos.
+    concept: Decir dónde está alguien o algo, o hacia dónde se mueve.
   - subskill_id: possession_relations
     title: Posesión y relaciones
-    concept: Expresar pertenencia, asociación o vínculos entre personas.
+    concept: Explicar a quién pertenece algo o qué relación tienen las personas y las cosas.
   - subskill_id: quantity_comparison
     title: Cantidad y comparación
-    concept: Expresar cantidades, proporciones o comparaciones.
+    concept: Hablar de cantidades y comparar personas o cosas.
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -35,5 +35,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: shared-teaching-expansion-spanish-2026-10-07
+    scope: Learner-facing introductions and concepts; Spanish editorial review pending.

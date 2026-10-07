@@ -1,62 +1,116 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Ciao can open or close an informal encounter. A domani takes leave while
-      anticipating another meeting the next day.
+    explanation: When you need to leave, naming that need and adding a farewell makes the ending clear.
+      `A domani` anticipates seeing the person tomorrow. The two short sentences both close the
+      present encounter and acknowledge the next one.
     examples:
       - text: Devo andare. A domani!
-        meaning: I have to go. See you tomorrow!
-        note: The first clause prepares departure; a domani closes contact without requiring a complete
-          sentence.
+        meaning: “I have to go. See you tomorrow!” `Devo andare` explains that the speaker needs to leave.
+          `A domani` is a conventional farewell meaning see you tomorrow, not an
+          instruction for the listener to go.
+        note: >-
+          **Compare.** `A presto` says see you soon without choosing tomorrow. `Ciao` can open or
+          close a familiar exchange; its role depends on where it occurs.
+
+
+          **Try it.** Close the encounter without specifying a day. One answer: `Devo andare. A
+          presto!`. Keep the reason for leaving and choose the less specific farewell.
   - subskill_id: acknowledging
-    explanation: A reply such as ho capito can register understanding of the preceding explanation.
-      Receipt or understanding does not automatically imply agreement with its content.
+    explanation: After someone explains a distinction, you can acknowledge that the explanation has
+      become clear. `Ho capito` reports that you have understood. This can show receipt of their
+      explanation without necessarily agreeing with an opinion they expressed.
     examples:
       - text: Ora ho capito la differenza.
-        meaning: Now I understand the difference.
-        note: After someone explains two alternatives, this acknowledges the explanation and its result.
-          Ho capito is a compound form of capire.
+        meaning: “Now I understand the difference.” `Ora` means now; `ho capito` is the
+          completed-understanding form with `avere` and participle `capito`. `La differenza` names
+          what you have understood.
+        note: >-
+          **Compare.** `Sono d’accordo` expresses agreement, not simply understanding. `Non ho
+          capito` says you did not understand and can lead to a clarification request.
+
+
+          **Try it.** Acknowledge that you understood the explanation with `la spiegazione`. Answer:
+          `Ora ho capito la spiegazione`. Replace the thing understood, keeping the acknowledgment.
   - subskill_id: clarification
-    explanation: Che cosa intendi con …? asks what the partner means by an expression. The preceding
-      contribution must identify the expression being clarified.
+    explanation: If a speaker calls an arrangement temporary and you are unsure what they mean, you can
+      ask about that exact word. `Che cosa intendi con` asks the speaker to explain their intended
+      meaning. It repairs understanding of something already said.
     examples:
       - text: Che cosa intendi con «provvisorio»?
-        meaning: What do you mean by “provisional”?
-        note: After the partner calls a plan provvisorio, this requests clarification of that word.
-          Intendi addresses one person informally.
+        meaning: “What do you mean by temporary?” `Che cosa` asks what; `intendi` addresses one person
+          informally. `Con «provvisorio»` points to the quoted word needing explanation.
+          `Provvisorio` means temporary or provisional.
+        note: >-
+          **Compare.** `Puoi ripetere?` asks for repetition, which may not resolve an unclear
+          meaning. `Che cosa intende con «provvisorio»?` changes to formal address.
+
+
+          **Try it.** Ask what the speaker means by optional, `facoltativo`. Answer: `Che cosa
+          intendi con «facoltativo»?`. Replace only the word whose intended meaning needs
+          explaining.
   - subskill_id: rephrasing
-    explanation: In altre parole introduces a reformulation. The new wording must preserve or
-      explain the earlier point instead of switching to unrelated information.
+    explanation: If a booking explanation was confusing, stating its practical consequence can make it
+      clearer. `In altre parole` signals a reformulation. The following clause provides the restated
+      meaning, rather than merely announcing that an explanation is coming.
     examples:
       - text: In altre parole, dobbiamo confermare prima di prenotare.
-        meaning: In other words, we need to confirm before booking.
-        note: After explaining that booking depends on prior confirmation, the speaker restates that
-          sequence more plainly.
+        meaning: “In other words, we must confirm before booking.” `In altre parole` introduces the
+          restatement. `Dobbiamo confermare` gives the requirement; `prima di prenotare` orders
+          confirmation before booking. After `prima di`, the action takes an infinitive.
+        note: >-
+          **Compare.** `Prima prenotiamo, poi confermiamo` reverses that order. A useful
+          reformulation preserves the earlier message while making a needed point clearer.
+
+
+          **Try it.** Clarify that payment must come before booking with `pagare`. Answer: `In altre
+          parole, dobbiamo pagare prima di prenotare`. Replace the required action and retain the
+          ordering.
   - subskill_id: correcting_misunderstanding
-    explanation: Intendevo …, non … can replace an interpretation with the intended one. The
-      contrast must address a recoverable misunderstanding.
+    explanation: If someone mistakes a courtyard for a car park, you can name both the intended place
+      and the mistaken one. `Intendevo` looks back to what you meant when speaking earlier. This
+      makes the correction precise.
     examples:
       - text: Intendevo il cortile, non il parcheggio.
-        meaning: I meant the courtyard, not the car park.
-        note: After the partner assumes the meeting place is the car park, this supplies the intended
-          place and rejects the mistaken one.
+        meaning: “I meant the courtyard, not the car park.” `Intendevo` is the speaker’s imperfect form of
+          `intendere`, used here for the earlier intended meaning. `Il cortile` names the correct
+          place; `non il parcheggio` excludes the mistaken one.
+        note: >-
+          **Compare.** `Intendo il cortile` states what you mean now. A bare `No` rejects the
+          interpretation without showing the replacement. The contrast names the intended place
+          first.
+
+
+          **Try it.** Correct an interpretation of the courtyard when you meant the garden, `il
+          giardino`. Answer: `Intendevo il giardino, non il cortile`. Put the intended place before
+          the rejected one.
   - subskill_id: turns_topics
-    explanation: A question with posso aggiungere can seek another turn on a topic. Its role is to
-      gain space in the discussion, rather than merely state a fact about that topic.
+    explanation: In a discussion, you may want a turn to add a relevant price point. `Posso aggiungere`
+      asks for room to contribute, rather than testing whether you are physically able to speak.
+      Naming the subject helps the others see how your contribution connects.
     examples:
       - text: Posso aggiungere una cosa sul prezzo?
-        meaning: May I add something about the price?
-        note: In a discussion nearing a decision, this requests the floor on price. Sul is su + il.
+        meaning: “May I add something about the price?” `Posso` asks permission for the speaker;
+          `aggiungere` means add and `una cosa` means a point or something here. `Sul prezzo` names
+          the topic, combining `su` and `il`.
+        note: >-
+          **Adapt it.** `Posso aggiungere una cosa sul programma?` changes the subject to the
+          programme. After the group gives you the turn, the next sentence supplies your actual
+          point; the request itself states no opinion about the price.
+
+
+          **Try it.** Ask to add a point about the course. Answer: `Posso aggiungere una cosa sul
+          corso?`. Replace the topic and keep the floor-taking question.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_discourse2026
     - treccani_it_questions2026
@@ -66,10 +120,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

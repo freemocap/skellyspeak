@@ -1,51 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: feelings_viewpoints
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Querer後接不定式，可以表達主語想做乜。
+    explanation: 忙完一日，你可能想休息，唔想再做其他活動。`Querer` 後面加不定式，表達自己想做乜。呢句講願望，單憑佢唔代表承諾一定會做。
     examples:
       - text: Quiero descansar.
-        meaning: 我想休息。
-        note: 想嘅人，同預計休息嘅人係同一個。
+        meaning: 意思係「我想休息」。`Quiero` 表達講者嘅願望，`descansar` 指休息。只有第一個動詞跟人物變位；活動保持不定式。
+        note: >-
+          **改一改。** `Ella quiere descansar` 講佢想休息。`Voy a descansar` 就將休息講成計劃。唔好將兩個動詞都變位成 `quiero
+          descanso`。
+
+
+          **試吓。** 用 `comer` 講想食嘢。答案：`Quiero comer`。保留表示自己嘅 `quiero`，換不定式。
   - subskill_id: preferences
-    explanation: Preferir陳述偏好；gustar就以被喜歡嘅事物做文法主語。
+    explanation: 講鍾意邊啲書，可以畀對方了解你嘅喜好。西班牙文用 `gustar` 時，以令人喜歡嘅事物組織句子，再用代詞指出邊個鍾意。動詞跟被喜歡嘅事物配合。
     examples:
       - text: Me gustan estos libros.
-        meaning: 我鍾意呢啲書。
-        note: Gustan配合複數libros。
+        meaning: 意思係「我鍾意呢啲書」。`Me` 指鍾意佢哋嘅人係我。`Gustan` 用複數，因為 `estos libros` 呢啲書係複數。書先係呢個句式嘅文法主語。
+        note: >-
+          **改一改。** `Me gusta este libro` 講一本書，所以動詞用單數。`Me gusta leer` 講鍾意閱讀，不定式活動亦用單數 `gusta`。
+
+
+          **試吓。** 用 `estas películas` 講鍾意呢啲電影。答案：`Me gustan estas películas`。`Gustan` 配合複數電影，唔係配合
+          `me`。
   - subskill_id: emotions
-    explanation: 用合適表達講出感受。配合estar嘅形容詞，要同描述緊嘅人配合。
+    explanation: 朋友問你心情點時，可以用 `estar` 加形容詞講情緒狀態。形容詞配合有嗰種感受嘅人。呢度講者覺得開心或者滿意。
     examples:
       - text: Estoy contenta.
-        meaning: 我好開心。
-        note: 女性講者描述自己嘅情緒狀態。
+        meaning: 意思係「我好開心」。`Estoy` 指講者嘅狀態。`Contenta` 係陰性單數形容詞；用陽性配合嘅講者會講 `contento`。詞尾配合講者，唔係令佢開心嗰件事。
+        note: |-
+          **比較。** `Estoy triste` 係唔開心；`triste` 嘅陽性同陰性形式一樣。`Soy una persona alegre` 描述開朗性格，唔只係當刻心情。
+
+          **試吓。** 用陽性配合講自己開心。答案：`Estoy contento`。換形容詞詞尾，保留 `estoy`。
   - subskill_id: opinions
-    explanation: Creo que引出對命題嘅個人看法；亦可以直接用評價表達意見。
+    explanation: 討論計劃時，可以講自己點睇，唔需要當成所有人嘅意見。`Creo que` 引出你嘅想法，後面嘅分句講具體判斷，例如個主意好唔好。
     examples:
       - text: Creo que es una buena idea.
-        meaning: 我覺得係個好主意。
-        note: 講者將評價表達成自己嘅觀點。
+        meaning: 意思係「我覺得係個好主意」。`Creo` 係我覺得，`que` 連接意見內容，`es una buena idea` 評價個提議。`Buena` 配合陰性名詞 `idea`。
+        note: >-
+          **改一改。** `Creo que es una mala idea` 換成負面評價。想表達唔相信而有疑慮，可以講 `No creo que sea una buena idea`。
+          呢度表達疑慮，用虛擬式 `sea`，而唔係 `es`。
+
+
+          **試吓。** 用 `útil` 講你覺得有用。答案：`Creo que es útil`。保留 `que` 連接意見內容。
   - subskill_id: agreement_disagreement
-    explanation: 對已知立場表示同意、反對，或者加上保留條件。
+    explanation: 兩個人可以都明白個提議，但意見唔同。`Estar de acuerdo` 表達同意；喺動詞前面加 `no` 就表達唔同意。呢句回應緊大家討論嗰個看法。
     examples:
       - text: No estoy de acuerdo.
-        meaning: 我唔同意。
-        note: 要知道反對乜嘢，就要睇前面嘅立場。
+        meaning: 意思係「我唔同意」。`No` 否定 `estoy`，而 `estoy` 指講者。`De acuerdo` 係同意嘅慣用表達。呢句指出立場唔同，但未講原因。
+        note: >-
+          **改一改。** `Estoy de acuerdo contigo` 係我同意你。`No estoy de acuerdo con el plan`
+          指出唔同意個計劃。保留表達入面嘅 `de`，用 `con` 引出人或者提議。
+
+
+          **試吓。** 用 `el plan` 講同意個計劃。答案：`Estoy de acuerdo con el plan`。刪走 `no`，加上同意嘅對象。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/feelings-viewpoints/spanish-feelings-viewpoints-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -53,21 +73,21 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/feelings-viewpoints/spanish-feelings-viewpoints-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -75,18 +95,19 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/feelings-viewpoints/spanish-feelings-viewpoints-explained-in-english.yaml
-    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -94,9 +115,12 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

@@ -1,71 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Là將對象連到識別名詞短語。
+    explanation: 你向未見過鄰居嘅人介紹佢。`Đây` 指呢位或者呢個，`là` 連到身份片語 `hàng xóm của tôi` 即我嘅鄰居。`Của tôi`
+      放喺名詞後面表示同我嘅關係。`Đó là hàng xóm của tôi` 改指嗰位。`Là` 用嚟以名詞識別身份；講佢高就直接用 `cao`，例如 `Hàng xóm của
+      tôi cao`。
     examples:
       - text: Đây là hàng xóm của tôi.
         meaning: 呢位係我鄰居。
-        note: Của tôi將鄰居連到講者；句子冇指定性別。
+        note: 試下指出嗰位係你鄰居。`Đó là hàng xóm của tôi.` 可以；`đó` 換咗指示位置，關係片語保留。
   - subskill_id: qualities_states
-    explanation: 形容詞可以直接表達性質，唔加là。
+    explanation: 你考慮架車適唔適合行條路，講佢嘅闊度。`Con đường này` 係呢條路；`con` 係呢度用嘅量詞，`này` 跟喺路後面。`Hẹp`
+      直接放喺主語後面講窄，唔加 `là`。`Con đường này rộng` 就講相反嘅闊。描述詞唔會因為單複數或者性別而加詞尾。呢句講特徵，前後討論交代闊度點解重要。
     examples:
       - text: Con đường này hẹp.
         meaning: 呢條路好窄。
-        note: Này跟喺名詞短語後；hẹp交代性質。
+        note: 試下形容呢條路闊。`Con đường này rộng.` 可以；`rộng` 換咗特徵，主語同量詞片語保留。
   - subskill_id: location_movement
-    explanation: Ở配合位置短語交代物件喺邊。
+    explanation: 有人搵鎖匙，你話佢知喺邊。`Chìa khóa` 係鎖匙，`ở` 引出位置，`trên bàn` 係枱上。呢句講位置，唔係移動；`Tôi đặt chìa khóa
+      lên bàn` 係我將鎖匙放上枱，用動作 `đặt` 同方向 `lên`。如果喺枱下面，可以講 `Chìa khóa ở dưới bàn`，保持位置片語嘅結構。
     examples:
       - text: Chìa khóa ở trên bàn.
         meaning: 鎖匙喺張枱上面。
-        note: Trên bàn指出承托物件嘅表面。
+        note: 試下講鎖匙喺枱下面。`Chìa khóa ở dưới bàn.` 可以；`dưới` 換 `trên`，`ở` 仍然講鎖匙位置。
   - subskill_id: possession_relations
-    explanation: Có表示擁有；數物件時可以用量詞。
+    explanation: 大家需要座位，你話自己有兩張摺櫈。`Tôi có` 係我有，`hai cái ghế gấp` 指兩張摺櫈。數字先，之後係量詞 `cái`、櫈嘅
+      `ghế`，再加摺得嘅描述 `gấp`。呢個片語用 `cái` 數個別櫈。`Tôi không có ghế gấp`
+      就否定有摺櫈。越南文量詞有唔同用法，唔係英文複數詞尾；`ghế` 本身唔變。
     examples:
       - text: Tôi có hai cái ghế gấp.
         meaning: 我有兩張摺凳。
-        note: Hai cái ghế gấp數所擁有嘅凳；名詞冇複數詞尾。
+        note: 試下講有三張摺櫈。`Tôi có ba cái ghế gấp.` 可以；`ba` 改咗數量，量詞、名詞同描述都保留。
   - subskill_id: quantity_comparison
-    explanation: Hơn引出同另一件物件嘅比較。
+    explanation: 搬嘢之前，你比較兩個盒。`Cái hộp này` 係呢個盒，`nhẹ hơn` 係較輕，`cái kia` 係嗰個。`Hơn` 跟喺特徵 `nhẹ`
+      後面，唔會喺形容詞加比較詞尾。知道講緊盒時，量詞 `cái` 可以唔重複 `hộp`。`Cái hộp này nặng hơn cái kia`
+      比較相反特徵，即較重。比較需要另一個對象，但可以由對話提供。
     examples:
       - text: Cái hộp này nhẹ hơn cái kia.
         meaning: 呢個箱比嗰個輕。
-        note: Cái kia指另一個箱，唔使重複hộp。
-provenance:
+        note: 試下講呢個盒比嗰個重。`Cái hộp này nặng hơn cái kia.` 可以；`nặng` 換咗特徵，但兩個比較對象嘅次序保留。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/people-places/vietnamese-people-places-explained-in-english.yaml at
-    revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_identity2026
     - niu_vietnamese_patterns2026
+    - niuVietnameseComparisonTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/people-places/vietnamese-people-places-explained-in-english.yaml
-        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - msu_vietnamese_identity2026
-        - niu_vietnamese_patterns2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

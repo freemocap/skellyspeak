@@ -1,50 +1,58 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: german-teaching-cantonese-2026-10-07
 language: german
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: das ist 後接名詞短語可以識別人或物。物主限定詞詞尾要配合名詞短語。
+    explanation: 介紹鄰居，係將眼前嗰個人同關係、住邊連起。呢度 `Das ist` 係「嗰位係」，後面名詞短語指出佢係住二樓嘅我哋女鄰居。
     examples:
       - text: Das ist unsere Nachbarin aus dem zweiten Stock.
-        meaning: 嗰位係住二樓嘅女鄰居。
-        note: unsere 配合陰性單數 Nachbarin；對應男性名詞係 Nachbar。
+        meaning: "**例句。** 嗰位係住二樓嘅女鄰居。 `unsere Nachbarin` 係我哋女鄰居，`unsere` 用女性單數詞尾。`aus dem zweiten Stock`
+          係由二樓，`aus` 接與格 `dem`，序數 `zweiten` 用呢個短語所需嘅詞尾。"
+        note: 試下介紹同一層嘅男性鄰居：`Das ist unser Nachbar aus dem zweiten Stock`。`Nachbarin` 改成 `Nachbar`，`unsere`
+          改成 `unser`。介紹用嘅 `Das` 保留，唔使跟鄰居名詞性別改。
   - subskill_id: qualities_states
-    explanation: 形容詞喺 sein 後面描述主語，通常唔加形容詞詞尾；放名詞前就係另一套規則。
+    explanation: 分配搬邊件行李時，重量好重要。`schwer` 同 `leicht` 描述兩個袋嘅重量。佢哋喺 `ist` 後面做描述，唔加配合名詞嘅形容詞詞尾。
     examples:
       - text: Der Rucksack ist schwer, aber die Tasche ist leicht.
-        meaning: 背囊重，但手袋輕。
-        note: schwer 同 leicht 喺謂語位置唔加詞尾；aber 引入對比。
+        meaning: "**例句。** 背囊重，但手袋輕。 `Der Rucksack` 係背囊，`die Tasche` 係袋。兩邊都用
+          `ist`「係」，後面接描述詞。`aber`「但係」連起重背囊同輕袋嘅對比。"
+        note: 比較 `ein schwerer Rucksack`「一個重背囊」：放名詞前，形容詞要加詞尾。試下話背囊輕：`Der Rucksack ist leicht`，因為仍然喺動詞後面，所以
+          `leicht` 唔加詞尾。
   - subskill_id: location_movement
-    explanation: 空間用法嘅 in，第三格表示活動位置，第四格表示目的地。唔可以只睇有冇郁動嚟決定格。
+    explanation: 小朋友可以喺花園入面跑，亦可以由外面跑入花園。德語分清動作喺邊發生，同指向邊度。空間 `in` 用與格表示位置，用賓格表示目的地；兩種都可以有移動。
     examples:
       - text: Die Kinder laufen im Garten.
-        meaning: 啲小朋友喺花園入面跑緊。
-        note: im 係 in dem：第三格表明花園係跑步所在位置。
+        meaning: "**例句。** 啲小朋友喺花園入面跑緊。 `Die Kinder` 係小朋友，`laufen` 係跑。`im Garten` 係喺花園，`im` 合埋 `in dem`；與格
+          `dem` 指花園係跑步發生嘅地方。"
+        note: 試下改成小朋友跑入花園：`Die Kinder laufen in den Garten`。`im` 改成 `in den`，唔係單憑跑步就決定格；新地方短語指出目的地。
       - text: Die Kinder laufen in den Garten.
-        meaning: 啲小朋友跑入花園。
-        note: in den Garten 用陽性第四格表示進入嘅目的地。分別係「喺入面」同「入去」，唔係靜止同郁動。
+        meaning: "**例句。** 啲小朋友跑入花園。 `in den Garten` 係跑入花園。男性賓格 `den` 將花園標示成目的地。主語同動作冇變，格嘅改變話畀我哋知佢哋入去。"
+        note: 試下話佢哋已喺入面，喺嗰度跑：`Die Kinder laufen im Garten`。與格位置短語換走賓格目的地短語。仍然有移動，但冇講進入。
   - subskill_id: possession_relations
-    explanation: haben 加第四格受詞可以表達擁有；mein 等物主限定詞亦可交代擁有或關係，詞尾要配合名詞。
+    explanation: 比較有幾多架可用單車，可以同時講擁有同親屬關係。`haben` 話邊個有某樣嘢，所有格例如 `meine` 將人或者物件同講者連起。
     examples:
       - text: Ich habe ein Fahrrad. Meine Schwester hat zwei.
-        meaning: 我有一架單車，我姊妹有兩架。
-        note: ein Fahrrad 係 habe 嘅受詞；meine Schwester 交代親屬，zwei 指返單車。
+        meaning: "**例句。** 我有一架單車，我姊妹有兩架。 `Ich habe ein Fahrrad` 係我有一架單車，中性賓語用 `ein`。`Meine Schwester hat
+          zwei` 係我姐姐或妹妹有兩架。`hat` 配合姐姐妹妹，`zwei` 代指前面講過嘅兩架單車。"
+        note: 試下改成兄弟有兩架：`Mein Bruder hat zwei`。`meine` 改成男性 `mein`，名詞亦改，`hat` 保持單數。如果之前未清楚講單車，完整句用 `Mein
+          Bruder hat zwei Fahrräder`。
   - subskill_id: quantity_comparison
-    explanation: 數字交代數量。德文形容詞比較級常加 -er；als 引入不等比較嘅另一方。
+    explanation: 有三個箱要搬，其中一個較輕，搬起嚟容易啲。數字交代數量，比較形容詞加 `als` 就比較呢個箱同其他箱。
     examples:
       - text: Wir haben drei Kisten. Diese Kiste ist leichter als die anderen.
-        meaning: 我哋有三個箱。呢個箱比其他嗰啲輕。
-        note: drei 計箱數，leichter als 比較重量，各有各嘅關係。
+        meaning: "**例句。** 我哋有三個箱。呢個箱比其他嗰啲輕。 `Wir haben drei Kisten` 係我哋有三個箱。`Diese Kiste` 係呢個箱，`leichter` 由
+          `leicht` 變成更輕，`als die anderen` 係比其他嗰啲，指其餘箱。"
+        note: 一樣輕用 `so leicht wie`，較輕用 `leichter als`。試下話呢個箱同其他一樣輕：`Diese Kiste ist so leicht wie die
+          anderen`。成個比較框架要換，唔係淨係換連接詞。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/german/skills/people-places/german-people-places-explained-in-english.yaml at revision
-    german-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_articles2026
     - umich_de_adjectives2026
@@ -54,18 +62,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: german-teaching-cantonese-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/german/skills/people-places/german-people-places-explained-in-english.yaml at
-        revision german-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
       sources:
         - umich_de_articles2026
         - umich_de_adjectives2026
@@ -75,6 +83,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: german-teaching-cantonese-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

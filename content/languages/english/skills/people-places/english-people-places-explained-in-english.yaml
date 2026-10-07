@@ -1,59 +1,200 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: people_places
 language: english
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Use names, pronouns or noun phrases to establish who or what you mean.
+    explanation: Identification tells a listener who or what you are pointing out. If you see someone
+      who has recently moved nearby, you can connect that visible person with their relationship to
+      you. The listener needs enough shared context to know who you mean.
     examples:
       - text: That is our new neighbour.
-        meaning: The indicated person is the new neighbour.
-        note: That identifies a referent in the shared situation.
+        meaning: "`That` points to the person in view. `Is` links them to `our new neighbour`; `our` relates
+          the person to your household or group, and `new` describes their recent arrival. For
+          several people, say `Those are our new neighbours`."
+        note: >-
+          `That is our new neighbour` identifies someone; `Our neighbour is friendly` describes
+          them. Use `this` for someone or something nearer in the situation.
+
+
+          **Try it.** Introduce a colleague standing beside you. Answer: `This is my colleague`.
+          `This` points out the nearby person, and `my colleague` gives the relationship.
   - subskill_id: qualities_states
-    explanation: Adjectives after be can describe a property or current condition.
+    explanation: A description helps someone picture a place or decide whether it suits them. If a
+      friend needs somewhere to read, you can tell them there is little noise in a room. English
+      connects the thing described to its quality with a form of `be`.
     examples:
       - text: The room is quiet.
-        meaning: There is little noise in the room.
-        note: Quiet is predicated of the room through is.
+        meaning: "`The room` names the place, `is` connects it to a description, and `quiet` describes the
+          low noise level. With several rooms, use `The rooms are quiet`. The describing word
+          `quiet` stays unchanged."
+        note: >-
+          You can also put the describing word before the noun: `a quiet room`. In a complete
+          statement, keep the linking verb: `The room is quiet`, not the incorrect `The room quiet`.
+          A quality can be temporary or lasting; context tells you which.
+
+
+          **Try it.** Describe two rooms as warm. Answer: `The rooms are warm`. Plural `rooms` takes
+          `are`; `warm` needs no plural ending.
   - subskill_id: location_movement
-    explanation: Use spatial expressions to place things or describe a path.
+    explanation: Location words help someone find an object relative to a landmark. If a friend cannot
+      see your bicycle, describing its position against the shed may help. A position tells where
+      something is; a movement expression tells where it goes.
     examples:
       - text: The bicycle is behind the shed.
-        meaning: The shed is in front of the bicycle.
-        note: Behind expresses the spatial relationship.
+        meaning: "`The bicycle is` names the object and introduces its position. `Behind the shed` places it
+          on the shed’s far side from the relevant viewpoint. `Behind` needs a landmark here, so the
+          listener knows what it is behind."
+        note: >-
+          `Beside the shed` would mean next to it. For movement, compare `I moved the bicycle into
+          the shed`: `into` gives a destination inside. `In the shed` describes its position once it
+          is there.
+
+
+          **Try it.** Tell someone a bag is next to the door. Answer: `The bag is beside the door`.
+          `Beside` links the bag’s position to the door as a landmark.
   - subskill_id: possession_relations
-    explanation: Possessive forms can express ownership and relationships.
+    explanation: Possession tells someone whose object you mean; related forms also connect people. If a
+      visitor asks about a bicycle, you can identify its owner through your family relationship.
+      This avoids confusing your own bicycle with your brother’s.
     examples:
       - text: This is my brother’s bicycle.
-        meaning: The bicycle belongs to the speaker’s brother.
-        note: My marks the family relationship; brother’s marks the bicycle’s
-          association with him.
+        meaning: "`This is` points out the bicycle. `My brother` names the person through his relationship
+          to you. The ending in `brother’s` connects him to `bicycle`: the bicycle belongs to him.
+          The apostrophe is part of that written possessive form."
+        note: >-
+          Compare `my bicycle`, which belongs to you, with `my brother’s bicycle`, which belongs to
+          your brother. With a regular plural owner, put the apostrophe after the plural ending: `my
+          parents’ house`.
+
+
+          **Try it.** Identify a bag belonging to your sister. Answer: `This is my sister’s bag`.
+          The possessive ending attaches to `sister`, because she owns the bag.
   - subskill_id: quantity_comparison
-    explanation: Quantifiers express amounts; comparative constructions relate two
-      values or properties.
+    explanation: Comparison helps you choose between two things. When packing, you may want the bag that
+      weighs less. A comparative describing word tells how one item differs from the other; a
+      quantity word tells how much or how many there are.
     examples:
       - text: This bag is lighter than that one.
-        meaning: The first bag weighs less than the second.
-        note: Lighter than forms the comparison.
+        meaning: "`This bag` is the item being described. `Lighter` means lower in weight; `than that one`
+          supplies the other bag. `One` avoids repeating `bag`. Short describing words often add
+          `-er`, as `light` becomes `lighter`."
+        note: >-
+          Some longer words use `more`: `This bag is more expensive than that one`. Do not combine
+          both ways in the incorrect `more lighter`. For amount, use a phrase such as `two bags` or
+          `less luggage`, rather than a comparison of weight.
+
+
+          **Try it.** Compare a small box with a larger one. Answer: `This box is smaller than that
+          one`. `Smaller` gives the size comparison and `than` introduces the second box.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-teaching-expanded-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1
 provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: identification
+      explanation: Identification tells a listener who or what you are pointing out. If you see someone
+        who has recently moved nearby, you can connect that visible person with their relationship
+        to you. The listener needs enough shared context to know who you mean.
+      examples:
+        - text: That is our new neighbor.
+          meaning: "`That` points to the person in view. `Is` links them to `our new neighbor`; `our` relates
+            the person to your household or group, and `new` describes their recent arrival. For
+            several people, say `Those are our new neighbors`."
+          note: >-
+            `That is our new neighbor` identifies someone; `Our neighbor is friendly` describes
+            them. Use `this` for someone or something nearer in the situation.
+
+
+            **Try it.** Introduce a colleague standing beside you. Answer: `This is my colleague`.
+            `This` points out the nearby person, and `my colleague` gives the relationship.
+    - subskill_id: qualities_states
+      explanation: A description helps someone picture a place or decide whether it suits them. If a
+        friend needs somewhere to read, you can tell them there is little noise in a room. English
+        connects the thing described to its quality with a form of `be`.
+      examples:
+        - text: The room is quiet.
+          meaning: "`The room` names the place, `is` connects it to a description, and `quiet` describes the
+            low noise level. With several rooms, use `The rooms are quiet`. The describing word
+            `quiet` stays unchanged."
+          note: >-
+            You can also put the describing word before the noun: `a quiet room`. In a complete
+            statement, keep the linking verb: `The room is quiet`, not the incorrect `The room
+            quiet`. A quality can be temporary or lasting; context tells you which.
+
+
+            **Try it.** Describe two rooms as warm. Answer: `The rooms are warm`. Plural `rooms`
+            takes `are`; `warm` needs no plural ending.
+    - subskill_id: location_movement
+      explanation: Location words help someone find an object relative to a landmark. If a friend cannot
+        see your bicycle, describing its position against the shed may help. A position tells where
+        something is; a movement expression tells where it goes.
+      examples:
+        - text: The bicycle is behind the shed.
+          meaning: "`The bicycle is` names the object and introduces its position. `Behind the shed` places it
+            on the shed’s far side from the relevant viewpoint. `Behind` needs a landmark here, so
+            the listener knows what it is behind."
+          note: >-
+            `Beside the shed` would mean next to it. For movement, compare `I moved the bicycle into
+            the shed`: `into` gives a destination inside. `In the shed` describes its position once
+            it is there.
+
+
+            **Try it.** Tell someone a bag is next to the door. Answer: `The bag is beside the
+            door`. `Beside` links the bag’s position to the door as a landmark.
+    - subskill_id: possession_relations
+      explanation: Possession tells someone whose object you mean; related forms also connect people. If a
+        visitor asks about a bicycle, you can identify its owner through your family relationship.
+        This avoids confusing your own bicycle with your brother’s.
+      examples:
+        - text: This is my brother’s bicycle.
+          meaning: "`This is` points out the bicycle. `My brother` names the person through his relationship
+            to you. The ending in `brother’s` connects him to `bicycle`: the bicycle belongs to him.
+            The apostrophe is part of that written possessive form."
+          note: >-
+            Compare `my bicycle`, which belongs to you, with `my brother’s bicycle`, which belongs
+            to your brother. With a regular plural owner, put the apostrophe after the plural
+            ending: `my parents’ house`.
+
+
+            **Try it.** Identify a bag belonging to your sister. Answer: `This is my sister’s bag`.
+            The possessive ending attaches to `sister`, because she owns the bag.
+    - subskill_id: quantity_comparison
+      explanation: Comparison helps you choose between two things. When packing, you may want the bag that
+        weighs less. A comparative describing word tells how one item differs from the other; a
+        quantity word tells how much or how many there are.
+      examples:
+        - text: This bag is lighter than that one.
+          meaning: "`This bag` is the item being described. `Lighter` means lower in weight; `than that one`
+            supplies the other bag. `One` avoids repeating `bag`. Short describing words often add
+            `-er`, as `light` becomes `lighter`."
+          note: >-
+            Some longer words use `more`: `This bag is more expensive than that one`. Do not combine
+            both ways in the incorrect `more lighter`. For amount, use a phrase such as `two bags`
+            or `less luggage`, rather than a comparison of weight.
+
+
+            **Try it.** Compare a small box with a larger one. Answer: `This box is smaller than
+            that one`. `Smaller` gives the size comparison and `than` introduces the second box.

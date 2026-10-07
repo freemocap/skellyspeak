@@ -3,6 +3,47 @@ use crate::configuration::authoring;
 use serde_json::json;
 
 #[test]
+fn every_authored_guide_fits_its_coaching_and_practice_focus_budgets() {
+    let registry = Registry::bundled().unwrap();
+    for language in &registry.languages {
+        for variety in &language.varieties {
+            for skill in registry.skills_for_language(&language.id).unwrap() {
+                let mut settings = registry.defaults(&language.id, "english").unwrap();
+                settings.variety_id = variety.id.clone();
+                settings.direction.topic =
+                    Some(crate::conversations::direction::TopicChoice::Skill {
+                        skill_id: skill.id.clone(),
+                        subskill_id: None,
+                    });
+                assert!(
+                    registry
+                        .skill_conversation_focus(&language.id, &settings)
+                        .unwrap()
+                        .is_some()
+                );
+                for explanation in &registry.languages {
+                    if let Some(edition) = registry
+                        .guide_edition(&language.id, &explanation.id, &skill.id)
+                        .unwrap()
+                    {
+                        let markdown = edition.markdown(&variety.id);
+                        assert!(
+                            markdown.len() <= 24000,
+                            "Guide coach budget: {}/{}/{}/{} is {} UTF-8 bytes",
+                            language.id,
+                            variety.id,
+                            explanation.id,
+                            skill.id,
+                            markdown.len()
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn full_request_has_ten_questions_and_no_explanation_language_dependency() {
     let registry = Registry::bundled().unwrap();
     let state = json!({"currentLearnerMessage":"Ayer fui al mercado.","precedingExchange":[{"role":"assistant","content":"¿Qué hiciste ayer?"}]});
@@ -245,12 +286,13 @@ fn french_source_bundle_composes_for_both_varieties_without_translation_or_infer
         let mut sections = 0;
         for skill in registry.skills_for_language("french").unwrap() {
             let edition = registry.guide_source("french", &skill.id).unwrap();
-            sections += edition.guide.sections.len();
+            let selected_sections = edition.guide.sections_for(variety);
+            sections += selected_sections.len();
             let rendered = registry
                 .skill_guide_markdown("french", variety, "english", &skill.id)
                 .unwrap();
             assert!(!rendered.contains("Credit requires"));
-            for section in &edition.guide.sections {
+            for section in selected_sections {
                 assert!(rendered.contains(&section.explanation));
                 for example in &section.examples {
                     assert!(rendered.contains(&format!("> {}", example.text)));
@@ -267,7 +309,7 @@ fn french_source_bundle_composes_for_both_varieties_without_translation_or_infer
                 .unwrap()
                 .unwrap();
             assert!(focus.len() <= 16000);
-            assert!(focus.contains(&edition.guide.sections[0].explanation));
+            assert!(focus.contains(&selected_sections[0].explanation));
             assert!(!focus.contains("Credit requires"));
         }
         assert_eq!(sections, 42);

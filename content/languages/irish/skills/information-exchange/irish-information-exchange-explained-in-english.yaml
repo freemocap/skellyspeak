@@ -1,49 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Cén t-am asks for a time, followed here by a relative verb construction.
+    explanation: Before visiting a shop, `Cén t-am a dhúnann an siopa?` asks for its closing time. `Cén
+      t-am` means what time; the linking `a` introduces `dhúnann`, closes, followed by `an siopa`,
+      the shop. The initial change in `dhúnann` belongs to this question construction. It asks for a
+      missing time rather than suggesting a candidate answer.
     examples:
       - text: Cén t-am a dhúnann an siopa?
         meaning: What time does the shop close?
-        note: A dhúnann links the requested time to the closing event.
+        note: "A yes-or-no check can instead be `An ndúnann an siopa ar a cúig a chlog?` Try asking for the
+          time without supplying five o’clock. Answer: `Cén t-am a dhúnann an siopa?` `Cén t-am`
+          requests the missing detail, whereas the other question checks a particular time."
   - subskill_id: answering_information
-    explanation: A time phrase can answer without restating the event.
+    explanation: "If the shop’s closing time is already the topic, `Ar a cúig a chlog` gives the needed
+      answer: at five o’clock. `Ar` introduces the time, `a cúig` gives five, and `a chlog`
+      completes the clock-time expression. A short time phrase is sufficient because the preceding
+      question supplies what happens then."
     examples:
       - text: Ar a cúig a chlog.
         meaning: At five o’clock.
-        note: Use after the shop closing-time question; the prior turn supplies the omitted event.
+        note: "The answer can be expanded to `Dúnann an siopa ar a cúig a chlog`. Try giving the full
+          answer. Answer: `Dúnann an siopa ar a cúig a chlog.` The verb and shop make the answer
+          self-contained; the time phrase keeps the same form."
   - subskill_id: checking_facts
-    explanation: An with a dependent verb form can check a proposed fact.
+    explanation: When you think the shop closes at five but want confirmation, `An ndúnann an siopa ar a
+      cúig a chlog?` checks that specific fact. `An` marks a yes-or-no question and produces
+      `ndúnann` from `dúnann`. The shop follows the verb, and the time phrase gives the information
+      being checked.
     examples:
       - text: An ndúnann an siopa ar a cúig a chlog?
         meaning: Does the shop close at five o’clock?
-        note: The speaker supplies five as the hour to verify.
+        note: "An affirmative reply can use the verb: `Dúnann`, it does. A negative reply is `Ní dhúnann`,
+          it does not. Try confirming the complete fact. Answer: `Dúnann an siopa ar a cúig a
+          chlog.` The statement uses `dúnann` without the question particle or its initial change."
   - subskill_id: useful_detail
-    explanation: A location description can provide a useful landmark.
+    explanation: Directions become more useful when they identify the relevant part of a building. `Tá
+      an bealach isteach taobh leis an gclós` says the entrance is beside the courtyard. `An bealach
+      isteach` is the entrance, and `taobh le` gives beside. Before the article `le` becomes `leis`;
+      `clós` appears as `gclós` in this preposition-and-article phrase.
     examples:
       - text: Tá an bealach isteach taobh leis an gclós.
         meaning: The entrance is beside the courtyard.
-        note: This helps a listener who is trying to find the entrance.
+        note: "Compare being beside the courtyard with being inside it: `sa chlós`. Try saying the entrance
+          is in the courtyard. Answer: `Tá an bealach isteach sa chlós.` The location relation
+          changes, and `sa` uses the lenited form `chlós` in this model."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - teanglann_deisigh2026
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

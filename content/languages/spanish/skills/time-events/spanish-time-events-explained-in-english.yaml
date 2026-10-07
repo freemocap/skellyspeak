@@ -1,90 +1,175 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-teaching-english-2026-10-07
 skill_id: time_events
 language: spanish
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Present-tense forms can describe current situations or habits. The surrounding exchange
-      tells you which meaning applies.
+    explanation: When someone asks about your job, the present tense can describe your current work
+      situation. It does not have to mean you are working at this exact second. Place and
+      conversation context help the listener understand the intended situation.
     examples:
       - text: Trabajo aquí.
-        meaning: I work here.
-        note: The present describes the speaker's current work situation.
+        meaning: “I work here.” `Trabajo` is the speaker’s present form of `trabajar`; `aquí` means here.
+          The ending already identifies I, so `yo` can be omitted. In a workplace introduction, this
+          describes where you work.
+        note: >-
+          **Adapt it.** `Ella trabaja aquí` changes the worker to she. `Estoy trabajando` emphasizes
+          work in progress. Spanish can also use the simple present for ongoing actions, so an
+          English -ing form is not an automatic reason to choose the progressive.
+
+
+          **Try it.** Say you work at home. Answer: `Trabajo en casa`. Replace the location, keeping
+          `trabajo` for I.
   - subskill_id: past_events
-    explanation: Use a past construction that matches what you mean. Fui can describe a completed trip;
-      iba can describe an ongoing or habitual past situation. A short answer can inherit its time
-      frame from the question.
+    explanation: Telling someone about yesterday’s shopping trip presents an event as completed. Spanish
+      uses the preterite for this view of the trip. Other past forms can present a habit or
+      background instead, so the form depends on how you tell the event.
     examples:
       - text: Ayer fui al mercado.
-        meaning: Yesterday I went to the market.
-        note: Fui with ayer expresses a completed earlier trip; an unrelated article mistake would not
-          change that temporal construction.
+        meaning: “Yesterday I went to the market.” `Ayer` places the event yesterday; `fui` is the speaker’s
+          preterite of `ir`. `Al mercado` gives the destination, with `al` joining `a` and `el`.
+          Together they describe one completed trip.
+        note: >-
+          **Compare.** `Iba al mercado todos los días` describes a past routine using imperfect
+          `iba`. `Fui` can also be a form of `ser`, but the destination here makes the meaning went
+          clear.
+
+
+          **Try it.** Say she went to the market yesterday. Answer: `Ayer fue al mercado`. Change
+          `fui` to `fue` for she; keep the time and destination.
   - subskill_id: future_events
-    explanation: Ir a followed by an infinitive is one way to talk about a planned future action. Future
-      forms and contextually future present forms are also possible.
+    explanation: A plan for tomorrow refers to an action that has not happened yet. `Ir a` followed by
+      an infinitive is a common way to express such a plan. The form of `ir` tells us whose plan it
+      is.
     examples:
       - text: Mañana voy a cocinar.
-        meaning: Tomorrow I am going to cook.
-        note: Mañana and voy a cocinar establish future reference.
+        meaning: “Tomorrow I am going to cook.” `Mañana` gives tomorrow; `voy` identifies the speaker. `A
+          cocinar` supplies the planned action. Here `voy a` is a future construction, not a claim
+          that the speaker is travelling somewhere.
+        note: >-
+          **Adapt it.** `Ella va a cocinar` changes the person, while `cocinar` stays in the
+          infinitive. `Cocinaré mañana` also expresses future time. Do not omit the `a` between
+          `voy` and the activity.
+
+
+          **Try it.** Say you are going to study tomorrow using `estudiar`. Answer: `Mañana voy a
+          estudiar`. Keep `voy a` and replace the activity.
   - subskill_id: duration_frequency
-    explanation: Use time phrases to state how long or how often something happens.
+    explanation: "A study routine can be described by how often you practise or how long a session
+      lasts. These answer different questions. `Todos los días` gives frequency: the activity
+      happens every day, without saying how many minutes it takes."
     examples:
       - text: Estudio español todos los días.
-        meaning: I study Spanish every day.
-        note: Todos los días states the frequency.
+        meaning: “I study Spanish every day.” `Estudio` identifies the speaker’s activity; `español` names
+          the subject studied. `Todos los días` means every day. The language name is written with a
+          lowercase initial in this use.
+        note: >-
+          **Compare.** `Estudio español durante una hora` gives the duration of a session, not its
+          frequency. `Dos veces por semana` means twice a week. Keep `los` in the everyday
+          expression `todos los días`.
+
+
+          **Try it.** Say you study Spanish twice a week. Answer: `Estudio español dos veces por
+          semana`. Replace the frequency phrase; do not change the activity.
   - subskill_id: event_sequence
-    explanation: Primero, después and other linking expressions can place events in order without
-      claiming that one caused another.
+    explanation: When telling someone about an evening, putting events in order helps them follow the
+      story. `Primero` names the first step and `después` introduces a later one. These expressions
+      show order without saying that one event caused the other.
     examples:
       - text: Primero cenamos y después salimos.
-        meaning: First we had dinner and then we went out.
-        note: The two events have an explicit order; context supplies their past reading.
+        meaning: "In a story about last night: “First we had dinner and then we went out.” `Primero cenamos`
+          gives the first event; `y después salimos` adds the next. `Cenamos` and `salimos` can be
+          present or preterite forms; the surrounding story supplies the past reading."
+        note: >-
+          **Compare.** In a plan for tonight, the same forms can have a present form with future
+          reference. Add `anoche` to make a past evening explicit. `Por eso` would express a
+          consequence rather than simple sequence.
+
+
+          **Try it.** Say that last night you first dined and then went out. Answer: `Anoche primero
+          cenamos y después salimos`. `Anoche` makes the past context clear.
   - subskill_id: event_phase
-    explanation: Estar with a gerund can describe an activity in progress. Completed actions use other
-      constructions appropriate to the time frame.
+    explanation: If someone interrupts while you have a book open, you can say the reading is in
+      progress. `Estar` with a gerund focuses on an activity underway. The gerund is the action form
+      used here, such as `leyendo` from `leer`.
     examples:
       - text: Estoy leyendo.
-        meaning: I am reading.
-        note: Estoy plus leyendo presents the activity as ongoing.
+        meaning: “I am reading.” `Estoy` identifies the speaker and anchors the activity in the present;
+          `leyendo` gives the ongoing action. The gerund does not change for gender or number.
+          `Estamos leyendo` changes only the first verb for we.
+        note: >-
+          **Compare.** `Leo todos los días` describes a routine. `Ya terminé de leer` says the
+          reading has finished. Do not put the infinitive `leer` directly after `estoy` for this
+          ongoing meaning.
+
+
+          **Try it.** Say she is reading. Answer: `Ella está leyendo`. Change `estoy` to `está` and
+          keep `leyendo` unchanged.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-english-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

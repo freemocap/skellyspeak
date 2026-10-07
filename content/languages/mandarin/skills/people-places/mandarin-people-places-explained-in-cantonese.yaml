@@ -1,69 +1,67 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: 是 將對象同識別身分嘅名詞短語連起嚟。的 可以交代人物同講者嘅關係。
+    explanation: 介紹鄰居時，要話畀人知眼前係邊位，同你有咩關係。`这是` 開始身份介紹，`我的邻居` 交代關係，唔係描述性質。
     examples:
       - text: 这是我的邻居。
-        meaning: 呢位係我鄰居。
-        note: 这 引入人物，我的邻居 交代佢同講者嘅關係。
+        meaning: "**例句。** 呢位係我嘅鄰居。`这` 指眼前呢位，`是` 接去身份短語，`邻居` 係鄰居。`我的` 係我嘅：相關嘅人放 `的` 前，名詞喺後。"
+        note: 試下介紹對方嘅鄰居：`这是你的邻居。` 將 `的` 前嘅 `我` 換成 `你`。`这是我姐姐` 都係介紹關係；`姐姐` 呢類親近家人稱呼，通常可以唔用 `的`。
   - subskill_id: qualities_states
-    explanation: 形容詞可以直接做謂語，唔一定加 是。很 經常令一般描述句更自然，未必強調「非常」。唔好見到 很 就一律當成程度好強。
+    explanation: 搬大件嘢揀路時，闊窄好重要。`窄` 直接描述窄。呢個普通描述入面，`很` 令形容詞陳述自然，未必特別強調好窄。
     examples:
       - text: 这条路很窄。
-        meaning: 呢條路好窄。
-        note: 条 係呢條路嘅量詞；很窄 描述闊度。
+        meaning: "**例句。** 呢條路窄。`这条路` 係呢條路：`这` 指呢條，`条` 係量詞，`路` 係路。`很窄` 交代性質。呢個中性形容詞描述唔喺路同形容詞之間加 `是`。"
+        note: 試下話條路闊：`这条路很宽。` `窄` 換成 `宽`。想話唔窄用 `这条路不窄`，否定 `不` 放形容詞前，唔保留 `很`。
   - subskill_id: location_movement
-    explanation: 在 加位置短語可以交代位置；上 等方位詞交代同參照物嘅關係。
+    explanation: 人哋搵唔到鎖匙，講清楚位置就幫到佢。`在` 將鎖匙接到地方。先講參照物，再講方位，所以先講枱，後講上面。
     examples:
       - text: 钥匙在桌子上。
-        meaning: 條鎖匙喺張枱上面。
-        note: 桌子上 交代位置；在 將鎖匙同嗰個位置連起嚟。解說用 喺，普通話例句仍然用 在。
+        meaning: "**例句。** 鎖匙喺枱上面。`钥匙` 係鎖匙，`桌子` 係枱，`上` 係上面；合埋 `桌子上` 係枱上面。`在桌子上` 講鎖匙喺邊，唔係向枱移動。"
+        note: 試下話鎖匙喺枱下面：`钥匙在桌子下。` 將 `上` 換成 `下`。`把钥匙放在桌子上` 係將鎖匙放上枱，`放` 加咗擺放動作；原句只交代位置。
   - subskill_id: possession_relations
-    explanation: 有 表達擁有。數詞同量詞可以交代擁有幾多件乜嘢。
+    explanation: 安排座位前，講有幾多張椅，就知道有咩用品。`有` 表擁有，數字同量詞放喺被數嘅物件前。
     examples:
       - text: 我有两把折叠椅。
-        meaning: 我有兩張摺椅。
-        note: 两把 用 把 做椅子嘅量詞；廣東話譯文用「兩張」唔代表普通話例句都要改成 张。有 喺呢度唔表示過去事件。
+        meaning: "**例句。** 我有兩張摺椅。`我有` 係我有，`两` 喺呢個數量短語係二，`把` 係呢度數椅嘅量詞，`折叠椅` 係摺椅。名詞唔使另加複數詞尾。"
+        note: 試下話有三張摺椅：`我有三把折叠椅。` 將 `两` 換成 `三`，保留 `把`。呢度 `把` 數椅；`把椅子搬到门口` 係搬張椅去門口，嗰個 `把` 就引出被移動嘅物件。
   - subskill_id: quantity_comparison
-    explanation: 比 同比較對象放喺形容詞前面；程度短語可以交代差幾多。
+    explanation: 一個箱易搬啲，重量比較就幫到分工。`比` 先引出另一個箱，再講比較嘅性質；性質後嘅 `一点` 話差別細。
     examples:
       - text: 这个箱子比那个轻一点。
-        meaning: 呢個箱比嗰個輕少少。
-        note: 一点 表示重量差距唔大。那个 後面嘅名詞可以由語境補足，唔使重複。
+        meaning: "**例句。** 呢個箱比嗰個輕少少。`这个箱子` 係呢個箱，`比那个` 係同嗰個比較，`轻` 係輕，`一点` 係少少。已經知道講緊箱，所以 `那个` 後面唔使再重複名詞。"
+        note: 試下話重少少：`这个箱子比那个重一点。` 將 `轻` 換成 `重`，保留比較同細差別。一樣重用 `这个箱子和那个一样重`，講相同重量而唔係差別。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/people-places/mandarin-people-places-explained-in-english.yaml at
-    revision mandarin-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/people-places/mandarin-people-places-explained-in-english.yaml at
-        revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

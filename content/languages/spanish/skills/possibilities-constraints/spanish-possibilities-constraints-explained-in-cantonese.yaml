@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-learner-first-cantonese-2026-10-07
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: possibilities_constraints
 language: spanish
 explanation_language: cantonese
@@ -69,8 +69,8 @@ varieties:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -86,15 +86,15 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -110,13 +110,13 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -132,6 +132,6 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-learner-first-cantonese-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

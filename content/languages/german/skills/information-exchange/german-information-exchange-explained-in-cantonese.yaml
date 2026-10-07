@@ -1,41 +1,46 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: german-teaching-cantonese-2026-10-07
 language: german
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: wann、wo 等疑問詞或短語後面，通常跟限定動詞。是非問句可以直接由限定動詞開始。
+    explanation: 聽日去維修店之前，需要知道開門時間。`Wann` 問幾時，問題將變位動詞放喺疑問詞之後。
     examples:
       - text: Wann öffnet die Werkstatt morgen?
-        meaning: 間維修舖聽日幾點開門？
-        note: wann 問時間，öffnet 跟住佢。呢句查問資訊，唔係請夥伴開門。
+        meaning: "**例句。** 間維修舖聽日幾點開門？ `öffnet` 係開門，配合單數 `die Werkstatt`，維修店。`morgen` 係聽日。主語跟喺動詞後：`Wann
+          öffnet die Werkstatt morgen?` 問時間，唔係問會唔會開。"
+        note: 試下問今日：`Wann öffnet die Werkstatt heute?`。日子改成 `heute`，問題次序唔變。`Öffnet die Werkstatt morgen?`
+          由動詞開始，係問開唔開。
   - subskill_id: answering_information
-    explanation: 切題答案可以只係短語，冇限定動詞；但意思要由清楚嘅上文問題提供。
+    explanation: 問開門時間時，可以只答時間，因為已經知道講緊維修店同開門。`um` 引出鐘點，德文 `halb` 按下一個鐘計。
     examples:
       - text: Um halb neun.
-        meaning: 八點半。
-        note: 回答維修舖幾點開。德文 halb neun 係距離九點仲有半個鐘，即八點半，唔係九點半。
+        meaning: "**例句。** 八點半。 `Um halb neun` 係八點半，即 8:30，向九點行到一半。呢個短語補上所問時間，唔使重複問題嘅主語同動詞。"
+        note: 試下答九點半開：`Um halb zehn`。講十點，因為係下一個鐘。原本時間嘅完整答案係 `Die Werkstatt öffnet um halb neun`，兩個版本都指八點半。
   - subskill_id: checking_facts
-    explanation: stimmt es, dass …? 核實說法真偽。呢種書面 dass 子句嘅限定動詞放句尾。
+    explanation: 聽講間舖今日閂，出發前想確認。`Stimmt es, dass` 問消息係咪真，再引出要確認嘅內容。
     examples:
       - text: Stimmt es, dass der Laden heute geschlossen ist?
-        meaning: 間舖今日冇開，係咪真？
-        note: 核實轉述嘅關門消息；ist 喺從句句尾。問 geschlossen 係咩意思就屬於釐清詞義。
+        meaning: "**例句。** 間舖今日冇開，係咪真？ `Stimmt es` 係係咪真，`dass der Laden heute geschlossen ist` 係間舖今日閂。`dass`
+          後面變位動詞 `ist` 放句尾，`geschlossen` 描述閂咗嘅狀態。"
+        note: 試下確認聽日：`Stimmt es, dass der Laden morgen geschlossen ist?`。`heute` 改成 `morgen`，`ist`
+          留句尾。直接問可以講 `Ist der Laden heute geschlossen?`，冇明講係確認聽返嚟嘅消息。
   - subskill_id: useful_detail
-    explanation: 加上能解決當下資訊需要嘅具體細節；可以用另一個主句或合適短語，唔係越長越有用。
+    explanation: 有人搵入口，需要認得嘅地標。呢個答案先講大廈邊一面，再收窄到升降機旁邊。
     examples:
       - text: Der Eingang ist auf der Hofseite, direkt neben dem Aufzug.
-        meaning: 入口喺庭院嗰邊，就喺升降機隔籬。
-        note: 對搵入口嘅人，後面短語縮窄位置。auf der 同 neben dem 用表示位置嘅第三格。
+        meaning: "**例句。** 入口喺庭院嗰邊，就喺升降機隔籬。 `Der Eingang` 係入口，`auf der Hofseite` 係庭院嗰面，`direkt neben dem
+          Aufzug` 係正喺升降機旁邊。兩個地方短語定位入口，女性 `Hofseite` 用與格 `der`，男性 `Aufzug` 用 `dem`。"
+        note: 試下改成麵包店旁邊：`Der Eingang ist auf der Hofseite, direkt neben der Bäckerei`。女性 `Bäckerei` 用與格
+          `der`。保留大廈嗰面，再換附近地標，就有兩個實用線索。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/german/skills/information-exchange/german-information-exchange-explained-in-english.yaml
-    at revision german-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_questions2026
     - umich_de_word_order2026
@@ -47,18 +52,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: german-teaching-cantonese-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/german/skills/information-exchange/german-information-exchange-explained-in-english.yaml
-        at revision german-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
       sources:
         - umich_de_questions2026
         - umich_de_word_order2026
@@ -70,6 +75,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: german-teaching-cantonese-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

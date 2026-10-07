@@ -59,6 +59,25 @@
   margin-bottom: 1.5rem;
 }
 
+.skellyspeak-download .dl-testflight-notice {
+  margin: 1.25rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--accent-teal);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.skellyspeak-download .dl-testflight-notice h3 {
+  margin: 0 0 .75rem;
+  font-size: 1.2rem;
+  color: var(--accent-teal);
+}
+
+.skellyspeak-download .dl-testflight-notice p + p { margin-top: .75rem; }
+
 .dl-system-help {
   margin-bottom: 2rem;
 }

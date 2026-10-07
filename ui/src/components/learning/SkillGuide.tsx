@@ -12,26 +12,29 @@ import { ActivityIndicator } from '../feedback/ActivityIndicator'
 
 /** Authored guidance resolves the language core plus an explicitly selected
  * variety. The guide loads when it is first opened; `initiallyOpen` opens it at once. */
-export function SkillGuide({ snapshot, skillId, active, initiallyOpen }: { snapshot: SkillSnapshot; skillId: string; active?: string; initiallyOpen: boolean }) {
+export function SkillGuide({ snapshot, skillId, active, initiallyOpen, collapsible = true }: { snapshot: SkillSnapshot; skillId: string; active?: string; initiallyOpen: boolean; collapsible?: boolean }) {
   const tr = useI18n()
   const [open, setOpen] = useState(initiallyOpen)
   const [choice, choose] = useState<{ scope: string; id: string } | null>(null)
   const scope = JSON.stringify([snapshot.target, skillId, active, snapshot.guide_explanation_language])
   useEffect(() => { choose(null) }, [scope])
-  const id = choice?.scope === scope ? choice.id : active
+  const selected = choice?.scope === scope ? choice.id : active
+  const id = snapshot.guides?.some(item => item.id === selected) ? selected : undefined
   const guide = snapshot.guides?.find(item => item.id === id)
   const text = guide?.skills[skillId]
-  return <details className="practice-skill" open={initiallyOpen || undefined} onToggle={event => setOpen(event.currentTarget.open)}>
-    <summary>{tr('Skill guide')}</summary>
-    <div className="learner-model-controls learner-model">
-      <label>{tr('Variety ')}<select value={id ?? ''} onChange={event => choose({ scope, id: event.target.value })}>
-        <option value="">{tr('Choose a variety')}</option>
+  const content = <>
+    <div className="skill-guide-controls">
+      <label>{tr('Variety ')}<select className="field" value={id ?? ''} onChange={event => { if (snapshot.guides?.some(item => item.id === event.target.value)) choose({ scope, id: event.target.value }) }}>
+        {!id && <option value="" disabled hidden>{tr('Choose a variety')}</option>}
         {snapshot.guides?.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
       </select></label>
     </div>
-    {id && snapshot.guide_explanation_language ? <ResolvedGuide key={JSON.stringify([scope, id])} open={open} language={snapshot.target} variety={id} skill={skillId} explanation={snapshot.guide_explanation_language} authored={text} />
+    {id && snapshot.guide_explanation_language ? <ResolvedGuide key={JSON.stringify([scope, id])} open={!collapsible || open} language={snapshot.target} variety={id} skill={skillId} explanation={snapshot.guide_explanation_language} authored={text} />
       : text ? <ReadingLanguageScope language={snapshot.target} variety={id}><GuideDocument text={text} /></ReadingLanguageScope> : id ? <p>{tr('No authored guide is available for this selection.')}</p> : null}
-  </details>
+  </>
+  return collapsible ? <details className="practice-skill" open={initiallyOpen || undefined} onToggle={event => setOpen(event.currentTarget.open)}>
+    <summary>{tr('Skill guide')}</summary>{content}
+  </details> : <div className="skill-guide-panel">{content}</div>
 }
 
 function ResolvedGuide({ open, language, variety, skill, explanation, authored }: {

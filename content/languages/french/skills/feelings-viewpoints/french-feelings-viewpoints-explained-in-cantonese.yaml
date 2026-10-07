@@ -1,88 +1,118 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: feelings_viewpoints
 language: french
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: vouloir 同 avoir envie de 可以表達願望；avoir l’intention de 明確表達打算。呢幾種講法嘅人際語氣唔完全相同。
+    explanation: 午餐後散步好似幾好，但講者表達嘅係願望，未必已經安排好。`J’ai envie de` 係我想或者我有興趣，`marcher un peu` 係行一陣，`après
+      le déjeuner` 指午餐後。呢個說法用 `avoir`，所以人稱改變時要用例如 `Nous avons envie de marcher.`。`De`
+      後面嘅動詞保持原形；`Je vais marcher` 就較直接表示打算去行，想做唔代表已經定好計劃。
     examples:
       - text: J’ai envie de marcher un peu après le déjeuner.
         meaning: 食完午飯，我想行一陣。
-        note: avoir envie de 後面接不定式，交代想做嘅活動，唔係承諾一定去行。
+        note: 試下改講想休息。`J’ai envie de me reposer un peu après le déjeuner.` 可以；`me reposer` 係休息，當中 `me`
+          配合講者自己。
   - subskill_id: preferences
-    explanation: préférer 可以比較或選擇；aimer mieux 亦可以表達偏好。要講清楚較鍾意乜，唔好只用一個正面形容詞。
+    explanation: 有兩種交通選擇，講者今次較鍾意搭火車。`Je préfère` 表達偏好，`le train à l’avion` 先講較鍾意嗰樣，再用 `à`
+      引出另一樣。`Pour ce trajet` 限定係呢段旅程，唔代表每次都係噉。`Avion` 以元音開始，所以冠詞寫成 `l’avion`。淨係講 `J’aime le
+      train` 表示鍾意火車，冇明確同另一選擇比較。
     examples:
       - text: Je préfère le train à l’avion pour ce trajet.
         meaning: 呢程我寧願搭火車，唔搭飛機。
-        note: préférer A à B 明確比較呢程旅途中嘅兩個選項。
+        note: 試下倒轉偏好。`Je préfère l’avion au train pour ce trajet.` 可以；`au` 係 `à` 同 `le` 合併，較鍾意嘅選擇仍然擺前面。
   - subskill_id: emotions
-    explanation: 用合適形容詞或用語講情緒。形容詞形式要配合對象；avoir peur 呢類用語則用 avoir。
+    explanation: 聽到好消息，可以講呢件事帶畀自己嘅感受。`Cette nouvelle` 係呢個消息，`me fait plaisir` 係令我開心。`Me`
+      指感受到開心嘅人，`fait` 就配合單數嘅消息。`Cette nouvelle nous fait plaisir` 改成令我哋開心，但 `fait` 唔變。另一種講法 `Je
+      suis contente` 直接形容講者，用女性形式；男性形式係 `Je suis content`。
     examples:
       - text: Cette nouvelle me fait plaisir.
         meaning: 呢個消息令我開心。
-        note: me 指感到開心嘅人；句子表達對消息嘅反應，唔係評價消息真偽。
+        note: 試下講消息令你哋一班人開心。答案係 `Cette nouvelle nous fait plaisir.`；`nous` 取代 `me`，單數主語仍然用 `fait`。
   - subskill_id: opinions
-    explanation: je pense que、je trouve que 同 à mon avis 表明評價係講者觀點。表達意見唔等於聲稱肯定。
+    explanation: 一條小路可能唔適合單車行，講者表達自己嘅判斷。`À mon avis` 係我認為，`ce chemin` 係呢條路，`trop étroit`
+      係窄得滯，唔係淨係好窄；`pour les vélos` 講明對單車而言。`Étroit` 配合陽性 `chemin`；如果講街道，就係 `Cette rue est trop
+      étroite.`。開頭標示係個人看法，再提供例如空間不足嘅理由，會較容易討論。
     examples:
       - text: À mon avis, ce chemin est trop étroit pour les vélos.
         meaning: 我覺得呢條小路對單車嚟講太窄。
-        note: à mon avis 表明立場；trop étroit 係評價，pour les vélos 限定適用範圍。
+        note: 試下改為評論一條街。`À mon avis, cette rue est trop étroite pour les vélos.` 可以，因為 `cette` 同
+          `étroite` 都要配合陰性 `rue`。
   - subskill_id: agreement_disagreement
-    explanation: 針對正討論嘅說法表示同意或反對。d’accord 喺另一種語境亦可能係接受實際提議。
+    explanation: 你接受價錢，但日期仲要商量。`Je suis d’accord` 係我同意，`sur le prix` 指明同意價錢方面。`Mais pas sur la date`
+      省略重複嘅字，但仍然清楚講日期方面唔同意。`D’accord avec vous` 指同意邊個，`d’accord sur la date`
+      就指同意邊一點。部分同意可以避免令人以為整個安排都已經接受。
     examples:
       - text: Je suis d’accord sur le prix, mais pas sur la date.
         meaning: 價錢方面我同意，但日期就唔同意。
-        note: sur 指出各個重點；mais pas 限定同意範圍，唔係全盤否定。
-provenance:
+        note: 試下講同意日期，但唔同意價錢。`Je suis d’accord sur la date, mais pas sur le prix.`
+          可以；交換兩個話題，就改咗同意同唔同意嘅範圍。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/feelings-viewpoints/french-feelings-viewpoints-explained-in-english.yaml
-    at revision french-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - tex_modals2026
     - waystage_language_functions
+    - texAdjectivesTeaching20261007
+    - texObjectPronounsTeaching20261007
+    - oqlfMealsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/feelings-viewpoints/french-feelings-viewpoints-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_modals2026
-        - waystage_language_functions
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/feelings-viewpoints/french-feelings-viewpoints-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_modals2026
-        - waystage_language_functions
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: wants_intentions
+      explanation: 早餐後散步好似幾好，但講者表達嘅係願望，未必已經安排好。`J’ai envie de` 係我想或者我有興趣，`marcher un peu` 係行一陣，`après
+        le déjeuner` 指早餐後。呢個說法用 `avoir`，所以人稱改變時要用例如 `Nous avons envie de marcher.`。`De`
+        後面嘅動詞保持原形；`Je vais marcher` 就較直接表示打算去行，想做唔代表已經定好計劃。
+      examples:
+        - text: J’ai envie de marcher un peu après le déjeuner.
+          meaning: 食完早餐，我想行一陣。
+          note: 試下改講想休息。`J’ai envie de me reposer un peu après le déjeuner.` 可以；`me reposer` 係休息，當中 `me`
+            配合講者自己。
+    - subskill_id: preferences
+      explanation: 有兩種交通選擇，講者今次較鍾意搭火車。`Je préfère` 表達偏好，`le train à l’avion` 先講較鍾意嗰樣，再用 `à`
+        引出另一樣。`Pour ce trajet` 限定係呢段旅程，唔代表每次都係噉。`Avion` 以元音開始，所以冠詞寫成 `l’avion`。淨係講 `J’aime le
+        train` 表示鍾意火車，冇明確同另一選擇比較。
+      examples:
+        - text: Je préfère le train à l’avion pour ce trajet.
+          meaning: 呢程我寧願搭火車，唔搭飛機。
+          note: 試下倒轉偏好。`Je préfère l’avion au train pour ce trajet.` 可以；`au` 係 `à` 同 `le` 合併，較鍾意嘅選擇仍然擺前面。
+    - subskill_id: emotions
+      explanation: 聽到好消息，可以講呢件事帶畀自己嘅感受。`Cette nouvelle` 係呢個消息，`me fait plaisir` 係令我開心。`Me`
+        指感受到開心嘅人，`fait` 就配合單數嘅消息。`Cette nouvelle nous fait plaisir` 改成令我哋開心，但 `fait` 唔變。另一種講法
+        `Je suis contente` 直接形容講者，用女性形式；男性形式係 `Je suis content`。
+      examples:
+        - text: Cette nouvelle me fait plaisir.
+          meaning: 呢個消息令我開心。
+          note: 試下講消息令你哋一班人開心。答案係 `Cette nouvelle nous fait plaisir.`；`nous` 取代 `me`，單數主語仍然用 `fait`。
+    - subskill_id: opinions
+      explanation: 一條小路可能唔適合單車行，講者表達自己嘅判斷。`À mon avis` 係我認為，`ce chemin` 係呢條路，`trop étroit`
+        係窄得滯，唔係淨係好窄；`pour les vélos` 講明對單車而言。`Étroit` 配合陽性 `chemin`；如果講街道，就係 `Cette rue est trop
+        étroite.`。開頭標示係個人看法，再提供例如空間不足嘅理由，會較容易討論。
+      examples:
+        - text: À mon avis, ce chemin est trop étroit pour les vélos.
+          meaning: 我覺得呢條小路對單車嚟講太窄。
+          note: 試下改為評論一條街。`À mon avis, cette rue est trop étroite pour les vélos.` 可以，因為 `cette` 同
+            `étroite` 都要配合陰性 `rue`。
+    - subskill_id: agreement_disagreement
+      explanation: 你接受價錢，但日期仲要商量。`Je suis d’accord` 係我同意，`sur le prix` 指明同意價錢方面。`Mais pas sur la date`
+        省略重複嘅字，但仍然清楚講日期方面唔同意。`D’accord avec vous` 指同意邊個，`d’accord sur la date`
+        就指同意邊一點。部分同意可以避免令人以為整個安排都已經接受。
+      examples:
+        - text: Je suis d’accord sur le prix, mais pas sur la date.
+          meaning: 價錢方面我同意，但日期就唔同意。
+          note: 試下講同意日期，但唔同意價錢。`Je suis d’accord sur la date, mais pas sur le prix.`
+            可以；交換兩個話題，就改咗同意同唔同意嘅範圍。

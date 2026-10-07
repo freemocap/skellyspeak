@@ -1,53 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Ciao 可以非正式噉打招呼或道別；a domani 道別兼表示預計聽日再見。
+    explanation: 要走時，講需要離開再加道別，就清楚結束對話。`a domani` 預期聽日再見。兩句短句結束依家見面，同時回應下一次。
     examples:
       - text: Devo andare. A domani!
-        meaning: 我要走喇，聽日見！
-        note: 第一句交代要離開；a domani 唔使完整句都可以結束交談。
+        meaning: 意思係「我一定要走喇。聽日見！」`Devo andare` 解釋講者要離開。`A domani` 係慣常道別，解聽日見，唔係叫對方走。
+        note: |-
+          **比較。** `A presto` 講遲啲見，冇揀聽日。`Ciao` 可以開始或者結束熟人對話，要睇出現位置。
+
+          **試吓。** 唔指定日子咁道別。一個答案：`Devo andare. A presto!`。保留離開原因，揀較唔具體嘅道別。
   - subskill_id: acknowledging
-    explanation: Ho capito 等回應可以表示明白頭先嘅解釋。收到或理解訊息，唔自動等於同意內容。
+    explanation: 對方解釋完一個分別，可以確認你依家明白。`ho capito` 講已理解。佢可以只表示收到解釋，唔一定同意對方嘅意見。
     examples:
       - text: Ora ho capito la differenza.
-        meaning: 我而家明白有乜分別喇。
-        note: 對方解釋兩個選項後，呢句確認理解。Ho capito 係 capire 嘅複合形式。
+        meaning: 意思係「依家我明白個分別」。`Ora` 係依家；`ho capito` 用 `avere` 加分詞 `capito` 講理解咗。`La differenza` 指明白咗嘅內容。
+        note: |-
+          **比較。** `Sono d’accordo` 係同意，唔只係明白。`Non ho capito` 講唔明白，可以再請求澄清。
+
+          **試吓。** 用 `la spiegazione` 確認明白咗個解釋。答案：`Ora ho capito la spiegazione`。換理解內容，保留確認。
   - subskill_id: clarification
-    explanation: Che cosa intendi con …? 問對方某個表達係乜意思；要澄清嘅詞要喺前文搵得返。
+    explanation: 對方話安排暫時，你唔肯定佢意思，可以針對嗰個字問。`che cosa intendi con` 請講者解釋想表達乜，修補已講內容嘅理解。
     examples:
       - text: Che cosa intendi con «provvisorio»?
-        meaning: 你講「暫定」係咩意思？
-        note: 對方形容計劃係 provvisorio 後，用呢句問清楚。Intendi 非正式噉稱呼一個人。
+        meaning: 意思係「你講暫時係咩意思？」`Che cosa` 問乜；`intendi` 用熟悉單數稱呼。`Con «provvisorio»` 指需要解釋嘅原字。`Provvisorio`
+          解暫時或者臨時。
+        note: |-
+          **比較。** `Puoi ripetere?` 請人重複，但唔一定解決意思唔明。`Che cosa intende con «provvisorio»?` 改用正式稱呼。
+
+          **試吓。** 用 `facoltativo` 問對方講可選擇係咩意思。答案：`Che cosa intendi con «facoltativo»?`。只換要解釋意思嘅字。
   - subskill_id: rephrasing
-    explanation: In altre parole 引出另一種講法，應保留或解釋原意，唔好突然轉去無關資料。
+    explanation: 訂位解釋唔清楚時，可以用實際要做乜重述。`in altre parole` 提示換個講法。後面分句提供重述意思，唔只係宣布準備解釋。
     examples:
       - text: In altre parole, dobbiamo confermare prima di prenotare.
-        meaning: 即係話，我哋要確認咗先訂。
-        note: 解釋預訂需要先確認後，再直接講清楚呢個次序。
+        meaning: 意思係「即係話，我哋要先確認再訂位」。`In altre parole` 引出重述。`Dobbiamo confermare` 講要求；`prima di prenotare`
+          將確認放喺訂位之前。`Prima di` 後面活動用不定式。
+        note: >-
+          **比較。** `Prima prenotiamo, poi confermiamo` 反轉次序。有用嘅重述保留原訊息，再講清楚所需重點。
+
+
+          **試吓。** 用 `pagare` 澄清付款要喺訂位之前。答案：`In altre parole, dobbiamo pagare prima di
+          prenotare`。換所需行動，保留次序。
   - subskill_id: correcting_misunderstanding
-    explanation: Intendevo …, non … 用正確意思取代誤解；對比要針對一個可識別嘅誤會。
+    explanation: 有人將庭院搞錯成停車場，可以講正確地方同搞錯嗰個。`intendevo` 回頭講之前想表達嘅意思，令更正清楚。
     examples:
       - text: Intendevo il cortile, non il parcheggio.
-        meaning: 我係指庭院，唔係停車場。
-        note: 對方以為約喺停車場見，講者就指出真正地點並排除錯誤嗰個。
+        meaning: 意思係「我指庭院，唔係停車場」。`Intendevo` 係 `intendere` 表示講者嘅未完成過去式；呢度講之前嘅原意。`Il cortile` 指正確地方；`non il
+          parcheggio` 排除錯誤地方。
+        note: >-
+          **比較。** `Intendo il cortile` 講依家意思。只講 `No` 否定理解，但冇提供正確替代。反差句先講所指地方。
+
+
+          **試吓。** 你其實指 `il giardino`，更正對方理解成庭院。答案：`Intendevo il giardino, non il
+          cortile`。正確地方放喺否定嗰個之前。
   - subskill_id: turns_topics
-    explanation: Posso aggiungere 問句可以爭取就話題補充發言，作用係攞發言機會，唔係單純陳述資料。
+    explanation: 討論入面，你可能想攞一個發言機會，補充價錢重點。`posso aggiungere` 請大家畀空間你講，唔係測試你有冇體力開口。指出主題，有助大家明白補充同討論嘅關係。
     examples:
       - text: Posso aggiungere una cosa sul prezzo?
-        meaning: 關於價錢，我可唔可以補充少少？
-        note: 討論快作決定時，就價錢要求發言。Sul 係 su 加 il。
+        meaning: 意思係「我可唔可以補充一點關於價錢？」`Posso` 請求自己獲准，`aggiungere` 係補充，`una cosa` 呢度係一點或者一件事。`Sul prezzo` 講主題，由
+          `su` 同 `il` 合成。
+        note: >-
+          **改一改。** `Posso aggiungere una cosa sul programma?`
+          換成關於流程。大家畀你發言之後，下一句先提供實際內容；呢個請求本身冇講價錢意見。
+
+
+          **試吓。** 問可唔可以補充課程重點。答案：`Posso aggiungere una cosa sul corso?`。換主題，保留請求發言問句。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/managing-conversation/italian-managing-conversation-explained-in-english.yaml
-    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_discourse2026
     - treccani_it_questions2026
@@ -57,18 +83,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/managing-conversation/italian-managing-conversation-explained-in-english.yaml
-        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - treccani_it_discourse2026
         - treccani_it_questions2026
@@ -78,6 +102,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

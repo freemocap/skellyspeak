@@ -29,9 +29,10 @@ The root npm package coordinates tools and the UI workspace. Dependencies are
 installed with `npm ci`; the UI owns its own package manifest. Internal module
 reorganization will follow this top-level move.
 
-**Documentation audit pending:** the detailed descriptions below and the existing
-website have not all been checked against current code. Archive links point to a
-historical Git snapshot, not current specifications. See [documentation status](docs/).
+The website now contains task-based learner guides and interactive app-component
+examples. The detailed developer descriptions below have not all been re-audited.
+Historical references are not current specifications. See [documentation](docs/)
+for the website build, source coupling and retained planning material.
 
 **Current source implementation: immediate chat, recording/transcription and speech
 playback, a separate coach thread, Google sign-in and custom-server execution.** Rust persists

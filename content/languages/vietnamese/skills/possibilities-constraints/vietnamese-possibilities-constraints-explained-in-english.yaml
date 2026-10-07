@@ -1,55 +1,85 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Biết followed by an activity can describe knowing how to perform it.
+    explanation: A bicycle needs repair and you have learned how to do it. `Tôi biết` means I know
+      how here; `sửa xe đạp` is repair bicycles or the bicycle understood in context. `Biết`
+      before the action expresses know-how. `Tôi sửa được xe đạp` can emphasize being able to
+      repair a bicycle successfully; available tools and the task also affect practical ability.
+      `Tôi không biết sửa xe đạp` denies the learned skill. The action word `sửa` does not
+      change when you replace the person.
     examples:
       - text: Tôi biết sửa xe đạp.
         meaning: I know how to repair bicycles.
-        note: Here biết concerns a learned skill, not knowledge of a particular fact.
+        note: "Say you do not know how to repair a bicycle. `Tôi không biết sửa xe đạp.` works: `không`
+          negates the know-how expressed by `biết`."
   - subskill_id: permission
-    explanation: An action followed by được không can request permission.
+    explanation: You want to leave a bag in someone else's space and ask whether that is allowed.
+      `Tôi để túi ở đây` means I leave the bag here; final `được không?` turns the proposed
+      action into a can I question. `Để` is leave or put here, while `ở đây` names this place.
+      Addressed to the person responsible for the space, it seeks permission. This differs from
+      the offer `Để tôi xách túi giúp bạn`, where sentence-initial `để tôi` means let me.
     examples:
       - text: Tôi để túi ở đây được không?
         meaning: May I leave my bag here?
-        note: Ask the person responsible for the space to establish the permission context.
+        note: "Ask to leave the bag there instead. `Tôi để túi ở đó được không?` works: `ở đó` changes
+          the place while the final question still requests permission."
   - subskill_id: obligation
-    explanation: Phải before an action expresses a requirement.
+    explanation: You borrowed a key and must return it today. `Tôi phải` means I must; `trả chìa
+      khóa` is return the key, and `hôm nay` supplies the deadline. `Phải` comes before the
+      required action. `Tôi không phải trả chìa khóa hôm nay` can express not having to return
+      it today; it does not simply mean a prohibition on returning it. A clear warning against
+      an action can use `không được`, as in `Không được để chìa khóa ở đây`, you must not leave
+      the key here.
     examples:
       - text: Tôi phải trả chìa khóa hôm nay.
         meaning: I must return the key today.
-        note: Hôm nay gives the deadline; phải makes the action necessary.
+        note: "Move the deadline to tomorrow. `Tôi phải trả chìa khóa ngày mai.` works: `ngày mai`
+          changes when it is required, while `phải` retains the obligation."
   - subskill_id: possibility
-    explanation: Có thể can qualify an entire proposition as possible.
+    explanation: The afternoon forecast is uncertain, and rain is one possible outcome. `Có thể`
+      means possibly or may here; `chiều nay` is this afternoon and `trời sẽ mưa` says it will
+      rain. `Trời` names the weather or sky, and `sẽ` places the rain ahead. The whole opening
+      weakens the prediction rather than guaranteeing rain. `Trời sẽ mưa chiều nay` is more
+      definite without `có thể`. In `Tôi có thể đi`, the same expression can instead describe my
+      ability or opportunity; context determines its use.
     examples:
       - text: Có thể chiều nay trời sẽ mưa.
         meaning: It may rain this afternoon.
-        note: The outcome remains uncertain despite the future marker sẽ.
+        note: "Predict possible rain tomorrow. `Có thể ngày mai trời sẽ mưa.` works: `ngày mai` replaces
+          the afternoon, while `có thể` retains uncertainty."
   - subskill_id: certainty
-    explanation: Không chắc explicitly limits confidence in a proposition.
+    explanation: You have not checked the shop and cannot confidently say it is still open. `Tôi
+      không chắc` means I am not sure; `cửa hàng còn mở cửa` supplies the uncertain proposition.
+      `Còn` means still, so the question is whether opening continues. The phrase does not
+      assert that the shop is closed. `Tôi chắc cửa hàng còn mở cửa` instead states confidence;
+      `Tôi không biết` expresses not knowing. The strength of the claim is conveyed by the words
+      and context, not by punctuation alone.
     examples:
       - text: Tôi không chắc cửa hàng còn mở cửa.
         meaning: I am not sure the shop is still open.
-        note: The speaker does not assert that the shop has closed.
+        note: "State confidence that the shop is still open. `Tôi chắc cửa hàng còn mở cửa.` works:
+          removing `không` changes your confidence, while the proposition stays the same."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_suggestions2026
     - niu_vietnamese_patterns2026
+    - msuVietnameseTravelConversationTeaching20261007
+    - niuVietnameseOffersCompletionTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

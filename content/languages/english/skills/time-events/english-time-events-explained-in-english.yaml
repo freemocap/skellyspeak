@@ -1,71 +1,242 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: time_events
 language: english
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Use a present construction appropriate to a current state, habit or
-      unfolding event.
+    explanation: Present events include regular situations as well as things happening right now. When
+      describing someone’s job, you usually mean their normal workplace, even if they are at home
+      today. The present simple is useful for that regular situation.
     examples:
       - text: She works at the museum.
-        meaning: Working at the museum is her current regular situation.
-        note: Works presents a regular situation rather than an activity necessarily
-          happening this instant.
+        meaning: "`She` names the person. `Works` has the ending for `she`; `at the museum` names her
+          workplace. With `I` or `they`, use `work`: `They work at the museum`. This does not say
+          they are working at this exact moment."
+        note: >-
+          `She is working at the museum today` focuses on an activity taking place around now. To
+          deny the regular job, use `She doesn’t work at the museum`; after `doesn’t`, keep `work`
+          plain.
+
+
+          **Try it.** Describe your brother’s regular workplace, a library. Answer: `He works at the
+          library`. `He` takes `works`, even when you are describing a job rather than an action
+          this instant.
   - subskill_id: past_events
-    explanation: Use an appropriate past construction for an earlier event. Many
-      common verbs have irregular past forms.
+    explanation: A past event tells someone what happened earlier. When recounting yesterday’s outing,
+      both the time expression and the verb help locate the trip in the past. Adding a past-time
+      word does not normally leave the verb unchanged.
     examples:
       - text: Yesterday we went to the harbour.
-        meaning: The trip happened yesterday.
-        note: Went correctly expresses the past of go; yesterday supplies the time
-          frame.
+        meaning: "`Yesterday` sets the time. `We` names the travellers; `went` is the past form of `go`, and
+          `to the harbour` gives the destination. `Went` stays the same with different people: `I
+          went`, `she went`, `they went`."
+        note: >-
+          Some past forms add `-ed`, as in `walked`; `go` instead has the irregular form `went`. In
+          a question, `did` carries the past: `Did you go?`, not the incorrect `Did you went?`.
+
+
+          **Try it.** Describe your trip to the market yesterday. Answer: `Yesterday I went to the
+          market`. Use `went` for the completed earlier trip.
   - subskill_id: future_events
-    explanation: Plans and future events can use going to, will or present forms
-      with suitable context.
+    explanation: Future talk can describe an arrangement, an intention or a prediction. If you have
+      agreed where to meet tomorrow, the present continuous can present that settled arrangement. A
+      future-time expression makes clear that the meeting is not happening now.
     examples:
       - text: We are meeting at the station tomorrow.
-        meaning: The meeting is arranged for tomorrow.
-        note: The present continuous has a future interpretation supported by tomorrow.
+        meaning: "`We are meeting` combines `are` with `meeting`. `At the station` gives the place;
+          `tomorrow` locates the arrangement in the future. With one person, the linking form
+          changes: `She is meeting us tomorrow`."
+        note: >-
+          `We are going to meet` can describe an intention. `I’ll meet you there` can express a
+          decision made as you speak. These forms overlap, so the situation helps you choose; they
+          are not interchangeable in every sentence.
+
+
+          **Try it.** Describe an arranged dinner tomorrow. Answer: `We are having dinner tomorrow`.
+          `Are having` presents the arrangement, and `tomorrow` gives its future time.
   - subskill_id: duration_frequency
-    explanation: Time phrases can express how long or how often something happens.
+    explanation: Duration tells how long an activity lasts; frequency tells how often it happens. When
+      describing a practice routine, you may need both. A listener can then distinguish a short
+      daily session from a long occasional one.
     examples:
       - text: I practise for twenty minutes every evening.
-        meaning: The practice lasts twenty minutes and happens each evening.
-        note: For twenty minutes gives duration; every evening gives frequency.
+        meaning: "`I practise` names the regular activity. `For twenty minutes` gives the length of each
+          session, and `every evening` says it happens each evening. Change either phrase
+          independently: `for ten minutes every morning` describes a different routine."
+        note: >-
+          `For` introduces a length of time. `Since Monday` instead identifies a starting point, as
+          in `I have practised every day since Monday`. Do not replace `for twenty minutes` with the
+          incorrect `since twenty minutes`.
+
+
+          **Try it.** Describe reading for half an hour each day. Answer: `I read for thirty minutes
+          every day`. `For thirty minutes` answers how long; `every day` answers how often.
   - subskill_id: event_sequence
-    explanation: Order events with expressions such as first, then, before or after.
+    explanation: Sequence helps a listener reconstruct what happened or follow a set of steps. In a
+      travel story, saying which action came first avoids confusion about whether the taxi arrived
+      before the bags were ready.
     examples:
       - text: First we packed, then we called a taxi.
-        meaning: Packing happened before the taxi call.
-        note: Then marks sequence without itself asserting a cause.
+        meaning: "`First` marks packing as the initial action. `Packed` is a completed past action; `then`
+          introduces the next one, `called a taxi`. Both verbs have the regular past ending. The
+          sentence gives their order without saying one caused the other."
+        note: >-
+          You can show the same order with `After we packed, we called a taxi`. `Before we packed,
+          we called a taxi` reverses it. For instructions, the verbs are plain: `First pack, then
+          call a taxi`.
+
+
+          **Try it.** Order two earlier actions: you ate, and afterwards you left. Answer: `First I
+          ate, then I left`. The past forms locate the events earlier; `first` and `then` order
+          them.
   - subskill_id: event_phase
-    explanation: Progressive constructions can present an event as ongoing; other
-      constructions can mark its completion.
+    explanation: An event can be viewed while it is unfolding or as a whole. When explaining a power
+      cut, you may want to say what you were doing at that moment. The ongoing activity gives a
+      background for the sudden event.
     examples:
       - text: I was cooking when the lights went out.
-        meaning: Cooking was in progress when the interruption occurred.
-        note: Was cooking gives the ongoing background; went out introduces the
-          interrupting event.
+        meaning: "`I was cooking` puts the cooking in progress at the relevant past time. `Was` goes with
+          `I`; `cooking` names the ongoing action. `When the lights went out` introduces the event
+          that happened during it; `went out` here means stopped giving light."
+        note: >-
+          `I cooked dinner` presents cooking as a whole past event. `I was cooking` does not itself
+          say you finished the meal. With several people, use `We were cooking`.
+
+
+          **Try it.** You were reading as the phone rang. Answer: `I was reading when the phone
+          rang`. `Was reading` supplies the ongoing background, and `rang` identifies the event
+          within it.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - bc_present2026
         - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-teaching-expanded-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1
 provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: present_events
+      explanation: Present events include regular situations as well as things happening right now. When
+        describing someone’s job, you usually mean their normal workplace, even if they are at home
+        today. The present simple is useful for that regular situation.
+      examples:
+        - text: She works at the museum.
+          meaning: "`She` names the person. `Works` has the ending for `she`; `at the museum` names her
+            workplace. With `I` or `they`, use `work`: `They work at the museum`. This does not say
+            they are working at this exact moment."
+          note: >-
+            `She is working at the museum today` focuses on an activity taking place around now. To
+            deny the regular job, use `She doesn’t work at the museum`; after `doesn’t`, keep `work`
+            plain.
+
+
+            **Try it.** Describe your brother’s regular workplace, a library. Answer: `He works at
+            the library`. `He` takes `works`, even when you are describing a job rather than an
+            action this instant.
+    - subskill_id: past_events
+      explanation: A past event tells someone what happened earlier. When recounting yesterday’s outing,
+        both the time expression and the verb help locate the trip in the past. Adding a past-time
+        word does not normally leave the verb unchanged.
+      examples:
+        - text: Yesterday we went to the harbor.
+          meaning: "`Yesterday` sets the time. `We` names the travellers; `went` is the past form of `go`, and
+            `to the harbor` gives the destination. `Went` stays the same with different people: `I
+            went`, `she went`, `they went`."
+          note: >-
+            Some past forms add `-ed`, as in `walked`; `go` instead has the irregular form `went`.
+            In a question, `did` carries the past: `Did you go?`, not the incorrect `Did you went?`.
+
+
+            **Try it.** Describe your trip to the market yesterday. Answer: `Yesterday I went to the
+            market`. Use `went` for the completed earlier trip.
+    - subskill_id: future_events
+      explanation: Future talk can describe an arrangement, an intention or a prediction. If you have
+        agreed where to meet tomorrow, the present continuous can present that settled arrangement.
+        A future-time expression makes clear that the meeting is not happening now.
+      examples:
+        - text: We are meeting at the station tomorrow.
+          meaning: "`We are meeting` combines `are` with `meeting`. `At the station` gives the place;
+            `tomorrow` locates the arrangement in the future. With one person, the linking form
+            changes: `She is meeting us tomorrow`."
+          note: >-
+            `We are going to meet` can describe an intention. `I’ll meet you there` can express a
+            decision made as you speak. These forms overlap, so the situation helps you choose; they
+            are not interchangeable in every sentence.
+
+
+            **Try it.** Describe an arranged dinner tomorrow. Answer: `We are having dinner
+            tomorrow`. `Are having` presents the arrangement, and `tomorrow` gives its future time.
+    - subskill_id: duration_frequency
+      explanation: Duration tells how long an activity lasts; frequency tells how often it happens. When
+        describing a practice routine, you may need both. A listener can then distinguish a short
+        daily session from a long occasional one.
+      examples:
+        - text: I practice for twenty minutes every evening.
+          meaning: "`I practice` names the regular activity. `For twenty minutes` gives the length of each
+            session, and `every evening` says it happens each evening. Change either phrase
+            independently: `for ten minutes every morning` describes a different routine."
+          note: >-
+            `For` introduces a length of time. `Since Monday` instead identifies a starting point,
+            as in `I have practiced every day since Monday`. Do not replace `for twenty minutes`
+            with the incorrect `since twenty minutes`.
+
+
+            **Try it.** Describe reading for half an hour each day. Answer: `I read for thirty
+            minutes every day`. `For thirty minutes` answers how long; `every day` answers how
+            often.
+    - subskill_id: event_sequence
+      explanation: Sequence helps a listener reconstruct what happened or follow a set of steps. In a
+        travel story, saying which action came first avoids confusion about whether the taxi arrived
+        before the bags were ready.
+      examples:
+        - text: First we packed, then we called a taxi.
+          meaning: "`First` marks packing as the initial action. `Packed` is a completed past action; `then`
+            introduces the next one, `called a taxi`. Both verbs have the regular past ending. The
+            sentence gives their order without saying one caused the other."
+          note: >-
+            You can show the same order with `After we packed, we called a taxi`. `Before we packed,
+            we called a taxi` reverses it. For instructions, the verbs are plain: `First pack, then
+            call a taxi`.
+
+
+            **Try it.** Order two earlier actions: you ate, and afterwards you left. Answer: `First
+            I ate, then I left`. The past forms locate the events earlier; `first` and `then` order
+            them.
+    - subskill_id: event_phase
+      explanation: An event can be viewed while it is unfolding or as a whole. When explaining a power
+        cut, you may want to say what you were doing at that moment. The ongoing activity gives a
+        background for the sudden event.
+      examples:
+        - text: I was cooking when the lights went out.
+          meaning: "`I was cooking` puts the cooking in progress at the relevant past time. `Was` goes with
+            `I`; `cooking` names the ongoing action. `When the lights went out` introduces the event
+            that happened during it; `went out` here means stopped giving light."
+          note: >-
+            `I cooked dinner` presents cooking as a whole past event. `I was cooking` does not
+            itself say you finished the meal. With several people, use `We were cooking`.
+
+
+            **Try it.** You were reading as the phone rang. Answer: `I was reading when the phone
+            rang`. `Was reading` supplies the ongoing background, and `rang` identifies the event
+            within it.

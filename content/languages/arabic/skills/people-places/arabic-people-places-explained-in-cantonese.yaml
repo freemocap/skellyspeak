@@ -1,105 +1,144 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: 指示詞加名詞短語，可以唔用明示現在時繫詞就識別人物。不同變體用嘅指示詞有分別。
+    explanation: 介紹眼前嘅鄰居，就係將嗰個人同你嘅關係連起。阿拉伯語可以直接講「呢位係我鄰居」，唔使另加現在式嘅「係」。
     examples:
       - text: هٰذِهِ جَارَتِي.
-        meaning: 呢位係我女鄰居。
-        note: 現代標準阿拉伯語。所指人物係女性；末尾所有格後綴表示「我嘅」。
-      - text: هَايْ جَارْتِي.
-        meaning: 呢位係我女鄰居。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。所指人物係女性；末尾所有格後綴表示「我嘅」。
+        meaning: "**例句。** 呢位係我女鄰居。 `هٰذِهِ` 係指女性嘅「呢位」。`جَارَتِي`
+          係「我嘅女鄰居」；名詞指出關係，連住嘅詞尾表示「我嘅」。指示詞加名詞，已經係完整介紹。"
+        note: 介紹男性鄰居要改指示詞同名詞。試下講完整介紹：`هٰذَا جَارِي`。`هٰذَا` 指佢，`جَارِي` 講出關係，連住嘅「我嘅」後綴保留。
   - subskill_id: qualities_states
-    explanation: 名詞句可以描述特徵。現代標準語形容詞有格標記；黎凡特語唔用呢套格尾。
+    explanation: 有人問條路易唔易行，講闊窄就係有用資訊。呢句係描述條路嘅特徵，唔止係指出邊條路。
     examples:
       - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
-        meaning: 呢條路窄。
-        note: 現代標準阿拉伯語。形容詞描述條路。
-      - text: هَادْ الطَّرِيقْ ضَيِّقْ.
-        meaning: 呢條路窄。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。形容詞描述條路。
+        meaning: "**例句。** 呢條路窄。 `هٰذَا الطَّرِيقُ` 係「呢條路」。`ضَيِّقٌ`
+          係「窄」，提供描述。現在式唔使加「係」。完整標音時，呢度路嘅名詞同述語都用主格詞尾。"
+        note: 比較 `الطَّرِيقُ الضَّيِّقُ`「條窄路」：形容詞加定冠詞後，係名詞短語，唔係呢個完整描述。試下：邊個詞提供特徵？答案係 `ضَيِّقٌ`，講條路點樣。
   - subskill_id: location_movement
-    explanation: 介詞謂語可以交代物件位置，唔需要明示現在時 be 動詞。
+    explanation: 有人搵緊鎖匙。位置陳述可以話畀佢知鎖匙而家喺邊，唔係叫佢帶去另一個地方。
     examples:
       - text: الْمِفْتَاحُ فِي الْبَيْتِ.
-        meaning: 條鎖匙喺屋入面。
-        note: 現代標準阿拉伯語。交代鎖匙位置，唔係移動指示。
-      - text: الْمِفْتَاحْ بِالْبَيْتْ.
-        meaning: 條鎖匙喺屋入面。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。交代鎖匙位置，唔係移動指示。
+        meaning: "**例句。** 條鎖匙喺屋入面。 `الْمِفْتَاحُ` 係鎖匙，`فِي` 係「喺……入面」，`الْبَيْتِ`
+          係屋。地方短語直接交代鎖匙位置，唔使另加現在式嘅「係」。完整標音時，`فِي` 後面名詞用屬格詞尾。"
+        note: 可以換成 `فِي الْمَكْتَبِ`「喺辦公室」。位置唔同目的地，呢句冇去或者帶嘅動作。試下話鎖匙喺辦公室：`الْمِفْتَاحُ فِي
+          الْمَكْتَبِ`，物件保留，只改位置。
   - subskill_id: possession_relations
-    explanation: عِنْدِي 表達擁有。正式格系統同口語用法嘅雙數詞尾有分別；唔好照搬廣東話唔變名詞形式嘅習慣。
+    explanation: 大家數緊可以提供幾多張櫈。阿拉伯語可以用「喺我度」嚟表達擁有；櫈嘅名詞形式本身亦可以表示兩張。
     examples:
       - text: عِنْدِي كُرْسِيَّانِ.
-        meaning: 我有兩張椅。
-        note: 現代標準阿拉伯語。雙數名詞形式本身交代數量係二。
-      - text: عِنْدِي كُرْسِيَّيْنْ.
-        meaning: 我有兩張椅。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。雙數名詞形式本身交代數量係二。
+        meaning: "**例句。** 我有兩張椅。 `عِنْدِي` 係「我有」，字面係「喺我度」，後綴指出我。`كُرْسِيَّانِ` 用雙數詞尾表示兩張櫈，呢句唔使再加一個「二」字。"
+        note: 呢度雙數係主格，用 `ـانِ` 收尾。其他語法位置會用另一個双數詞尾，唔好任何地方都照加。試下：邊度表示兩張？答案喺 `كُرْسِيَّانِ` 入面；`عِنْدِي` 指邊個有。
   - subskill_id: quantity_comparison
-    explanation: 比較級形容詞加 مِنْ，表達比較同指出比較標準。
+    explanation: 揀搬邊個箱，可能要睇重量。比較句要指出判斷緊邊個箱，以及攞嚟比較嘅另一個箱。
     examples:
       - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
-        meaning: 呢個箱比嗰個輕。
-        note: 現代標準阿拉伯語。比較重量，唔係大小。
-      - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
-        meaning: 呢個箱比嗰個輕。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。比較重量，唔係大小。
+        meaning: "**例句。** 呢個箱比嗰個輕。 `هٰذَا الصُّنْدُوقُ` 係呢個箱，`أَخَفُّ` 係更輕，`مِنْ ذٰلِكَ`
+          係「比嗰個」。第二個指示詞代指已見到或提過嘅箱，唔使再講一次名詞。"
+        note: 比較參照之前保留 `مِنْ`。試下反過來話嗰個箱較輕：`ذٰلِكَ الصُّنْدُوقُ أَخَفُّ مِنْ هٰذَا`。前面係判斷較輕嘅箱，`مِنْ`
+          後面指示詞係比較參照。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/people-places/arabic-people-places-explained-in-english.yaml at revision
-    arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahDualTeaching20261007
+    - madinahDemonstrativesTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahPossessiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 黎凡特例句用 هَادْ、هَايْ 等南部形式。其他地區亦有其他指示詞；口語名詞唔帶正式格尾。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/people-places/arabic-people-places-explained-in-english.yaml at
-        revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: 現代標準語會喺名詞同形容詞標示格。指示詞同雙數詞尾亦有別於呢組口語例句。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/people-places/arabic-people-places-explained-in-english.yaml at
-        revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: identification
+      explanation: 介紹眼前嘅鄰居，就係將嗰個人同你嘅關係連起。阿拉伯語可以直接講「呢位係我鄰居」，唔使另加現在式嘅「係」。
+      examples:
+        - text: هَايْ جَارْتِي.
+          meaning: "**例句。** 呢位係我女鄰居。 `هَايْ` 指附近嘅女性；`جَارْتِي` 係「我嘅女鄰居」。所有格後綴連住名詞。呢句係介紹邊個，唔係描述佢做緊乜。"
+          note: 呢組係南部指示詞，其他地方亦有其他講法。試下用呢個示例介紹男性鄰居：`هَادْ جَارِي`。`هَايْ` 改成 `هَادْ`，女鄰居名詞改成男性形式，保留「我嘅」後綴。
+    - subskill_id: qualities_states
+      explanation: 有人問條路易唔易行，講闊窄就係有用資訊。呢句係描述條路嘅特徵，唔止係指出邊條路。
+      examples:
+        - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+          meaning: "**例句。** 呢條路窄。 `هَادْ` 係「呢」，`الطَّرِيقْ` 係條路，`ضَيِّقْ`
+            係窄。路直接接形容詞，就係現在嘅描述。形容詞係新資訊，唔係路名嘅一部分。"
+          note: "`الطَّرِيقْ الضَّيِّقْ` 係「條窄路」，名詞同形容詞都帶定冠詞。例句嘅描述形容詞唔帶冠詞。試下：呢句係咪叫你移動？唔係；佢描述闊窄，冇移動動詞。"
+    - subskill_id: location_movement
+      explanation: 有人搵緊鎖匙。位置陳述可以話畀佢知鎖匙而家喺邊，唔係叫佢帶去另一個地方。
+      examples:
+        - text: الْمِفْتَاحْ بِالْبَيْتْ.
+          meaning: "**例句。** 條鎖匙喺屋入面。 `الْمِفْتَاحْ` 係鎖匙。`بِالْبَيْتْ` 將連住嘅介詞 `بِـ`
+            同屋合埋，呢度係「喺屋企」。現在式唔使另加「係」，地方短語已經令句子完整。"
+          note: 用 `بِالْمَكْتَبْ` 表示「喺辦公室」。換地方時保留連住嘅介詞。試下：講另一個位置，要換邊部分？答案係 `بِالْبَيْتْ`；搵緊嘅物件仍然係鎖匙。
+    - subskill_id: possession_relations
+      explanation: 大家數緊可以提供幾多張櫈。阿拉伯語可以用「喺我度」嚟表達擁有；櫈嘅名詞形式本身亦可以表示兩張。
+      examples:
+        - text: عِنْدِي كُرْسِيَّيْنْ.
+          meaning: "**例句。** 我有兩張椅。 `عِنْدِي` 係「我有」。`كُرْسِيَّيْنْ` 用口語雙數詞尾表示兩張櫈。數量屬於櫈，`عِنْدِي` 嘅後綴就指出邊個有。"
+          note: 一張櫈可以講 `عِنْدِي كُرْسِي`。改成一張時，唔可以保留雙數詞尾。試下將兩張改成一張：將 `كُرْسِيَّيْنْ` 換成 `كُرْسِي`，擁有嘅表達保留。
+    - subskill_id: quantity_comparison
+      explanation: 揀搬邊個箱，可能要睇重量。比較句要指出判斷緊邊個箱，以及攞嚟比較嘅另一個箱。
+      examples:
+        - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+          meaning: "**例句。** 呢個箱比嗰個輕。 `هَادْ الصُّنْدُوقْ` 係呢個箱，`أَخَفّ` 係更輕，`مِنْ هَدَاكْ`
+            係「比嗰個」。近嘅呢個同較遠嘅嗰個，令你唔使重複講箱。"
+          note: 比較參照前面保留 `مِنْ`。試下話嗰個箱比呢個輕：`هَدَاكْ الصُّنْدُوقْ أَخَفّ مِنْ هَادْ`。調轉指示詞就調轉比較方向，形容詞同關係詞保留。

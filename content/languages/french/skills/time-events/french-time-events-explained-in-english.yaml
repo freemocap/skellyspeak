@@ -1,99 +1,185 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: french-skills-2026-10-04
+revision: french-teaching-expanded-english-2026-10-07
 skill_id: time_events
 language: french
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: >-
-      The present can describe habits, current states or activities happening now. En ce
-      moment makes the current activity explicit without requiring a separate progressive
-      tense.
+    explanation: Someone asks what you are doing while you are preparing the evening meal. `Je
+      prépare` is the present form meaning I prepare or I am preparing; `le dîner` names dinner.
+      `En ce moment` means right now and makes the current activity clear. French can use this
+      present form without a separate progressive tense. `Je prépare le dîner tous les soirs`
+      instead describes a habit through every evening. The verb form can be the same because the
+      time expression changes how the activity is understood.
     examples:
-      - text: "Je prépare le dîner en ce moment."
-        meaning: >-
-          I am preparing dinner right now.
-        note: >-
-          Prépare is a present form; en ce moment identifies the current occasion rather
-          than a general habit.
+      - text: Je prépare le dîner en ce moment.
+        meaning: I am preparing dinner right now.
+        note: "Say that your group is preparing the meal now. `Nous préparons le dîner en ce moment.`
+          works: `préparons` agrees with `nous`, while the time phrase still marks the current
+          occasion."
   - subskill_id: past_events
-    explanation: >-
-      Choose a past construction that presents the intended event. The passé composé often
-      advances a narrative; the imparfait often supplies an ongoing situation or habit.
-      Neither is selected by a time word alone.
+    explanation: You recall leaving home while rain was already falling. `Hier` means yesterday. `Il
+      pleuvait` describes the ongoing weather in the imperfect; `quand nous avons quitté la
+      maison` gives the departure as a completed event in that background. `Avons quitté`
+      combines the present auxiliary `avons` with the past participle `quitté`. `Hier` alone
+      does not decide between these past tenses. `Il a plu toute la journée` can instead present
+      a whole day's rain as a bounded event, rather than the background to a departure.
     examples:
-      - text: "Hier, il pleuvait quand nous avons quitté la maison."
-        meaning: >-
-          Yesterday it was raining when we left the house.
-        note: >-
-          Pleuvait supplies the ongoing background; avons quitté presents the departure as
-          an event within it.
+      - text: Hier, il pleuvait quand nous avons quitté la maison.
+        meaning: Yesterday it was raining when we left the house.
+        note: "Keep the rainy background but have one person leave. `Hier, il pleuvait quand j’ai quitté
+          la maison.` works: the weather stays in the imperfect, while the departure changes to
+          `j’ai quitté` for I."
   - subskill_id: future_events
-    explanation: >-
-      Aller in the present followed by an infinitive can express a plan. The simple future
-      and a present form with a clear future context are other resources.
+    explanation: "The group has a plan to visit a garden tomorrow. `Nous allons` is the present form
+      of `aller` for we, but followed by `visiter` it forms a future construction: we are going
+      to visit. `Le jardin` names the place, and `demain` locates the visit tomorrow. Only
+      `aller` changes with the subject; `visiter` stays infinitive. `Nous allons au jardin`
+      instead uses `aller` as movement towards a destination, with no second verb. The
+      construction can express a plan without meaning the visit must happen immediately."
     examples:
-      - text: "Nous allons visiter le jardin demain."
-        meaning: >-
-          We are going to visit the garden tomorrow.
-        note: >-
-          Allons visiter expresses the plan; demain anchors it after now. Aller is
-          conjugated and visiter stays infinitive.
+      - text: Nous allons visiter le jardin demain.
+        meaning: We are going to visit the garden tomorrow.
+        note: "Give the plan for yourself alone. `Je vais visiter le jardin demain.` works: `vais`
+          agrees with `je`, while `visiter` and the date stay the same."
   - subskill_id: duration_frequency
-    explanation: >-
-      Depuis with a present situation often measures how long it has continued up to now.
-      Pendant measures a duration; chaque and frequency adverbs describe repetition.
+    explanation: "You started working here three months ago and still work here now. `Je travaille
+      ici` states the continuing present situation; `depuis trois mois` measures the time from
+      its start until now. With a starting date, `depuis janvier` means since January. A
+      completed period can instead use `J’ai travaillé ici pendant trois mois.` Frequency
+      answers how often: `Je travaille ici trois jours par semaine` means three days a week.
+      Duration and frequency provide different information even when both contain numbers."
     examples:
-      - text: "Je travaille ici depuis trois mois."
-        meaning: >-
-          I have been working here for three months.
-        note: >-
-          The French present works with depuis for a situation continuing now; an English
-          perfect translation is not a French tense requirement.
+      - text: Je travaille ici depuis trois mois.
+        meaning: I have been working here for three months.
+        note: "Say the ongoing work started in January. `Je travaille ici depuis janvier.` works:
+          `depuis` now introduces a starting point instead of a length of time."
   - subskill_id: event_sequence
-    explanation: >-
-      D’abord, puis and ensuite order events. Before and after constructions need their
-      own appropriate complements; sequence does not by itself assert a cause.
+    explanation: "You describe the order in which your group arranged a trip. `D’abord` means first,
+      and `puis` means then. `Nous avons acheté les billets` gives buying the tickets; `nous
+      avons choisi nos places` gives choosing your seats. Both use `avons` plus a past
+      participle: `acheté` comes from `acheter`, and `choisi` from `choisir`. `Nos` agrees with
+      plural `places`. These linking words establish order, without themselves claiming that one
+      event caused the other. `Donc` would introduce a consequence instead."
     examples:
-      - text: "D’abord, nous avons acheté les billets, puis nous avons choisi nos places."
-        meaning: >-
-          First we bought the tickets, then we chose our seats.
-        note: >-
-          D’abord and puis establish order without claiming that buying the tickets caused
-          the choice of seats.
+      - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+        meaning: First we bought the tickets, then we chose our seats.
+        note: Reverse the order of the two events. `D’abord, nous avons choisi nos places, puis nous
+          avons acheté les billets.` works because the clauses change places while each keeps
+          its past form.
   - subskill_id: event_phase
-    explanation: >-
-      Use constructions such as commencer à, être en train de or finir de with an
-      infinitive to locate an activity within its development.
+    explanation: The kitchen is now tidy, and you say the job was completed just a moment ago. `Je
+      viens de` marks the recent past, meaning I have just; `finir de` means finish, and `ranger
+      la cuisine` names the tidying activity. The two occurrences of `de` belong to different
+      constructions, so both stay. `Finir` and `ranger` are infinitives after their respective
+      constructions. `Je suis en train de ranger la cuisine` instead says the activity is still
+      underway; `Je commence à ranger` says it is beginning.
     examples:
-      - text: "Je viens de finir de ranger la cuisine."
-        meaning: >-
-          I have just finished tidying the kitchen.
-        note: >-
-          Finir de marks completion; viens de additionally places that completion in the
-          recent past.
-provenance: &provenance
+      - text: Je viens de finir de ranger la cuisine.
+        meaning: I have just finished tidying the kitchen.
+        note: "Say you have just finished cleaning the table. `Je viens de finir de nettoyer la table.`
+          works: both `de` constructions remain, and only the final activity is replaced."
+provenance: &a1
   origin: ai
-  authorship: >-
-    AI-authored French explanations, assessment guidance and original examples, informed
-    by the cited sources; no independent linguistic review.
+  authorship: AI-authored French teaching and original examples informed by the cited sources; no
+    independent linguistic review.
   sources:
     - tex_past_aspect2026
     - tex_depuis2026
+    - texNearFutureTeaching20261007
+    - texCompoundPastTeaching20261007
+    - texRecentPastTeaching20261007
+    - oqlfMealsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: french-skills-2026-10-04
-    scope: >-
-      Entire document, including examples and applicability to both declared varieties.
-      References support the named grammatical or functional claims; they do not certify
-      generated examples.
+    revision: french-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: present_events
+      explanation: Someone asks what you are doing while you are preparing the midday meal. `Je
+        prépare` is the present form meaning I prepare or I am preparing; `le dîner` names
+        lunch. `En ce moment` means right now and makes the current activity clear. French can
+        use this present form without a separate progressive tense. `Je prépare le dîner tous
+        les jours` instead describes a habit through every day. The verb form can be the same
+        because the time expression changes how the activity is understood.
+      examples:
+        - text: Je prépare le dîner en ce moment.
+          meaning: I am preparing lunch right now.
+          note: "Say that your group is preparing the meal now. `Nous préparons le dîner en ce moment.`
+            works: `préparons` agrees with `nous`, while the time phrase still marks the current
+            occasion."
+    - subskill_id: past_events
+      explanation: You recall leaving home while rain was already falling. `Hier` means yesterday. `Il
+        pleuvait` describes the ongoing weather in the imperfect; `quand nous avons quitté la
+        maison` gives the departure as a completed event in that background. `Avons quitté`
+        combines the present auxiliary `avons` with the past participle `quitté`. `Hier` alone
+        does not decide between these past tenses. `Il a plu toute la journée` can instead
+        present a whole day's rain as a bounded event, rather than the background to a
+        departure.
+      examples:
+        - text: Hier, il pleuvait quand nous avons quitté la maison.
+          meaning: Yesterday it was raining when we left the house.
+          note: "Keep the rainy background but have one person leave. `Hier, il pleuvait quand j’ai quitté
+            la maison.` works: the weather stays in the imperfect, while the departure changes
+            to `j’ai quitté` for I."
+    - subskill_id: future_events
+      explanation: "The group has a plan to visit a garden tomorrow. `Nous allons` is the present form
+        of `aller` for we, but followed by `visiter` it forms a future construction: we are
+        going to visit. `Le jardin` names the place, and `demain` locates the visit tomorrow.
+        Only `aller` changes with the subject; `visiter` stays infinitive. `Nous allons au
+        jardin` instead uses `aller` as movement towards a destination, with no second verb. The
+        construction can express a plan without meaning the visit must happen immediately."
+      examples:
+        - text: Nous allons visiter le jardin demain.
+          meaning: We are going to visit the garden tomorrow.
+          note: "Give the plan for yourself alone. `Je vais visiter le jardin demain.` works: `vais`
+            agrees with `je`, while `visiter` and the date stay the same."
+    - subskill_id: duration_frequency
+      explanation: "You started working here three months ago and still work here now. `Je travaille
+        ici` states the continuing present situation; `depuis trois mois` measures the time from
+        its start until now. With a starting date, `depuis janvier` means since January. A
+        completed period can instead use `J’ai travaillé ici pendant trois mois.` Frequency
+        answers how often: `Je travaille ici trois jours par semaine` means three days a week.
+        Duration and frequency provide different information even when both contain numbers."
+      examples:
+        - text: Je travaille ici depuis trois mois.
+          meaning: I have been working here for three months.
+          note: "Say the ongoing work started in January. `Je travaille ici depuis janvier.` works:
+            `depuis` now introduces a starting point instead of a length of time."
+    - subskill_id: event_sequence
+      explanation: "You describe the order in which your group arranged a trip. `D’abord` means first,
+        and `puis` means then. `Nous avons acheté les billets` gives buying the tickets; `nous
+        avons choisi nos places` gives choosing your seats. Both use `avons` plus a past
+        participle: `acheté` comes from `acheter`, and `choisi` from `choisir`. `Nos` agrees
+        with plural `places`. These linking words establish order, without themselves claiming
+        that one event caused the other. `Donc` would introduce a consequence instead."
+      examples:
+        - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          meaning: First we bought the tickets, then we chose our seats.
+          note: Reverse the order of the two events. `D’abord, nous avons choisi nos places, puis nous
+            avons acheté les billets.` works because the clauses change places while each keeps
+            its past form.
+    - subskill_id: event_phase
+      explanation: The kitchen is now tidy, and you say the job was completed just a moment ago. `Je
+        viens de` marks the recent past, meaning I have just; `finir de` means finish, and
+        `ranger la cuisine` names the tidying activity. The two occurrences of `de` belong to
+        different constructions, so both stay. `Finir` and `ranger` are infinitives after their
+        respective constructions. `Je suis en train de ranger la cuisine` instead says the
+        activity is still underway; `Je commence à ranger` says it is beginning.
+      examples:
+        - text: Je viens de finir de ranger la cuisine.
+          meaning: I have just finished tidying the kitchen.
+          note: "Say you have just finished cleaning the table. `Je viens de finir de nettoyer la table.`
+            works: both `de` constructions remain, and only the final activity is replaced."

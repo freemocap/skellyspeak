@@ -1,69 +1,99 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Präsens can describe an activity happening now as well as a habit. Gerade makes
-      current activity explicit without requiring an English-style progressive construction.
+    explanation: Before a bike ride, someone asks what you are doing. `Ich prüfe` means I check, and
+      `gerade` places the activity right now. German uses this ordinary present form for an action
+      in progress as well as for routine actions.
     examples:
       - text: Ich prüfe gerade die Reifen.
-        meaning: I am checking the tyres right now.
-        note: Prüfe is first-person Präsens; gerade anchors the checking in the current moment.
+        meaning: "**The example.** I am checking the tyres right now. `die Reifen` means the tyres. `prüfe`
+          carries the I-ending and follows `Ich`; `gerade` explains why the sentence means am
+          checking in this situation. No extra verb is needed to mark progress."
+        note: "Try it: put right now first. Answer: `Gerade prüfe ich die Reifen`. `Gerade` takes the first
+          position, so `prüfe` comes next and `ich` follows. Compare `Ich prüfe die Reifen jeden
+          Freitag`, a weekly routine; the time phrase changes the reading."
   - subskill_id: past_events
-    explanation: Perfekt uses a finite form of haben or sein and a past participle. It is common in
-      conversation; Präteritum also expresses past events, with choice depending on verb and
-      register.
+    explanation: After fixing a bicycle basket, you can report what you did yesterday. The
+      conversational past here joins `habe` with the participle `repariert`. One part carries the
+      person and another names the completed repair.
     examples:
       - text: Gestern habe ich den Fahrradkorb repariert.
-        meaning: Yesterday I repaired the bicycle basket.
-        note: Habe repariert forms Perfekt with haben. Repariert, from a verb in -ieren, has no ge-
-          prefix.
+        meaning: "**The example.** Yesterday I repaired the bicycle basket. `Gestern` is yesterday; `habe`
+          follows that whole time element and `ich` comes next. `den Fahrradkorb` is the bicycle
+          basket, with masculine object article `den`. `repariert` stands at the end. Verbs ending
+          in `-ieren`, such as `reparieren`, form this participle without a `ge-` prefix."
+        note: "Try it: begin with I. Answer: `Ich habe gestern den Fahrradkorb repariert`. The time moves
+          inside the clause, but `habe` remains second and `repariert` remains last. Keeping both
+          verb parts preserves the past construction."
   - subskill_id: future_events
-    explanation: A present-tense verb with a future time phrase can describe a scheduled later
-      event. Werden plus an infinitive is another option, but is not required for every future
-      reference.
+    explanation: A train timetable tells you about a later departure. German can use a present verb with
+      a future date for a scheduled event. `Nächsten Freitag` makes this departure next Friday
+      rather than a current action.
     examples:
       - text: Nächsten Freitag fährt unser Zug um sieben Uhr ab.
-        meaning: Next Friday our train departs at seven.
-        note: Nächsten Freitag places the event in the future. The prefix ab of abfahren is separated in
-          this main clause.
+        meaning: "**The example.** Next Friday our train departs at seven. `unser Zug` is our train, `um
+          sieben Uhr` is at seven o’clock, and `fährt … ab` is departs from `abfahren`. The complete
+          date phrase comes first, then `fährt`; the separated prefix `ab` ends the clause."
+        note: "Try it: move the train’s departure to eight. Answer: `Nächsten Freitag fährt unser Zug um
+          acht Uhr ab`. Only the clock number changes. Adding `werden` is not required here: the
+          future date already makes the time clear."
   - subskill_id: duration_frequency
-    explanation: For a situation that began earlier and continues now, use seit with dative and
-      Präsens. Expressions such as jeden Freitag specify recurrence rather than elapsed
-      duration.
+    explanation: You started at a workshop two weeks ago and still work there. `seit` connects that
+      earlier beginning to now. German normally keeps the verb in the present for this continuing
+      situation.
     examples:
       - text: Ich arbeite seit zwei Wochen in dieser Werkstatt.
-        meaning: I have been working in this workshop for two weeks.
-        note: Seit zwei Wochen measures the continuing situation; the English perfect translation does
-          not require a German perfect tense.
+        meaning: "**The example.** I have been working in this workshop for two weeks. `Ich arbeite` is I
+          work. `seit zwei Wochen` means for two weeks up to now; `in dieser Werkstatt` is in this
+          workshop. `seit` takes dative, and the plural time noun is `Wochen`. The location also
+          uses dative `dieser` here."
+        note: "Try it: say you have worked there for three weeks. Answer: `Ich arbeite seit drei Wochen in
+          dieser Werkstatt`. Replace the count and keep the present. Compare `Ich habe zwei Wochen
+          dort gearbeitet`, I worked there for two weeks: that past report does not itself say you
+          still work there."
   - subskill_id: event_sequence
-    explanation: Erst and dann can order successive actions. Dann can occupy the first position of a
-      main clause, followed by the finite verb.
+    explanation: "Before leaving together, the group has two tasks: packing bags and locking the door.
+      `erst` and `dann` make their order clear. Each starts its own statement, followed by that
+      statement’s person-marked verb."
     examples:
       - text: Erst packen wir die Taschen, dann schließen wir die Tür ab.
-        meaning: First we pack the bags, then we lock the door.
-        note: The two adverbs establish order. Schließen … ab is the separated form of abschließen; no
-          causal relationship is asserted.
+        meaning: "**The example.** First we pack the bags, then we lock the door. `packen wir die Taschen`
+          means we pack the bags. `schließen wir die Tür ab` means we lock the door; `ab` belongs to
+          `abschließen`. Since `Erst` and `dann` occupy first position, `wir` follows the verbs in
+          both clauses."
+        note: "Try it: lock the door first, then pack the bags. Answer: `Erst schließen wir die Tür ab, dann
+          packen wir die Taschen`. Move each complete clause, keeping `ab` with the locking action.
+          `dann` orders events; it does not by itself say why one caused the other."
   - subskill_id: event_phase
-    explanation: Gerade or noch can describe work in progress; fertig sein mit says that work is
-      finished. The work named after mit takes dative.
+    explanation: Someone wants to know whether the report still needs work. `mit dem Bericht fertig
+      sein` says the task is finished; `noch am Bericht arbeiten` says work continues. Naming the
+      task makes the meaning of finished clear.
     examples:
       - text: Ich bin jetzt mit dem Bericht fertig.
-        meaning: I have now finished the report.
-        note: Mit dem Bericht specifies the completed task; fertig marks its phase rather than simply
-          dating a past event.
+        meaning: "**The example.** I have now finished the report. `Ich bin` is I am and `jetzt` means now.
+          `mit dem Bericht` identifies the report, with dative `dem` after `mit`; `fertig` supplies
+          finished. The sentence focuses on the task’s current completed state."
+        note: "Try it: report completion for your group. Answer: `Wir sind jetzt mit dem Bericht fertig`.
+          `Ich bin` changes to `Wir sind`; the task phrase stays dative. Compare the next example:
+          being finished and still working are different phases of the same task."
       - text: Ich arbeite noch am Bericht.
-        meaning: I am still working on the report.
-        note: Noch indicates continuation. Am is an dem in arbeiten an with dative; this contrasts with
-          the completed task above.
-provenance: &a1
+        meaning: "**The example.** I am still working on the report. `Ich arbeite` is I work, `noch` is
+          still, and `am Bericht` is on the report. Here `am` combines `an dem`; `arbeiten an` uses
+          dative. `noch` makes continuation explicit rather than completion."
+        note: "Try it: say the group is still working. Answer: `Wir arbeiten noch am Bericht`. Change the
+          subject and verb together, keeping `noch`. To say the task is complete, use `Wir sind mit
+          dem Bericht fertig` instead of retaining still."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_tenses2026
     - umich_de_prepositions2026
@@ -75,11 +105,30 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_tenses2026
+        - umich_de_prepositions2026
+        - umich_de_connectors2026
+        - umich_de_adverbs2026
+        - umich_de_prepositional2026
+        - duden_de_fertig2026
+        - goethe_de_discourse2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

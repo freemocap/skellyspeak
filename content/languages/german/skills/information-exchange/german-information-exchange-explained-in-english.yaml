@@ -1,48 +1,66 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: In a question with wann, wo or another question word, the finite verb normally
-      follows that word or phrase. A yes/no question can begin with the finite verb.
+    explanation: Before going to the workshop tomorrow, you need its opening time. `Wann` asks when; the
+      question places the finite verb immediately after that question word.
     examples:
       - text: Wann öffnet die Werkstatt morgen?
-        meaning: When does the workshop open tomorrow?
-        note: Wann asks for a time; öffnet follows it. The question seeks information rather than asking
-          the partner to open the workshop.
+        meaning: "**The example.** When does the workshop open tomorrow? `öffnet` means opens and agrees
+          with singular `die Werkstatt`, the workshop. `morgen` means tomorrow. The subject follows
+          the verb: `Wann öffnet die Werkstatt morgen?` asks for a time, rather than whether it
+          opens at all."
+        note: "Try it: ask about today. Answer: `Wann öffnet die Werkstatt heute?` Replace the day with
+          `heute`; the question order stays unchanged. `Öffnet die Werkstatt morgen?` instead begins
+          with the verb and invites a yes-or-no answer."
   - subskill_id: answering_information
-    explanation: A relevant German answer can be a phrase without a finite verb. Its meaning must be
-      supplied by an identifiable question, not by guessing missing context.
+    explanation: An opening-time question can be answered with just the time, because the workshop and
+      action are already understood. `um` introduces a clock time; German `halb` counts towards the
+      next hour.
     examples:
       - text: Um halb neun.
-        meaning: At half past eight.
-        note: Answer to a question asking when the workshop opens. German halb neun means half an hour
-          before nine, not half past nine.
+        meaning: "**The example.** At half past eight. `Um halb neun` means at half past eight, 8:30: it is
+          halfway towards nine. The phrase supplies the missing time without repeating the
+          question’s subject and verb."
+        note: "Try it: give an opening time of 9:30. Answer: `Um halb zehn`. The named hour is ten, the
+          coming hour. A full answer for the original time is `Die Werkstatt öffnet um halb neun`;
+          both versions give 8:30."
   - subskill_id: checking_facts
-    explanation: Stimmt es, dass …? asks whether a proposition is true. The finite verb in the dass
-      clause comes at the end in this written construction.
+    explanation: You have heard the shop is closed today and want confirmation before travelling.
+      `Stimmt es, dass` asks whether the reported information is true, then introduces exactly what
+      needs checking.
     examples:
       - text: Stimmt es, dass der Laden heute geschlossen ist?
-        meaning: Is it true that the shop is closed today?
-        note: This checks a reported closure; ist closes the subordinate clause. Asking what geschlossen
-          means would instead seek clarification.
+        meaning: "**The example.** Is it true that the shop is closed today? `Stimmt es` means is it true.
+          `dass der Laden heute geschlossen ist` means that the shop is closed today. After `dass`,
+          the finite verb `ist` comes at the end; `geschlossen` describes the closed state."
+        note: "Try it: check tomorrow instead. Answer: `Stimmt es, dass der Laden morgen geschlossen ist?`
+          Replace `heute` with `morgen`, keeping final `ist`. A direct question is `Ist der Laden
+          heute geschlossen?`; it asks about the shop without explicitly referring to a reported
+          claim."
   - subskill_id: useful_detail
-    explanation: Add a specific distinction that helps with the current information need. German can
-      use a second main clause or a suitable phrase; more words alone do not make the detail
-      useful.
+    explanation: Someone looking for an entrance needs a usable landmark. This answer first identifies
+      the side of the building, then narrows the location to beside the lift.
     examples:
       - text: Der Eingang ist auf der Hofseite, direkt neben dem Aufzug.
-        meaning: The entrance is on the courtyard side, right next to the lift.
-        note: In response to someone looking for the entrance, the final phrase narrows the location.
-          Auf der and neben dem use spatial dative.
-provenance: &a1
+        meaning: "**The example.** The entrance is on the courtyard side, right next to the lift. `Der
+          Eingang` is the entrance. `auf der Hofseite` means on the courtyard side. `direkt neben
+          dem Aufzug` means right beside the lift. Both place phrases locate the entrance, with
+          dative `der` for feminine `Hofseite` and `dem` for masculine `Aufzug`."
+        note: "Try it: locate it beside the bakery instead of the lift. Answer: `Der Eingang ist auf der
+          Hofseite, direkt neben der Bäckerei`. Feminine `Bäckerei` takes dative `der`. Keeping the
+          side of the building and changing the nearby landmark gives the listener two useful
+          clues."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_questions2026
     - umich_de_word_order2026
@@ -54,11 +72,30 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_questions2026
+        - umich_de_word_order2026
+        - umich_de_connectors2026
+        - umich_de_prepositions2026
+        - goethe_de_discourse2026
+        - victoria_de_clock2026
+        - ids_de_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

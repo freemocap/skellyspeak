@@ -1,57 +1,86 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: time_events
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 現在式可以描述目前情況或習慣；具體意思由成段對話交代。
+    explanation: 有人問你工作時，現在式可以描述目前嘅工作情況，唔一定代表你正喺呢一秒做緊嘢。地方同對話情境幫對方明白你講邊種情況。
     examples:
       - text: Trabajo aquí.
-        meaning: 我喺呢度做嘢。
-        note: 現在式描述講者目前工作情況。
+        meaning: 意思係「我喺呢度返工」。`Trabajo` 係 `trabajar` 表示講者嘅現在式；`aquí` 係呢度。詞尾已經指出係我，所以可以唔講
+          `yo`。喺工作場所介紹自己，呢句講返工地點。
+        note: >-
+          **改一改。** `Ella trabaja aquí` 換成佢返工。`Estoy trabajando` 強調做緊嘢。西班牙文亦可以用簡單現在式講進行中嘅動作，唔好見英文
+          -ing 就自動改用進行式。
+
+
+          **試吓。** 講喺屋企工作。答案：`Trabajo en casa`。換地方，保留表示自己嘅 `trabajo`。
   - subskill_id: past_events
-    explanation: 按意思揀過去結構：fui可以描述完成咗嘅行程，iba可以描述過去進行中或習慣情況；短答亦可承接問題嘅時間框架。
+    explanation: 講尋日去街市，可以將一次行程講成已完成事件。西班牙文用簡單過去式呈現呢種完整行程。其他過去形式可以講習慣或者背景，所以要睇你點講件事。
     examples:
       - text: Ayer fui al mercado.
-        meaning: 我尋日去咗街市。
-        note: Fui配合ayer表示已完成嘅較早行程；無關嘅冠詞錯誤唔會改變呢個時間結構。
+        meaning: 意思係「尋日我去咗街市」。`Ayer` 指尋日；`fui` 係 `ir` 表示講者嘅簡單過去式。`Al mercado` 講目的地，`al` 由 `a` 同 `el`
+          合成。成句講一次完成咗嘅行程。
+        note: >-
+          **比較。** `Iba al mercado todos los días` 用未完成過去式 `iba` 講以前每日去街市嘅習慣。`Fui` 亦可以係 `ser`
+          嘅形式，但呢度有目的地，所以清楚係「去」。
+
+
+          **試吓。** 講佢尋日去咗街市。答案：`Ayer fue al mercado`。`Fui` 改成表示佢嘅 `fue`，保留時間同目的地。
   - subskill_id: future_events
-    explanation: Ir a加不定式可以講計劃中嘅將來行動；亦可以用將來式，或靠語境有將來意思嘅現在式。
+    explanation: 聽日嘅計劃係仲未發生嘅行動。`Ir a` 後面加不定式，係常見嘅表達方式。`Ir` 嘅形式指出邊個有呢個計劃。
     examples:
       - text: Mañana voy a cocinar.
-        meaning: 我聽日會煮飯。
-        note: Mañana同voy a cocinar確立將來指向。
+        meaning: 意思係「聽日我會煮嘢食」。`Mañana` 係聽日；`voy` 指講者。`A cocinar` 提供計劃嘅活動。呢度 `voy a` 表達將來，唔代表講者要去另一個地方。
+        note: >-
+          **改一改。** `Ella va a cocinar` 換人物，`cocinar` 保持不定式。`Cocinaré mañana` 亦表達將來。`Voy` 同活動之間唔好漏咗
+          `a`。
+
+
+          **試吓。** 用 `estudiar` 講聽日會讀書。答案：`Mañana voy a estudiar`。保留 `voy a`，換活動。
   - subskill_id: duration_frequency
-    explanation: 用時間短語交代做幾耐或幾密。
+    explanation: 讀書習慣可以講幾密練習，亦可以講一次幾耐。兩樣回答唔同問題。`Todos los días` 講頻率：每日都有做，但冇講每次幾多分鐘。
     examples:
       - text: Estudio español todos los días.
-        meaning: 我每日學西班牙文。
-        note: Todos los días交代頻率。
+        meaning: 意思係「我每日學西班牙文」。`Estudio` 指講者嘅活動，`español` 指學嘅語言。`Todos los días` 係每日。呢度語言名稱嘅首字母用小寫。
+        note: >-
+          **比較。** `Estudio español durante una hora` 講一次讀一個鐘，唔係頻率。`Dos veces por semana` 係每星期兩次。日常表達
+          `todos los días` 要保留 `los`。
+
+
+          **試吓。** 講每星期學西班牙文兩次。答案：`Estudio español dos veces por semana`。換頻率描述，活動唔變。
   - subskill_id: event_sequence
-    explanation: Primero、después等連接表達排列事件，唔會自動表示因果。
+    explanation: 講一晚做過啲乜，按次序講會容易跟。`Primero` 指第一步，`después` 引出之後一步。佢哋講先後，唔表示前一件事導致後一件事。
     examples:
       - text: Primero cenamos y después salimos.
-        meaning: 我哋先食晚飯，然後出街。
-        note: 兩件事有明確先後，過去解讀由語境提供。
+        meaning: 講緊尋晚時，意思係「我哋先食晚飯，之後出街」。`Primero cenamos` 講第一件事，`y después salimos` 加下一件。`Cenamos` 同
+          `salimos` 可以係現在式或者簡單過去式；故事背景指出係過去。
+        note: |-
+          **比較。** 講今晚計劃時，同一啲形式亦可以用現在式指將來。加 `anoche` 就講明係尋晚。`Por eso` 講結果，唔只係先後。
+
+          **試吓。** 講尋晚先食晚飯再出街。答案：`Anoche primero cenamos y después salimos`。`Anoche` 講清楚過去背景。
   - subskill_id: event_phase
-    explanation: Estar配合副動詞可以描述進行中活動；完成動作要用配合時間框架嘅其他結構。
+    explanation: 你打開住本書時，有人打斷你，可以講閱讀正進行緊。`Estar` 加副動詞形式，強調進行中嘅活動。呢度用嘅活動形式例如由 `leer` 變成嘅 `leyendo`。
     examples:
       - text: Estoy leyendo.
-        meaning: 我睇緊書。
-        note: Estoy加leyendo將活動表達成進行中。
+        meaning: 意思係「我睇緊書」。`Estoy` 指講者，將活動放喺現在；`leyendo` 係進行中嘅閱讀。副動詞形式唔跟性別或者數量改變。`Estamos leyendo`
+          換成我哋，只改第一個動詞。
+        note: >-
+          **比較。** `Leo todos los días` 講每日閱讀嘅習慣。`Ya terminé de leer` 講已經睇完。呢個進行中意思唔可以喺 `estoy`
+          後面直接放不定式 `leer`。
+
+
+          **試吓。** 講佢睇緊書。答案：`Ella está leyendo`。將 `estoy` 換成 `está`，保留 `leyendo`。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/time-events/spanish-time-events-explained-in-english.yaml at
-        revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -59,21 +88,21 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/time-events/spanish-time-events-explained-in-english.yaml at
-        revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -81,18 +110,19 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/time-events/spanish-time-events-explained-in-english.yaml at revision
-    spanish-communication-2026-10-03. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -100,9 +130,12 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

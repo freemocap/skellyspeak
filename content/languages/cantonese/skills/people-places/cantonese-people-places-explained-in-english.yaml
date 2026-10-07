@@ -1,59 +1,95 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: 係 links a person to a noun description; 位 is a respectful classifier for people.
+    explanation: You introduce someone to another person and state your relationship. `呢位` politely
+      points to this person; `係` connects them to the identifying noun phrase.
     examples:
       - text: 呢位係我朋友。
-        meaning: This is my friend.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: This is my friend. `呢` means this and `位` is a respectful classifier for a person. `我朋友`
+          means my friend; a familiar personal relationship can appear without `嘅`. `係` introduces
+          the noun identification, rather than a description of mood or size.
+        note: "Try it: introduce your teacher. Answer: `呢位係我老師。` Replace the relationship with `老師`.
+          `呢個係我朋友` also identifies a friend with the general classifier `個`; `位` gives the
+          introduction a more respectful tone."
   - subskill_id: qualities_states
-    explanation: 好靜 predicates a quality directly; an English “is” does not require inserting 係.
+    explanation: You are choosing a place to read and describe this room as quiet. A quality such as `靜`
+      can serve directly as the description; `好` makes a natural positive quality phrase.
     examples:
       - text: 呢間房好靜。
-        meaning: This room is quiet.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: This room is quiet. `呢間房` is this room, with classifier `間` between `呢` and `房`. `好靜` says
+          quiet or very quiet. There is no `係` before this ordinary adjective description; `係` is
+          useful for identifying a person or thing with a noun.
+        note: "Try it: describe the room as bright. Answer: `呢間房好光猛。` Replace `靜` with `光猛`, bright. `呢間房唔靜`
+          says the room is not quiet, using `唔` before the quality; `呢間房係課室` identifies it as a
+          classroom and therefore uses `係`."
   - subskill_id: location_movement
-    explanation: 喺 locates the person. Singular 佢 does not encode gender like English he/she.
+    explanation: You are trying to find someone, and a reply tells you they are at the library. `喺`
+      locates the person; a destination with `去` would instead describe going somewhere.
     examples:
       - text: 佢喺圖書館。
-        meaning: They are at the library.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: They are at the library. `佢` refers to one person and does not mark their gender; English
+          singular they avoids guessing it. `喺圖書館` means at the library, with the place after `喺`.
+          The sentence reports location, not the journey there.
+        note: "Try it: locate the whole group there. Answer: `佢哋喺圖書館。` Replace singular `佢` with plural
+          `佢哋`; the location expression stays. `佢去圖書館` means they go or are going to the library,
+          with `去` giving movement towards it."
   - subskill_id: possession_relations
-    explanation: 我嘅 identifies the possessor without repeating 書.
+    explanation: Several books have been left on a table, and you identify the one belonging to you. The
+      book comes first, followed by a phrase naming its owner.
     examples:
       - text: 呢本書係我嘅。
-        meaning: This book is mine.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: This book is mine. `呢本書` is this book, with classifier `本`. `係我嘅` means is mine; `嘅`
+          follows the owner `我` and lets the possession phrase stand without repeating the book.
+          `我嘅書` would mean my book when the noun is included.
+        note: "Try it: identify the listener as the owner. Answer: `呢本書係你嘅。` Change `我` to `你` after `係`.
+          `我有呢本書` instead says you have this book; possession with `有` does not use the same
+          owner-identification frame."
   - subskill_id: quantity_comparison
-    explanation: 本 is the classifier for 書 here. Quantity does not require a plural ending on 書.
+    explanation: You are counting the books available to lend. A number combines with the book’s
+      classifier before the noun; the noun itself does not need a plural ending.
     examples:
       - text: 我有三本書。
-        meaning: I have three books.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: I have three books. `我有` means I have; `三本書` means three books, with number `三`, classifier
+          `本` and noun `書` in that order. `有` reports what is available to the speaker.
+        note: "Try it: say you have two books. Answer: `我有兩本書。` This ordinary quantity uses `兩` before the
+          classifier; learn `兩本` as the counting phrase. To compare totals, `我有三本書，你有兩本，我多一本。` says
+          you have one more."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

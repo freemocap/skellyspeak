@@ -1,68 +1,109 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: This announces departure and closes the exchange; 喇 presents a change in the situation.
+    explanation: You need to leave while the others may stay, and expect to see them tomorrow. The first
+      clause announces your departure; the second gives a friendly farewell linked to the next
+      meeting.
     examples:
       - text: 我走先喇，聽日見。
-        meaning: I am off now; see you tomorrow.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I am off now; see you tomorrow. `我走先` means I will go first or leave ahead of you. Final
+          `喇` signals that the departure is now becoming relevant. `聽日見` means see you tomorrow; the
+          people meeting can be understood without repeating pronouns.
+        note: "Try it: expect to meet on Monday. Answer: `我走先喇，星期一見。` Replace the meeting day; the departure
+          phrase stays. `我先走` puts `先` before the action to emphasize doing it first, while familiar
+          `我走先` readily serves as a leave-taking expression."
   - subskill_id: acknowledging
-    explanation: This acknowledges receipt of information without necessarily agreeing with an opinion.
+    explanation: Someone has given you a time or instruction, and you show that it has been understood
+      and recorded. The reply gives both acknowledgment and the practical action you have taken.
     examples:
       - text: 明白，我記低咗。
-        meaning: Understood; I have noted it down.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: Understood; I have noted it down. `明白` can stand alone to acknowledge understanding. `記低`
+          means note down; `低` belongs to this write-down expression. `咗` after it presents the
+          recording as accomplished, followed by no repeated object because the information is
+          already known.
+        note: "Try it: acknowledge understanding but say you have not recorded it yet. Answer: `明白，我仲未記低。`
+          Replace accomplished `記低咗` with `仲未記低`, still not noted down. This preserves understanding
+          while changing the recording status; understanding alone does not mean agreement."
   - subskill_id: clarification
-    explanation: After an unclear reference, 邊間 requests its identification. Elsewhere it could ask for
-      new information.
+    explanation: The other person mentions a shop, but more than one could fit. Asking which shop
+      repairs that unclear reference instead of asking them to repeat a sentence you already heard.
     examples:
       - text: 你講邊間舖頭呀？
-        meaning: Which shop do you mean?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: "Which shop do you mean? `你講` means you are talking about here. `邊間舖頭` asks which shop: `邊`
+          selects an identity and `間` is the shop’s classifier. `呀` ends the conversational
+          question. The person remains before the verb; the uncertain shop follows it."
+        note: "Try it: clarify which book someone means. Answer: `你講邊本書呀？` Change `間舖頭` to `本書`; the
+          classifier changes with the object. `你可唔可以再講一次？` requests repetition, which may still
+          leave the reference unclear."
   - subskill_id: rephrasing
-    explanation: 即係話 introduces a reformulation; check that it restates a relevant earlier meaning.
+    explanation: "A travel discussion has shown that the original departure is too late. You restate the
+      practical conclusion: the group needs to leave earlier. `即係話` introduces that reformulation."
     examples:
       - text: 即係話，我哋要早啲出門。
-        meaning: In other words, we need to leave earlier.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: In other words, we need to leave earlier. `我哋` means we, `要` says need to, and `早啲` means
+          earlier or a bit earlier. `啲` after the time quality makes a relative adjustment. `出門`
+          means leave home or head out.
+        note: "Try it: restate that the group needs to arrive earlier. Answer: `即係話，我哋要早啲到。` Replace `出門`
+          with `到`, arrive. `遲啲到` would instead mean arrive later, so it would change the practical
+          conclusion rather than restate the earlier requirement."
   - subskill_id: correcting_misunderstanding
-    explanation: Replacing the incorrectly understood day repairs meaning rather than merely expressing
-      disagreement.
+    explanation: The listener has understood Monday, but you said Tuesday. Naming both the intended day
+      and the excluded day makes the correction specific enough to update the arrangement.
     examples:
       - text: 我講星期二，唔係星期一。
-        meaning: I said Tuesday, not Monday.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I said Tuesday, not Monday. `我講星期二` identifies the day you said; the prior exchange
+          supplies its earlier time. `唔係星期一` means not Monday, excluding the mistaken identity. `唔係`
+          negates the identification rather than the act of speaking.
+        note: "Try it: correct Thursday to Friday. Answer: `我講星期五，唔係星期四。` The intended day goes first, then
+          the mistaken one. `我唔講星期一` instead says I do not say Monday; it negates `講` and does not
+          supply this precise replacement."
   - subskill_id: turns_topics
-    explanation: 講開 links the new question to the current topic and helps the listener follow the transition.
+    explanation: A conversation about food creates an opening to ask about cooking. `講開` links the new
+      question to the topic already being discussed, making the transition easy to follow.
     examples:
       - text: 講開食嘢，你鍾意煮咩呀？
-        meaning: Speaking of food, what do you like cooking?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: Speaking of food, what do you like cooking? `食嘢` means eating or food in this topic phrase.
+          `你鍾意煮` is you like cooking; `咩` occupies the food-object position and asks what. The final
+          `呀` suits the conversational question.
+        note: "Try it: connect a reading discussion to a question about books. Answer: `講開睇書，你鍾意睇咩書呀？` Both
+          the opening topic and the question’s activity change. `講開睇書` introduces the link; `咩書`
+          asks what books, retaining the unknown object after the action."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

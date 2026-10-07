@@ -5,7 +5,12 @@ on:
   push:
     branches: [main]
     paths:
-      - '../../docs/docs-site/**'
+      - 'docs/docs-site/**'
+      - 'ui/src/**'
+      - 'ui/tools/docs-demo/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'ui/package.json'
       - '.github/workflows/deploy-docs.yml'
   # Rebuild after every release so the docs pick up the new version.
   # NOTE: workflow_run only triggers when THIS file is on the default branch.
@@ -39,6 +44,8 @@ jobs:
           cache: npm
           cache-dependency-path: docs/docs-site/package-lock.json
 
+      - run: npm ci
+        working-directory: .
       - run: npm ci
 
       - run: npm run build

@@ -1,95 +1,206 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Modern Standard can combine an imperfect verb with now. Levantine can use عَمْ with
-      a verb to present ongoing activity.
+    explanation: Someone asks what you are doing at this moment. Naming the action together with now
+      makes it clear that you are describing an activity in progress.
     examples:
       - text: أَكْتُبُ رِسَالَةً الْآنَ.
-        meaning: I am writing a letter now.
-        note: Modern Standard Arabic. The first-person verb identifies the writer without a separate
-          pronoun.
-      - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
-        meaning: I am writing a letter now.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          first-person verb identifies the writer without a separate pronoun.
+        meaning: "**The example.** I am writing a letter now. `أَكْتُبُ` means I write; `رِسَالَةً` is a
+          letter; `الْآنَ` is now. The I-form identifies the writer. Arabic uses this verb form with
+          the time context to convey I am writing, rather than adding a separate am."
+        note: "The same verb can describe a habit in another context. Try it: change the object from a
+          letter to a book while keeping the action current. Answer: `أَكْتُبُ كِتَابًا الْآنَ`. The
+          object changes to `كِتَابًا`; the I-form and now stay intact."
   - subskill_id: past_events
-    explanation: Past conjugation and a time expression can report a previous action.
+    explanation: To tell someone what you accomplished yesterday, use a past action and a time
+      expression. Here the speaker reports writing a letter, rather than a current activity.
     examples:
       - text: كَتَبْتُ رِسَالَةً أَمْسِ.
-        meaning: I wrote a letter yesterday.
-        note: Modern Standard Arabic. The verb is first-person singular in this context.
-      - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
-        meaning: I wrote a letter yesterday.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The verb is
-          first-person singular in this context.
+        meaning: "**The example.** I wrote a letter yesterday. `كَتَبْتُ` means I wrote; its ending
+          identifies I. `رِسَالَةً` means a letter and `أَمْسِ` means yesterday. The verb already
+          has past reference; yesterday supplies the particular day."
+        note: "Compare `كَتَبْتَ`, you wrote to one man, with the I-form `كَتَبْتُ`. Try it: report that we
+          wrote a letter yesterday. Answer: `كَتَبْنَا رِسَالَةً أَمْسِ`. The past ending changes to
+          `نَا`; the letter and day remain."
   - subskill_id: future_events
-    explanation: Modern Standard سَـ and conversational رَحْ can locate a planned event in the future.
+    explanation: You are telling someone about tomorrow’s visit. A future expression places the action
+      after now, while the friend and day make the plan concrete.
     examples:
       - text: سَأَزُورُ صَدِيقِي غَدًا.
-        meaning: I will visit my friend tomorrow.
-        note: Modern Standard Arabic. The friend is male; this is a plan, not necessarily a promise.
-      - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
-        meaning: I will visit my friend tomorrow.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The friend
-          is male; this is a plan, not necessarily a promise.
+        meaning: "**The example.** I will visit my friend tomorrow. `سَأَزُورُ` combines future `سَـ` with I
+          visit. `صَدِيقِي` means my male friend, with the my suffix attached. `غَدًا` means
+          tomorrow. This sentence states a plan; it can become a promise only in an appropriate
+          exchange."
+        note: "Without future `سَـ`, the verb can describe a present or regular visit in context. Try it:
+          move the visit to today. Answer: `سَأَزُورُ صَدِيقِي الْيَوْمَ`. The future marker still
+          places the visit after now; today specifies its day."
   - subskill_id: duration_frequency
-    explanation: A count of occasions with a weekly interval expresses recurrence.
+    explanation: A question about your routine often needs a frequency, such as how many times each
+      week. This example counts swimming occasions rather than the length of one swim.
     examples:
       - text: أَسْبَحُ مَرَّتَيْنِ فِي الْأُسْبُوعِ.
-        meaning: I swim twice a week.
-        note: Modern Standard Arabic. The count concerns occasions, not two swimmers.
-      - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
-        meaning: I swim twice a week.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The count
-          concerns occasions, not two swimmers.
+        meaning: "**The example.** I swim twice a week. `أَسْبَحُ` means I swim. `مَرَّتَيْنِ` means twice,
+          using the dual of occasion; `فِي الْأُسْبُوعِ` is per week here. The interval and count
+          together explain how often the activity happens."
+        note: "For once a week, use `مَرَّةً فِي الْأُسْبُوعِ`. Twice does not mean two hours; duration
+          needs a time-unit phrase. Try it: change the routine to once weekly. Answer: `أَسْبَحُ
+          مَرَّةً فِي الْأُسْبُوعِ`; the interval stays weekly."
   - subskill_id: event_sequence
-    explanation: First and then order events without necessarily claiming causation.
+    explanation: When arranging an evening together, first and then tell the group what order to follow.
+      The order need not mean that the first event causes the second.
     examples:
       - text: أَوَّلًا نَأْكُلُ، ثُمَّ نَخْرُجُ.
-        meaning: First we eat, then we go out.
-        note: Modern Standard Arabic. The speaker presents a sequence for the group.
-      - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
-        meaning: First we eat, then we go out.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
-          presents a sequence for the group.
+        meaning: "**The example.** First we eat, then we go out. `أَوَّلًا` means first; `نَأْكُلُ` is we
+          eat. `ثُمَّ` means then and `نَخْرُجُ` is we go out. Both verbs use the we-form, making
+          this a sequence for the group rather than for one listener alone."
+        note: "Try it: say first we go out, then we eat. Answer: `أَوَّلًا نَخْرُجُ، ثُمَّ نَأْكُلُ`. Move
+          each complete action into its new position. `ثُمَّ` marks sequence; for a result you would
+          need wording such as `لِذٰلِكَ`, therefore."
   - subskill_id: event_phase
-    explanation: A verb meaning finish can specify the endpoint of an activity.
+    explanation: Someone wants to know whether you are still reading a book. Saying you finished
+      identifies the endpoint, which is more specific than saying you read earlier.
     examples:
       - text: أَنْهَيْتُ قِرَاءَةَ الْكِتَابِ.
-        meaning: I finished reading the book.
-        note: Modern Standard Arabic. The claim is completion of reading, not merely past reading.
-      - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
-        meaning: I finished reading the book.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The claim
-          is completion of reading, not merely past reading.
-provenance: &a1
+        meaning: "**The example.** I finished reading the book. `أَنْهَيْتُ` means I finished. `قِرَاءَةَ`
+          means reading, and `الْكِتَابِ` identifies the book being read. Reading is expressed as an
+          activity noun after the finishing verb; the past I-ending is on `أَنْهَيْتُ`."
+        note: "Past reading alone does not establish completion. Keep the finishing verb when you need to
+          say the whole activity reached its endpoint. Try it: which part proves the reading is
+          complete? Answer: `أَنْهَيْتُ`; the book phrase only identifies what was read."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahDualTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: Levantine uses conversational past forms, habitual b-prefixed verbs, progressive عَمْ and
-      future رَحْ. Prefix vowels and progressive patterns differ across regions.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: Modern Standard uses سَـ or سَوْفَ with a suitable verb form for future reference. Context
-      and time expressions also establish when events happen.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: present_events
+      explanation: Someone asks what you are doing at this moment. Naming the action together with now
+        makes it clear that you are describing an activity in progress.
+      examples:
+        - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
+          meaning: "**The example.** I am writing a letter now. `هَلَّقْ` means now. `عَمْ` marks an activity
+            in progress; `بَكْتُبْ` is I write and `رِسَالِة` is a letter. The progressive marker
+            tells the listener you are in the middle of writing, rather than reporting a completed
+            letter."
+          note: "Compare `بَكْتُبْ رِسَالِة`, I write a letter: without the progressive frame, context may
+            give a habitual reading. Try it: make the original say I am writing a book now. Answer:
+            `هَلَّقْ عَمْ بَكْتُبْ كِتَابْ`; replace the object and retain the ongoing-action
+            frame."
+    - subskill_id: past_events
+      explanation: To tell someone what you accomplished yesterday, use a past action and a time
+        expression. Here the speaker reports writing a letter, rather than a current activity.
+      examples:
+        - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
+          meaning: "**The example.** I wrote a letter yesterday. `كَتَبْتْ` means I wrote in this context;
+            `رِسَالِة` is a letter and `مْبَارِحْ` is yesterday. The ending marks a past form. In
+            this spoken model, the written form can also occur when addressing one man, so context
+            helps identify the person."
+          note: "Adding `أَنَا` can make the I reading explicit. Try it: say we wrote a letter yesterday.
+            Answer: `كَتَبْنَا رِسَالِة مْبَارِحْ`. The we ending `نَا` identifies the group; the
+            time expression and object stay the same."
+    - subskill_id: future_events
+      explanation: You are telling someone about tomorrow’s visit. A future expression places the action
+        after now, while the friend and day make the plan concrete.
+      examples:
+        - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
+          meaning: "**The example.** I will visit my friend tomorrow. `رَحْ` marks the future and `أَزُورْ` is
+            I visit in the following dependent form. `صَاحْبِي` means my male friend, and `بُكْرَا`
+            means tomorrow. The action after `رَحْ` has no ordinary b-prefix."
+          note: "Keep `رَحْ` before the dependent action. Try it: move the visit to today. Answer: `رَحْ
+            أَزُورْ صَاحْبِي الْيَوْمْ`. Replacing `بُكْرَا` changes the day; it does not change the
+            future construction or who will visit."
+    - subskill_id: duration_frequency
+      explanation: A question about your routine often needs a frequency, such as how many times each
+        week. This example counts swimming occasions rather than the length of one swim.
+      examples:
+        - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
+          meaning: "**The example.** I swim twice a week. `بَسْبَحْ` is I swim in an ordinary habitual present
+            form. `مَرَّتَيْنْ` means twice and `بِالْأُسْبُوعْ` means per week. The b-prefix fits
+            reporting a routine, while the count tells us the number of occasions."
+          note: "For once weekly, say `بَسْبَحْ مَرَّة بِالْأُسْبُوعْ`. The dual counts occasions, not people
+            swimming. Try it: does the original say how long each swim lasts? Answer: no; it gives
+            frequency, and you would need another phrase for duration."
+    - subskill_id: event_sequence
+      explanation: When arranging an evening together, first and then tell the group what order to follow.
+        The order need not mean that the first event causes the second.
+      examples:
+        - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
+          meaning: "**The example.** First we eat, then we go out. `أَوَّلْ شِي` means first; `بِنَاكُلْ` is
+            we eat in this spoken model. `بَعْدَيْنْ` is then and `بِنِطْلَعْ` is we go out. The
+            ordinary b-prefixed forms describe the arranged sequence for the group."
+          note: "The ordering phrases can stay while you exchange the activities. Try it: say first we go out,
+            then we eat. Answer: `أَوَّلْ شِي بِنِطْلَعْ، بَعْدَيْنْ بِنَاكُلْ`. The two verbs
+            change positions, so the sequence reverses without changing who takes part."
+    - subskill_id: event_phase
+      explanation: Someone wants to know whether you are still reading a book. Saying you finished
+        identifies the endpoint, which is more specific than saying you read earlier.
+      examples:
+        - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
+          meaning: "**The example.** I finished reading the book. `خَلَّصْتْ` means I finished in this
+            context. `قِرَايِة` is reading and `الْكِتَابْ` is the book. The activity noun names
+            what was completed; the past form of finish supplies the endpoint."
+          note: "You can make the speaker explicit with `أَنَا` when context is unclear. Do not equate I read
+            some of it with I finished reading it. Try it: could the original naturally answer “Are
+            you still reading it?” Answer: yes; it says the reading has ended, rather than merely
+            happened before."

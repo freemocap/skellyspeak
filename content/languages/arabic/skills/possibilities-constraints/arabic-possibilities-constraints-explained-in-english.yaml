@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-learner-first-english-2026-10-07
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: possibilities_constraints
 explanation_language: english
@@ -85,8 +85,9 @@ sections:
           unsure does not assert that the claim is false.
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
@@ -98,16 +99,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: arabic-learner-first-english-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
@@ -119,15 +122,17 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
@@ -139,9 +144,10 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
 variety_sections:
   arabic-levantine:
     - subskill_id: ability
@@ -151,9 +157,9 @@ variety_sections:
         swim.
       examples:
         - text: بَقْدَرْ أَسْبَحْ.
-          meaning: "**The example.** “I can swim.” `بَقْدَرْ` means I can. `أَسْبَحْ` gives the action
-            without the ordinary present-tense b-prefix. The two verbs connect directly and
-            refer to the same person."
+          meaning: "**The example.** “I can swim.” `بَقْدَرْ` means I can. `أَسْبَحْ` gives the action without
+            the ordinary present-tense b-prefix. The two verbs connect directly and refer to the
+            same person."
           note: >-
             **Keep the pattern together.** The prefix on `بَقْدَرْ` does not mean you should copy it
             onto the following verb. Regional alternatives exist, including Northern `فِينِي` for I

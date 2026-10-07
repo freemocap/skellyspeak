@@ -48,6 +48,7 @@ native/src/diagnostics/ios/swift/.build/
 
 # Documentation build cache.
 .docusaurus/
+/docs/docs-site/static/demos/
 
 # Generated Tauri schemas, including leftovers beside archived source snapshots.
 **/native/gen/schemas/

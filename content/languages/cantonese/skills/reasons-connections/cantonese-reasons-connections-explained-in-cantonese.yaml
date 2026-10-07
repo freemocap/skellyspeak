@@ -1,69 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 因為 將天氣同決定連起嚟。要有因果意思，唔係見到連接詞就當成立。
+    explanation: 落雨令大家改咗出街計劃，先用 `因為` 交代理由，就明白點解留喺屋企，後面分句講決定。
     examples:
       - text: 因為落雨，我哋留喺屋企。
-        meaning: 因為落雨，我哋留喺屋企。
-        note: 落雨 係留喺屋企嘅原因。
+        meaning: 意思係因落雨而留喺屋企。`因為落雨` 交代天氣原因，`我哋留喺屋企` 講大家留低；`留` 係停留，`喺` 引出位置，`屋企` 係家。
+        note: 試下先講決定：`我哋留喺屋企，因為落雨。`交換分句，但 `因為` 要跟理由。`因為落雨，所以我哋留喺屋企` 可以同時明講原因同結果，兩個連接表達可以一齊用。
   - subskill_id: consequences
-    explanation: 所以 引入前面情況支持嘅結果。
+    explanation: 原本打算去嗰間舖閂咗，大家改去另一間。`所以` 引出因關門而作嘅計劃改變。
     examples:
       - text: 間舖頭閂咗，所以我哋去第二間。
-        meaning: 間舖閂咗，所以我哋去第二間。
-        note: 改去第二間係因為原本嗰間已關門。
+        meaning: 意思係原本間舖閂咗，所以改去另一間。`間舖頭閂咗` 用 `咗` 跟 `閂` 表已關門，`我哋去第二間` 講大家去另一間。呢個情境嘅 `第二間` 可以係另外一間，唔一定數緊排列第二。
+        note: 試下將結果改返屋企：`間舖頭閂咗，所以我哋返屋企。`回應換 `返屋企`。`跟住我哋返屋企` 講下一步，表示先後；`所以` 就明確將回應連到原因。
   - subskill_id: conditions
-    explanation: 如果 提出條件，就 引入依賴嗰個條件嘅結果；條件唔係已被斷言嘅事實。
+    explanation: 想一齊去，但要睇對方有冇空。`如果` 提出未定條件，`就` 引出條件成立時嘅安排。
     examples:
       - text: 如果你得閒，我哋就一齊去。
-        meaning: 如果你得閒，我哋就一齊去。
-        note: 講者冇肯定你得閒；一齊去 取決於呢個條件。
+        meaning: 意思係你有空嘅話，大家就一齊去。`你得閒` 講有時間，`我哋就一齊去` 講結果，`一齊` 喺動作前。句子未肯定對方有空。
+        note: 試下以聽日唔落雨做條件：`如果聽日唔落雨，我哋就一齊去。`換條件，結果保留 `就`。`因為你得閒，我哋一齊去` 就將有空講成原因，唔係未定可能。
   - subskill_id: contrast
-    explanation: 但係 將唔同方面嘅評價作對比；兩個事實可以同時成立。
+    explanation: 食店細細間可能唔起眼，但啲嘢食令人有驚喜。`但係` 將細嘅規模同好味呢個另一特徵作對照。
     examples:
       - text: 呢間舖頭細，但係啲嘢幾好食。
-        meaning: 呢間舖細，但係啲嘢幾好食。
-        note: 細 同 好食 描述唔同特徵，唔係互相否定。
+        meaning: 意思係間舖細，但食物唔錯。`呢間舖頭細` 直接描述大小，唔加 `係`。`啲嘢` 指嗰啲嘢，呢度理解為食物。`幾好食` 用 `好食` 講特徵，`幾` 交代程度。
+        note: 試下話間舖細但食物幾平：`呢間舖頭細，但係啲嘢幾平。``好食` 換成 `平`。兩件事都可以真，`但係` 突出唔起眼之下仍有優點，唔係更正大小。
   - subskill_id: supporting_claims
-    explanation: 港鐵站係支持方便呢個評價嘅證據。重點係相關性，唔係答案有幾長。
+    explanation: 人哋問點解呢度方便，附近有地鐵站就提供具體理由，將交通便利連到地方特徵。
     examples:
       - text: 我覺得呢度方便，因為附近有地鐵站。
-        meaning: 我覺得呢度方便，因為附近有港鐵站。
-        note: 附近有港鐵站 為 方便 提供具體理由。
+        meaning: 意思係認為呢度方便，理由係附近有地鐵站。`我覺得` 引出看法，`呢度方便` 評價地方，`因為附近有地鐵站` 交代理由。`附近` 放喺 `有` 前定範圍，呢度 `有` 講某樣設施存在。
+        note: 試下用附近巴士站支持方便：`我覺得呢度方便，因為附近有巴士站。`換設施，保留 `因為` 將佢連到評價。`我覺得呢度好方便` 加 `好` 加強判斷，但冇交代呢種具體理由。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/reasons-connections/cantonese-reasons-connections-explained-in-english.yaml
-    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/reasons-connections/cantonese-reasons-connections-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

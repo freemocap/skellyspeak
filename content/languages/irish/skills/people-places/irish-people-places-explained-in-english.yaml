@@ -1,54 +1,82 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: The copula can identify someone with an appropriate pronoun and noun phrase.
+    explanation: Introducing a woman as your neighbour, `Is í seo mo chomharsa` identifies who she is.
+      `Is` is the copula used here for identification, `í seo` points to this woman, and `mo
+      chomharsa` means my neighbour. `Mo` causes the initial change from `comharsa` to `chomharsa`.
+      This construction links the person to an identity rather than describing where she is.
     examples:
       - text: Is í seo mo chomharsa.
         meaning: This is my neighbour.
-        note: Í identifies a female neighbour. Mo triggers lenition in chomharsa.
+        note: "For a male neighbour the pronoun is `é`. Try introducing him as your neighbour. Answer: `Is é
+          seo mo chomharsa.` The identifying pronoun changes to match the man; the possessive noun
+          phrase stays the same."
   - subskill_id: qualities_states
-    explanation: Tá can predicate an adjective of a subject.
+    explanation: A description such as `Tá an tsráid seo cúng` tells someone that this street is narrow.
+      `Tá` comes first, followed by `an tsráid seo`, this street, and then the adjective `cúng`. The
+      feminine noun `sráid` takes the written `t` after the article in this form. `Seo` follows the
+      noun rather than preceding it as this does in English.
     examples:
       - text: Tá an tsráid seo cúng.
         meaning: This street is narrow.
-        note: Cúng is the property; an tsráid shows the article-related initial change.
+        note: "Identifying something as a street would use a different construction; this sentence describes
+          the street’s width. Try describing that street instead. Answer: `Tá an tsráid sin cúng.`
+          Changing `seo` to `sin` changes the street indicated, while `Tá` and the final adjective
+          keep the descriptive pattern."
   - subskill_id: location_movement
-    explanation: Tá with a prepositional phrase locates an object.
+    explanation: When someone is looking for a key, `Tá an eochair ar an mbord` locates it on the table.
+      `Tá` is followed by the thing located, `an eochair`, and then `ar an mbord`, on the table. In
+      this model the preposition and article cause `bord` to appear as `mbord`. The sentence locates
+      the key; it does not say someone moves it there.
     examples:
       - text: Tá an eochair ar an mbord.
         meaning: The key is on the table.
-        note: Ar an mbord uses eclipsis in this standard preposition-and-article construction.
+        note: "To deny that location, `Níl` replaces `Tá`. Try saying the key is not on the table. Answer:
+          `Níl an eochair ar an mbord.` The location phrase stays intact, including `mbord`; only
+          the positive location statement becomes negative."
   - subskill_id: possession_relations
-    explanation: Tá with ag expresses having something; agam combines ag and the first-person pronoun.
+    explanation: In a conversation about available furniture, `Tá dhá chathaoir agam` says I have two
+      chairs. Irish puts the chairs with `Tá` and uses `agam`, at me, to identify their holder.
+      `Dhá` means two; it is followed here by the singular noun form `cathaoir` with initial
+      lenition, `chathaoir`. The English plural chairs does not require an Irish plural after two.
     examples:
       - text: Tá dhá chathaoir agam.
         meaning: I have two chairs.
-        note: Dhá chathaoir gives the quantity and associated lenition.
+        note: "For the listener as holder, `agat` replaces `agam`. Try saying one listener has two chairs.
+          Answer: `Tá dhá chathaoir agat.` The quantity and noun form stay the same; `agat` changes
+          whose chairs are available."
   - subskill_id: quantity_comparison
-    explanation: Níos with a comparative and ná introduces a comparison.
+    explanation: Choosing which box to carry, `Tá an bosca seo níos éadroime ná an bosca sin` says this
+      box is lighter than that one. `Níos éadroime` is the comparative of `éadrom`, light, and `ná`
+      introduces the comparison partner. The box being described comes first, and the other box
+      follows `ná`.
     examples:
       - text: Tá an bosca seo níos éadroime ná an bosca sin.
         meaning: This box is lighter than that box.
-        note: Éadroime is the comparative of éadrom; ná introduces the standard.
+        note: "Without `níos`, `Tá an bosca seo éadrom` simply says this box is light. Try reversing the
+          comparison. Answer: `Tá an bosca sin níos éadroime ná an bosca seo.` The former comparison
+          partner becomes the lighter box, so both pointing words change places."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

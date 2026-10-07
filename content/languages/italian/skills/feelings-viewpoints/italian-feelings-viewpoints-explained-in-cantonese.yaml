@@ -1,47 +1,72 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Voglio 加不定式可以表達願望或意圖；vorrei 語氣柔和啲。係願望定請求，兩者都要靠語境分辨。
+    explanation: 諗緊畫班，可以講自己想參加。`volere` 後面加不定式，表達同一個人想做乜。呢個願望唔代表已經報名。
     examples:
       - text: Voglio frequentare un corso di disegno.
-        meaning: 我想報讀畫畫班。
-        note: Voglio 係 volere 嘅第一人稱形式，frequentare 維持不定式。呢句係願望，唔係約定咗嘅承諾。
+        meaning: 意思係「我想參加一個畫畫課程」。`Voglio` 指講者願望。`Frequentare` 呢度係定期上課；`un corso di disegno` 指畫畫課程。只有第一個動詞變位。
+        note: >-
+          **比較。** `Vorrei frequentare un corso` 較婉轉表達願望。`Mi sono iscritto al corso`
+          講陽性配合嘅講者已報名，多咗原句冇聲稱嘅完成行動。
+
+
+          **試吓。** 用 `un corso di fotografia` 講想上攝影班。答案：`Voglio frequentare un corso di
+          fotografia`。換課程，保留不定式。
   - subskill_id: preferences
-    explanation: Preferire 可以比較兩種活動嘅喜好。如果兩個動作由同一個人做，後面可以接不定式。
+    explanation: 一段旅程有兩個可行方式，但你可能較鍾意其中一個。`preferire` 指出你偏好嘅選項。選擇同做活動嘅人一樣，就可以喺後面用不定式。
     examples:
       - text: Preferisco camminare invece di prendere l’autobus.
-        meaning: 比起搭巴士，我鍾意行路多啲。
-        note: Preferisco 引出較鍾意嘅活動；invece di 引出另一個選項。
+        meaning: 意思係「我寧願行路，唔搭巴士」。`Preferisco` 指講者偏好；`camminare` 係揀咗嘅行路。`Invece di prendere l’autobus`
+          講另一選項。兩個活動都用不定式。
+        note: >-
+          **比較。** `Mi piace camminare` 只講鍾意行路，冇比較另一個方式。`Preferisco prendere l’autobus` 就揀巴士。
+
+
+          **試吓。** 用 `leggere` 同 `guardare la televisione` 講寧願閱讀唔睇電視。答案：`Preferisco leggere invece di
+          guardare la televisione`。兩個活動都係講者做，保持不定式。
   - subskill_id: emotions
-    explanation: Essere 加合適形容詞可以表達情緒。Felice 嘅男女單數形式相同，複數就係 felici。
+    explanation: 完成項目後，可以講結果令你有咩感受。`essere` 加 `felice` 表達開心，後面可以指出對乜開心。`felice` 嘅陽性同陰性單數形式一樣。
     examples:
       - text: Sono felice del risultato.
-        meaning: 我對個結果好滿意。
-        note: Sono felice 描述講者心情；del risultato 交代為乜嘢開心。
+        meaning: 意思係「我對個結果好開心」。`Sono` 指講者；`felice` 指感受。`Del risultato` 指關於個結果；`del` 由 `di` 同 `il` 合成。
+        note: |-
+          **改一改。** `Siamo felici del risultato` 換成我哋，動詞同形容詞變複數。`Sono triste` 就講難過。
+
+          **試吓。** 講我哋對個結果開心。答案：`Siamo felici del risultato`。用複數 `siamo` 同 `felici`，結果仍然單數。
   - subskill_id: opinions
-    explanation: Secondo me 引出個人判斷，後面嘅評價交代具體立場。
+    explanation: 討論項目價錢，可以講清楚判斷係你自己嘅。`secondo me` 引出個人看法。後面分句提供評價，唔只係中性報價。
     examples:
       - text: Secondo me, questo progetto costa troppo.
-        meaning: 我覺得呢個計劃太貴。
-        note: Secondo me 將判斷歸於講者；troppo 係評價成本過高，唔係單純報金額。
+        meaning: 意思係「我認為呢個項目太貴」。`Secondo me` 係依我睇。`Questo progetto` 指項目，`costa` 係花費，`troppo` 評價金額過多。
+        note: >-
+          **比較。** `Il progetto costa cento euro` 報一個價錢，本身冇話太貴。`Secondo noi` 講我哋嘅意見；`secondo` 後面表示我用
+          `me`，唔係 `io`。
+
+
+          **試吓。** 用 `questo corso` 講你覺得課程太貴。答案：`Secondo me, questo corso costa troppo`。換主語，保留評價開頭。
   - subskill_id: agreement_disagreement
-    explanation: Non sono d’accordo 可以反對已知立場。有需要時，講清楚分歧喺邊。
+    explanation: 有人推薦路線，你可能唔同意佢選擇，並講原因。`essere d’accordo` 表達同意一個看法；動詞前面加 `non` 否定同意。之前討論提供你反對嘅立場。
     examples:
       - text: "Non sono d’accordo: il percorso è troppo lungo."
-        meaning: 我唔同意：條路太長。
-        note: 回應人哋話呢條路適合短途散步；第二個分句解釋反對原因。
+        meaning: 意思係「我唔同意：條路太長」。`Non sono d’accordo` 講講者唔同意。`Il percorso è troppo lungo` 解釋原因：長度過多。`Lungo`
+          配合陽性單數 `percorso`。
+        note: >-
+          **改一改。** `Sono d’accordo con te` 表達同意你。`Capisco` 可以只表示明白，唔代表同意。`D’accordo`
+          係慣用表達，唔係跟講者性別變嘅形容詞。
+
+
+          **試吓。** 用 `ripido` 講因為條路太斜所以唔同意。答案：`Non sono d’accordo: il percorso è troppo
+          ripido`。保留唔同意，換原因。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/feelings-viewpoints/italian-feelings-viewpoints-explained-in-english.yaml
-    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - zanichelli_it_modals2026
     - treccani_it_preferences2026
@@ -52,18 +77,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/feelings-viewpoints/italian-feelings-viewpoints-explained-in-english.yaml
-        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - zanichelli_it_modals2026
         - treccani_it_preferences2026
@@ -74,6 +97,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

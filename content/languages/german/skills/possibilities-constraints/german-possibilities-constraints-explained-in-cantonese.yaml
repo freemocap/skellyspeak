@@ -1,47 +1,55 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: german-teaching-cantonese-2026-10-07
 language: german
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: können 加不定式可以講技能或實際能力。主句入面情態動詞有變位，另一個動詞用不帶 zu 嘅不定式放尾。
+    explanation: 需要修理時，講清楚自己識做乜，就容易分工。`Ich kann` 係「我可以、我識」，動作以原形放喺句尾。呢度 `wechseln` 係換胎，`kann` 指出講者嘅能力。
     examples:
       - text: Ich kann einen Fahrradreifen wechseln.
-        meaning: 我識換單車胎。
-        note: 討論維修技能時，kann wechseln 表達識做，唔係授予許可。
+        meaning: "**例句。** 我識換單車胎。 `einen Fahrradreifen` 係一個單車輪胎，即被更換嘅物件；男性名詞賓語用 `einen`。`kann` 後面 `wechseln`
+          保持原形，人稱由 `kann` 表示，唔係句尾動作。"
+        note: 試下講成班人識做呢項修理：`Wir können einen Fahrradreifen wechseln`。`ich` 改成 `wir`，`kann` 改成
+          `können`，原形仍然放句尾。想借人哋工具，仲要另外問准唔准。
   - subskill_id: permission
-    explanation: dürfen 表達許可。darf ich 開頭嘅問句問自己准唔准做，唔係請別人代做。
+    explanation: 想將單車擺喺人哋地方，可能要先問准。`Darf ich` 係「我可唔可以」，問題由配合人稱嘅許可動詞開始，最後用動作原形 `abstellen`「停放」。
     examples:
       - text: Darf ich mein Fahrrad hier abstellen?
-        meaning: 我可唔可以將架單車泊喺呢度？
-        note: 向負責地方嘅人請求許可；darf 後面 abstellen 保持不定式。
+        meaning: "**例句。** 我可唔可以將架單車泊喺呢度？ `mein Fahrrad` 係我架單車，`hier` 係呢度。呢個係或唔係嘅問題，`Darf` 放喺 `ich` 前面。情態動詞後面
+          `abstellen` 用完整原形，唔會好似一般主句噉拆開前綴。"
+        note: 「嗰度」用 `dort` 換走 `hier`。試下問可唔可以泊喺嗰度：`Darf ich mein Fahrrad dort abstellen?`。許可框架保留。`Kann ich`
+          可以問做唔做到，`Darf ich` 就明確問准唔准。
   - subskill_id: obligation
-    explanation: müssen 加不定式可以表達要求。nicht müssen 係冇必要，nicht dürfen 先係禁止，兩者唔好混淆。
+    explanation: 搭火車查票，就需要出示車票。`Wir müssen` 係「我哋必須」，動作 `vorzeigen`「出示查驗」以原形放喺句尾，要求適用於成班人。
     examples:
       - text: Wir müssen die Fahrkarten vorzeigen.
-        meaning: 我哋一定要出示車票。
-        note: müssen vorzeigen 表達要求；複合動詞喺情態動詞後面保持完整不定式。
+        meaning: "**例句。** 我哋一定要出示車票。 `die Fahrkarten` 係車票。`müssen` 係我哋嘅形式，`vorzeigen`
+          指必須做嘅事。呢個原形嘅前綴仍然連住，唔拆成兩部分。"
+        note: "`Wir dürfen die Fahrkarten nicht vorzeigen` 係唔准出示。試下改成冇要求要出示：`Wir müssen die Fahrkarten nicht
+          vorzeigen`。`nicht müssen` 係取消必要性，`nicht dürfen` 就禁止做。"
   - subskill_id: possibility
-    explanation: vielleicht 表示可能。放主句開頭時，限定動詞跟住佢，唔一定再加情態動詞。
+    explanation: 班次可能受影響，但未確認。`Vielleicht` 係「可能」，可以講風險而唔當取消已經確定。佢放喺陳述句開頭時，後面即刻接配合人稱嘅動詞。
     examples:
       - text: Vielleicht fällt der letzte Zug heute aus.
-        meaning: 今日尾班火車可能取消。
-        note: vielleicht 保留不確定性；ausfallen 喺主句分開為 fällt … aus。
+        meaning: "**例句。** 今日尾班火車可能取消。 `der letzte Zug` 係尾班火車，`heute` 係今日。`fällt … aus` 來自
+          `ausfallen`，呢度係取消。會變化嘅動詞部分 `fällt` 靠近句首，拆開嘅前綴 `aus` 放句尾。"
+        note: 試下將火車放句首而保留不確定：`Der letzte Zug fällt heute vielleicht aus`。`fällt` 保持第二，`aus` 留最後。刪走
+          `vielleicht` 就變成直接陳述取消。
   - subskill_id: certainty
-    explanation: sicher sein, dass … 表達肯定；nicht sicher sein, ob … 表達唔肯定係咪。ob 引入嘅從屬問句，限定動詞放尾。
+    explanation: 唔知間舖仲開唔開，可以直接講自己未肯定。`Ich bin nicht sicher` 係「我唔肯定」，`ob` 帶出未解決嘅問題，即間舖係咪開住。
     examples:
       - text: Ich bin nicht sicher, ob der Laden noch offen ist.
-        meaning: 我唔肯定間舖仲開唔開。
-        note: nicht sicher 表明認知限制；ob 引入疑問內容，唔代表斷言間舖一定閂咗。
+        meaning: "**例句。** 我唔肯定間舖仲開唔開。 `der Laden` 係間舖，`noch` 係仲，`offen` 係開住。最後 `ist` 屬於 `ob`
+          後面分句。呢個從句將配合人稱嘅動詞放喺句尾，同開頭 `Ich bin` 陳述唔同。"
+        note: 試下表達成班人未肯定：`Wir sind nicht sicher, ob der Laden noch offen ist`。只改第一個主語同動詞，`ist` 保持單數，因為主語係間舖。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/german/skills/possibilities-constraints/german-possibilities-constraints-explained-in-english.yaml
-    at revision german-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_modals2026
     - umich_de_word_order2026
@@ -53,18 +61,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: german-teaching-cantonese-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/german/skills/possibilities-constraints/german-possibilities-constraints-explained-in-english.yaml
-        at revision german-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
       sources:
         - umich_de_modals2026
         - umich_de_word_order2026
@@ -76,6 +84,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: german-teaching-cantonese-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

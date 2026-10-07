@@ -1,81 +1,147 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-teaching-english-2026-10-07
 skill_id: people_places
 language: spanish
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Use ser to identify a person or thing. Spanish can omit a subject pronoun when the verb
-      and context identify the subject.
+    explanation: When you meet someone, a short introduction tells them who you are. Spanish uses `ser`
+      for identity; `soy` means I am. The verb already identifies the speaker, so you can introduce
+      yourself without adding `yo`.
     examples:
       - text: Soy Ana.
-        meaning: I am Ana.
-        note: Soy identifies the speaker.
+        meaning: “I am Ana.” `Soy` introduces the speaker and `Ana` supplies the name. There is no article
+          before the name in this introduction.
+        note: >-
+          **Adapt it.** `Soy Luis` introduces Luis; `Ella es Ana` identifies someone else. Change
+          `soy` to `es` when the subject is she. `Estoy Ana` does not express this identity.
+
+
+          **Try it.** Introduce yourself as Marta. Answer: `Soy Marta`. Keep `soy` and replace the
+          name.
   - subskill_id: qualities_states
-    explanation: Choose ser or estar for the intended description. They can change the meaning;
-      permanence alone is not the rule.
+    explanation: Before going into a room, you may need to say whether its door is open. `Estar`
+      describes the state you find it in. `Ser` and `estar` give different kinds of descriptions;
+      simply asking whether something is permanent does not reliably choose between them.
     examples:
       - text: La puerta está abierta.
-        meaning: The door is open.
-        note: Estar describes the door's current state.
+        meaning: “The door is open.” `La puerta` names the door, `está` describes its state, and `abierta`
+          means open. The ending of `abierta` agrees with the feminine singular noun `puerta`.
+        note: >-
+          **Adapt it.** `Las puertas están abiertas` describes several doors: both the verb and
+          adjective change. `La puerta es grande` instead describes a quality of the door, its size.
+
+
+          **Try it.** Say the door is closed using `cerrada`. Answer: `La puerta está cerrada`. The
+          state changes; the subject and verb stay the same.
   - subskill_id: location_movement
-    explanation: Use location or movement verbs with a phrase that names the place or path.
+    explanation: If someone is looking for a book, a location tells them where to find it. `Estar`
+      locates a person or an object, and a following place phrase makes the answer useful. Here the
+      book is resting on a table.
     examples:
       - text: El libro está en la mesa.
-        meaning: The book is on the table.
-        note: Estar en locates the book relative to the table.
+        meaning: “The book is on the table.” `El libro` is the book, `está` locates it, and `en la mesa`
+          gives the place. `En` can mean in or on; the relationship between the objects supplies the
+          intended meaning.
+        note: >-
+          **Compare.** `Voy a la mesa` describes movement toward the table, rather than a location.
+          In `El libro está aquí`, `aquí` replaces the whole place phrase.
+
+
+          **Try it.** Locate the book in a backpack using `la mochila`. Answer: `El libro está en la
+          mochila`. Use `en` for its location, not the movement word `a`.
   - subskill_id: possession_relations
-    explanation: Possessives and de can express ownership or relationships. A possessive agrees with the
-      possessed noun, not the owner.
+    explanation: "When two people have similar books, naming the owner helps distinguish them. Spanish
+      can put `de` after the thing and then name its owner. A possessive such as `mi` can also
+      identify a relationship: here it tells us whose sister is meant."
     examples:
       - text: Es el libro de mi hermana.
-        meaning: It is my sister's book.
-        note: De names the relationship to the book.
+        meaning: “It is my sister’s book.” `Es` identifies the book being discussed; `el libro` names the
+          thing. `De mi hermana` says it belongs to my sister. `Mi` relates the sister to the
+          speaker, rather than describing the book.
+        note: >-
+          **Adapt it.** `Es mi libro` says the book is mine. `Son mis libros` describes several
+          books: `mis` agrees with the books, not the number of owners. Spanish does not use an
+          English possessive apostrophe here.
+
+
+          **Try it.** Say it is your brother’s book, using `mi hermano`. Answer: `Es el libro de mi
+          hermano`. Keep `de` before the owner.
   - subskill_id: quantity_comparison
-    explanation: Use numbers and quantity words for amounts; más ... que and menos ... que compare a
-      quality or quantity.
+    explanation: Choosing a box is easier when you compare it with another one. Spanish uses `más`
+      before a quality and `que` before the thing it is compared with. This sentence compares size,
+      rather than saying how many boxes there are.
     examples:
       - text: Esta caja es más grande que esa.
-        meaning: This box is bigger than that one.
-        note: Más grande que supplies the comparison and its reference.
+        meaning: “This box is bigger than that one.” `Esta caja` identifies the nearby box; `es más grande`
+          says it is bigger. `Que esa` names the other box without repeating `caja`. `Esta` and
+          `esa` agree with the feminine noun.
+        note: >-
+          **Adapt it.** `Esta caja es menos grande que esa` reverses the comparison. `Tengo más
+          cajas` instead describes a larger number of boxes. Keep `que` when you name the comparison
+          partner.
+
+
+          **Try it.** Compare two books using `este libro` and `ese`. Answer: `Este libro es más
+          grande que ese`. The demonstratives change to masculine because `libro` is masculine.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-english-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

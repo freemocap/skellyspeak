@@ -1,54 +1,82 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Ba mhaith liom expresses a wish, followed by an action construction.
+    explanation: When discussing something you hope to learn, `Ba mhaith liom fuáil a fhoghlaim`
+      expresses I would like to learn to sew. `Ba mhaith liom` introduces the speaker’s wish.
+      `Fuáil` means sewing and comes before `a fhoghlaim`, to learn. This object-before-verbal-noun
+      order lets the learner say what is to be learned; `a` causes the written change from
+      `foghlaim` to `fhoghlaim`.
     examples:
       - text: Ba mhaith liom fuáil a fhoghlaim.
         meaning: I would like to learn to sew.
-        note: Liom identifies the experiencer; a fhoghlaim follows the object fuáil.
+        note: "The wish frame can introduce an activity directly: `Ba mhaith liom snámh`, I would like to
+          swim. Try expressing that wish. Answer: `Ba mhaith liom snámh.` Here swimming itself is
+          desired, so there is no additional learning phrase."
   - subskill_id: preferences
-    explanation: Is fearr liom can compare preferred alternatives with ná.
+    explanation: Choosing between two drinks, `Is fearr liom tae ná caife` says I prefer tea to coffee.
+      `Is fearr liom` gives the speaker’s preference, `tae` is the preferred option, and `ná caife`
+      supplies the comparison. `Liom` makes this a personal preference; the sentence need not claim
+      that tea is objectively better.
     examples:
       - text: Is fearr liom tae ná caife.
         meaning: I prefer tea to coffee.
-        note: The construction expresses the speaker’s preference, not an objective ranking.
+        note: "The preferred option comes before `ná`, and the other option after it. Try saying you prefer
+          coffee to tea. Answer: `Is fearr liom caife ná tae.` Reversing the two nouns reverses the
+          preference while preserving the same construction."
   - subskill_id: emotions
-    explanation: An emotion noun with ar can describe a feeling experienced by someone.
+    explanation: On receiving good news, `Tá áthas orm faoin nuacht seo` describes the speaker’s
+      happiness. `Tá áthas orm` literally places happiness on me; in natural English it means I am
+      happy. `Faoin nuacht seo` says about this news. Irish often names an emotion as a noun and
+      identifies the experiencer with an inflected preposition such as `orm`.
     examples:
       - text: Tá áthas orm faoin nuacht seo.
         meaning: I am happy about this news.
-        note: Orm identifies the experiencer; faoin nuacht seo gives the occasion.
+        note: "For happiness experienced by the listener, `ort` replaces `orm`. Try telling one listener
+          they are happy about this news. Answer: `Tá áthas ort faoin nuacht seo.` The emotion and
+          its cause stay the same; `ort` changes who feels it."
   - subskill_id: opinions
-    explanation: Ceapaim introduces a belief or judgment in a following clause.
+    explanation: Comparing ways of doing a job, `Ceapaim go bhfuil an modh seo níos éasca` presents the
+      speaker’s view that this method is easier. `Ceapaim` means I think; its ending includes I. `Go
+      bhfuil` introduces the following statement using the dependent form of `bí`. `An modh seo` is
+      this method, and `níos éasca` means easier.
     examples:
       - text: Ceapaim go bhfuil an modh seo níos éasca.
         meaning: I think this method is easier.
-        note: Go bhfuil links the evaluation to the speaker’s opinion.
+        note: "A direct statement would be `Tá an modh seo níos éasca`; after `Ceapaim go`, it becomes `go
+          bhfuil`, not `go tá`. Try giving the same opinion about that method. Answer: `Ceapaim go
+          bhfuil an modh sin níos éasca.` `Sin` changes which method is evaluated."
   - subskill_id: agreement_disagreement
-    explanation: Aontaigh le expresses agreement with something; ní negates the present statement.
+    explanation: In a discussion of a proposal, `Ní aontaím leis an moladh seo` says I do not agree with
+      this suggestion. `Ní` negates `aontaím`, I agree. The verb takes `le`, with; before the
+      article it appears as `leis an`. `An moladh seo` identifies this proposal. The disagreement is
+      about the proposal rather than a personal attack on its author.
     examples:
       - text: Ní aontaím leis an moladh seo.
         meaning: I disagree with this suggestion.
-        note: Leis an moladh seo identifies the suggestion being rejected.
+        note: "The affirmative form is `Aontaím leis an moladh seo`. Try agreeing with that proposal
+          instead. Answer: `Aontaím leis an moladh sin.` Removing `Ní` makes it agreement, and `sin`
+          identifies that proposal."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

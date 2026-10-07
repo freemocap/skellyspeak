@@ -1571,5 +1571,13 @@
   "Start conversation": "Iniciar conversa",
   "Ask coach": "Perguntar ao tutor",
   "Start with this sentence": "Começar com esta frase",
-  "Explain this sentence": "Explicar esta frase"
+  "Explain this sentence": "Explicar esta frase",
+  "Chart controls": "Controles do gráfico",
+  "Points shown": "Pontos mostrados",
+  "Language": "Idioma",
+  "Both": "Ambos",
+  "{value0} pt": "{value0} pt",
+  "Busiest skill in this conversation": "Habilidade mais usada nesta conversa",
+  "{value0}: {value1} points in this conversation": "{value0}: {value1} pontos nesta conversa",
+  "Busiest skill · {value0} pt": "Habilidade mais usada · {value0} pt"
 }

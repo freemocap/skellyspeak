@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-learner-first-cantonese-2026-10-07
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: possibilities_constraints
 explanation_language: cantonese
@@ -59,8 +59,9 @@ sections:
           **試吓。** 邊部分指返頭先嘅主張？答案：`مِنْ ذٰلِكَ`。唔肯定，唔等於斷言嗰個主張係假。
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
@@ -72,16 +73,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: arabic-learner-first-cantonese-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
@@ -93,15 +96,17 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
@@ -113,9 +118,10 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
 variety_sections:
   arabic-levantine:
     - subskill_id: ability

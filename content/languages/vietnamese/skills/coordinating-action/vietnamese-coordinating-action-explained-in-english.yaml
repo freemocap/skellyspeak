@@ -1,60 +1,98 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: Giúp tôi can request help and nhé can soften the invitation to cooperate.
+    explanation: A box needs moving and you ask another person to help. `Giúp tôi` means help me;
+      `chuyển cái hộp này` names moving this box, and `ra cửa` gives the direction towards the
+      door. `Cái` is the classifier used with the box and `này` follows the noun to mean this.
+      Final `nhé` seeks cooperation with a friendly tone here. A direct request can leave the
+      listener understood; with an older person, the address and tone need to fit your
+      relationship rather than treating `tôi` as the only choice.
     examples:
       - text: Giúp tôi chuyển cái hộp này ra cửa nhé.
         meaning: Please help me move this box to the door.
-        note: Suitable between familiar adults; relationship and tone affect the request.
+        note: "Ask for help moving this chair to the door, using `cái ghế này`. `Giúp tôi chuyển cái ghế
+          này ra cửa nhé.` works: the object changes while the help request and destination
+          remain."
   - subskill_id: offers_invitations
-    explanation: Để tôi introduces an offer for the speaker to act.
+    explanation: Someone is carrying a heavy bag, and you offer to carry it for them. `Để tôi` means
+      let me, assigning the offered action to yourself. `Xách túi` means carry the bag by hand;
+      `giúp bạn` presents it as help for the listener. Here `bạn` suits a peer, not every person
+      you meet. `Giúp tôi xách túi` reverses the direction of help and requests assistance for
+      you. The verb `xách` does not change form when the person doing the carrying changes.
     examples:
       - text: Để tôi xách túi giúp bạn.
         meaning: Let me carry your bag for you.
-        note: Bạn addresses a peer here; another relationship may call for a different address term.
+        note: "Offer to carry the box instead, using `cái hộp`. `Để tôi xách cái hộp giúp bạn.` works:
+          `để tôi` keeps the offer and `cái hộp` changes what you will carry."
   - subskill_id: suggestions
-    explanation: Chúng ta includes the listener in a proposed shared action.
+    explanation: The group has been working and a short break seems useful. `Chúng ta` means we
+      including the listener, so the proposal concerns everyone present. `Nghỉ một lát` means
+      rest for a little while. Final `nhé` invites agreement to the suggestion. `Chúng tôi`
+      usually excludes the listener and would change who is included. An alternative activity
+      can replace the whole action phrase, as in `Chúng ta uống trà nhé.` The ending contributes
+      to the tone; it does not by itself identify whether a sentence is a suggestion.
     examples:
       - text: Chúng ta nghỉ một lát nhé.
         meaning: Let’s take a short break.
-        note: Nhé seeks cooperative uptake rather than demanding a factual answer.
+        note: "Suggest drinking tea together. `Chúng ta uống trà nhé.` is an answer: `uống trà` replaces
+          resting, while inclusive `chúng ta` keeps the listener in the plan."
   - subskill_id: commitments
-    explanation: A future statement can accept responsibility for an agreed task.
+    explanation: The group is arranging a repair, and you take responsibility for bringing the
+      tools. `Ngày mai` gives tomorrow; `tôi sẽ mang dụng cụ đến` says I will bring the tools
+      here or to the agreed place. `Sẽ` presents the action as future, `mang` is bring, and
+      final `đến` supplies arrival at the destination. The tools and place can be understood
+      from the plan. In that exchange this is a commitment; the same future construction in a
+      weather forecast would be a prediction, not a promise.
     examples:
       - text: Ngày mai tôi sẽ mang dụng cụ đến.
         meaning: I will bring the tools tomorrow.
-        note: Use while allocating tasks; the speaker undertakes to bring them.
+        note: "Commit to bringing the tools today instead. `Hôm nay tôi sẽ mang dụng cụ đến.` works: the
+          day changes to today, but `sẽ` still refers to the later action you undertake."
   - subskill_id: accepting_declining
-    explanation: An inability statement can politely decline an invitation.
+    explanation: You were invited to join an activity but cannot make it today. `Xin lỗi`
+      apologizes; `hôm nay` names today. In `tôi không đến được`, `không` comes before the
+      action and `được` after it to express being unable to come. This differs from `Tôi không
+      muốn đến`, which says you do not want to come. The reply declines by explaining an
+      obstacle; a simple acceptance could be `Được, tôi sẽ đến.`
     examples:
       - text: Xin lỗi, hôm nay tôi không đến được.
         meaning: Sorry, I cannot come today.
-        note: The preceding invitation identifies the event being declined.
+        note: "Decline because you cannot come tomorrow. `Xin lỗi, ngày mai tôi không đến được.` works:
+          replacing `hôm nay` with `ngày mai` changes the day, not inability into
+          unwillingness."
   - subskill_id: negotiating_plans
-    explanation: State a constraint and propose another workable time.
+    explanation: "Friday is unavailable, so you propose Saturday instead. `Thứ sáu tôi bận` means on
+      Friday I am busy. `Chúng ta gặp nhau` means we meet one another; `vào thứ bảy` sets
+      Saturday, and `nhé` invites agreement. `Thứ sáu` is Friday and `thứ bảy` is Saturday:
+      these weekday names do not follow English numbering. `Bận` directly describes being busy
+      without a separate `là`. Naming the obstacle and a replacement day gives the other person
+      something concrete to consider."
     examples:
       - text: Thứ sáu tôi bận. Chúng ta gặp nhau vào thứ bảy nhé.
         meaning: I am busy on Friday. Let’s meet on Saturday.
-        note: The second sentence supplies a concrete alternative.
+        note: Keep Friday unavailable but propose Sunday. `Thứ sáu tôi bận. Chúng ta gặp nhau vào chủ
+          nhật nhé.` works because `chủ nhật` replaces the proposed meeting day.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_suggestions2026
+    - msuVietnameseSuggestionsTeaching20261007
+    - niuVietnameseOffersCompletionTeaching20261007
+    - niuVietnameseTimeTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

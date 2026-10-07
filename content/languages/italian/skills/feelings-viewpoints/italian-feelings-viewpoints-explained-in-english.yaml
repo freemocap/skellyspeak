@@ -1,54 +1,99 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Voglio with an infinitive can express a wish or intention. Vorrei can soften a
-      wish; either form needs context to distinguish desire from a request.
+    explanation: Thinking about a drawing course, you may want to describe your own wish to attend.
+      `Volere` followed by an infinitive expresses what the same person wants to do. This desire
+      does not by itself show that you have enrolled.
     examples:
       - text: Voglio frequentare un corso di disegno.
-        meaning: I want to attend a drawing course.
-        note: Voglio is first-person volere; frequentare remains an infinitive. This states a wish, not
-          an agreed commitment.
+        meaning: “I want to attend a drawing course.” `Voglio` identifies the speaker’s wish. `Frequentare`
+          means attend regularly here; `un corso di disegno` names a drawing course. Only the first
+          verb is conjugated.
+        note: >-
+          **Compare.** `Vorrei frequentare un corso` expresses the wish more tentatively. `Mi sono
+          iscritto al corso` says a male speaker has enrolled, adding a completed action that the
+          original does not assert.
+
+
+          **Try it.** Say you want to attend a photography course with `un corso di fotografia`.
+          Answer: `Voglio frequentare un corso di fotografia`. Replace the course and retain the
+          infinitive.
   - subskill_id: preferences
-    explanation: Preferire can choose one activity over another. When the same person performs both
-      actions, a following verb can be an infinitive.
+    explanation: Two ways to make a journey may both be possible, but you may prefer one. `Preferire`
+      identifies the option you like better. When the same person chooses and performs the activity,
+      that activity can follow as an infinitive.
     examples:
       - text: Preferisco camminare invece di prendere l’autobus.
-        meaning: I prefer walking to taking the bus.
-        note: Preferisco introduces the preferred activity; invece di contrasts it with the alternative.
+        meaning: “I prefer walking rather than taking the bus.” `Preferisco` identifies the speaker’s
+          preference; `camminare` is the chosen activity. `Invece di prendere l’autobus` names the
+          alternative. Both activities are infinitives.
+        note: >-
+          **Compare.** `Mi piace camminare` says you like walking without comparing it with another
+          option. `Preferisco prendere l’autobus` selects the bus instead.
+
+
+          **Try it.** Prefer reading rather than watching television, using `leggere` and `guardare
+          la televisione`. Answer: `Preferisco leggere invece di guardare la televisione`. Both
+          activities concern the speaker and keep infinitive forms.
   - subskill_id: emotions
-    explanation: Essere with an appropriate adjective can express an emotional state. Felice has the
-      same singular form for a woman or a man, while its plural is felici.
+    explanation: After finishing a project, you may want to express how its result makes you feel.
+      `Essere` with `felice` names happiness; a following phrase can say what you are happy about.
+      `Felice` has the same singular form with masculine or feminine agreement.
     examples:
       - text: Sono felice del risultato.
-        meaning: I am happy with the result.
-        note: Sono felice describes the speaker’s emotional state. Del risultato specifies what the
-          speaker is happy about.
+        meaning: “I am happy with the result.” `Sono` refers to the speaker; `felice` names the feeling.
+          `Del risultato` identifies its subject, the result; `del` combines `di` and `il`.
+        note: >-
+          **Adapt it.** `Siamo felici del risultato` changes the people to we: the verb and
+          adjective become plural. `Sono triste` expresses sadness instead.
+
+
+          **Try it.** Say we are happy with the result. Answer: `Siamo felici del risultato`. Use
+          plural `siamo` and `felici`; the result remains singular.
   - subskill_id: opinions
-    explanation: Secondo me can introduce the speaker’s own judgment. The assessment or evaluation
-      that follows supplies the content of the position.
+    explanation: When discussing a project’s price, you can make clear that the judgment is yours.
+      `Secondo me` introduces your point of view. The clause that follows contains the evaluation,
+      rather than merely a neutral price report.
     examples:
       - text: Secondo me, questo progetto costa troppo.
-        meaning: In my opinion, this project costs too much.
-        note: Secondo me attributes the judgment to the speaker; troppo evaluates the cost rather than
-          just naming an amount.
+        meaning: “In my opinion, this project costs too much.” `Secondo me` means in my opinion. `Questo
+          progetto` names the project, `costa` says it costs and `troppo` evaluates the amount as
+          excessive.
+        note: >-
+          **Compare.** `Il progetto costa cento euro` reports a price without itself judging it
+          excessive. `Secondo noi` gives our opinion; after `secondo`, I is expressed as `me`, not
+          `io`.
+
+
+          **Try it.** Give your opinion that the course costs too much with `questo corso`. Answer:
+          `Secondo me, questo corso costa troppo`. Replace the subject; the evaluation frame stays.
   - subskill_id: agreement_disagreement
-    explanation: Non sono d’accordo can reject an identifiable position. State what differs when
-      that helps the other person understand the disagreement.
+    explanation: When someone recommends a route, you may disagree with their choice and give a reason.
+      `Essere d’accordo` expresses agreement with a view; `non` before the verb rejects that
+      agreement. The earlier discussion supplies the position being disputed.
     examples:
       - text: "Non sono d’accordo: il percorso è troppo lungo."
-        meaning: "I disagree: the route is too long."
-        note: Reply to the claim that this route is a good choice for a short walk. The second clause
-          explains the opposing evaluation.
+        meaning: "“I do not agree: the route is too long.” `Non sono d’accordo` gives the speaker’s
+          disagreement. `Il percorso è troppo lungo` explains why: its length is excessive. `Lungo`
+          agrees with masculine singular `percorso`."
+        note: >-
+          **Adapt it.** `Sono d’accordo con te` expresses agreement with you. `Capisco` can
+          acknowledge understanding without agreement. The expression uses `d’accordo`, not an
+          adjective that changes with the speaker’s gender.
+
+
+          **Try it.** Disagree because the route is too steep with `ripido`. Answer: `Non sono
+          d’accordo: il percorso è troppo ripido`. Keep the disagreement and change its reason.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - zanichelli_it_modals2026
     - treccani_it_preferences2026
@@ -59,10 +104,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

@@ -1,75 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 緊 標示進行中嘅活動，屬於體貌，唔係英文式現在時詞尾。
+    explanation: 有人問朋友而家做緊乜，動作後嘅 `緊` 將活動呈現為進行中，適合描述目前見到嘅閱讀。
     examples:
       - text: 佢睇緊書。
-        meaning: 佢睇緊書。
-        note: 睇緊 交代活動進行中；發生喺邊個時間，仍然要配合語境。
+        meaning: 意思係佢閱讀緊。`佢` 指一個人，`睇` 講睇或者閱讀，`書` 指書而未指定數量。`緊` 放 `睇` 同 `書` 之間，講活動進行中，唔係動詞跟人稱變化。
+        note: 試下話朋友食緊飯：`佢食緊飯。``睇書` 換成 `食飯`，`緊` 留動作後。`佢噚日呢個時候睇緊書` 講尋日嗰刻進行中嘅閱讀，過去時間都可以配合同一個體貌詞。
   - subskill_id: past_events
-    explanation: 噚日 交代過去時間；咗 將購買呈現為完成事件，唔係所有過去句都一定加嘅詞尾。
+    explanation: 買嘢返嚟，講尋日買咗本書。時間詞將事件放喺過去，`咗` 就將購買呈現為已做嘅事件。
     examples:
       - text: 我噚日買咗本書。
-        meaning: 我噚日買咗本書。
-        note: 噚日 同 咗 分別交代時間同事件呈現方式，功能唔相同。
+        meaning: 意思係尋日買咗一本書。`我噚日` 交代人同日子，`買咗` 用 `咗` 跟喺 `買` 後面，`本書` 用量詞 `本` 指一本。動作後冇數字嘅量詞片語都可以引入一件物件。
+        note: 試下講尋日買咗兩本：`我噚日買咗兩本書。``兩` 放 `本` 前。要話冇買過，可以講 `我噚日冇買書`，用 `冇` 而唔保留完成嘅 `咗`；唔係淨加一般 `唔`。
   - subskill_id: future_events
-    explanation: 聽日 可以定位將來事件，唔一定要另外加將來助動詞。
+    explanation: 安排咗聽日去圖書館，將來日子本身可以講清楚計劃，唔使改移動詞形式，亦唔一定要加將來標記。
     examples:
       - text: 我聽日去圖書館。
-        meaning: 我聽日去圖書館。
-        note: 即使冇 會，聽日 都足以交代將來安排。
+        meaning: 意思係自己聽日去圖書館。`我` 指人，`聽日` 指明天，`去圖書館` 講去嗰度。日子喺 `去` 前，目的地喺移動詞後，唔加另一個詞去對應英文 to。
+        note: 試下改成星期六去：`我星期六去圖書館。`只換日子。`我聽日會去圖書館` 亦可以加 `會` 講將來，但唔係因為聽日發生就一定要加。
   - subskill_id: duration_frequency
-    explanation: 每個星期 同 兩次 交代頻率，唔係每次去幾耐。
+    explanation: 朋友問幾密去圖書館，可以喺動作前講固定時段，後面講次數，已經講緊嘅圖書館就唔使重複。
     examples:
       - text: 我每個星期去兩次。
-        meaning: 我每個星期去兩次。
-        note: 次 計發生次數；時長就要另外講幾分鐘或幾個鐘。
+        meaning: 意思係每星期去兩次。`每個星期` 用 `每` 放星期片語前，`去兩次` 用 `次` 計發生次數，`兩` 講兩回。呢句冇交代每次去幾耐。
+        note: 試下改每星期三次：`我每個星期去三次。``兩` 換 `三`。要講每次時間長度，可以用 `我每次去兩個鐘`；`每次` 指每一回，`兩個鐘` 量度時長。
   - subskill_id: event_sequence
-    explanation: 完 標示完成，先 將離開排喺食飯之後；行動者由對話交代。
+    explanation: 出門前，大家安排先食完飯。呢個結構將完成一件事同做下一件事連起，唔重複行動者都清楚次序。
     examples:
       - text: 食完飯先出門。
-        meaning: 食完飯先走。
-        note: 先走 要等食飯完成，唔係先走咗再食。
+        meaning: 意思係食完先走。`食完飯` 用 `完` 跟喺 `食` 後面講完成，`先出門` 係完成前面嗰件之後先走。呢度 `先` 喺第二個動作前，令佢等第一個完成。
+        note: 試下飲完茶先走：`飲完茶先出門。``食飯` 換 `飲茶`，`完` 留第一個動作後。`我哋先食飯，跟住出門` 都講食飯先、再出門，呢種兩分句講法嘅 `先` 位置唔同。
   - subskill_id: event_phase
-    explanation: 仲未 表示預期事件到目前仍然未發生，唔係否定習慣，亦唔係拒絕食物。
+    explanation: 對方問食咗飯未，`仲未` 表示預期嘅食飯到而家仍然未發生，之後仍然可能會食。
     examples:
       - text: 我仲未食飯。
-        meaning: 我仲未食飯。
-        note: 仲未食飯 講目前未完成嘅事，唔等於「我唔食飯」。
+        meaning: 意思係到而家仍未食。`我` 指人，`仲` 係仍然，`未` 係未做，合埋放喺 `食飯` 前面。呢句講目前進度，唔係拒絕食或者否定習慣。
+        note: 試下話成班人未食：`我哋仲未食飯。`換人，活動唔變。完成嘅對應句係 `我已經食咗飯`，用 `已經` 同完成 `咗`，唔係喺未做嗰句加 `咗`。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/time-events/cantonese-time-events-explained-in-english.yaml at
-    revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/time-events/cantonese-time-events-explained-in-english.yaml at
-        revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

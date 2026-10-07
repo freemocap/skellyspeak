@@ -1571,5 +1571,13 @@
   "Start conversation": "Gespräch beginnen",
   "Ask coach": "Coach fragen",
   "Start with this sentence": "Mit diesem Satz beginnen",
-  "Explain this sentence": "Diesen Satz erklären"
+  "Explain this sentence": "Diesen Satz erklären",
+  "Chart controls": "Diagrammsteuerung",
+  "Points shown": "Angezeigte Punkte",
+  "Language": "Sprache",
+  "Both": "Beides",
+  "{value0} pt": "{value0} P.",
+  "Busiest skill in this conversation": "Meistgenutzte Kompetenz in diesem Gespräch",
+  "{value0}: {value1} points in this conversation": "{value0}: {value1} Punkte in diesem Gespräch",
+  "Busiest skill · {value0} pt": "Meistgenutzte Kompetenz · {value0} P."
 }

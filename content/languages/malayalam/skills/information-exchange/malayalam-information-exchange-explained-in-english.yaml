@@ -1,49 +1,73 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: എത്ര മണിക്ക് asks at what clock time an event occurs.
+    explanation: Before visiting a shop, you need its closing hour. `എത്ര മണിക്ക്` asks at what clock
+      time. The final closing expression stays after the shop and the requested time, rather than
+      using English question inversion.
     examples:
       - text: കട എത്ര മണിക്കാണ് അടയ്ക്കുന്നത്?
-        meaning: What time does the shop close?
-        note: The question asks for the shop’s closing hour.
+        meaning: "**The example.** What time does the shop close? `കട` is shop. In `എത്ര മണിക്കാണ്`, the
+          time question joins to `ആണ്`; `അടയ്ക്കുന്നത്` names the closing action. The question
+          highlights the unknown time at which that closing happens."
+        note: "Try asking for the opening hour. Answer: `കട എത്ര മണിക്കാണ് തുറക്കുന്നത്?` Replace
+          `അടയ്ക്കുന്നത്` with `തുറക്കുന്നത്`, opening. `കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്` supplies
+          five in the same time position instead of asking for an unknown hour."
   - subskill_id: answering_information
-    explanation: A dative-marked clock time can answer a preceding time question.
+    explanation: Once the shop's closing time has been asked, a time phrase can give the answer
+      directly. The shop and closing event need not be repeated. The ending on the hour gives the
+      meaning at.
     examples:
       - text: അഞ്ചു മണിക്ക്.
-        meaning: At five o’clock.
-        note: Reply to the shop closing-time question; the event need not be repeated.
+        meaning: "**The example.** At five o'clock. `അഞ്ചു` is five and `മണി` means hour or clock time.
+          `മണിക്ക്` is the form used for at that hour. Together `അഞ്ചു മണിക്ക്` supplies the missing
+          time in the closing-time question."
+        note: "Try answering six o'clock. Answer: `ആറു മണിക്ക്.` Replace `അഞ്ചു` with `ആറു`. Keep the
+          at-time form `മണിക്ക്`. `അഞ്ചു മണിക്കൂർ` means five hours of duration and would not
+          identify the shop's closing hour."
   - subskill_id: checking_facts
-    explanation: അല്ലേ after a proposition can ask for confirmation.
+    explanation: You remember a five-o'clock closing time and want to confirm it. The sentence first
+      supplies that candidate fact. Final `അല്ലേ` asks whether the listener agrees that it is
+      correct.
     examples:
       - text: കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്, അല്ലേ?
-        meaning: The shop closes at five, right?
-        note: The speaker supplies five as a candidate fact.
+        meaning: "**The example.** The shop closes at five, right? `കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്` gives
+          the shop, proposed hour and closing event. `മണിക്കാണ്` joins the at-hour form to `ആണ്`.
+          The tag `അല്ലേ` checks that whole proposition."
+        note: "Try checking six as the closing hour. Answer: `കട ആറു മണിക്കാണ് അടയ്ക്കുന്നത്, അല്ലേ?` Change
+          only the hour. `കട എത്ര മണിക്കാണ് അടയ്ക്കുന്നത്?` asks for an unknown time rather than
+          proposing one for confirmation."
   - subskill_id: useful_detail
-    explanation: A location predicate can distinguish an entrance for the listener.
+    explanation: When someone cannot find the entrance, identifying the courtyard side helps them choose
+      the correct approach. The courtyard is named as the reference point, followed by the side and
+      its location ending.
     examples:
       - text: പ്രവേശനം മുറ്റത്തിന്റെ വശത്താണ്.
-        meaning: The entrance is on the courtyard side.
-        note: Use when the listener is trying to locate the entrance.
+        meaning: "**The example.** The entrance is on the courtyard side. `പ്രവേശനം` is entrance or entry
+          here. `മുറ്റത്തിന്റെ` means of the courtyard, and `വശത്താണ്` means is on the side, joining
+          a location form to `ആണ്`. Together they locate the entry."
+        note: "Try locating the entrance on the other side. Answer: `പ്രവേശനം മറുവശത്താണ്.` `മറുവശത്താണ്`
+          means is on the other side. The listener needs to know which side you are contrasting; a
+          location clue is useful only when its reference can be identified."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
+    - moagMalayalamTeaching20261007
     - ut_malayalam_time2026
-    - ut_malayalam_dialogues2026
+    - utMalayalamSandhiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

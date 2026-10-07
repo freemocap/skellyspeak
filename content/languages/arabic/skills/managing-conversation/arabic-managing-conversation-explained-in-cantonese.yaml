@@ -1,23 +1,25 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-learner-first-cantonese-2026-10-07
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 兩種變體都可以用慣常問候語開始交流。
+    explanation: 朝早見到人，可以用一句慣用問候開始對話。回覆亦有自己嘅慣用講法，唔使逐字重複對方。
     examples:
       - text: صَبَاحُ الْخَيْرِ!
-        meaning: 早晨！
-        note: 現代標準阿拉伯語。呢句用嚟開場；同組黎凡特形式唔帶正式格尾。
+        meaning: "**例句。** 早晨！ `صَبَاحُ` 係早晨，`الْخَيْرِ` 係好、善，合埋係慣用嘅早晨問候。成個短語一齊學，唔使將其他語言每一個字都逐個譯返。"
+        note: 慣用回覆係 `صَبَاحُ النُّورِ`，字面係光嘅早晨。晚間問候用 `مَسَاءُ الْخَيْرِ`。試下晚間同人打招呼：答案係 `مَسَاءُ
+          الْخَيْرِ`，換咗時段名詞，保留問候格式。
   - subskill_id: acknowledging
-    explanation: 簡短回應可以表示明白咗訊息。
+    explanation: 人哋解釋完點做，你可以話畀佢知自己明白咗。聽明唔一定等於贊成個計劃。
     examples:
       - text: حَسَنًا، فَهِمْتُ.
-        meaning: 好，我明白。
-        note: 現代標準阿拉伯語。收到解釋唔一定等於同意。
+        meaning: "**例句。** 好，我明白。 `حَسَنًا` 係好、好啦，`فَهِمْتُ` 係我明白咗。過去形式表示已達到理解，所以喺回應度自然相當於「我明白」。詞尾指出講者。"
+        note: 代表一班人可以講 `حَسَنًا، فَهِمْنَا`，即「好，我哋明白咗」。如果聽明但唔贊成，就要分開講。試下代表大家回應：答案係 `حَسَنًا،
+          فَهِمْنَا`，詞尾由我改成我哋。
   - subskill_id: clarification
     explanation: 聽到一句說話，唔代表明白講者想表達乜。`مَاذَا تَقْصِدُ بِهٰذَا؟` 請對方解釋意思。下面例句向一位男性問，指返佢頭先講嘅說話。
     examples:
@@ -29,90 +31,110 @@ sections:
 
           **試吓。** 邊部分指返想請對方解釋嘅說話？答案：`بِهٰذَا`。
   - subskill_id: rephrasing
-    explanation: 用簡單啲嘅講法重述，可以釐清原有指示。
+    explanation: 訂位解釋可能太複雜。換個講法係保留實際意思，簡單交代主要要求，唔係加一項新指示。
     examples:
       - text: بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ نَحْجِزَ مُسْبَقًا.
-        meaning: 簡單啲講，我哋要預先預約。
-        note: 現代標準阿拉伯語。用嚟重述較複雜嘅預約解釋。
+        meaning: "**例句。** 簡單啲講，我哋要預先預約。 `بِعِبَارَةٍ أَبْسَطَ` 係用更簡單講法。`يَجِبُ أَنْ` 帶出要求；`نَحْجِزَ` 係
+          `أَنْ` 後面嘅「我哋訂位」形式，`مُسْبَقًا` 係預先。開頭話畀聽者知呢句係重述。"
+        note: 自己一個訂位用 `يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`。人稱喺訂位動詞上面。試下重述自己嘅要求：`بِعِبَارَةٍ أَبْسَطَ، يَجِبُ
+          أَنْ أَحْجِزَ مُسْبَقًا`；我哋改成我，要求保留。
   - subskill_id: correcting_misunderstanding
-    explanation: 可以用正確時間取代理解錯咗嘅時間。
+    explanation: 聽者以為你講今日，但你意思係聽日。更正先講清楚自己想講嘅資訊，再排除聽錯嗰個版本。
     examples:
       - text: أَقْصِدُ غَدًا، وَلَيْسَ الْيَوْمَ.
-        meaning: 我意思係聽日，唔係今日。
-        note: 現代標準阿拉伯語。對方之前理解成今日。
+        meaning: "**例句。** 我意思係聽日，唔係今日。 `أَقْصِدُ` 係我意思係，`غَدًا` 係聽日，`وَلَيْسَ الْيَوْمَ`
+          係而唔係今日。兩個時間詞令更正具體，聽者知道要換邊項資訊。"
+        note: 反方向更正可以講 `أَقْصِدُ الْيَوْمَ، وَلَيْسَ
+          غَدًا`。改一項細節唔等於否定成個約會。試下：對方聽咗聽日，但你係講今日，點答？用呢句調轉嘅句子，正確時間放先。
   - subskill_id: turns_topics
-    explanation: 話題標記可以引入相關嘅時間安排問題。
+    explanation: 對話傾咗去其他事，但你想落實約會時間。問題之前先指出話題，聽者就容易跟到轉變。
     examples:
       - text: بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي صَبَاحًا؟
-        meaning: 講返個約會，我哋朝早見好唔好？
-        note: 現代標準阿拉伯語。開頭短語將焦點轉到見面安排。
+        meaning: "**例句。** 講返個約會，我哋朝早見好唔好？ `بِخُصُوصِ الْمَوْعِدِ` 係關於約會。`هَلْ` 帶出係或唔係嘅問題，`نَلْتَقِي`
+          係我哋見面，`صَبَاحًا` 係朝早。話題短語設定問題範圍，唔係答案。"
+        note: 傍晚用 `مَسَاءً`。試下轉返約會話題並建議傍晚：`بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي مَسَاءً؟`；話題同共同動作保留，只改提議時間。
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
     - levantongueAbilityTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-learner-first-cantonese-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
 variety_sections:
   arabic-levantine:
     - subskill_id: opening_closing
-      explanation: 兩種變體都可以用慣常問候語開始交流。
+      explanation: 朝早見到人，可以用一句慣用問候開始對話。回覆亦有自己嘅慣用講法，唔使逐字重複對方。
       examples:
         - text: صَبَاحْ الْخَيْرْ!
-          meaning: 早晨！
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。開場問候語唔帶正式格尾。
+          meaning: "**例句。** 早晨！ `صَبَاحْ` 係早晨，`الْخَيْرْ` 係好、善，成個短語係口語早晨問候。佢係慣用招呼，唔係報告朝早發生咗乜。"
+          note: 常見回覆係 `صَبَاحْ النُّورْ`，字面係光嘅早晨。晚間可以講 `مَسَا الْخَيْرْ`。試下回覆早晨問候：答案係 `صَبَاحْ
+            النُّورْ`，用慣用回應接住對方。
     - subskill_id: acknowledging
-      explanation: 簡短回應可以表示明白咗訊息。
+      explanation: 人哋解釋完點做，你可以話畀佢知自己明白咗。聽明唔一定等於贊成個計劃。
       examples:
         - text: طَيِّبْ، فِهِمْتْ.
-          meaning: 好，我明白。
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。收到解釋唔一定等於同意。
+          meaning: "**例句。** 好，我明白。 `طَيِّبْ` 呢度係好、好啦，`فِهِمْتْ`
+            係我明白咗。簡短回應就足以話對方知解釋而家清楚。過去形式着重理解已經達成，唔係講一段長篇往事。"
+          note: "`طَيِّبْ، فِهِمْنَا` 係「我哋」嘅回應。想同時接受提議，可以再加同意表達。試下代表兩個或更多人回應：答案係 `طَيِّبْ،
+            فِهِمْنَا`，複數講者詞尾指出成班人。"
     - subskill_id: clarification
       explanation: 有時啲字聽得清楚，但唔明對方想表達乜。`شُو قَصْدَكْ بِهَادْ؟` 請對方解釋頭先說話嘅意思。下面例句向一位男性問；平和語氣可以減少聽落似質問。
       examples:
@@ -124,20 +146,26 @@ variety_sections:
 
             **試吓。** 邊部分係你嘅意思？答案：`قَصْدَكْ`。學呢個表達時，將成個字一齊記。
     - subskill_id: rephrasing
-      explanation: 用簡單啲嘅講法重述，可以釐清原有指示。
+      explanation: 訂位解釋可能太複雜。換個講法係保留實際意思，簡單交代主要要求，唔係加一項新指示。
       examples:
         - text: بِكَلَامْ أَبْسَطْ، لَازِمْ نِحْجِزْ مِنْ قَبْلْ.
-          meaning: 簡單啲講，我哋要預先預約。
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。用嚟重述較複雜嘅預約解釋。
+          meaning: "**例句。** 簡單啲講，我哋要預先預約。 `بِكَلَامْ أَبْسَطْ` 係用更簡單說話。`لَازِمْ` 表示需要，`نِحْجِزْ` 係我哋訂位，`مِنْ
+            قَبْلْ` 呢度係預先。`لَازِمْ` 後面訂位動作冇一般 b 前綴。"
+          note: 我需要訂位用 `لَازِمْ أَحْجِزْ مِنْ قَبْلْ`。重述應該保留原本要求，唔好無聲無息改日子或者對象。試下改成自己嘅要求：`بِكَلَامْ أَبْسَطْ،
+            لَازِمْ أَحْجِزْ مِنْ قَبْلْ`，用我嘅形式。
     - subskill_id: correcting_misunderstanding
-      explanation: 可以用正確時間取代理解錯咗嘅時間。
+      explanation: 聽者以為你講今日，但你意思係聽日。更正先講清楚自己想講嘅資訊，再排除聽錯嗰個版本。
       examples:
         - text: قَصْدِي بُكْرَا، مِشْ الْيَوْمْ.
-          meaning: 我意思係聽日，唔係今日。
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對方之前理解成今日。
+          meaning: "**例句。** 我意思係聽日，唔係今日。 `قَصْدِي` 係我嘅意思，`بُكْرَا` 係聽日，`مِشْ الْيَوْمْ`
+            係唔係今日。連住嘅「我嘅」後綴指出更正係關於自己原意。"
+          note: 反方向用 `قَصْدِي الْيَوْمْ، مِشْ بُكْرَا`。否定詞後面放聽錯嘅資訊。試下將聽日更正成今日：`قَصْدِي الْيَوْمْ، مِشْ
+            بُكْرَا`；先講正確日子，再排除錯嘅。
     - subskill_id: turns_topics
-      explanation: 話題標記可以引入相關嘅時間安排問題。
+      explanation: 對話傾咗去其他事，但你想落實約會時間。問題之前先指出話題，聽者就容易跟到轉變。
       examples:
         - text: بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي الصُّبْحْ؟
-          meaning: 講返個約會，我哋朝早見好唔好？
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。開頭短語將焦點轉到見面安排。
+          meaning: "**例句。** 講返個約會，我哋朝早見好唔好？ `بِالنِّسْبِة لِلْمَوْعِدْ` 係關於約會，`نِلْتَقِي` 係我哋見面，`الصُّبْحْ`
+            呢度係朝早。疑問語氣提出時間畀對方同意，開頭短語就引導話題轉換。"
+          note: 建議傍晚可以用 `بِالْمَسَا`。試下問傍晚見面：`بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي
+            بِالْمَسَا؟`；保留話題短語，成個時間表達一齊換。

@@ -1,33 +1,33 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: shared-teaching-expansion-english-2026-10-07
 skill_id: coordinating_action
 explanation_language: english
 title: Coordinating action
-introduction: Request, propose and negotiate shared or individual action.
+introduction: Ask for help, offer ideas and agree on what to do together.
 sections:
   - subskill_id: requests
     title: Requests
-    concept: Ask another participant to do or stop doing something.
+    concept: Ask someone to do something or to stop doing it.
   - subskill_id: offers_invitations
     title: Offers and invitations
-    concept: Propose one's help or another participant's involvement.
+    concept: Offer help or invite someone to take part.
   - subskill_id: suggestions
     title: Suggestions
-    concept: Put forward a possible course of action for consideration.
+    concept: Put forward an action for someone to consider.
   - subskill_id: commitments
     title: Commitments
-    concept: Undertake responsibility for a future action.
+    concept: Say what you will take responsibility for doing.
   - subskill_id: accepting_declining
     title: Accepting and declining
-    concept: Respond to a request, offer, invitation or proposed action.
+    concept: Accept or turn down a request, offer, invitation or suggestion.
   - subskill_id: negotiating_plans
     title: Negotiating a plan
-    concept: Adjust proposed action to reconcile participants' needs or constraints.
+    concept: Adjust a plan so it works for the people involved.
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -38,5 +38,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: shared-teaching-expansion-english-2026-10-07
+    scope: Learner-facing introductions and concepts; translation review pending.

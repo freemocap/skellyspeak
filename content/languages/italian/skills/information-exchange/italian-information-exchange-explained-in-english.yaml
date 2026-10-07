@@ -1,46 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: A che ora asks for a time; dove and other question words ask for other missing
-      information. Ordinary Italian questions do not add an auxiliary equivalent to English do.
+    explanation: If you plan to attend a course, its starting time is a useful missing detail. `A che
+      ora` asks at what time. The question names the event and day so the listener knows which start
+      time you need.
     examples:
       - text: A che ora comincia il corso domani?
-        meaning: What time does the course start tomorrow?
-        note: A che ora asks for the start time; comincia is already the finite verb.
+        meaning: “What time does the course start tomorrow?” `A che ora` asks the clock time. `Comincia`
+          means starts; `il corso` identifies the event and `domani` identifies the day. The subject
+          follows the verb here; Italian does not insert an extra question verb.
+        note: >-
+          **Compare.** `Dove comincia il corso?` asks where instead. `Quando comincia il corso?`
+          asks when more broadly and may be answered with a date.
+
+
+          **Try it.** Ask what time the meeting starts with `la riunione`. Answer: `A che ora
+          comincia la riunione?`. Replace the event while keeping the singular verb.
   - subskill_id: answering_information
-    explanation: A relevant answer can consist of a phrase. The preceding question must make clear
-      what information that phrase supplies.
+    explanation: After a question about a start time, a short time phrase can answer without repeating
+      the whole event. The earlier question supplies what starts and on which day. The reply only
+      needs to supply the missing clock time.
     examples:
       - text: Alle nove.
-        meaning: At nine.
-        note: Reply to someone asking what time the course starts. Alle is a + le; this answers the
-          identified time question.
+        meaning: “At nine.” `Alle` combines `a` with `le`; `nove` gives the hour. After `A che ora comincia
+          il corso?`, the listener understands that nine is the course’s starting time.
+        note: >-
+          **Adapt it.** `Alle dieci` changes the answer to ten. For one o’clock the phrase is
+          singular: `all’una`. An hour alone would not answer a question asking where the course
+          takes place.
+
+
+          **Try it.** Answer the starting-time question with one o’clock. Answer: `All’una`. Use the
+          singular hour expression rather than `alle`.
   - subskill_id: checking_facts
-    explanation: A proposition followed by vero? can seek confirmation. It checks what has been
-      reported rather than requesting a new definition.
+    explanation: If you remember a course starting at nine, you can ask someone to confirm that detail.
+      A statement followed by `vero`? proposes the information and invites agreement or correction.
+      It is different from asking a completely open time question.
     examples:
       - text: Il corso comincia alle nove, vero?
-        meaning: The course starts at nine, right?
-        note: Said when nine o’clock has been suggested as the start time. Vero asks the partner to
-          confirm that proposition.
+        meaning: “The course starts at nine, right?” `Il corso comincia alle nove` states the expected time.
+          `Vero?` means right? here and turns it into a confirmation request. The listener can
+          confirm it or supply a different time.
+        note: >-
+          **Compare.** `A che ora comincia il corso?` does not propose a time. `No, alle dieci`
+          corrects the guess directly. `Vero?` stays the same when the statement’s subject changes.
+
+
+          **Try it.** Check that the meeting starts at ten. Answer: `La riunione comincia alle
+          dieci, vero?`. Put the proposed fact before the confirmation tag.
   - subskill_id: useful_detail
-    explanation: Use a specific location or distinction that helps resolve the information need. A
-      phrase with vicino a can narrow a location already named.
+    explanation: Someone arriving at an unfamiliar building may need more than its address. Naming the
+      entrance’s side and a nearby landmark helps them choose the right way in. Two place phrases
+      can locate the same entrance more precisely.
     examples:
       - text: L’ingresso è sul retro, vicino al parcheggio.
-        meaning: The entrance is at the back, near the car park.
-        note: Reply to someone looking for the entrance. Sul is su + il, and al is a + il; the parking
-          area supplies a useful landmark.
+        meaning: “The entrance is at the back, near the car park.” `L’ingresso` names the entrance. `Sul
+          retro` locates it at the back; `vicino al parcheggio` gives a landmark. `Sul` combines
+          `su` and `il`; `al` combines `a` and `il`.
+        note: >-
+          **Adapt it.** `Vicino alla stazione` changes the landmark to the station and uses feminine
+          `alla`. A longer answer is useful when each added detail helps locate the entrance.
+
+
+          **Try it.** Say the entrance is near the station. Answer: `L’ingresso è vicino alla
+          stazione`. The expression `vicino a` keeps its preposition, combined with `la`.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_questions2026
     - zanichelli_it_prepositions2026
@@ -48,10 +81,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

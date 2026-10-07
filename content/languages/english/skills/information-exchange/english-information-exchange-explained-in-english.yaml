@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-learner-first-english-2026-10-07
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: information_exchange
 language: english
 explanation_language: english
@@ -26,39 +26,72 @@ sections:
           **Try it.** Ask where they live. Answer: `Where do they live?` Use `do` with `they` and
           keep `live` in its plain form.
   - subskill_id: answering_information
-    explanation: Give the requested information. A phrase can answer a question without repeating its
-      entire clause.
+    explanation: A short answer is often all someone needs. If a new acquaintance asks where you work,
+      give the place; you can add a full sentence if the context is unclear. The question supplies
+      the information you do not repeat.
     examples:
       - text: At the library.
-        meaning: In answer to Where do you work?, the workplace is the library.
-        note: The preceding question makes this fragment a relevant and complete answer.
+        meaning: "`At` introduces the workplace and `the library` names it. After `Where do you work?`, `At
+          the library` is enough. The full version is `I work at the library`."
+        note: >-
+          Answer the kind of detail requested: `At seven` answers a time question, while `At the
+          library` answers a place question. A yes/no question needs a different response: `Do you
+          work at the library?` can take `Yes, I do`.
+
+
+          **Try it.** Someone asks `Where do you study?`, and you study at home. Answer: `At home`.
+          The place answers the question; you do not need to repeat `I study`.
   - subskill_id: checking_facts
-    explanation: Ask whether a specific detail or proposition is correct.
+    explanation: Checking a fact helps you avoid acting on a wrong detail. Before going shopping, you
+      might have heard that closing time is seven and want confirmation. A yes/no question puts that
+      proposed fact to the listener.
     examples:
       - text: Does the shop close at seven?
-        meaning: The speaker checks the proposed closing time.
-        note: The question seeks confirmation of a concrete fact.
+        meaning: "`Does` starts the question because `the shop` is singular. `Close` is the plain verb form;
+          `at seven` gives the time being checked. Compare the statement `The shop closes at seven`:
+          the question uses `does`, so `close` loses its final `-s`."
+        note: >-
+          A helpful reply can confirm or correct: `Yes, it does` or `No, it closes at six`. If you
+          have no proposed time, ask `What time does the shop close?` instead.
+
+
+          **Try it.** Check the claim `The buses stop here`. Answer: `Do the buses stop here?` Use
+          `do` with plural `the buses`, and keep `stop` unchanged.
   - subskill_id: useful_detail
-    explanation: Add information that helps the listener identify or understand the relevant thing.
+    explanation: Useful detail makes directions easier to follow. Someone looking for an entrance needs
+      a location and perhaps a visible landmark. Begin with the main answer, then add the detail
+      that helps them recognise the right place.
     examples:
       - text: The entrance is on the left, beside the blue sign.
-        meaning: The speaker identifies the entrance precisely.
-        note: Beside the blue sign adds a useful identifying detail.
+        meaning: "`The entrance` identifies the thing being located. `On the left` gives its position, and
+          `beside the blue sign` adds a landmark: it is next to that sign. Both phrases describe the
+          same entrance."
+        note: >-
+          Choose a landmark the listener can find. `Beside` means next to; `behind` would put the
+          entrance on the far side of the sign. More words are useful only if they make the location
+          clearer.
+
+
+          **Try it.** Add a landmark to `The lift is on the right`. One answer: `The lift is on the
+          right, beside reception`. Reception helps the listener identify the lift.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - bc_questions2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - bcPresentSimpleTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-english-2026-10-07
+        revision: english-teaching-expanded-english-2026-10-07
         scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core

@@ -1,69 +1,67 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 想 放喺行動前面，可以表達想做。学 引入想學識嘅技能。
+    explanation: 未識整單車之前，都可以想學呢項技能。活動前嘅 `想` 表願望，`学` 引出想學做乜。
     examples:
       - text: 我想学修自行车。
-        meaning: 我想學整單車。
-        note: 想学 交代學習願望；修自行车 交代活動。呢句唔係承諾。
+        meaning: "**例句。** 我想學整單車。`我想` 係我想做，`学` 係學，`修自行车` 係修理單車。成個修理活動放喺 `学` 後，`想` 指想學佢。"
+        note: 試下話成班人都想學：`我们想学修自行车。` `我` 換成 `我们`，動詞唔使改詞尾。`我会修自行车` 係已經識整；`我想学` 係想學識。
   - subskill_id: preferences
-    explanation: 更喜欢 表達比較鍾意邊個選項。可以先用一個話題式短語列出選項。
+    explanation: 揀飲品時，可以先列選擇，再講偏好。`更喜欢` 指比較鍾意邊個，唔係比較價錢或者大小。
     examples:
       - text: 咖啡和红茶，我更喜欢红茶。
-        meaning: 咖啡同紅茶之間，我比較鍾意紅茶。
-        note: 開頭短語列出選項；更喜欢 表達偏好，唔係比較物件大小等特徵。
+        meaning: "**例句。** 咖啡同紅茶之間，我更鍾意紅茶。`咖啡和红茶` 列出咖啡同紅茶，`和` 接起兩樣。`我更喜欢红茶` 係我比較鍾意紅茶，`更` 喺 `喜欢` 前，較鍾意嘅飲品喺後。"
+        note: 試下改成比較鍾意咖啡：`咖啡和红茶，我更喜欢咖啡。` 只換 `更喜欢` 後嘅飲品。`我喜欢红茶` 只話鍾意紅茶，本身冇同咖啡比較。
   - subskill_id: emotions
-    explanation: 高兴 描述開心。可以先交代引起感受嘅事，再講情緒反應。
+    explanation: 好消息可以令你想分享開心感受。先講聽到消息，再講反應。`高兴` 直接表開心，唔需要另加連接動詞。
     examples:
       - text: 听到这个消息，我很高兴。
-        meaning: 聽到呢個消息，我好開心。
-        note: 听到 交代引起感受嘅事；高兴 係講者嘅情緒反應。
+        meaning: "**例句。** 聽到呢個消息，我好開心。`听到` 係聽到，`到` 表消息已經傳到你。`这个消息` 係呢個消息。逗號後 `我很高兴` 交代反應，呢度 `很` 未必特別強調程度好高。"
+        note: 試下話成班人都開心：`听到这个消息，我们很高兴。` 感受者改成 `我们`，聽到消息嘅短語保留。`我听到这个消息` 只報告聽到，未講感受。
   - subskill_id: opinions
-    explanation: 觉得 可以將之後嘅內容表達為講者嘅判斷。
+    explanation: 傾過解決問題嘅方法後，可以講自己點評價。`我觉得` 將後面標示成自己判斷，`不错` 作正面評價。
     examples:
       - text: 我觉得这个办法不错。
-        meaning: 我覺得呢個方法幾好。
-        note: 不错 喺呢度係正面評價，唔係只話有呢個方法。
+        meaning: "**例句。** 我覺得呢個方法唔錯。`这个办法` 係呢個方法，`不错` 字面有否定同錯，但呢度係常用嘅正面「唔錯」。`觉得` 引出判斷，唔係身體觸摸。"
+        note: 試下評價嗰個方法：`我觉得那个办法不错。` 將 `这个` 換成 `那个`。`这个办法很贵` 話個方法貴；前面加 `我觉得` 就將呢個評價講成自己判斷。
   - subskill_id: agreement_disagreement
-    explanation: 也 同 这么想 可以將自己嘅看法連到上文觀點。究竟「咁諗」係點諗，要睇之前講咗乜。
+    explanation: 人哋講咗對方法嘅意見，而你同意。`也` 表你都係咁睇，`这么` 指返前面已講嘅意見。
     examples:
       - text: 我也这么想。
-        meaning: 我都係咁諗。
-        note: 回應一個清楚嘅方法評價。呢句贊同嗰個觀點，唔係只表示聽到或聽明。
+        meaning: "**例句。** 我都係咁諗。`我` 係我，`也` 係亦都，`这么` 係咁樣，呢度 `想` 係諗。`也` 放喺諗法短語前，聽者靠前面意見知道你同意乜。"
+        note: 試下改成唔同意：`我不这么想。` 用 `不` 換走 `也`，表示唔係咁睇。`我明白了` 只話而家明白解釋，即使唔同意都可以聽明。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/feelings-viewpoints/mandarin-feelings-viewpoints-explained-in-english.yaml
-    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/feelings-viewpoints/mandarin-feelings-viewpoints-explained-in-english.yaml
-        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

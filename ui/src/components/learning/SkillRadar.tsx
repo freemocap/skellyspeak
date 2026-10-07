@@ -3,7 +3,8 @@ import { useI18n } from '../localization/i18n'
 import { skillColors, skillShortLabel } from '../../domain/learning/catalog/skill-domains'
 import type { ConversationSkillPoints, LanguageSkillLevels } from '../../domain/learning/statistics/skill-levels'
 import { GLYPH_FRAME, LABEL_RADIUS, PANEL_FRAME, labelSide, polar, skillWedges, type RadarFrame } from './skill-radar-geometry'
-import { CHART_LIMIT, skillChartExtent, type SkillChartExtent } from './skill-chart-scale'
+import { goalTag, markDetail, markName } from './skill-chart-marks'
+import { CHART_LIMIT, skillChartExtent, type SkillChartExtent, type SkillChartMarks } from './skill-chart-scale'
 
 /** What the pointer is over: a skill (its wedge, arm or name) or a level ring
  * at an angle (radians from the centre), where that ring's tag appears. */
@@ -18,10 +19,12 @@ type RadarHover = { kind: 'skill'; id: string } | { kind: 'ring'; level: number;
  * lights that skill; hovering a ring shows its level and points at the
  * pointer. Hover never changes the selection or moves anything. Lengths come
  * from `extent` (normalized or to scale); arms, rings and the conversation
- * outline glide to new lengths when the extent changes. */
-export function SkillRadar({ levels, extent, selected, onSelect }: {
+ * outline glide to new lengths when the extent changes. `marks` says whose
+ * points the shape holds, which names the arms and tags the gold ring. */
+export function SkillRadar({ levels, extent, marks = { of: 'language' }, selected, onSelect }: {
   levels: LanguageSkillLevels
   extent: SkillChartExtent
+  marks?: SkillChartMarks
   selected: string; onSelect: (id: string) => void
 }) {
   const tr = useI18n()
@@ -64,18 +67,18 @@ export function SkillRadar({ levels, extent, selected, onSelect }: {
     {hover?.kind === 'ring' && hoveredRing && <span className="skill-radar-ring-tag" data-goal={hoveredRing.level > levels.level ? 'true' : undefined} aria-hidden="true"
       style={place({ x: centre + frame.ring * hoveredRing.length * Math.cos(hover.angle), y: centre + frame.ring * hoveredRing.length * Math.sin(hover.angle) })}>
       {hoveredRing.level > levels.level
-        ? tr('Lv {value0} goal · {value1} pt', { value0: hoveredRing.level, value1: tr.number(hoveredRing.points) })
+        ? goalTag(tr, marks, levels)
         : tr('Lv {value0} · {value1} pt', { value0: hoveredRing.level, value1: tr.number(hoveredRing.points) })}
     </span>}
     {levels.skills.map((skill, index) => {
       const colours = skillColors(skill.id)
       return <button type="button" key={skill.id} className="skill-radar-label" data-reward-skill={skill.id} data-side={labelSide(index, count)}
         data-active={selected === skill.id ? 'true' : undefined} data-hover={hoveredSkill === skill.id ? 'true' : undefined} aria-pressed={selected === skill.id} {...skillHover(skill.id)}
-        aria-label={tr('{value0}: skill level {value1}, {value2} points', { value0: tr(skill.label), value1: skill.level, value2: skill.points })}
+        aria-label={markName(tr, marks, skill, index)}
         style={{ ...place(polar(frame, frame.ring * LABEL_RADIUS, index, count)), color: colours.mark }}
         onClick={() => onSelect(skill.id)}>
         <strong style={{ color: colours.ink }}>{tr(skillShortLabel(skill.id))}</strong>
-        <span>{tr('Lv {value0} · {value1}', { value0: skill.level, value1: `${tr.number(skill.points)}/${tr.number(skill.nextThreshold)}` })}</span>
+        <span>{markDetail(tr, marks, skill, index)}</span>
       </button>
     })}
   </div>

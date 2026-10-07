@@ -1,0 +1,48 @@
+/* Only the docs iframe document is affected; app component rules come first. */
+html, body, #root { height: auto; min-height: 100%; }
+body { overflow: auto; }
+.docs-demo { max-width: 1100px; margin: 0 auto; padding: 16px; font-size: 15px; }
+.docs-demo h1 { font-size: 1.4rem; margin: 0 0 12px; }
+.docs-demo h2 { font-size: 1.1rem; margin: 20px 0 10px; }
+.docs-demo h3 { font-size: 1rem; }
+.docs-demo p { line-height: 1.55; margin: 10px 0; }
+.docs-demo button { cursor: pointer; }
+.docs-demo button:disabled { cursor: default; }
+.docs-demo .btn { display: inline-flex; gap: 7px; align-items: center; min-height: 40px; white-space: normal; }
+.docs-demo-banner { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; }
+.docs-demo-banner > div { display: flex; flex-direction: column; gap: 4px; }
+.docs-demo-banner span, .docs-demo-small { color: var(--ink-2); font-size: .82rem; }
+.docs-demo-nav, .docs-demo-icon-list, .docs-demo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.docs-demo .docs-demo-nav .btn[aria-current], .docs-demo .docs-demo-icon-list .btn[aria-pressed="true"] { background: var(--ink); color: var(--sheet); }
+.docs-demo-content { padding: 12px 0; }
+.docs-demo-explanation { padding: 12px 14px; border-left: 3px solid var(--focus-ring); background: var(--sheet); }
+.docs-demo-destinations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.docs-demo-destinations button { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px; background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; text-align: start; color: var(--ink); font: inherit; }
+.docs-demo-destinations button:hover { border-color: var(--focus-ring); }
+.docs-demo-destinations span { line-height: 1.5; color: var(--ink-2); }
+.docs-demo-chat-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); gap: 16px; }
+.docs-demo-message, .docs-demo-coach, .docs-demo-skill-detail { padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); margin-bottom: 12px; min-width: 0; }
+.docs-demo-message [lang] { font-size: 1.2rem; }
+.docs-demo-composer { padding: 10px; background: var(--sheet); border-radius: 10px; }
+.docs-demo-practice-grid { display: grid; grid-template-columns: minmax(160px, .7fr) minmax(0, 2fr); gap: 16px; }
+.docs-demo-practice-grid .drill-rail { width: auto; min-width: 0; max-height: 400px; }
+.docs-demo-practice-grid .drill-rail-foot { margin-top: 10px; }
+.docs-demo-attempts { padding-left: 24px; }
+.docs-demo-attempts details { padding: 10px; border-bottom: 1px solid var(--line); }
+.docs-demo-progress { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 16px; background: var(--sheet); }
+.docs-demo-counts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+.docs-demo-counts button { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); }
+.docs-demo-counts button[aria-pressed="true"] { border-color: var(--focus-ring); box-shadow: inset 0 0 0 1px var(--focus-ring); }
+.docs-demo-counts strong { font-size: 1.6rem; }
+.docs-demo-skills-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(200px, 1fr); gap: 16px; }
+.docs-demo-skills-grid .skill-chart { width: 100%; margin: 0; }
+.docs-demo-skill-detail { align-self: start; }
+@media (max-width: 650px) {
+  .docs-demo { padding: 10px; }
+  .docs-demo-chat-grid, .docs-demo-practice-grid, .docs-demo-skills-grid { grid-template-columns: 1fr; }
+  .docs-demo-destinations { grid-template-columns: 1fr; }
+  .docs-demo-counts { grid-template-columns: repeat(3, 1fr); }
+  .docs-demo-banner { align-items: flex-start; }
+  .docs-demo-banner .btn { flex-shrink: 0; }
+}
+@media (pointer: coarse) { .docs-demo .btn, .docs-demo button { min-height: 44px; } }

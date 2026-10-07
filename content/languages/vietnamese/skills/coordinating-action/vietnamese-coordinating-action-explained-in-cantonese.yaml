@@ -1,75 +1,76 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: Giúp tôi請人幫手，nhé可以柔和噉邀請合作。
+    explanation: 有個盒要搬，你請另一個人幫手。`Giúp tôi` 係幫我，`chuyển cái hộp này` 講搬呢個盒，`ra cửa` 指向門口。`Cái`
+      係同盒一齊用嘅量詞，`này` 喺名詞後面表示呢個。句尾 `nhé` 喺呢個情境友善噉請對方合作。直接請求可以唔明講聽者；同年長者講嘢時，稱呼同語氣要配合關係，唔係永遠只用
+      `tôi`。
     examples:
       - text: Giúp tôi chuyển cái hộp này ra cửa nhé.
         meaning: 唔該幫我搬呢個箱去門口。
-        note: 適合熟悉嘅成年人之間用；關係同語氣影響請求方式。
+        note: 試下用 `cái ghế này` 請人幫手搬呢張櫈去門口。`Giúp tôi chuyển cái ghế này ra cửa nhé.`
+          可以；換咗物件，幫手請求同目的地保留。
   - subskill_id: offers_invitations
-    explanation: Để tôi引出由講者行動嘅提議。
+    explanation: 有人拎住重袋，你主動提出幫佢拎。`Để tôi` 係等我嚟，將動作交畀自己；`xách túi` 係用手拎袋，`giúp bạn` 講係幫對方。呢度 `bạn`
+      適合同輩，唔係對任何人都適用。`Giúp tôi xách túi` 就倒轉幫手方向，請人幫你。做動作嗰個人改變時，`xách` 唔需要變形。
     examples:
       - text: Để tôi xách túi giúp bạn.
         meaning: 等我幫你拎個袋。
-        note: 呢度bạn稱呼同輩；其他關係可能要揀另一種稱呼。
+        note: 試下用 `cái hộp` 改為提出幫手拎盒。`Để tôi xách cái hộp giúp bạn.` 可以；`để tôi` 保留主動幫手嘅意思，`cái hộp`
+          換咗要拎嘅嘢。
   - subskill_id: suggestions
-    explanation: Chúng ta喺共同行動提議中包括聽者。
+    explanation: 大家做咗一輪嘢，休息一陣可能有用。`Chúng ta` 係包括聽者嘅我哋，所以提議關乎在場各人；`nghỉ một lát` 係休息一陣。句尾 `nhé`
+      請大家同意。`Chúng tôi` 通常唔包括聽者，會改變參與者。可以換成另一個活動，例如 `Chúng ta uống trà
+      nhé.`。句尾影響語氣，但唔能夠單靠佢判斷成句係咪提議。
     examples:
       - text: Chúng ta nghỉ một lát nhé.
         meaning: 不如我哋抖一陣。
-        note: Nhé尋求合作接受，唔係要求事實答案。
+        note: 試下提議一齊飲茶。`Chúng ta uống trà nhé.` 可以；`uống trà` 換咗休息，而 `chúng ta` 仍然包括聽者。
   - subskill_id: commitments
-    explanation: 將來陳述可以承擔約定工作。
+    explanation: 大家安排修理工作，你答應帶工具。`Ngày mai` 係聽日，`tôi sẽ mang dụng cụ đến` 講我會帶工具嚟或者去約定嘅地方。`Sẽ`
+      表達將來動作，`mang` 係帶，最後 `đến` 表示到達目的地。邊啲工具同地方可以由計劃提供。喺呢段對話係承諾；同一種將來說法如果用喺天氣預測，就唔係承諾。
     examples:
       - text: Ngày mai tôi sẽ mang dụng cụ đến.
         meaning: 聽日我會帶工具嚟。
-        note: 分工時用，講者負責帶工具。
+        note: 試下改為答應今日帶工具。`Hôm nay tôi sẽ mang dụng cụ đến.` 可以；日期換成今日，但 `sẽ` 仍然講你答應稍後做嘅動作。
   - subskill_id: accepting_declining
-    explanation: 有禮貌噉講自己出席唔到，可以拒絕邀請。
+    explanation: 你收到活動邀請，但今日嚟唔到。`Xin lỗi` 係唔好意思，`hôm nay` 指今日。`Tôi không đến được` 用動作前嘅 `không`
+      同動作後嘅 `được` 表達嚟唔到，唔同 `Tôi không muốn đến` 嘅唔想嚟。呢句透過交代障礙婉拒；簡單接受可以講 `Được, tôi sẽ đến.`。
     examples:
       - text: Xin lỗi, hôm nay tôi không đến được.
         meaning: 唔好意思，我今日嚟唔到。
-        note: 前面邀請交代咗拒絕邊個活動。
+        note: 試下因為聽日嚟唔到而婉拒。`Xin lỗi, ngày mai tôi không đến được.` 可以；用 `ngày mai` 換 `hôm nay`
+          只改日期，唔會將做唔到變成唔想做。
   - subskill_id: negotiating_plans
-    explanation: 先講限制，再提出可行時間。
+    explanation: 星期五你唔得，所以提出星期六。`Thứ sáu tôi bận` 係星期五我忙；`chúng ta gặp nhau` 係我哋見面，`vào thứ bảy`
+      定喺星期六，`nhé` 請對方同意。`Thứ sáu` 係星期五，`thứ bảy` 係星期六，唔好按英文嘅數字理解。`Bận` 可以直接講忙，唔使另加
+      `là`。先講障礙再畀替代日期，對方就有具體方案可以考慮。
     examples:
       - text: Thứ sáu tôi bận. Chúng ta gặp nhau vào thứ bảy nhé.
         meaning: 我星期五唔得閒。不如星期六見。
-        note: 第二句提供具體替代方案。
-provenance:
+        note: 試下保留星期五唔得，改為提議星期日。`Thứ sáu tôi bận. Chúng ta gặp nhau vào chủ nhật nhé.` 可以，因為 `chủ nhật`
+          換咗建議見面日。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/coordinating-action/vietnamese-coordinating-action-explained-in-english.yaml
-    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_suggestions2026
+    - msuVietnameseSuggestionsTeaching20261007
+    - niuVietnameseOffersCompletionTeaching20261007
+    - niuVietnameseTimeTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/coordinating-action/vietnamese-coordinating-action-explained-in-english.yaml
-        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - msu_vietnamese_suggestions2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

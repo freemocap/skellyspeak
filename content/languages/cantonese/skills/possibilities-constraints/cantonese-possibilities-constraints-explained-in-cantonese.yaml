@@ -1,69 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 識 喺呢度講學返嚟嘅能力，要同許可分開。
+    explanation: 分工整麵包時，可以講自己已經學識。活動前嘅 `識` 表知道點做，准唔准做同有冇時間就係另外問題。
     examples:
       - text: 我識整麵包。
-        meaning: 我識整麵包。
-        note: 呢句講識做，唔係話有人批准講者整麵包。
+        meaning: 意思係自己有整麵包技能。`我` 指講者，`識` 講識做，`整麵包` 指活動，直接跟喺 `識` 後面，唔加連接詞。換主語唔使改 `識` 或者 `整`。
+        note: 試下話朋友識：`佢識整麵包。`主語改 `佢`。`我唔識整麵包` 係唔識做，`我今日唔得閒整麵包` 就話今日冇空，未交代技能。
   - subskill_id: permission
-    explanation: 呢個情境用 可唔可以 請求許可；喺其他場合亦可以問實際可行性。
+    explanation: 喺共用地方，問負責人可唔可以用張枱。`可唔可以` 將准許嘅肯定否定選項放埋，後面講想做嘅事。
     examples:
       - text: 我可唔可以用呢張枱？
-        meaning: 我可唔可以用呢張枱？
-        note: 問負責地方嘅人時，重點係准唔准用。
+        meaning: 意思係問准用呢張枱。`我` 係想做嗰個，`用` 講使用，`呢張枱` 用量詞 `張` 指呢張。`可唔可以` 係 `可以` 嘅常用肯定否定問法，情境令佢係問准許。
+        note: 試下問准用張椅：`我可唔可以用呢張椅？``枱` 換成 `椅`，呢度都用 `張`。`可以，你用啦。` 係准許。相同問法亦可以講可行性，問邊個同情境會交代所問意思。
   - subskill_id: obligation
-    explanation: 一定要 表達要求，今日 交代期限。
+    explanation: 份功課今日到期，交功課係要求，唔只係想做。`一定要` 加強必要性，日子交代要幾時完成。
     examples:
       - text: 我今日一定要交份功課。
-        meaning: 我今日一定要交功課。
-        note: 唔係淨係想交，而係有必須完成嘅要求。
+        meaning: 意思係今日一定要交功課。`我今日` 交代人同日子，`一定要交` 講必須交出，`份功課` 用量詞 `份` 指文件或者一份工作。
+        note: 試下改成聽日到期：`我聽日一定要交份功課。``今日` 換成 `聽日`。`我唔使交份功課` 係唔需要交；`我唔可以交份功課` 就講唔准或者唔可行，兩種否定唔同。
   - subskill_id: possibility
-    explanation: 可能 表示唔肯定，會 支持預測；兩者都冇話已經落過雨。
+    explanation: 天氣預測未肯定聽日點。`可能` 引出不確定，`會` 將落雨講成可能發生嘅將來事。
     examples:
       - text: 聽日可能會落雨。
-        meaning: 聽日可能會落雨。
-        note: 聽日 將可能事件定位喺將來，唔係而家嘅天氣記錄。
+        meaning: 意思係聽日可能落雨。`聽日` 放先定日子，`可能會` 表可能發生，`落雨` 指天氣。呢個天氣句唔使另外加代詞去對應英文嘅 it。
+        note: 試下預測可能落雪：`聽日可能會落雪。`天氣換 `落雪`。`聽日會落雨` 較直接講預測，`聽日可能唔會落雨` 就保留可能唔落雨嘅選項。
   - subskill_id: certainty
-    explanation: 肯定 表達講者嘅把握，唔係個說法屬實嘅證明。
+    explanation: 有把握一個人已經返屋企，可以用 `我肯定` 表達信心，再用後面分句講肯定嘅事。
     examples:
       - text: 我肯定佢已經返咗屋企。
-        meaning: 我肯定佢已經返咗屋企。
-        note: 講者好有把握，但呢句本身唔提供核實證據。
+        meaning: 意思係有把握佢已經返咗屋企。`佢` 指一個人，`已經` 講已發生，`返咗屋企` 將返屋企呈現為已做嘅事。`返` 講返回，`咗` 跟動作，`屋企` 指家。
+        note: 試下肯定幾個人返咗：`我肯定佢哋已經返咗屋企。``佢` 改成 `佢哋`，`返咗` 唔變。`我唔肯定佢係咪返咗屋企` 就用 `係咪` 引出未確定問題，講唔肯定返咗未。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/possibilities-constraints/cantonese-possibilities-constraints-explained-in-english.yaml
-    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/possibilities-constraints/cantonese-possibilities-constraints-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

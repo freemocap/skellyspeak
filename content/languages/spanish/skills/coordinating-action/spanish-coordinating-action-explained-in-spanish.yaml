@@ -1,88 +1,165 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: coordinating_action
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-spanish.yaml
 sections:
   - subskill_id: requests
-    explanation: Pide la acción directamente o mediante una pregunta cortés. Poder no pregunta
-      necesariamente por una capacidad física.
+    explanation: Si hace frío en una habitación, puedes pedir a otra persona que cierre la puerta. Una
+      pregunta con `poder` es una manera habitual de pedir una acción. En esta situación buscas que
+      haga algo, no comprobar su capacidad física.
     examples:
       - text: ¿Puedes cerrar la puerta, por favor?
-        meaning: Te pido que cierres la puerta.
-        note: La respuesta esperada es realizar la acción de cerrar.
+        meaning: "`Puedes` se dirige a una persona con trato de tú, `cerrar` nombra la acción y `la puerta`
+          su objeto. `Por favor` añade cortesía. Después de `puedes`, la acción queda en
+          infinitivo."
+        note: >-
+          **Adáptalo.** `¿Puede cerrar la puerta, por favor?` usa el trato de usted. `¿Puedes abrir
+          la puerta?` pide la acción contraria. La cortesía también depende del tono y de la
+          situación.
+
+
+          **Prueba.** Pide con trato de tú que abran la ventana usando `abrir la ventana`.
+          Respuesta: `¿Puedes abrir la ventana, por favor?`. Mantén la acción en infinitivo.
   - subskill_id: offers_invitations
-    explanation: Ofrece tu ayuda o invita a la otra persona a compartir una actividad.
+    explanation: Invitar a alguien a cenar le ofrece la posibilidad de acompañarte. Una pregunta con
+      `querer` permite saber si desea participar. La situación convierte la pregunta en una
+      invitación, que la otra persona puede aceptar o rechazar.
     examples:
       - text: ¿Quieres venir a cenar?
-        meaning: Te invito a cenar.
-        note: En esta situación, la pregunta invita a participar.
+        meaning: "`Quieres` pregunta por el deseo de la persona a quien hablas, `venir` indica que se
+          acerque y `a cenar` expresa para qué: compartir la cena. La pregunta usa el trato de tú."
+        note: >-
+          **Adáptalo.** `¿Quieres venir a comer?` invita a una comida con `comer`. `¿Quieres cenar?`
+          pregunta si quiere cenar, sin decir expresamente que venga a un lugar.
+
+
+          **Prueba.** Invita a alguien a venir a dar un paseo usando `pasear`. Respuesta: `¿Quieres
+          venir a pasear?`. Conserva `venir a` y cambia la actividad.
   - subskill_id: suggestions
-    explanation: Podemos con infinitivo puede proponer una actividad conjunta.
+    explanation: Al organizar una salida, puedes proponer una opción para que los demás la consideren.
+      `Podemos` seguido de una actividad permite sugerir algo que haríais juntos. Presenta una
+      posibilidad, no una orden ni un acuerdo cerrado.
     examples:
       - text: Podemos ir mañana.
-        meaning: Propongo que vayamos mañana.
-        note: En una conversación sobre planes, se presenta una opción.
+        meaning: "`Podemos` incluye a quien habla en el grupo; `ir` nombra la acción y `mañana` indica el
+          día. En una conversación sobre planes, propone mañana como una opción."
+        note: >-
+          **Compara.** `Tenemos que ir mañana` añade una obligación. `Podemos ir hoy` mantiene la
+          sugerencia y cambia el día.
+
+
+          **Prueba.** Propón comer aquí con `comer aquí`. Respuesta: `Podemos comer aquí`. Cambia la
+          actividad después de `podemos` y mantenla en infinitivo.
   - subskill_id: commitments
-    explanation: Usa una expresión que indique que asumes el compromiso. Mencionar el futuro no equivale
-      por sí solo a prometer.
+    explanation: Cuando alguien necesita contar contigo, una promesa explícita aclara tu
+      responsabilidad. Hablar del futuro puede limitarse a describir un plan; `prometo` indica que
+      te comprometes a cumplirlo.
     examples:
       - text: Te prometo que voy a llamarte.
-        meaning: Me comprometo a llamarte.
-        note: Prometo hace explícito el compromiso.
+        meaning: "`Te` señala a quien recibe la promesa. `Prometo que` introduce lo prometido; `voy a
+          llamarte` dice que vas a llamar a esa persona. El `te` unido a `llamarte` identifica a
+          quien recibe la llamada."
+        note: >-
+          **Adáptalo.** `Voy a llamarte` expresa un plan sin una promesa explícita. También puedes
+          decir `Te voy a llamar`: el pronombre puede ir delante del verbo conjugado.
+
+
+          **Prueba.** Promete llamar mañana. Respuesta: `Te prometo que voy a llamarte mañana`.
+          Añade el día sin cambiar quién promete ni a quién llama.
   - subskill_id: accepting_declining
-    explanation: Una aceptación o un rechazo breve depende de la propuesta anterior. Puedes rechazar con
-      cortesía sin dar una explicación larga.
+    explanation: Una invitación no exige una respuesta larga. Si no puedes participar, una disculpa
+      breve seguida de una negativa aclara tu respuesta sin dar detalles privados. La invitación
+      aporta la actividad que no repites.
     examples:
       - text: Lo siento, no puedo.
-        meaning: Rechazo la propuesta y expreso que lo lamento.
-        note: Después de una invitación, esta respuesta la rechaza.
+        meaning: "`Lo siento` es una disculpa habitual; `no puedo` indica que no puedes realizar la
+          actividad propuesta. Después de una invitación a cenar, se entiende que no puedes asistir
+          a esa cena."
+        note: >-
+          **Compara.** `Sí, gracias` acepta la invitación. `No quiero` expresa falta de deseo, que
+          no es lo mismo que no poder. `No puedo ir` hace explícita la acción.
+
+
+          **Prueba.** Rechaza una invitación diciendo que hoy no puedes ir. Respuesta: `Lo siento,
+          hoy no puedo ir`. `Hoy` indica el día e `ir` nombra la acción.
   - subskill_id: negotiating_plans
-    explanation: Responde al plan propuesto con una alternativa que resuelva el problema.
+    explanation: Si la hora propuesta no te viene bien, ofrecer otra ayuda a llegar a un acuerdo.
+      Primero puedes explicar el obstáculo y después proponer una alternativa viable. Las dos partes
+      muestran qué necesita cambiar.
     examples:
       - text: A las seis no puedo; ¿quedamos a las siete?
-        meaning: Propongo reunirnos a las siete porque a las seis no puedo.
-        note: Se modifica la hora propuesta para resolver una limitación.
+        meaning: "`A las seis` indica la hora que no te sirve y `no puedo` explica el problema. `¿Quedamos a
+          las siete?` propone reunirse a las siete; `quedamos` incluye a las dos personas."
+        note: >-
+          **Adáptalo.** `¿Nos vemos a las siete?` también propone un encuentro a esa hora. `No
+          puedo` por sí solo rechaza la hora sin ofrecer otra. La pregunta sigue siendo una
+          propuesta hasta que la otra persona acepta.
+
+
+          **Prueba.** No puedes a las siete; propone las ocho. Respuesta: `A las siete no puedo;
+          ¿quedamos a las ocho?`. Pon primero la hora rechazada y luego la nueva.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

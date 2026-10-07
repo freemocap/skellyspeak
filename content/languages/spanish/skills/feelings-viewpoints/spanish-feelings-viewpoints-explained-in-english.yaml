@@ -1,79 +1,155 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-teaching-english-2026-10-07
 skill_id: feelings_viewpoints
 language: spanish
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Querer followed by an infinitive can express what the subject wants to do.
+    explanation: After a busy day, you may want rest rather than another activity. `Querer` followed by
+      an infinitive expresses what you want to do yourself. It names a desire; the sentence alone
+      does not promise that you will carry it out.
     examples:
       - text: Quiero descansar.
-        meaning: I want to rest.
-        note: The subject of wanting is also the intended subject of resting.
+        meaning: “I want to rest.” `Quiero` identifies the speaker’s desire and `descansar` names the
+          activity. Only the first verb changes to match the person; the activity keeps its
+          infinitive form.
+        note: >-
+          **Adapt it.** `Ella quiere descansar` describes her wish. `Voy a descansar` instead
+          presents resting as a plan. Do not conjugate both verbs as `quiero descanso`.
+
+
+          **Try it.** Say you want to eat, using `comer`. Answer: `Quiero comer`. Keep `quiero` for
+          I and replace the infinitive.
   - subskill_id: preferences
-    explanation: Preferir states a preference; gustar uses the thing liked as its grammatical subject.
+    explanation: Talking about books you enjoy helps someone understand your tastes. With `gustar`,
+      Spanish organizes the sentence around the thing that is pleasing, and a pronoun identifies the
+      person who likes it. The verb agrees with the liked thing.
     examples:
       - text: Me gustan estos libros.
-        meaning: I like these books.
-        note: Gustan agrees with plural libros.
+        meaning: “I like these books.” `Me` identifies me as the person who likes them. `Gustan` is plural
+          because `estos libros`, these books, is plural. The books are the grammatical subject even
+          though the English translation starts with I.
+        note: >-
+          **Adapt it.** `Me gusta este libro` names one book, so the verb is singular. `Me gusta
+          leer` says you like reading; an infinitive activity also takes singular `gusta`.
+
+
+          **Try it.** Say you like these films with `estas películas`. Answer: `Me gustan estas
+          películas`. Match `gustan` to the plural films, not to `me`.
   - subskill_id: emotions
-    explanation: Name your feeling with an appropriate expression. Adjectives used with estar agree with
-      the person described.
+    explanation: If a friend asks how you feel, an adjective with `estar` can name your emotional state.
+      The adjective agrees with the person whose feeling it describes. Here the speaker is pleased
+      or happy.
     examples:
       - text: Estoy contenta.
-        meaning: I am happy.
-        note: A feminine speaker describes her emotional state.
+        meaning: “I am happy.” `Estoy` refers to the speaker’s state. `Contenta` is the feminine singular
+          adjective; a speaker using masculine agreement says `contento`. The ending describes the
+          speaker, not the cause of the happiness.
+        note: >-
+          **Compare.** `Estoy triste` names sadness; `triste` has the same form for masculine and
+          feminine agreement. `Soy una persona alegre` describes a cheerful disposition instead of
+          simply reporting a current feeling.
+
+
+          **Try it.** Use masculine agreement to say you are happy. Answer: `Estoy contento`. Change
+          the adjective ending, keeping `estoy`.
   - subskill_id: opinions
-    explanation: Creo que can introduce your view of a proposition. An evaluation can also state your
-      opinion directly.
+    explanation: When discussing a plan, you can offer your judgment without presenting it as everyone’s
+      view. `Creo que` introduces what you think. The following clause contains the opinion itself,
+      such as whether the proposed idea is good.
     examples:
       - text: Creo que es una buena idea.
-        meaning: I think it is a good idea.
-        note: The speaker presents an evaluation as their view.
+        meaning: “I think it is a good idea.” `Creo` means I think, `que` links it to the opinion, and `es
+          una buena idea` evaluates the proposal. `Buena` agrees with the feminine noun `idea`.
+        note: >-
+          **Adapt it.** `Creo que es una mala idea` changes the evaluation. To express doubt rather
+          than belief, say `No creo que sea una buena idea`. For this expression of doubt, use
+          subjunctive `sea` rather than `es`.
+
+
+          **Try it.** Say you think it is useful, using `útil`. Answer: `Creo que es útil`. Keep
+          `que` to connect the opinion clause.
   - subskill_id: agreement_disagreement
-    explanation: Respond to a known position with agreement, disagreement or a qualification.
+    explanation: Two people can understand a proposal and still hold different opinions. `Estar de
+      acuerdo` expresses agreement; putting `no` before the verb expresses disagreement. The phrase
+      responds to the view under discussion.
     examples:
       - text: No estoy de acuerdo.
-        meaning: I disagree.
-        note: The preceding position is needed to know what is being rejected.
+        meaning: “I do not agree.” `No` negates `estoy`, which identifies the speaker. `De acuerdo` is the
+          expression for agreement. The phrase says your position differs without itself giving a
+          reason.
+        note: >-
+          **Adapt it.** `Estoy de acuerdo contigo` means I agree with you. `No estoy de acuerdo con
+          el plan` names the proposal you reject. Keep `de` within the expression and use `con` to
+          introduce the person or proposal.
+
+
+          **Try it.** Agree with the plan, using `el plan`. Answer: `Estoy de acuerdo con el plan`.
+          Remove `no` and add what you agree with.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-english-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
+    "prestart": "npm run docs:demos --prefix ../..",
     "start": "node scripts/image-size-patch.mts --check && docusaurus start",
     "build": "node scripts/image-size-patch.mts --check && docusaurus build",
+    "prebuild": "npm run docs:demos --prefix ../..",
     "serve": "docusaurus serve",
+    "preview:local": "docusaurus serve --host 127.0.0.1 --port 3000 --no-open",
     "clear": "docusaurus clear",
     "typecheck": "tsc",
     "postinstall": "node scripts/image-size-patch.mts --apply",

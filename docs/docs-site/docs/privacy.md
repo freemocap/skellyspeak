@@ -9,22 +9,25 @@ title: Privacy Policy
 Foundation. This policy describes what the app and its optional hosted service
 collect, and what they do not.
 
-## The short version
+## Where requests go
 
-SkellySpeak can reach an AI provider three different ways, and **only one of
-them sends anything to us at all**:
+Your conversations, practice cards, learner evidence and preferences are kept on
+this device. Generating replies, feedback, reading aids, transcription and cloud
+speech sends the relevant content through the AI connection you select.
 
-| How you use it | What reaches FreeMoCap |
-|---|---|
-| **Your own API key** (OpenRouter) | Nothing. The app talks to OpenRouter directly. |
-| **Your own AI server** (Ollama, LM Studio) | Chat goes to the server you choose; speech can still use external providers. |
-| **The free hosted service** | Your Google identity, request content in transit, and the operational records described below. |
+| Connection | Where requests go |
+| --- | --- |
+| Hosted service | The SkellySpeak service and its configured AI providers. Hosted sign-in and operational records are described below. |
+| Custom server | The self-hosted SkellySpeak server you configure, and the providers chosen by that server's operator. Its operator is responsible for its storage and retention policies. |
 
-The hosted-service sections below apply **only** to the free hosted
-service. The local-data sections apply to all provider modes. Starting sign-in also creates short-lived authorization records, even if you do not finish signing in.
+The current app's custom connection is a SkellySpeak server address, not a direct
+connection to an arbitrary model endpoint. Using a custom server does not by
+itself mean all processing stays on your device.
 
-We do not sell your data, we do not share it for advertising, and there are no
-analytics or tracking SDKs in the app.
+The hosted-service sections below apply to the FreeMoCap hosted service.
+Starting sign-in creates short-lived authorization records even if you do not
+finish signing in. We do not sell your data or share it for advertising, and
+there are no analytics or tracking SDKs in the app.
 
 ## Download website
 
@@ -93,8 +96,7 @@ content and handle it under their own policies:
 - **Groq** — speech-to-text, if you use the microphone.
   [Privacy policy](https://groq.com/privacy-policy/)
 
-If you would rather not involve us at all, use your own API key or your own AI
-server. Both are in Settings and neither routes through FreeMoCap.
+You can choose a custom SkellySpeak server in Settings. Check with its operator about the services it uses and the data it retains.
 
 ## How long it is kept
 
@@ -106,8 +108,7 @@ server. Both are in Settings and neither routes through FreeMoCap.
 
 ## Your choices
 
-**Stop sending us anything** — open Settings, change the AI provider away from
-the hosted service, or sign out. Signing out removes the session from your
+**Stop sending us anything** — open Settings, change AI access away from the hosted service, or sign out. Signing out removes the session from your
 device immediately.
 
 **Delete your data** — email [info@freemocap.org](mailto:info@freemocap.org) from the address you signed in
@@ -133,105 +134,56 @@ FreeMoCap Foundation — [info@freemocap.org](mailto:info@freemocap.org)
 
 Source code: [github.com/freemocap/skellyspeak](https://github.com/freemocap/skellyspeak)
 
-## Local lesson choices
 
-Learning goals, explicit preferences and memory corrections are stored locally
-per language pair, separately from inferred tutor memory. The app retains the
-most recent 20 explicit changes with their timestamps and before/after values.
-The current choices are included in relevant model requests through your chosen
-provider route; they are not confined to the private coach thread. Conversation
-partners do not receive the coach thread itself. Clearing current choices does
-not remove their entries from the local change history.
+## Local learning records
 
-## Local conversation partners
+The app keeps a local workspace database for conversations, partners, coach
+exchanges, practice cards and attempts, learner evidence, earned credit and
+preferences. Recording audio and reusable speech or reading results also use
+local storage. There is no automatic cross-device workspace synchronization.
 
-Each chat stores a copy of its persona template and its first partner reply in
-`partner.json`, alongside its transcript. That reply remains an identity reference
-in future reply prompts, including after it falls outside recent conversation
-history. These prompts follow the same selected provider route as other chat
-requests. Existing chats without a snapshot recover their earliest assistant
-reply locally; this does not add a model call.
+AI operations send the content needed for that operation through the configured
+connection. This can include conversation context, the message being assessed,
+language and variety, selected practice preferences, or text needing translation
+or word annotations. Speech recognition sends the recorded audio. Reading aids
+may prepare missing annotations when a reading surface appears; revealing an
+already saved word meaning does not require another request.
 
-## Local AI diagnostic traces
+Skill evidence retains source text, assessment explanations, assistance
+information and provenance so you can inspect where progress came from. Changing
+or deleting source history is not the same as deleting all earned activity
+records. The app labels retained credit whose source is no longer available.
 
-The app automatically retains model-call traces locally in `ai-traces.json`, up
-to 300 runs and 8 MiB. They can contain conversation messages, responses, persona
-snapshots, lesson choices and inferred learner notes, as well as model parameters
-and timing. Text capture is bounded and truncation is marked. Request headers,
-credentials and raw audio are not recorded by this trace archive. These traces
-are not anonymized and are not automatically uploaded.
+## Diagnostics and exported files
 
-Older records are evicted at the retention limits. **AI → Debug → Clear retained
-traces** clears this archive. Deleting a chat does not delete its diagnostic
-traces. **Export selected** creates a separate JSON file in the app configuration
-directory's `trace-exports` folder and displays its path. Exports remain until
-you delete those files yourself, including after clearing retained traces.
+Operational diagnostics retain request identifiers, operation status, timing,
+models, usage and redacted error details. Current diagnostic handling removes
+credentials and content such as prompts, transcripts, message text and raw audio
+from diagnostic records. These diagnostic records are separate from the learning
+records that intentionally retain your conversations and assessment evidence.
 
-Visible lesson topics can request a short generated explanation and example.
-These calls send the topic, language and selected practice difficulty through
-the configured provider. They do not send conversation history or update learner
-memory; their requests and outputs follow local AI trace retention.
+Use **More → AI activity** to inspect AI work and the log-sharing control in
+**More** to prepare diagnostics. Inspect material before sharing it. A workspace
+copy is private learning data, not a redacted bug report.
 
-## Skill assessment evidence
+**Settings → Your data → Save a copy of my data** copies the database, its
+supporting files and editable configuration to Downloads and displays the path.
+Files copied outside application storage remain under your control.
 
-After each new learner message receives a reply, a separate worker-model request
-assesses the message against the shared skill rubrics. It sends the message,
-recent preceding conversation context, partner reply, target/native language and
-recorded input provenance (text or speech transcript; suggestion, scaffold and
-revision flags) through the configured provider route. It does not send raw audio
-for this assessment. Assistance outside the app is unknown.
+## Recording retention
 
-`skill-evidence.json` inside each chat stores source text, quoted spans, outcomes,
-rationales, assistance flags, model/prompt/catalog versions, timestamps and
-trace/message/attempt identifiers. These records use one local learner identity
-and are aggregated by target language across native-language contexts. Rust derives practice XP and marks from live current-catalog evidence; these are
-not certificates or inferred mastery.
+Practice's **Recording storage** setting limits retained recording audio. The
+oldest recordings are removed first; a zero limit keeps no recording audio.
+Transcripts and comparisons remain. Reusable synthesized audio uses the shared
+cache controls in Settings.
 
-The active tree excludes superseded records and messages absent or changed in
-the saved conversation. Soft-deleted chats are excluded; their raw evidence files
-remain alongside the retained conversation. Records are retained with that chat;
-clearing diagnostic traces does not clear this separate evidence ledger. The
-assessment requests also follow ordinary diagnostic-trace retention. Historical
-conversations are not automatically sent for assessment.
+## Erasing local data
 
-The target-language profile stores pinned focus and excluded attempt identifiers
-at `learners/local/<target>.json`. It is local and distinct from provider login
-and partner persona. Saved/recommended focus and its criterion are included in
-subsequent practice prompts. Excluding an attempt affects progress but retains
-its source and model judgment; removing its exclusion restores eligible credit.
-Previous catalog records are retained for inspection without awarding current
-skills. Stories generation is retired; old browser story cache entries are left
-untouched and are no longer read or sent by that feature.
+**Settings → Your data → Delete my data and close** requires typing `DELETE`.
+The app closes; reopen it to complete the reset. This removes local conversations,
+coach memory, evidence and progress, preferences, credentials and other app-owned
+data, including local migration recovery copies.
 
-### Erasing local data
-
-Settings → **Clear all data…** requires typing `DELETE`. The app closes and
-finishes erasing its local data on the next launch, including credentials,
-conversations, lesson memory, learner progress, traces, app-managed exports,
-logs, caches and webview storage. This is irreversible. It signs out this device;
-it does not delete the hosted account, server-side billing/usage records, or
-exports copied outside application storage.
-
-## Operational logging and device backups
-
-Ordinary application logs record events, timings, counts and HTTP status codes;
-they do not intentionally copy transcripts, prompts, model output, teaching-plan
-text, account email or raw provider HTTP error bodies. The local AI trace archive
-above remains a separate, content-bearing feature. Older log files are not
-retroactively erased by an upgrade.
-
-The hosted container disables Uvicorn access logs and HTTP-client informational
-logging. Google Cloud request logs remain controlled by the project logging
-configuration and may contain URLs and IP addresses; disable or exclude sensitive
-auth request logs at the platform layer as well.
-
-Android declares app backup disabled and excludes app data from cloud backup and
-device transfer. This policy requires verification on supported physical devices.
-Desktop debug builds use a separate application identity, storage and Keychain
-entry; they do not import the installed release's private data.
-
-Hosted streaming HTTP failures include the upstream numeric status code without its response body. The app explains provider credit/payment failures (402); Google sign-in users depend on the hosted operator’s OpenRouter balance and API-key limit.
-
-Tapping a word in coach prose, advice, lesson examples or other reading text without a saved gloss sends that word and its surrounding text through the configured provider's existing word-insight operation. Meanings are cached transiently in the current app session and language pair. Holding a word or opening deeper inspection uses the same operation. No request is needed to reveal a supplied saved token gloss.
-
-Reading text without saved word annotations is sent with its surrounding context to the configured model when the reading surface appears. This uses the existing tokenize operation and prepares glosses, pronunciation and romanization together. Ordinary word taps reveal these prepared annotations locally. Explicit deeper inspection remains a separate word-insight request. Annotation reuse is transient and scoped to the language pair and exact source/context; it is not a persistent dictionary.
+A local reset does not delete the hosted account, server billing or usage records,
+or files exported outside app storage. Use the contact instructions above for
+hosted-account data requests.

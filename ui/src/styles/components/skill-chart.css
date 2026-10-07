@@ -1,22 +1,27 @@
-/* Skill chart (components/learning/SkillChart.tsx): one card with a square
-   stage holding the radar or the bars, a settings button and menu (chart type,
-   scale, zoom) over its corner, and the notes (key, conversation legend, hints)
-   along the bottom.
+/* Skill chart (components/learning/SkillChart.tsx): one card with a control
+   row across the top (points shown, chart type, scale and zoom on one line,
+   folding into a settings button and menu when the card is too narrow), a
+   square stage holding the radar or the bars, and the notes (key, conversation
+   legend, hints) along the bottom.
    The stage fades in when the chart type changes; marks glide when the scale or
    zoom changes. Bar colours arrive inline as `color` on each bar; names take
    the ink inline. */
-.skill-chart { display: flex; flex-direction: column; margin: 0; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); }
-.skill-chart-switch { display: inline-flex; padding: var(--space-hairline); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); }
-.skill-chart-switch button { min-height: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-medium); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.skill-chart { position: relative; display: flex; flex-direction: column; margin: 0; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); }
+.skill-chart-switch { display: inline-flex; flex: none; padding: var(--space-hairline); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); }
+.skill-chart-switch button { min-height: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-medium); white-space: nowrap; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
 .skill-chart-switch button:hover:not(:disabled) { color: var(--ink); }
 .skill-chart-switch button:disabled { opacity: 0.4; cursor: default; }
 .skill-chart-switch button[aria-pressed='true'] { background: var(--interaction-tint); color: var(--interaction-ink); }
-/* The chart and, over its top end corner, the settings button and its menu, which take no space of their own. */
-.skill-chart-view { position: relative; }
-.skill-chart-controls { position: absolute; inset-block-start: var(--space-3); inset-inline-end: var(--space-3); z-index: var(--z-dropdown); display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
-.skill-chart-menu-button { display: inline-flex; align-items: center; gap: var(--space-2); min-height: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); cursor: pointer; opacity: 0.8; transition: color var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
-.skill-chart-menu-button:hover, .skill-chart-menu-button[aria-expanded='true'] { border-color: var(--line); color: var(--ink); opacity: 1; }
-.skill-chart-menu { display: grid; grid-template-columns: max-content max-content; align-items: center; gap: var(--space-3) var(--space-4); padding: var(--space-4) var(--space-5); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--sheet); box-shadow: var(--shadow-menu); color: var(--ink-2); font-size: var(--type-meta); animation: hydrate-arrive var(--dur-fast) var(--ease-out); }
+/* The row across the top, never wrapping: points shown first, then type and
+   scale, zoom at the end. Folded, the settings button takes the end instead;
+   with nothing else in the row, the row floats over the chart's top end corner. */
+.skill-chart-bar { position: relative; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-5); border-bottom: var(--border-width) solid var(--line-soft); }
+.skill-chart-bar .skill-chart-zoom, .skill-chart-settings { margin-inline-start: auto; }
+.skill-chart-bar[data-floating] { position: absolute; inset-block-start: var(--space-3); inset-inline-end: var(--space-3); z-index: var(--z-dropdown); padding: 0; border: 0; }
+.skill-chart-settings { position: relative; display: flex; }
+.skill-chart-menu-button { display: inline-flex; align-items: center; gap: var(--space-2); min-height: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); cursor: pointer; transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+.skill-chart-menu-button:hover, .skill-chart-menu-button[aria-expanded='true'] { border-color: var(--line); color: var(--ink); }
+.skill-chart-menu { position: absolute; inset-block-start: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-dropdown); display: grid; grid-template-columns: max-content max-content; align-items: center; gap: var(--space-3) var(--space-4); padding: var(--space-4) var(--space-5); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--sheet); box-shadow: var(--shadow-menu); color: var(--ink-2); font-size: var(--type-meta); white-space: nowrap; animation: hydrate-arrive var(--dur-fast) var(--ease-out); }
 .skill-chart-zoom button { min-width: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-3); font-family: var(--font-mono); font-size: var(--type-ui); }
 .skill-chart-zoom .skill-chart-zoom-value { min-width: calc(var(--space-13) + var(--space-2)); font-size: var(--type-meta); }
 .skill-chart-stage { box-sizing: border-box; width: 100%; padding: var(--space-4); max-width: 440px; aspect-ratio: 1; margin-inline: auto; animation: hydrate-arrive var(--dur-slow) var(--ease-out); }

@@ -1,69 +1,69 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 因为 引入解釋。可以先講決定，再喺後面補原因。
+    explanation: 單車壞咗，可以解釋今日點解揀巴士。先講決定，再用 `因为` 帶出原因。普通話亦可以先講原因，視乎對話點接。
     examples:
       - text: 我坐公交车，因为自行车坏了。
-        meaning: 我搭巴士，因為架單車壞咗。
-        note: 單車壞咗解釋咗交通選擇。了 表達單車狀況出現改變。
+        meaning: "**例句。** 我搭巴士，因為架單車壞咗。`坐公交车` 係搭巴士，`因为` 係因為，`自行车坏了` 話單車變咗壞。`坏` 描述故障，句尾 `了` 帶出情況改變。"
+        note: 試下原因放先：`因为自行车坏了，所以我坐公交车。` `所以` 喺原因後引出結果，兩個連接詞一齊用好自然。淨係 `了` 未話故障係今日定更早發生。
   - subskill_id: consequences
-    explanation: 所以 引入前面情況嘅結果。因果關係要由兩個子句嘅內容支持。
+    explanation: 橋封咗，要改路線。`所以` 將問題接到大家因此做嘅事，比淨係列兩件事更清楚。
     examples:
       - text: 桥封了，所以我们换了一条路。
-        meaning: 條橋封咗，所以我哋改行另一條路。
-        note: 封橋解釋咗點解改路線。一条路 用 条 做路或路線嘅量詞。
+        meaning: "**例句。** 條橋封咗，所以我哋換咗條路。`桥封了` 係橋變成封閉，`我们换了一条路` 報告改行另一條路。`换` 係換，後面 `了` 標示事件，`一条路` 用 `条`
+          數一條路線。"
+        note: 試下改成因為道路封咗而改路：`路封了，所以我们换了一条路。` 第一分句 `桥` 換成 `路`。`然后` 係然後，可以交代先後，本身冇 `所以` 嗰種因果連接。
   - subskill_id: conditions
-    explanation: 如果 引入條件，就 連結結果。唔需要特別嘅條件式動詞變位。
+    explanation: 聽日出遊可以視乎天氣。`如果` 引出未定事件，`就` 將呢個條件接到一旦發生時嘅回應。
     examples:
       - text: 如果明天下雨，我们就改天去。
-        meaning: 如果聽日落雨，我哋就改日先去。
-        note: 落雨係假設條件；改天 交代條件成立時嘅替代安排。
+        meaning: "**例句。** 如果聽日落雨，我哋就改日去。`明天下雨` 係聽日落雨，`我们就改天去` 係咁我哋就另外一日去。`改天` 係改日，`去` 係去。只有落雨條件成立先改安排。"
+        note: 試下以天氣凍為條件：`如果明天很冷，我们就改天去。` `下雨` 換成 `很冷`。`因为明天下雨` 將落雨講成原因；`如果` 保留佢係未定條件，冇斷言一定發生。
   - subskill_id: contrast
-    explanation: 虽然 同 但是 可以成對使用，先讓步，再帶出相反重點。呢種配搭喺普通話係正常嘅，唔好照搬英文 although 通常唔同 but 並用嘅限制。
+    explanation: 路短都可能因為斜坡陡而難行。`虽然` 先講有利嗰點，`但是` 帶出令佢未必好行嘅缺點。
     examples:
       - text: 虽然路很短，但是坡很陡。
-        meaning: 雖然條路短，但個斜坡好斜。
-        note: 即使路程短，斜坡陡仍然係一個不利因素。
+        meaning: "**例句。** 雖然條路短，但個坡陡。`路很短` 係路短，`坡很陡` 係坡陡。兩個性質都直接用 `很` 描述，`虽然` 同 `但是` 將佢哋接成讓步同對比。"
+        note: 試下話路長但坡緩：`虽然路很长，但是坡很缓。` 將 `短` 換成 `长`，`陡` 換成 `缓`。普通話自然會一齊用 `虽然` 同 `但是`，唔使跟英文相應連接詞嘅限制。
   - subskill_id: supporting_claims
-    explanation: 觉得 可以引入推論，因为 引入支持觀察。要分清支持相信某事嘅證據，同令件事發生嘅原因。
+    explanation: 燈仲亮住，可能令你估入面仲有人。`因为` 後面交代觀察，就講清楚點解咁諗；`我觉得` 保留結論係自己判斷，唔係肯定知道。
     examples:
       - text: 我觉得里面还有人，因为灯还亮着。
-        meaning: 我諗入面仲有人，因為盞燈仲着住。
-        note: 燈光支持有人嘅推論；还 表示持續。句子冇話係盞燈令某個人留喺入面。
+        meaning: "**例句。** 我覺得入面仲有人，因為盞燈仲亮住。`里面` 係入面，`还有人` 係仲有人，`有` 表有人存在。`灯还亮着` 係燈仲亮住，`还` 係仲，`着`
+          將亮住嘅狀態保持喺描述入面。"
+        note: 試下用持續有人聲支持同一判斷：`我觉得里面还有人，因为里面还有说话声。` `说话声` 係講嘢聲。觀察支持相信有人，唔係造成佢哋喺入面；兩種線索都未保證結論一定啱。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/reasons-connections/mandarin-reasons-connections-explained-in-english.yaml
-    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/reasons-connections/mandarin-reasons-connections-explained-in-english.yaml
-        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

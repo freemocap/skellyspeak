@@ -1,114 +1,158 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 現代標準語可以用未完成式動詞配合「而家」。黎凡特語可以用 عَمْ 加動詞表達活動進行中。
+    explanation: 有人問你而家做緊乜。動作加埋「而家」，就清楚表示進行中嘅活動。
     examples:
       - text: أَكْتُبُ رِسَالَةً الْآنَ.
-        meaning: 我而家寫緊信。
-        note: 現代標準阿拉伯語。第一人稱動詞形式已交代寫信者，唔一定要另加代名詞。
-      - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
-        meaning: 我而家寫緊信。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。第一人稱動詞形式已交代寫信者，唔一定要另加代名詞。
+        meaning: "**例句。** 我而家寫緊信。 `أَكْتُبُ` 係「我寫」，`رِسَالَةً` 係一封信，`الْآنَ`
+          係而家。動詞指出寫嘅係我。呢個動詞形式配合時間情境，就可以表達「寫緊」，唔使另加進行式助動詞。"
+        note: 另一個情境下，同一動詞可以描述習慣。試下將信改成書，保留而家做緊：`أَكْتُبُ كِتَابًا الْآنَ`。物件改成 `كِتَابًا`，我嘅動詞同而家保留。
   - subskill_id: past_events
-    explanation: 過去時變位加時間詞可以報告較早嘅行動。
+    explanation: 想講昨日做咗乜，就可以用過去動作加時間詞。呢度講者報告寫咗信，唔係而家寫緊。
     examples:
       - text: كَتَبْتُ رِسَالَةً أَمْسِ.
-        meaning: 我噚日寫咗封信。
-        note: 現代標準阿拉伯語。呢個語境下動詞係第一人稱單數。
-      - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
-        meaning: 我噚日寫咗封信。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。呢個語境下動詞係第一人稱單數。
+        meaning: "**例句。** 我噚日寫咗封信。 `كَتَبْتُ` 係「我寫咗」，詞尾指出我。`رِسَالَةً` 係一封信，`أَمْسِ`
+          係昨日。動詞本身已有過去指向，昨日就交代邊一日。"
+        note: 比較向男性講「你寫咗」嘅 `كَتَبْتَ` 同「我寫咗」嘅 `كَتَبْتُ`。試下話我哋昨日寫咗信：`كَتَبْنَا رِسَالَةً أَمْسِ`。過去詞尾改成
+          `نَا`，信同日子保留。
   - subskill_id: future_events
-    explanation: 現代標準語 سَـ 同口語 رَحْ 可以將計劃中事件定位喺將來。
+    explanation: 你想講聽日嘅探訪。將來表達將動作放喺而家之後，再講朋友同日子，就清楚交代計劃。
     examples:
       - text: سَأَزُورُ صَدِيقِي غَدًا.
-        meaning: 聽日我會去探朋友。
-        note: 現代標準阿拉伯語。朋友係男性；呢個係計劃，唔一定係承諾。
-      - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
-        meaning: 聽日我會去探朋友。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。朋友係男性；呢個係計劃，唔一定係承諾。
+        meaning: "**例句。** 聽日我會去探朋友。 `سَأَزُورُ` 將表示將來嘅 `سَـ` 同「我探訪」合埋。`صَدِيقِي` 係我嘅男性朋友，帶連住嘅「我嘅」後綴。`غَدًا`
+          係聽日。呢句講計劃，喺合適對話先會成為承諾。"
+        note: 冇將來 `سَـ`，動詞可以按情境表示現在或慣常探訪。試下改成今日探：`سَأَزُورُ صَدِيقِي الْيَوْمَ`。將來標記仍然將探訪放喺而家之後，今日就交代日子。
   - subskill_id: duration_frequency
-    explanation: 次數配合每星期時段，可以表達重複頻率。
+    explanation: 人哋問日常習慣，通常要知道幾密，例如一星期幾次。呢句數游水次數，唔係一次游幾耐。
     examples:
       - text: أَسْبَحُ مَرَّتَيْنِ فِي الْأُسْبُوعِ.
-        meaning: 我每個禮拜游兩次水。
-        note: 現代標準阿拉伯語。計算嘅係次數，唔係兩個游水嘅人。
-      - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
-        meaning: 我每個禮拜游兩次水。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。計算嘅係次數，唔係兩個游水嘅人。
+        meaning: "**例句。** 我每個禮拜游兩次水。 `أَسْبَحُ` 係「我游水」。`مَرَّتَيْنِ` 用「次」嘅雙數表示兩次；`فِي الْأُسْبُوعِ`
+          呢度係「每星期」。次數加埋時間範圍，就交代幾密做呢件事。"
+        note: 一星期一次用 `مَرَّةً فِي الْأُسْبُوعِ`。兩次唔係兩個鐘，時長要另一個時間單位短語。試下改成每星期一次：`أَسْبَحُ مَرَّةً فِي
+          الْأُسْبُوعِ`；時間範圍仍然係一星期。
   - subskill_id: event_sequence
-    explanation: 「先」同「然後」交代次序，唔一定表達因果。
+    explanation: 一齊安排晚上活動時，「先」同「之後」交代次序。先做嗰件事唔一定係後面嗰件事嘅原因。
     examples:
       - text: أَوَّلًا نَأْكُلُ، ثُمَّ نَخْرُجُ.
-        meaning: 我哋先食飯，然後出街。
-        note: 現代標準阿拉伯語。講者交代大家嘅行動次序。
-      - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
-        meaning: 我哋先食飯，然後出街。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者交代大家嘅行動次序。
+        meaning: "**例句。** 我哋先食飯，然後出街。 `أَوَّلًا` 係先，`نَأْكُلُ` 係我哋食。`ثُمَّ` 係然後，`نَخْرُجُ`
+          係我哋出去。兩個動詞都用「我哋」，所以係大家嘅安排，唔係淨係聽者一個人。"
+        note: 試下話先出去，再食嘢：`أَوَّلًا نَخْرُجُ، ثُمَّ نَأْكُلُ`。成個動作移到新位置。`ثُمَّ` 交代次序；想表達結果，就要用例如
+          `لِذٰلِكَ`「所以」。
   - subskill_id: event_phase
-    explanation: 意思係「完成」嘅動詞，可以指明活動終點。
+    explanation: 有人想知你仲讀唔讀緊本書。話已經讀完，就指出終點，比淨係話之前讀過更清楚。
     examples:
       - text: أَنْهَيْتُ قِرَاءَةَ الْكِتَابِ.
-        meaning: 我睇完本書喇。
-        note: 現代標準阿拉伯語。句子表示閱讀完成，唔係只表示以前睇過。
-      - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
-        meaning: 我睇完本書喇。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。句子表示閱讀完成，唔係只表示以前睇過。
+        meaning: "**例句。** 我睇完本書喇。 `أَنْهَيْتُ` 係我完成咗，`قِرَاءَةَ` 係閱讀，`الْكِتَابِ`
+          指讀緊嘅本書。「閱讀」喺完成動詞後面用活動名詞；過去式「我」嘅詞尾喺 `أَنْهَيْتُ` 上面。"
+        note: 淨係話過去讀過，未代表讀完。想講成個活動到達終點，就要保留完成動詞。試下：邊部分指出閱讀完成？答案係 `أَنْهَيْتُ`；書嘅短語只指出讀乜。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/time-events/arabic-time-events-explained-in-english.yaml at revision
-    arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahDualTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 黎凡特語用口語過去式、帶 b- 前綴嘅習慣式動詞、進行標記 عَمْ 同將來標記 رَحْ。前綴元音同進行式結構會因地區而異。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/time-events/arabic-time-events-explained-in-english.yaml at revision
-        arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: 現代標準語用 سَـ 或 سَوْفَ 配合合適動詞形式講將來。語境同時間詞亦會交代事件時間。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/time-events/arabic-time-events-explained-in-english.yaml at revision
-        arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: present_events
+      explanation: 有人問你而家做緊乜。動作加埋「而家」，就清楚表示進行中嘅活動。
+      examples:
+        - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
+          meaning: "**例句。** 我而家寫緊信。 `هَلَّقْ` 係而家，`عَمْ` 標示進行中活動，`بَكْتُبْ` 係「我寫」，`رِسَالِة`
+            係一封信。進行標記話畀聽者知你寫緊，唔係報告已經寫完。"
+          note: 比較 `بَكْتُبْ رِسَالِة`「我寫信」：冇進行框架時，情境可以令佢表示習慣。試下講而家寫緊一本書：`هَلَّقْ عَمْ بَكْتُبْ
+            كِتَابْ`；只換物件，保留進行中框架。
+    - subskill_id: past_events
+      explanation: 想講昨日做咗乜，就可以用過去動作加時間詞。呢度講者報告寫咗信，唔係而家寫緊。
+      examples:
+        - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
+          meaning: "**例句。** 我噚日寫咗封信。 `كَتَبْتْ` 喺呢個情境係「我寫咗」，`رِسَالِة` 係一封信，`مْبَارِحْ`
+            係昨日。詞尾係過去形式。呢個口語寫法亦可以用嚟向男性講「你寫咗」，所以要靠情境認人稱。"
+          note: 加 `أَنَا` 可以明示我。試下話我哋昨日寫咗信：`كَتَبْنَا رِسَالِة مْبَارِحْ`。「我哋」詞尾 `نَا` 指出成班人，時間同物件保留。
+    - subskill_id: future_events
+      explanation: 你想講聽日嘅探訪。將來表達將動作放喺而家之後，再講朋友同日子，就清楚交代計劃。
+      examples:
+        - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
+          meaning: "**例句。** 聽日我會去探朋友。 `رَحْ` 標示將來，後面依附形式 `أَزُورْ` 係「我探訪」。`صَاحْبِي` 係我嘅男性朋友，`بُكْرَا`
+            係聽日。`رَحْ` 後面動作冇一般 b 前綴。"
+          note: 依附動作前保留 `رَحْ`。試下改成今日探：`رَحْ أَزُورْ صَاحْبِي الْيَوْمْ`。換走 `بُكْرَا` 只改日子，將來句式同探訪者保留。
+    - subskill_id: duration_frequency
+      explanation: 人哋問日常習慣，通常要知道幾密，例如一星期幾次。呢句數游水次數，唔係一次游幾耐。
+      examples:
+        - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
+          meaning: "**例句。** 我每個禮拜游兩次水。 `بَسْبَحْ` 係一般習慣現在式「我游水」。`مَرَّتَيْنْ` 係兩次，`بِالْأُسْبُوعْ` 係每星期。b
+            前綴配合日常習慣陳述，次數就話畀人知做幾次。"
+          note: 每星期一次可以講 `بَسْبَحْ مَرَّة بِالْأُسْبُوعْ`。雙數數嘅係次數，唔係游水嘅人。試下：原句有冇講每次游幾耐？冇；佢講頻率，時長要另外交代。
+    - subskill_id: event_sequence
+      explanation: 一齊安排晚上活動時，「先」同「之後」交代次序。先做嗰件事唔一定係後面嗰件事嘅原因。
+      examples:
+        - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
+          meaning: "**例句。** 我哋先食飯，然後出街。 `أَوَّلْ شِي` 係先，呢個口語形式 `بِنَاكُلْ` 係我哋食。`بَعْدَيْنْ` 係之後，`بِنِطْلَعْ`
+            係我哋出去。帶 b 前綴嘅一般形式交代大家安排嘅次序。"
+          note: 交換活動時，次序短語可以保留。試下話先出去，再食嘢：`أَوَّلْ شِي بِنِطْلَعْ، بَعْدَيْنْ
+            بِنَاكُلْ`。兩個動詞交換位置，次序反過來，但參與者冇改。
+    - subskill_id: event_phase
+      explanation: 有人想知你仲讀唔讀緊本書。話已經讀完，就指出終點，比淨係話之前讀過更清楚。
+      examples:
+        - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
+          meaning: "**例句。** 我睇完本書喇。 `خَلَّصْتْ` 喺呢個情境係我完成咗。`قِرَايِة` 係閱讀，`الْكِتَابْ`
+            係本書。活動名詞指出完成乜，完成動詞嘅過去式就交代終點。"
+          note: 情境唔清楚，可以加 `أَنَا` 表明係自己。讀咗一部分唔等於成個閱讀活動完成。試下：原句可唔可以答「你仲讀緊？」可以；佢話閱讀已經結束，唔止係之前發生過。

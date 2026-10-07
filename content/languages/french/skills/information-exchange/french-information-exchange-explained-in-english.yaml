@@ -1,75 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: french-skills-2026-10-04
+revision: french-teaching-expanded-english-2026-10-07
 skill_id: information_exchange
 language: french
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: >-
-      Use question words such as où, quand and pourquoi for the missing information.
-      Est-ce que, inversion and conversational question intonation provide different
-      question forms.
+    explanation: You need the shop's closing time before making a trip. `À quelle heure` asks at
+      what time; `est-ce que` marks the question, and `le magasin ferme` means the shop closes.
+      After `est-ce que`, the subject still comes before the verb. `À quelle heure est-ce que le
+      train arrive ?` reuses the question with a different event. `Est-ce que le magasin ferme à
+      six heures ?` instead proposes a time and asks for confirmation, rather than leaving the
+      answer open.
     examples:
-      - text: "À quelle heure est-ce que le magasin ferme ?"
-        meaning: >-
-          What time does the shop close?
-        note: >-
-          À quelle heure identifies the information sought; est-ce que marks the question
-          without subject–verb inversion.
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: What time does the shop close?
+        note: "Ask when the shop opens. `À quelle heure est-ce que le magasin ouvre ?` works: `ouvre`
+          changes closing to opening while the question still requests a time."
   - subskill_id: answering_information
-    explanation: >-
-      Answer the information actually requested. A short phrase can be complete in context
-      and need not repeat the question’s whole sentence.
+    explanation: The shop's closing time is already the topic, so a time phrase can answer without
+      repeating the whole question. `À dix-huit heures` means at eighteen hours, or 6 p.m. `À`
+      introduces the time, and `heures` is plural because there are eighteen. A fuller answer is
+      `Le magasin ferme à dix-huit heures.` In a timetable or precise arrangement, the
+      twenty-four-hour clock avoids confusion between morning and evening. `Dix-huit heures` is
+      a time of day here, not a duration of eighteen hours.
     examples:
-      - text: "À dix-huit heures."
-        meaning: >-
-          At six in the evening.
-        note: >-
-          This answers a question about closing time. Without that question it is only a
-          time expression, not evidence of answering accurately.
+      - text: À dix-huit heures.
+        meaning: At six in the evening.
+        note: Answer with 7 p.m. `À dix-neuf heures.` is enough when the closing-time question is
+          shared. `Dix-neuf` is nineteen on the twenty-four-hour clock.
   - subskill_id: checking_facts
-    explanation: >-
-      Use a question or a confirmation expression to check a proposition already under
-      discussion. The check depends on the preceding exchange.
+    explanation: You think an appointment is on Thursday and want to check it before putting it in
+      your diary. `Le rendez-vous` names the appointment, and `bien jeudi` presents Thursday as
+      the information to confirm. Here `bien` reinforces the proposed fact rather than meaning
+      well. `C’est ça ?` asks is that right? This form makes your current belief explicit,
+      unlike the open question `Quel jour est le rendez-vous ?` The other person can confirm it
+      or correct the day.
     examples:
-      - text: "Le rendez-vous est bien jeudi, c’est ça ?"
-        meaning: >-
-          The appointment is on Thursday, is that right?
-        note: >-
-          Bien and c’est ça ask the partner to confirm the date; they do not supply
-          independent proof that it is correct.
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: The appointment is on Thursday, is that right?
+        note: Check whether the appointment is Tuesday. `Le rendez-vous est bien mardi, c’est ça ?`
+          works because the proposed fact is now Tuesday, while the confirmation frame stays the
+          same.
   - subskill_id: useful_detail
-    explanation: >-
-      Add identifying details that address a practical gap. Relative clauses with qui or
-      que can connect a detail to the appropriate referent.
+    explanation: "A visitor is looking for a particular café, so two landmarks help them find it.
+      `Le café que tu cherches` means the café you are looking for: `que` stands for the café as
+      the object of `cherches`, with `tu` doing the looking. `Au deuxième étage` gives the
+      second floor, and `près de l’escalier` adds near the staircase. `Au` combines `à` with
+      `le`. A café that itself serves food could be `le café qui sert des repas`: `qui` does the
+      action, whereas `que` receives it."
     examples:
-      - text: "Le café que tu cherches est au deuxième étage, près de l’escalier."
-        meaning: >-
-          The café you are looking for is on the second floor, near the stairs.
-        note: >-
-          Que links the café to tu cherches; the floor and nearby landmark help locate it
-          rather than adding unrelated description.
-provenance: &provenance
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: The café you are looking for is on the second floor, near the stairs.
+        note: "Locate it on the third floor instead. `Le café que tu cherches est au troisième étage,
+          près de l’escalier.` works: `troisième` changes the floor, and `que tu cherches` still
+          identifies the café."
+provenance: &a1
   origin: ai
-  authorship: >-
-    AI-authored French explanations, assessment guidance and original examples, informed
-    by the cited sources; no independent linguistic review.
+  authorship: AI-authored French teaching and original examples informed by the cited sources; no
+    independent linguistic review.
   sources:
     - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - texRelativeTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: french-skills-2026-10-04
-    scope: >-
-      Entire document, including examples and applicability to both declared varieties.
-      References support the named grammatical or functional claims; they do not certify
-      generated examples.
+    revision: french-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance: *provenance
+    provenance: *a1

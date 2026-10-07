@@ -1,0 +1,60 @@
+---
+title: Speaking practice
+sidebar_position: 4
+---
+
+import UserDemo from '@site/src/components/UserDemo';
+
+# Practise a phrase aloud
+
+Practice lets you repeat a card, listen to a reference and inspect your recorded attempts. It keeps the target phrase visible while you work.
+
+<UserDemo view="practice" />
+
+## Add your first cards
+
+1. Select **Practice** in the top bar.
+2. Open **Add practice cards**. The first visit can also offer a starter selection.
+3. Use **Show pre-generated phrases** to browse bundled sets, or choose phrase lengths, an optional topic, difficulty and how many to generate.
+4. You can include **Lines from your conversations** as a source. Skill selection lets you focus generated cards on a particular skill.
+5. Select **Generate** when requesting new phrases. Review the results and use each card's add action, or **Keep all**, to keep the ones you want.
+
+Generating candidates and keeping them are separate actions. Closing the dialog does not automatically add every offered phrase.
+
+Use **Previous**, **Next**, **Random card**, or the **Practice cards** panel to choose a card. On smaller screens, the card list opens from an edge tab or a toolbar button; additional actions may be under the three-dot menu.
+
+## Listen, then record
+
+1. Play the reference for the selected card.
+2. Choose a recording mode and check your microphone.
+3. Say the phrase. Stop recording and wait for the transcript and comparison.
+4. Play your own take and compare it with the reference.
+5. Record again. Select an older attempt in the history to inspect it instead of the newest one.
+
+Playback is held while an attempt is being captured or stored, so the app does not play the reference over your recording.
+
+## Choose a recording mode
+
+| Mode | How to use it |
+| --- | --- |
+| Tap | Tap to start, then tap again to stop. |
+| Hold | Hold the control while speaking; release it to finish. With keyboard focus on the control, hold Space. |
+| Auto | Start listening and repeat the phrase with pauses. Turn on **Detect attempts** to turn detected speech into separate attempts. |
+
+In Auto mode, **Detect attempts** off means listening without making attempts. With it on, the activity threshold and silence settings determine when attempts start and end. Stop listening when finished; queued attempts can continue processing.
+
+If room noise creates unwanted takes, inspect the microphone level and adjust the activity threshold. If a pause cuts a phrase in half, increase **End an attempt after silence of**. **Ignore sounds shorter than** filters very short sounds.
+
+## Read the comparison
+
+Start with the original target and the recognized transcript. A text match tells you about the recognizer's output, not whether your pronunciation was correct. Matching can ignore differences according to the app's shared comparison policy; inspect the original strings and the displayed comparison details.
+
+The audio views show timing and sound energy. Listen to both recordings before drawing conclusions from their shapes. Fit-to-width views stretch each take visually; a shared time scale preserves relative duration. Word alignment is a visual aid when timing is available, not a pronunciation score.
+
+Some attempts can be unavailable, ignored or not accepted for comparison. Open their details to see the recorded reason. Missing analysis is not a zero score.
+
+## Keep recordings within a storage limit
+
+Open **Recording storage**, set **Keep up to** in megabytes and select **Apply**. The oldest recording audio is removed first when the limit is reached. A limit of zero keeps no recording audio; transcripts and comparisons remain. Synthesized reference audio uses the shared cache in Settings.
+
+Use [Troubleshooting](./troubleshooting) if recordings are silent, transcription fails or reference playback is unavailable.

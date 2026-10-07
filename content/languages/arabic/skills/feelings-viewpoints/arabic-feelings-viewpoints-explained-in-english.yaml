@@ -1,84 +1,184 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Modern Standard can use want plus a subordinate verb. Levantine often uses بَدّ
-      with a personal suffix and following verb.
+    explanation: Wanting to learn a new skill tells someone what interests you. It can start a
+      discussion about lessons without claiming that you have already booked them.
     examples:
       - text: أُرِيدُ أَنْ أَتَعَلَّمَ السِّبَاحَةَ.
-        meaning: I want to learn to swim.
-        note: Modern Standard Arabic. This states a desire, not a commitment to lessons.
-      - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
-        meaning: I want to learn to swim.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. This states
-          a desire, not a commitment to lessons.
+        meaning: "**The example.** I want to learn to swim. `أُرِيدُ` means I want. `أَنْ أَتَعَلَّمَ` names
+          what I want to do, to learn; `السِّبَاحَةَ` means swimming. Both verbs refer to I, so no
+          separate personal pronoun is needed. The connector `أَنْ` introduces the desired action."
+        note: "After `أَنْ`, the fully vocalized action ends in a short a-vowel here. Try it: say we want to
+          learn to swim. Answer: `نُرِيدُ أَنْ نَتَعَلَّمَ السِّبَاحَةَ`. Both verbs change to we;
+          `أَنْ` still links the wish to the learning action."
   - subskill_id: preferences
-    explanation: A preference can be expressed by a comparison of liking or a verb meaning prefer.
+    explanation: When choosing a drink, a preference compares the options rather than simply saying that
+      one is pleasant. Here tea is the speaker’s first choice over coffee.
     examples:
       - text: أُفَضِّلُ الشَّايَ عَلَى الْقَهْوَةِ.
-        meaning: I prefer tea to coffee.
-        note: Modern Standard Arabic. Tea is the preferred alternative.
-      - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
-        meaning: I prefer tea to coffee.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Tea is the
-          preferred alternative.
+        meaning: "**The example.** I prefer tea to coffee. `أُفَضِّلُ` means I prefer. `الشَّايَ` names the
+          preferred drink, tea. `عَلَى الْقَهْوَةِ` introduces coffee as the other option. The order
+          matters: the drink after the verb is the one you favor."
+        note: "The preferred drink follows `أُفَضِّلُ`; the alternative follows `عَلَى`. Try it: reverse the
+          preference. Answer: `أُفَضِّلُ الْقَهْوَةَ عَلَى الشَّايِ`. Moving the nouns also changes
+          their fully vocalized endings to suit their new grammatical positions."
   - subskill_id: emotions
-    explanation: A nominal sentence can describe the speaker’s emotional state.
+    explanation: Good news can change how you feel. This sentence lets a woman tell someone that the
+      news has made her happy, rather than describing the news itself as happy.
     examples:
       - text: أَنَا سَعِيدَةٌ بِهٰذَا الْخَبَرِ.
-        meaning: I am happy about this news.
-        note: Modern Standard Arabic. A woman is speaking; adjective agreement reflects that.
-      - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
-        meaning: I am happy about this news.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. A woman is
-          speaking; adjective agreement reflects that.
+        meaning: "**The example.** I am happy about this news. `أَنَا` means I and `سَعِيدَةٌ` is happy with
+          feminine agreement. `بِهٰذَا الْخَبَرِ` means about this news: `بِـ` joins the feeling to
+          its cause. There is no separate present-tense word corresponding to English am."
+        note: "A man uses `أَنَا سَعِيدٌ بِهٰذَا الْخَبَرِ`. The feeling adjective agrees with the speaker,
+          not with the word for news. Try it: which part changes when a man says the sentence?
+          Answer: `سَعِيدَةٌ` becomes `سَعِيدٌ`; the news phrase stays the same."
   - subskill_id: opinions
-    explanation: An expression meaning in my opinion frames a judgment as the speaker’s view.
+    explanation: Several solutions are being discussed. You can introduce your own judgment as a
+      viewpoint, leaving room for another person to prefer a different solution.
     examples:
       - text: فِي رَأْيِي، هٰذَا الْحَلُّ أَفْضَلُ.
-        meaning: In my opinion, this solution is better.
-        note: Modern Standard Arabic. A comparison is recoverable from the solutions under discussion.
-      - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
-        meaning: In my opinion, this solution is better.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. A
-          comparison is recoverable from the solutions under discussion.
+        meaning: "**The example.** In my opinion, this solution is better. `فِي رَأْيِي` means in my
+          opinion; the final suffix means my. `هٰذَا الْحَلُّ` is this solution, and `أَفْضَلُ`
+          means better. The other solution is understood from the conversation, so it need not be
+          repeated."
+        note: "The opening frames the judgment; it does not supply evidence for it. If the alternatives are
+          unclear, name the one you are comparing. Try it: which part tells the listener whose
+          judgment this is? Answer: `فِي رَأْيِي`, especially its my suffix."
   - subskill_id: agreement_disagreement
-    explanation: An explicitly negative agreement statement rejects an identifiable proposal.
+    explanation: A proposal is on the table and you oppose it. Naming the proposal makes your
+      disagreement clear without turning it into a judgment about the person who suggested it.
     examples:
       - text: لَا أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ.
-        meaning: I do not agree with this proposal.
-        note: Modern Standard Arabic. The Levantine adjective here is masculine; the speaker is a man.
-      - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
-        meaning: I do not agree with this proposal.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          Levantine adjective here is masculine; the speaker is a man.
-provenance: &a1
+        meaning: "**The example.** I do not agree with this proposal. `لَا` negates `أُوَافِقُ`, I agree.
+          `عَلَى هٰذَا الِاقْتِرَاحِ` means with this proposal. The first-person verb is the same
+          whether the speaker is a man or a woman; this example does not use an agreement
+          adjective."
+        note: "Removing `لَا` gives agreement: `أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ`. Being unsure is
+          different from saying you disagree. Try it: which word reverses the position? Answer:
+          `لَا`; the proposal remains the same."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahMoodsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: Levantine frequently uses بِدِّي for I want. Colloquial negative predicates may use مِشْ
-      or مُو according to regional usage.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: Modern Standard often expresses wanting with أُرِيدُ and a following clause with أَنْ.
-      Feeling adjectives agree with the person described.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: wants_intentions
+      explanation: Wanting to learn a new skill tells someone what interests you. It can start a
+        discussion about lessons without claiming that you have already booked them.
+      examples:
+        - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
+          meaning: "**The example.** I want to learn to swim. `بِدِّي` means I want; its ending identifies the
+            speaker. `أَتْعَلَّمْ` means I learn in this dependent position, and `السِّبَاحَة` is
+            swimming. The action after `بِدِّي` comes without its ordinary b-prefix."
+          note: "The action after the wanting form has no ordinary b-prefix. Try it: say we want to learn to
+            swim. Answer: `بِدْنَا نِتْعَلَّمْ السِّبَاحَة`. Both the wanting suffix and the
+            learning verb change to we, while swimming remains the skill you want to learn."
+    - subskill_id: preferences
+      explanation: When choosing a drink, a preference compares the options rather than simply saying that
+        one is pleasant. Here tea is the speaker’s first choice over coffee.
+      examples:
+        - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
+          meaning: "**The example.** I prefer tea to coffee. `بَحِبّ` means I like; `الشَّايْ` is tea.
+            `أَكْتَرْ مِنْ` means more than, and `الْقَهْوِة` is coffee. This builds a preference by
+            comparing the amount of liking, rather than using a separate verb meaning prefer."
+          note: "Keep `أَكْتَرْ مِنْ` to compare the two drinks. Try it: say you prefer coffee to tea. Answer:
+            `بَحِبّ الْقَهْوِة أَكْتَرْ مِنْ الشَّايْ`. Swapping the drinks reverses which you
+            favor; omitting the comparison would only say that you like coffee."
+    - subskill_id: emotions
+      explanation: Good news can change how you feel. This sentence lets a woman tell someone that the
+        news has made her happy, rather than describing the news itself as happy.
+      examples:
+        - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
+          meaning: "**The example.** I am happy about this news. `أَنَا` is I and `مَبْسُوطَة` means happy or
+            pleased with feminine agreement. `بِهَادْ الْخَبَرْ` means about this news. The initial
+            attached preposition connects the feeling to what prompted it; no separate present-tense
+            am is needed."
+          note: "A man uses `مَبْسُوطْ` instead of `مَبْسُوطَة`. Keep the adjective tied to the person feeling
+            happy. Try it: does the feminine ending describe the news? Answer: no; it describes the
+            woman speaking, while `الْخَبَرْ` names what she is happy about."
+    - subskill_id: opinions
+      explanation: Several solutions are being discussed. You can introduce your own judgment as a
+        viewpoint, leaving room for another person to prefer a different solution.
+      examples:
+        - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
+          meaning: "**The example.** In my opinion, this solution is better. `بِرَأْيِي` means in my opinion.
+            `هَادْ الْحَلّ` names this solution and `أَحْسَنْ` means better. There is no separate
+            present-tense is; the solution is directly linked to the judgment."
+          note: "Use the opening with another judgment while keeping its first-person suffix. Better needs an
+            understood alternative; it does not mean every feature is perfect. Try it: remove
+            `بِرَأْيِي`. What changes? Answer: the comparison remains, but the explicit
+            personal-view frame disappears."
+    - subskill_id: agreement_disagreement
+      explanation: A proposal is on the table and you oppose it. Naming the proposal makes your
+        disagreement clear without turning it into a judgment about the person who suggested it.
+      examples:
+        - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
+          meaning: "**The example.** I do not agree with this proposal. `أَنَا` means I, `مِشْ` is not, and
+            `مُوَافِقْ` is agreeing, here with masculine agreement. `عَ هَادْ الِاقْتِرَاحْ` points
+            to this proposal. This is an adjective-based statement rather than a negated ordinary
+            present verb."
+          note: "A woman uses `مُوَافِقَة`. The negative word can vary regionally, but this lesson practices
+            `مِشْ`. Try it: change the speaker to a woman. Answer: `أَنَا مِشْ مُوَافِقَة عَ هَادْ
+            الِاقْتِرَاحْ`; the adjective changes, while the disagreement and proposal remain."

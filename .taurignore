@@ -1,0 +1,14 @@
+# The root watch includes the bibliography embedded by native/build.rs.
+# Keep frontend HMR and unrelated repository work out of native rebuilds.
+/ui/
+/tools/
+/server/
+/docs/
+/old/
+/old-content/
+/redaction-policy/
+/Claude outputs/
+/*.md
+/LICENSE
+/package.json
+/package-lock.json

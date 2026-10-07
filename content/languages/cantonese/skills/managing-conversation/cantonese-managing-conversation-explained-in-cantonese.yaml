@@ -1,75 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 呢句交代準備離開，同時結束交流；喇 表示情況有轉變。
+    explanation: 你要走，其他人可能繼續留低，而且預計聽日再見。第一部分交代自己離開，第二部分就用下次見面作道別。
     examples:
       - text: 我走先喇，聽日見。
-        meaning: 我走先喇，聽日見。
-        note: 聽日見 喺離開場景係道別，唔係只講一件將來事。
+        meaning: 意思係我先走，聽日再見。`我走先` 指自己先離開，句尾 `喇` 表示而家要轉去離開呢個階段。`聽日見` 作道別，邊啲人見面唔使再重複代詞。
+        note: 試下改成星期一見：`我走先喇，星期一見。`換見面日子，離開部分保留。`我先走` 將 `先` 放動作前，突出先做；常用嘅 `我走先` 就可以直接作離開招呼。
   - subskill_id: acknowledging
-    explanation: 表示收到資訊，唔一定等於贊同對方觀點。
+    explanation: 人哋畀咗時間或者指示，你表示聽明同記低。回應既確認理解，又交代自己已經做咗記錄。
     examples:
       - text: 明白，我記低咗。
-        meaning: 明白，我記低咗。
-        note: 記低咗 表示已經記錄；唔需要據此推斷講者同意所有內容。
+        meaning: 意思係明白，資料已記低。`明白` 可以獨立確認理解，`記低` 講記錄，`低` 屬於呢個記低表達。後面 `咗` 表示記錄已做，內容已清楚，所以唔使再講賓語。
+        note: 試下表示明白但仲未記：`明白，我仲未記低。``記低咗` 換成 `仲未記低`，保留理解但改變記錄進度。聽明本身唔等於同意。
   - subskill_id: clarification
-    explanation: 指涉唔清楚時，邊間 要求識別對象；喺另一個語境亦可以用嚟問新資訊。
+    explanation: 對方提到一間舖，但可能指幾間唔同嘅。問邊間就可以釐清對象，唔係叫佢重複已經聽到嘅句子。
     examples:
       - text: 你講邊間舖頭呀？
-        meaning: 你係指邊間舖？
-        note: 呢條問題釐清對方之前講嘅舖頭係邊間。
+        meaning: 意思係問你指邊間舖。`你講` 呢度係你講緊，`邊間舖頭` 問邊一間，`邊` 問身份，`間` 配合舖嘅量詞，句尾 `呀` 配合日常問句。人喺動詞前，要釐清嘅舖喺後面。
+        note: 試下問指邊本書：`你講邊本書呀？``間舖頭` 換成 `本書`，量詞跟物件改。`你可唔可以再講一次？` 只請人重講，未必釐清到對象。
   - subskill_id: rephrasing
-    explanation: 即係話 引入重述。要確認後面保留咗上文相關意思。
+    explanation: 傾完交通安排，知道原本出門時間太遲。可以重述實際結論：大家要早啲走。`即係話` 引出呢個換個講法嘅意思。
     examples:
       - text: 即係話，我哋要早啲出門。
-        meaning: 即係話，我哋要早啲出發。
-        note: 早啲出發 概括上文安排所帶出嘅需要。
+        meaning: 意思係換句話講，要提早出門。`我哋` 係大家，`要` 講需要，`早啲` 係較早或者早少少，時間特徵後嘅 `啲` 表調整程度，`出門` 係出發離開屋企。
+        note: 試下重述要早啲到：`即係話，我哋要早啲到。``出門` 換成 `到`。`遲啲到` 就係較遲到達，會改變實際結論，唔係重述原本提早要求。
   - subskill_id: correcting_misunderstanding
-    explanation: 用正確日子取代理解錯咗嘅日子，係修補意思，唔係單純表示反對。
+    explanation: 聽者以為係星期一，但你講星期二。兩個日子都講清楚，就知道要點改返安排。
     examples:
       - text: 我講星期二，唔係星期一。
-        meaning: 我講星期二，唔係星期一。
-        note: 星期二 係修正答案；唔係星期一 明確排除誤解。
+        meaning: 意思係自己講星期二，唔係星期一。`我講星期二` 指出所講日子，之前對話提供已講過嘅時間。`唔係星期一` 排除搞錯嗰個身份，否定嘅係日子識別，唔係講嘢動作。
+        note: 試下將星期四更正成星期五：`我講星期五，唔係星期四。`正確日子放先，再講搞錯嗰個。`我唔講星期一` 就否定 `講` 呢個動作，冇提供呢種清楚替代。
   - subskill_id: turns_topics
-    explanation: 講開 將新問題連到目前話題，方便對方跟住話題轉移。
+    explanation: 傾緊食嘢，可以順住問煮嘢。`講開` 將新問題連返目前話題，令轉接容易跟。
     examples:
       - text: 講開食嘢，你鍾意煮咩呀？
-        meaning: 講開食嘢，你鍾意煮乜？
-        note: 由食物話題轉去煮食喜好，有清楚連繫。
+        meaning: 意思係講到食嘢，你鍾意煮乜。`食嘢` 喺話題片語入面講飲食，`你鍾意煮` 指煮嘢喜好，`咩` 放喺食物賓語位置問乜嘢，句尾 `呀` 配合日常問句。
+        note: 試下順住閱讀話題問書：`講開睇書，你鍾意睇咩書呀？`開頭話題同問題活動一齊改。`講開睇書` 交代關係，`咩書` 問書嘅種類，未知賓語仍然喺動作後。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/managing-conversation/cantonese-managing-conversation-explained-in-english.yaml
-    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/managing-conversation/cantonese-managing-conversation-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

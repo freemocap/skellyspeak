@@ -1,85 +1,188 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: A because-clause can supply the reason for an action.
+    explanation: When someone asks why you stayed home, giving your illness as the reason connects your
+      decision to what prompted it. The speaker here is a woman.
     examples:
       - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
-        meaning: I stayed home because I was ill.
-        note: Modern Standard Arabic. A woman explains her decision to stay home.
-      - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
-        meaning: I stayed home because I was ill.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. A woman
-          explains her decision to stay home.
+        meaning: "**The example.** I stayed home because I was ill. `بَقِيتُ` means I stayed, `فِي
+          الْبَيْتِ` is at home, and `لِأَنَّنِي` means because I. `مَرِيضَةٌ` means ill with
+          feminine agreement. The past verb locates the staying earlier; the reason clause explains
+          that earlier decision."
+        note: "A man uses `مَرِيضٌ`; the I-form of stayed remains unchanged. The cause follows because,
+          rather than being a second unrelated event. Try it: which part answers why? Answer:
+          `لِأَنَّنِي مَرِيضَةٌ`, linking illness to staying home."
   - subskill_id: consequences
-    explanation: A result expression links a situation to a consequence.
+    explanation: You arrive at a closed shop and decide to return tomorrow. A result expression helps
+      the listener see how your new plan follows from the situation you found.
     examples:
       - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
-        meaning: The shop is closed, so we will return tomorrow.
-        note: Modern Standard Arabic. Closure motivates the later return.
-      - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
-        meaning: The shop is closed, so we will return tomorrow.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Closure
-          motivates the later return.
+        meaning: "**The example.** The shop is closed, so we will return tomorrow. `الْمَحَلُّ مُغْلَقٌ`
+          says the shop is closed. `لِذٰلِكَ` means therefore or for that reason. `سَنَعُودُ` is we
+          will return and `غَدًا` is tomorrow. The first statement supplies the situation; the
+          second gives the response to it."
+        note: "The future prefix `سَـ` attaches to the we-form `نَعُودُ`. Compare a simple and: it need not
+          explain why the return is planned. Try it: which phrase explicitly links closure to the
+          plan? Answer: `لِذٰلِكَ`; it points back to the closed shop as the reason."
   - subskill_id: conditions
-    explanation: إِذَا can introduce an open condition whose result depends on it.
+    explanation: You are giving arrival instructions but do not know whether the person will be early.
+      An if-clause makes waiting apply only when that situation occurs.
     examples:
       - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
-        meaning: If you arrive early, wait here.
-        note: Modern Standard Arabic. Addressed to one man; the arrival is conditional, not asserted
-          past fact.
-      - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
-        meaning: If you arrive early, wait here.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Addressed
-          to one man; the arrival is conditional, not asserted past fact.
+        meaning: "**The example.** If you arrive early, wait here. `إِذَا` introduces if; `وَصَلْتَ` is you
+          arrived in form, addressing one man. Here it describes a possible future arrival, not a
+          past fact. `مُبَكِّرًا` is early; `فَانْتَظِرْ هُنَا` tells him then wait here."
+        note: "The attached `فَـ` links the condition to this command. Do not read a perfect-form verb after
+          `إِذَا` as automatically past. Try it: must the listener wait even if not early? Answer:
+          this sentence only gives that instruction under the stated early-arrival condition."
   - subskill_id: contrast
-    explanation: A but-clause can contrast two properties without cancelling either.
+    explanation: A small box might look easy to lift, yet be heavy. But joins the two true descriptions
+      while showing why the second may surprise the listener.
     examples:
       - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
-        meaning: This box is small, but it is heavy.
-        note: Modern Standard Arabic. The weight contrasts with an expectation associated with size.
-      - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
-        meaning: This box is small, but it is heavy.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The weight
-          contrasts with an expectation associated with size.
+        meaning: "**The example.** This box is small, but it is heavy. `هٰذَا الصُّنْدُوقُ` is this box;
+          `صَغِيرٌ` is small. `وَلٰكِنَّهُ` means but it, with a suffix pointing back to the box.
+          `ثَقِيلٌ` means heavy. The contrast does not deny that the box is small."
+        note: "The suffix in `وَلٰكِنَّهُ` agrees with the masculine box noun. A different referent may
+          require a different suffix and adjectives. Try it: which two properties remain true?
+          Answer: small and heavy; but contrasts an expectation, not the facts themselves."
   - subskill_id: supporting_claims
-    explanation: A claim can be supported by a concrete observation introduced as its reason.
+    explanation: If you recommend a route as shorter, someone may ask how you know. Referring to a
+      measurement supplies a concrete basis for the comparison rather than simply repeating your
+      preference.
     examples:
       - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
-        meaning: This route is shorter because we measured the distance.
-        note: Modern Standard Arabic. The measurement supports the comparison rather than merely
-          describing another event.
-      - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
-        meaning: This route is shorter because we measured the distance.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          measurement supports the comparison rather than merely describing another event.
-provenance: &a1
+        meaning: "**The example.** This route is shorter because we measured the distance. `هٰذَا الطَّرِيقُ
+          أَقْصَرُ` says this route is shorter. `لِأَنَّنَا` means because we; `قِسْنَا` means we
+          measured and `الْمَسَافَةَ` is the distance. The we suffix on the past verb identifies who
+          made the measurement."
+        note: "The measurement is evidence only if it relates to the routes being compared. A because-clause
+          can give a personal motive elsewhere; here it gives a basis for knowing. Try it: which
+          words identify the evidence? Answer: `قِسْنَا الْمَسَافَةَ`, reporting the measurement
+          behind the claim."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahVerbFormsTeaching20261007
+    - madinahNominalTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: Conversational connectives include لِأَنّ for because, عَشَانْ هَيْكْ for so and بَسّ for
-      but. Regional alternatives are common.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: A perfect-form verb after إِذَا can describe an open future condition. The condition does
-      not assert that the event already happened.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: causes_reasons
+      explanation: When someone asks why you stayed home, giving your illness as the reason connects your
+        decision to what prompted it. The speaker here is a woman.
+      examples:
+        - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+          meaning: "**The example.** I stayed home because I was ill. `ضَلِّيتْ` means I stayed in this
+            context. `بِالْبَيْتْ` means at home; `لِأَنِّي` is because I, and `مَرِيضَة` is ill
+            with feminine agreement. The past staying and the illness are joined as action and
+            reason."
+          note: "A man changes the adjective to `مَرِيضْ`. The because phrase explains why, while a simple and
+            would only join information. Try it: is being ill the consequence of staying home in
+            this sentence? Answer: no; it is presented as the reason for staying."
+    - subskill_id: consequences
+      explanation: You arrive at a closed shop and decide to return tomorrow. A result expression helps
+        the listener see how your new plan follows from the situation you found.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+          meaning: "**The example.** The shop is closed, so we will return tomorrow. `الْمَحَلّ مْسَكَّرْ`
+            means the shop is closed. `عَشَانْ هَيْكْ` means so or for that reason. `رَحْ نِرْجَعْ`
+            is we will return; `بُكْرَا` is tomorrow. The action after `رَحْ` has no ordinary
+            b-prefix."
+          note: "The shop’s state is expressed by `مْسَكَّرْ`; it is not a command to close it. Try it: which
+            clause gives the consequence? Answer: `رَحْ نِرْجَعْ بُكْرَا`, the new plan motivated by
+            the closure."
+    - subskill_id: conditions
+      explanation: You are giving arrival instructions but do not know whether the person will be early.
+        An if-clause makes waiting apply only when that situation occurs.
+      examples:
+        - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+          meaning: "**The example.** If you arrive early, wait here. `إِذَا` means if, `وِصِلْتْ` is you
+            arrive in this conditional context, and `بَكِّيرْ` is early. `اِسْتَنَّى` tells one man
+            to wait; `هُونْ` means here. The first clause sets the situation and the second gives
+            the instruction."
+          note: "The arrival form can look past, but the if-context makes it an open possibility here. A
+            conditional instruction does not report that the person has already arrived. Try it:
+            which word makes waiting conditional? Answer: `إِذَا`; without that frame, the
+            instruction would no longer be limited in the same way."
+    - subskill_id: contrast
+      explanation: A small box might look easy to lift, yet be heavy. But joins the two true descriptions
+        while showing why the second may surprise the listener.
+      examples:
+        - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+          meaning: "**The example.** This box is small, but it is heavy. `هَادْ الصُّنْدُوقْ` is this box;
+            `صْغِيرْ` is small. `بَسّ` means but in this sentence, and `تْقِيلْ` is heavy. The same
+            box has both properties; no separate present-tense is is needed."
+          note: "In other contexts `بَسّ` can mean only, so use the whole sentence to interpret it. Here it
+            connects descriptions and signals surprise. Try it: does the second description replace
+            the first? Answer: no; the box is still small, and it is also heavy."
+    - subskill_id: supporting_claims
+      explanation: If you recommend a route as shorter, someone may ask how you know. Referring to a
+        measurement supplies a concrete basis for the comparison rather than simply repeating your
+        preference.
+      examples:
+        - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+          meaning: "**The example.** This route is shorter because we measured the distance. `هَادْ الطَّرِيقْ
+            أَقْصَرْ` means this route is shorter. Here `لِأَنُّه` functions as because before the
+            clause `إِحْنَا قِسْنَا الْمَسَافَة`, we measured the distance. `إِحْنَا` explicitly
+            names we and `قِسْنَا` also carries the we ending."
+          note: "Do not translate the connector here mechanically as because he: the following we-clause
+            supplies the reason. Measurements must actually support the comparison. Try it: who
+            measured? Answer: we, expressed by `إِحْنَا` and the ending of `قِسْنَا`, not by the
+            connector’s final sound."

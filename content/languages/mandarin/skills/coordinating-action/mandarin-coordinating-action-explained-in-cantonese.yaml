@@ -1,75 +1,74 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 请 可以引入請求。把 字句會將受影響對象放喺動詞短語前，而後面要交代對個對象做咗乜。唔好將普通話 把 當成廣東話所有句式都通用嘅「將」。
+    explanation: 個箱阻住做嘢位置，可以講清楚要搬去邊。`请` 令直接請求客氣啲，`把` 將已知物件放動作同目的地前。
     examples:
       - text: 请把这个箱子搬到门口。
-        meaning: 唔該搬呢個箱去門口。
-        note: 搬到门口 交代要搬去邊。把 後面唔係淨係留一個冇其他交代嘅動詞。
+        meaning: "**例句。** 請將呢個箱搬去門口。`这个箱子` 係呢個箱，由 `把` 引出。`搬` 係搬大件嘢，`到` 引出去到嘅地方，`门口` 係門口。`搬到门口` 交代要點處理個箱。"
+        note: 試下叫人搬嗰個箱去同一地方：`请把那个箱子搬到门口。` `这个` 換成 `那个`，完整動作同目的地保留。`请搬箱子` 只叫人搬箱，冇指定呢個箱同搬去邊。
   - subskill_id: offers_invitations
-    explanation: 用 要不要，並將自己放喺行動者位置，可以主動提出幫忙。問緊嘅係對方想唔想接受協助。
+    explanation: 同行朋友要拎工具，你可以主動提出幫忙。`要不要` 問對方想唔想接受。幫手嗰個明確係 `我`，所以係提供自己行動，唔係叫對方做。
     examples:
       - text: 要不要我帮你拿工具？
-        meaning: 要唔要我幫你搬工具？
-        note: 我 係提議幫忙嘅人，你 係接受協助嘅人。提出幫忙唔代表對方已接受，亦未等於已承擔義務。
+        meaning: "**例句。** 要唔要我幫你拎工具？`要不要` 問要或唔要，`我帮你` 係我幫你，`拿工具` 係拎工具。角色清楚：我幫，對方受幫助，工具被拎。"
+        note: 試下提出幫拎袋：`要不要我帮你拿包？` 將 `工具` 換成 `包`。`你能帮我拿工具吗？` 就倒轉角色，請對方幫自己。
   - subskill_id: suggestions
-    explanation: 吧 可以令行動建議語氣柔和啲。我们 可以明確將講者包括喺共同計劃入面。
+    explanation: 行咗一陣，大家可能需要短休息。`我们` 包括講者，句尾 `吧` 將休息提出成畀大家考慮嘅建議。
     examples:
       - text: 我们在这里休息一下吧。
-        meaning: 我哋喺呢度休息一陣啦。
-        note: 一下 表示短暫休息，吧 令呢句成為建議。吧 唔係所有廣東話句尾助詞嘅通用替代。
+        meaning: "**例句。** 我哋喺呢度休息一陣啦。`在这里` 係喺呢度，放喺 `休息` 前。`一下` 令休息短啲，`吧` 帶出商量語氣。呢句唔係報告大家已經休息緊。"
+        note: 試下建議喺嗰度休息：`我们在那里休息一下吧。` 將 `这里` 換成 `那里`，地方保留喺動作前。`我们在这里休息` 可以陳述休息地點；呢度句尾 `吧` 清楚提出建議。
   - subskill_id: commitments
-    explanation: 我来 可以表示講者主動接手任務。喺分工語境入面，呢個講法就係承擔責任。
+    explanation: 分配聽日工作時，自告奮勇帶工具，就定咗邊個負責。呢個計劃情境入面，`我来` 將任務接到自己身上，唔一定另指向聽者行過嚟。
     examples:
       - text: 明天我来带工具。
-        meaning: 聽日由我帶工具嚟。
-        note: 適合喺小組活動分工時用。我来 交代邊個負責呢項工作。
+        meaning: "**例句。** 聽日由我帶工具。`明天` 係聽日，`我来` 係由我負責，`带工具` 係帶工具。先講時間，再講接任務嘅人同工作，唔使加將來詞尾。"
+        note: 試下改承諾帶水：`明天我来带水。` `工具` 換成 `水`，分工對話保留 `我来`。`明天可能下雨` 只預測可能事件，冇人接下責任。
   - subskill_id: accepting_declining
-    explanation: 道歉加上表示做唔到，可以婉拒邀請。来不了 表達冇辦法嚟，唔係「唔想嚟」嘅固定同義詞。
+    explanation: 今晚邀請可能去唔到。先簡單道歉，再交代出席問題，拒絕就清楚。`来不了` 話做唔到過嚟。
     examples:
       - text: 不好意思，我今晚来不了。
-        meaning: 唔好意思，我今晚嚟唔到。
-        note: 回應今晚嘅邀請。拒絕嘅係出席安排，唔係表示討厭對方。
+        meaning: "**例句。** 唔好意思，我今晚嚟唔到。`不好意思` 係道歉開頭，`我今晚` 係我今晚，`来不了` 係嚟唔到。呢個表達嘅 `了` 讀 `liǎo`，唔係句尾助詞
+          `le`；成個結尾表示冇辦法完成動作。"
+        note: 試下拒絕聽晚邀請：`不好意思，我明晚来不了。` 將 `今晚` 換成 `明晚`。`我今晚不来` 只話今晚唔嚟，冇同樣明講有阻礙或做唔到。
   - subskill_id: negotiating_plans
-    explanation: 不行 可以否定一個提議，怎么样 可以詢問替代方案。協商緊乜行動，要由之前嘅提議交代。
+    explanation: 人哋提議星期五見，但你唔得。提出另一日就繼續商量。新日子後面嘅 `怎么样` 問對方覺得呢個選擇點。
     examples:
       - text: 周五不行，周六怎么样？
-        meaning: 星期五唔得，星期六得唔得？
-        note: 回應星期五見面嘅建議。呢句修改見面時間，唔係只列出日期。
+        meaning: "**例句。** 星期五唔得，星期六點呀？`周五` 係星期五，`不行` 排除嗰日。`周六` 係星期六，後面 `怎么样` 問呢個選擇點。已經傾緊見面，所以唔使再講個動作。"
+        note: 試下改提議星期日：`周五不行，周日怎么样？` 只換另一個日子。`周六可以` 話星期六得；`周六怎么样` 就先邀請對方回應，未定案。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/coordinating-action/mandarin-coordinating-action-explained-in-english.yaml
-    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/coordinating-action/mandarin-coordinating-action-explained-in-english.yaml
-        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

@@ -80,7 +80,7 @@ These are not automatic code-refactoring targets. Generated output must be chang
 | 842 | data or configuration | [ui/src/domain/localization/locales/pt.json](../../ui/src/domain/localization/locales/pt.json) |
 | 842 | data or configuration | [ui/src/domain/localization/locales/zh.json](../../ui/src/domain/localization/locales/zh.json) |
 | 796 | data or configuration | [native/src/language/linguistics/fixtures/GraphemeBreakTest-17.0.0.txt](../../native/src/language/linguistics/fixtures/GraphemeBreakTest-17.0.0.txt) |
-| 700 | documentation or bibliography | [docs/website/docs/coaching-plan.md](../docs-site/docs/coaching-plan.md) |
+| 700 | documentation or bibliography | [docs/website/docs/coaching-plan.md](docs-site-archive/coaching-plan.md) |
 | 661 | data or configuration | [LICENSE](../../LICENSE) |
 | 558 | documentation or bibliography | [README.md](../../README.md) |
 | 542 | generated | [ui/src/generated/skill-catalogs/catalog.json](../../ui/src/generated/skill-catalogs/catalog.json) |

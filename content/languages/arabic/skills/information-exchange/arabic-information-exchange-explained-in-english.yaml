@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-learner-first-english-2026-10-07
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: information_exchange
 explanation_language: english
@@ -22,76 +22,105 @@ sections:
 
           **Try it.** Which phrase must the answer replace? Answer: `فِي أَيِّ سَاعَةٍ`.
   - subskill_id: answering_information
-    explanation: A clock-time phrase can answer the preceding question on its own.
+    explanation: When someone asks a shop’s closing time, the missing piece is the hour. A time phrase
+      alone can be a complete conversational answer because the question already names the shop and
+      action.
     examples:
       - text: فِي السَّاعَةِ الْخَامِسَةِ.
-        meaning: At five o’clock.
-        note: Modern Standard Arabic. Answer to the shop closing-time question; no full sentence is needed.
+        meaning: "**The example.** At five o’clock. `فِي` means at here. `السَّاعَةِ` is the hour and
+          `الْخَامِسَةِ` is fifth, giving at five o’clock. The clock expression uses an ordinal
+          adjective that agrees with the feminine word for hour."
+        note: "For six o’clock, use `فِي السَّاعَةِ السَّادِسَةِ`. Do not confuse at five with a duration of
+          five hours. Try it: answer a closing-time question with six. Answer: `فِي السَّاعَةِ
+          السَّادِسَةِ`; the ordinal changes while the time frame remains."
   - subskill_id: checking_facts
-    explanation: A proposition followed by a confirmation question checks a candidate fact.
+    explanation: You think the shop is closed today but want confirmation before making plans. State the
+      information you believe and add a short question that lets the listener confirm or correct it.
     examples:
       - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
-        meaning: The shop is closed today, right?
-        note: Modern Standard Arabic. The speaker proposes closure and asks for confirmation.
+        meaning: "**The example.** The shop is closed today, right? `الْمَحَلُّ مُغْلَقٌ` says the shop is
+          closed; `الْيَوْمَ` means today. `أَلَيْسَ كَذٰلِكَ؟` means isn’t that so? The statement
+          names the candidate fact, and the final question checks it."
+        note: "Replacing `الْيَوْمَ` with `غَدًا` checks tomorrow’s closure instead. This is not an open
+          question about closing time; it proposes one specific fact. Try it: what should a useful
+          correction address? Answer: whether the shop is closed today, rather than merely naming an
+          unrelated opening hour."
   - subskill_id: useful_detail
-    explanation: A location detail can distinguish the entrance a listener needs.
+    explanation: A listener is trying to find an entrance. Naming a nearby landmark helps them
+      distinguish this entrance from other places, so the detail directly serves their next action.
     examples:
       - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
-        meaning: The entrance is beside the bakery.
-        note: Modern Standard Arabic. Use when the listener is trying to find the entrance.
+        meaning: "**The example.** The entrance is beside the bakery. `الْمَدْخَلُ` is the entrance.
+          `بِجَانِبِ` means beside, and `الْمَخْبَزِ` is the bakery. The place phrase locates the
+          entrance relative to a landmark, without a separate present-tense is."
+        note: "You can replace the landmark with `الْمَكْتَبِ`, the office: `الْمَدْخَلُ بِجَانِبِ
+          الْمَكْتَبِ`. Beside does not mean inside. Try it: where should the listener look? Answer:
+          next to the bakery, not in it; the relational phrase supplies that distinction."
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
     - levantongueAbilityTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahPossessiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-learner-first-english-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
 variety_sections:
   arabic-levantine:
     - subskill_id: asking_information
@@ -111,23 +140,39 @@ variety_sections:
             **Try it.** Would a bare yes answer the question? No: give the closing time. The
             question words tell you which information is missing.
     - subskill_id: answering_information
-      explanation: A clock-time phrase can answer the preceding question on its own.
+      explanation: When someone asks a shop’s closing time, the missing piece is the hour. A time phrase
+        alone can be a complete conversational answer because the question already names the shop
+        and action.
       examples:
         - text: عَ السَّاعَة خَمْسِة.
-          meaning: At five o’clock.
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. Answer to the
-            shop closing-time question; no full sentence is needed.
+          meaning: "**The example.** At five o’clock. `عَ` introduces the time; `السَّاعَة` means the hour and
+            `خَمْسِة` is five. Together the phrase gives at five o’clock. The spoken clock pattern
+            uses the number here, and the answer need not repeat closes."
+          note: "For six, use `عَ السَّاعَة سِتِّة`. Add morning or evening context if the hour could be
+            ambiguous. Try it: does the phrase say the shop stays open for five hours? Answer: no;
+            it gives the time on the clock, not the duration."
     - subskill_id: checking_facts
-      explanation: A proposition followed by a confirmation question checks a candidate fact.
+      explanation: You think the shop is closed today but want confirmation before making plans. State the
+        information you believe and add a short question that lets the listener confirm or correct
+        it.
       examples:
         - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
-          meaning: The shop is closed today, right?
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
-            proposes closure and asks for confirmation.
+          meaning: "**The example.** The shop is closed today, right? `الْمَحَلّ مْسَكَّرْ` means the shop is
+            closed; `الْيَوْمْ` is today. The final `صَحّ؟` means right? It invites confirmation of
+            the preceding statement rather than asking the listener for a new topic."
+          note: "Without `صَحّ؟`, the words can simply announce closure. A questioning tone keeps the
+            information open to correction. Try it: replace today with tomorrow. Answer: `الْمَحَلّ
+            مْسَكَّرْ بُكْرَا، صَحّ؟`; the day changes, but the confirmation request remains."
     - subskill_id: useful_detail
-      explanation: A location detail can distinguish the entrance a listener needs.
+      explanation: A listener is trying to find an entrance. Naming a nearby landmark helps them
+        distinguish this entrance from other places, so the detail directly serves their next
+        action.
       examples:
         - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
-          meaning: The entrance is beside the bakery.
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. Use when the
-            listener is trying to find the entrance.
+          meaning: "**The example.** The entrance is beside the bakery. `الْمَدْخَلْ` is the entrance,
+            `جَنْبْ` means beside, and `الْمَخْبَزْ` is the bakery. The landmark follows the
+            location word. The whole sentence tells the listener where to look, rather than just
+            listing two places."
+          note: "For an office landmark, use `الْمَدْخَلْ جَنْبْ الْمَكْتَبْ`. Keep the relation word so the
+            new landmark remains useful. Try it: what is lost if you only name the bakery? Answer:
+            the relation between it and the entrance; `جَنْبْ` provides that relation."

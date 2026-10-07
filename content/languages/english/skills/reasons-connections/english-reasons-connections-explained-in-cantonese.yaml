@@ -1,85 +1,122 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: reasons_connections
 language: english
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: because 可以引入情況或決定背後嘅原因。
+    explanation: 理由幫人明白點解一個做法合理。朋友問點解冇出街，可以將留喺屋入面同條路水浸連起嚟。`Because` 引出情況或選擇嘅原因。
     examples:
       - text: We stayed inside because the road was flooded.
-        meaning: 水浸解釋咗點解大家留喺室內。
-        note: 兩個子句係因果關係，唔係單純按時間排列。
+        meaning: "`We stayed inside` 講行動。`Because the road was flooded` 提供理由。例句中 `because` 後有完整陳述，主語係 `the
+          road`，動詞係 `was`。"
+        note: >-
+          `Because of the flood` 用名詞短語表達類似原因：`We stayed inside because of the flood`。兩種結構要分清；錯誤嘅
+          `because of the road was flooded` 將佢哋混合咗。
+
+
+          **試一試。** 解釋因為攰而早走。答案係 `I left early because I was tired`；`because` 後嘅完整陳述解釋點解走。
   - subskill_id: consequences
-    explanation: so 可以將一個情況同結果連起嚟。
+    explanation: 結果講一個情況帶嚟乜。巴士冇位，行路可能就係你哋嘅回應。連起兩個事實，聽者就明白決定，唔係只聽到兩件無關嘅事。
     examples:
       - text: The bus was full, so we walked.
-        meaning: 巴士滿咗，所以大家改為行路。
-        note: 第二個子句被表達為前面情況帶嚟嘅結果。
+        meaning: "`The bus was full` 講情況。`So` 引出結果 `we walked`。呢個結構先講原因，後講回應。兩個動詞將經過放喺過去。"
+        note: >-
+          比較 `We walked because the bus was full`：同一原因改放行動後面。`The bus was full, and we walked`
+          列出兩件事，但冇咁清楚講明關係。
+
+
+          **試一試。** 將咖啡店關門同去其他地方買食物連起嚟。答案係 `The café was closed, so we bought food elsewhere`；`so`
+          將第二個行動標為第一個情況嘅結果。
   - subskill_id: conditions
-    explanation: if 子句可以提出結果成立嘅條件。要按開放可能性或假設情況選擇形式，唔係見到「如果」就只得一種英文時態。
+    explanation: 條件令計劃視乎會發生乜。決定喺邊度食飯時，落雨可能影響會唔會用室內座位。可以講呢個將來可能性，唔代表肯定會落雨。
     examples:
       - text: If it rains, we will eat indoors.
-        meaning: 係咪喺室內食，要睇會唔會落雨。
-        note: rains 雖然係現在式，喺呢個條件句入面講緊將來可能落雨。
+        meaning: "`If it rains` 交代條件。`We will eat indoors` 講條件成立時嘅結果。呢種開放將來情況用現在形式 `rains`，即使落雨仍然係將來。`Will`
+          放喺結果部分。"
+        note: >-
+          呢個例子嘅條件通常唔加 `will`：用 `If it rains`，唔用錯誤嘅 `If it will rain`。次序可以倒轉：`We will eat indoors if
+          it rains`。
+
+
+          **試一試。** 將搭巴士安排同遲到連起嚟。答案係 `If we are late, we will take the bus`；`are` 講將來條件，`will take`
+          講相應計劃。
   - subskill_id: contrast
-    explanation: but 同 although 可以連結有對比，或者組合起嚟出乎預期嘅意思。
+    explanation: 對比將影響決定嘅兩個不同方向放埋一齊。較長路線花多啲時間，但較安全可能令佢值得行。`But` 幫聽者明白第二點修正咗第一點嘅影響。
     examples:
       - text: The route is longer, but it is safer.
-        meaning: 路程較遠，但安全程度較高，兩點形成對比。
-        note: but 標示兩個評價之間嘅對比。
+        meaning: "`The route is longer` 講缺點。`But it is safer` 加優點；`it` 指同一條路。`Longer` 同 `safer`
+          都同討論中已知嘅另一條路比較。"
+        note: >-
+          `And` 只係加一點資料。`Although the route is longer, it is safer` 用另一方法表達對比。呢個結構唔好重複連接，寫成錯誤嘅
+          `Although the route is longer, but it is safer`。
+
+
+          **試一試。** 將間房細同舒服作對比。答案係 `The room is small, but it is comfortable`；`but` 表示細並冇妨礙舒服呢個優點。
   - subskill_id: supporting_claims
-    explanation: 提供支持論點嘅理由，唔好只重複個論點。
+    explanation: 支持理由畀聽者判斷一個說法可唔可信。朋友唔知間舖開唔開，講你睇到入面有客，比只重複結論有用。理由要同嗰個具體說法有關。
     examples:
       - text: The shop is open; I can see customers inside.
-        meaning: 見到有客人，支持間舖仲開緊嘅判斷。
-        note: 第二個子句為第一個提供證據。
+        meaning: "`The shop is open` 講結論。`I can see customers inside` 提供背後嘅觀察。`Inside`
+          指客喺舖頭入面。分號連接兩個意思密切相關嘅完整陳述。"
+        note: >-
+          觀察支持結論，但未證明一定啱：關門後客可能仍然喺入面。冇咁肯定可以講 `I think the shop is open; I can see customers
+          inside`。信心要配合實際知道嘅資料。
+
+
+          **試一試。** 用直接觀察支持落雨嘅說法。答案係 `It is raining; I can see drops hitting the window`；第二句提供相關根據。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/reasons-connections/english-reasons-connections-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/reasons-connections/english-reasons-connections-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/reasons-connections/english-reasons-connections-explained-in-english.yaml
-    at revision english-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - bc_conditionals2026
+    - bcConnectorsTeaching20261007
+    - bbcBecauseTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

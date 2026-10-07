@@ -1,61 +1,98 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Đang before the verb can explicitly mark an ongoing activity.
+    explanation: Someone asks what you are doing now while you work on a bicycle. `Tôi` identifies
+      you; `đang` before `sửa` marks the repair as in progress, and `xe đạp` names the bicycle.
+      `Tôi sửa xe đạp` without the marker can describe the work in a suitable context, but is
+      less explicit about its unfolding now. `Đang` is not an ending attached to the verb; it
+      remains a separate word when the person or activity changes.
     examples:
       - text: Tôi đang sửa xe đạp.
         meaning: I am repairing a bicycle.
-        note: The ordinary present context anchors the activity to now.
+        note: "Say your group is repairing a bicycle now. `Chúng tôi đang sửa xe đạp.` works: `chúng
+          tôi` changes the workers to we excluding the listener, while `đang sửa` stays
+          unchanged."
   - subskill_id: past_events
-    explanation: A past time expression can locate an action without changing the verb.
+    explanation: You recall yesterday's bicycle repair. `Hôm qua` means yesterday and anchors `tôi
+      sửa xe đạp` in the past. `Sửa` itself is the same repair word used for present or future
+      contexts; Vietnamese does not conjugate it into a past form. A past time phrase can make
+      an additional marker unnecessary. `Tôi đã sửa xe đạp rồi` can instead emphasize that the
+      repair has already been done. It adds an achieved-action reading rather than merely
+      replacing yesterday with a past suffix.
     examples:
       - text: Hôm qua tôi sửa xe đạp.
         meaning: Yesterday I repaired a bicycle.
-        note: Hôm qua supplies the past anchor; the verb remains sửa.
+        note: "Report the same activity yesterday for your group. `Hôm qua chúng tôi sửa xe đạp.` works:
+          the past anchor remains and only the person phrase changes."
   - subskill_id: future_events
-    explanation: Sẽ can present a later action, with a time phrase specifying when.
+    explanation: You have a plan to collect replacement parts tomorrow. `Ngày mai` gives tomorrow;
+      `tôi sẽ` means I will, and `đi lấy phụ tùng` means go to collect the parts. `Đi` supplies
+      going and `lấy` supplies collecting; together they form the planned activity. `Sẽ` stays
+      before the action phrase, with no future ending added to either verb. With an explicit
+      future context the marker may be omitted, but here it makes the forward-looking plan
+      clear.
     examples:
       - text: Ngày mai tôi sẽ đi lấy phụ tùng.
         meaning: Tomorrow I will go and collect the parts.
-        note: Ngày mai gives the day; đi lấy combines going with collecting.
+        note: "Plan the collection for your group. `Ngày mai chúng tôi sẽ đi lấy phụ tùng.` works: only
+          the person phrase changes; `sẽ đi lấy` remains the future activity."
   - subskill_id: duration_frequency
-    explanation: Mỗi with a time interval and lần with a number express frequency.
+    explanation: "You explain how often you swim as part of your routine. `Mỗi tuần` means each
+      week; `tôi đi bơi` means I go swimming, and `hai lần` counts two occasions. The weekly
+      interval and occasion count work together to express twice a week. `Lần` is an occasion,
+      not an hour: `hai tiếng` would give two hours. `Mỗi tháng` changes the interval to every
+      month. The verb `bơi` does not need a habitual ending."
     examples:
       - text: Mỗi tuần tôi đi bơi hai lần.
         meaning: I go swimming twice a week.
-        note: Hai lần counts occasions rather than hours.
+        note: "Say you swim three times a week. `Mỗi tuần tôi đi bơi ba lần.` works: `ba lần` changes
+          the occasion count without changing the weekly interval."
   - subskill_id: event_sequence
-    explanation: Trước tiên and sau đó order the actions in a procedure.
+    explanation: You explain the order of preparing food. `Trước tiên` means first and introduces
+      `rửa tay`, wash hands. `Sau đó` means after that or then and introduces `chuẩn bị rau`,
+      prepare the vegetables. The person following the instructions is understood, so no subject
+      is needed here. These phrases order two actions without asserting that the first causes
+      the second. `Trước khi chuẩn bị rau, rửa tay` expresses the same ordering as wash your
+      hands before preparing the vegetables.
     examples:
       - text: Trước tiên rửa tay, sau đó chuẩn bị rau.
         meaning: First wash your hands, then prepare the vegetables.
-        note: The addressee is understood from the instruction context.
+        note: "After washing hands, give cooking as the second step, using `nấu ăn`. `Trước tiên rửa
+          tay, sau đó nấu ăn.` works: the order words remain and only the second action
+          changes."
   - subskill_id: event_phase
-    explanation: Xong after an activity marks reaching its endpoint.
+    explanation: You have reached the last page of a book and report that the reading is complete.
+      `Tôi đọc` means I read; `xong` after the action marks finishing, and `cuốn sách` names the
+      book with classifier `cuốn`. Final `rồi` presents the completion as achieved. `Tôi đang
+      đọc cuốn sách` instead describes reading in progress. Simply stopping, `Tôi ngừng đọc`,
+      does not guarantee you reached the end. `Xong` expresses the endpoint of the activity
+      rather than just putting it in the past.
     examples:
       - text: Tôi đọc xong cuốn sách rồi.
         meaning: I have finished reading the book.
-        note: Đọc xong specifically completes the reading; rồi presents the achieved situation.
+        note: "Say your group has finished reading the book. `Chúng tôi đọc xong cuốn sách rồi.` works:
+          the readers change, but `đọc xong` and `rồi` keep the achieved completion."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - niu_vietnamese_patterns2026
     - msu_vietnamese_duration2026
+    - niuVietnameseTimeTeaching20261007
+    - niuVietnameseOffersCompletionTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

@@ -1,75 +1,132 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: information_exchange
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Elige la expresión interrogativa según la información que buscas. El contexto y la
-      entonación también permiten hacer preguntas de sí o no.
+    explanation: Una pregunta de información aclara qué quieres averiguar. Si buscas una estación,
+      necesitas su ubicación. `Dónde` pregunta por el lugar; `cuándo` pregunta por el momento y
+      `qué` por una cosa o explicación. Para situar personas y objetos se usa una forma de `estar`.
     examples:
       - text: ¿Dónde está la estación?
-        meaning: Pregunto por la ubicación de la estación.
-        note: Dónde pide información sobre un lugar.
+        meaning: "`Dónde` pide la ubicación, `está` es el verbo singular y `la estación` identifica el lugar
+          que buscas. La pregunta significa que quieres saber dónde se encuentra la estación.
+          Conserva las tildes de `dónde` y `está` y los dos signos de interrogación."
+        note: >-
+          **Adáptalo.** `¿Dónde están las llaves?` pregunta por varias llaves: cambian el verbo y el
+          nombre al plural. Una respuesta puede dar solo el lugar: `En la mesa`.
+
+
+          **Prueba.** Pregunta dónde está el baño usando `el baño`. Respuesta: `¿Dónde está el
+          baño?`. Usa `está` porque preguntas por un solo baño.
   - subskill_id: answering_information
-    explanation: Una respuesta breve puede aportar lo solicitado sin repetir el verbo de la pregunta.
+    explanation: Si alguien pregunta dónde estás, una expresión breve de lugar puede dar toda la
+      información necesaria. La pregunta ya aporta la persona y el verbo; la respuesta puede
+      limitarse al lugar. Es una respuesta normal en una conversación.
     examples:
       - text: En casa.
-        meaning: La ubicación es la casa.
-        note: Responde a ¿Dónde estás? Sin esa pregunta, no podemos determinar su función de respuesta.
+        meaning: "`En` introduce la ubicación y `casa` se refiere aquí al hogar. Después de `¿Dónde estás?`,
+          la frase responde a la pregunta de lugar. En esta expresión habitual, `en casa` no lleva
+          artículo."
+        note: >-
+          **Compara.** `En la casa de Ana` identifica una casa concreta. Una respuesta de lugar no
+          contesta a `¿Cuándo llegas?`, que pregunta la hora de llegada.
+
+
+          **Prueba.** Contesta a `¿Dónde estás?` con `el parque`. Respuesta: `En el parque`.
+          Conserva el artículo de esta expresión.
   - subskill_id: checking_facts
-    explanation: Pide confirmación de un dato que ya tienes en mente.
+    explanation: Si crees que una visita llega a las ocho, puedes confirmar ese dato en vez de hacer una
+      pregunta abierta. Una afirmación puede convertirse en pregunta de sí o no mediante la
+      entonación y los signos de interrogación.
     examples:
       - text: ¿Llegas a las ocho?
-        meaning: Quiero confirmar la hora de llegada.
-        note: Al confirmar un acuerdo, la pregunta comprueba la hora propuesta.
+        meaning: "`Llegas` indica la llegada de la persona a quien hablas y `a las ocho` da la hora. Aquí el
+          presente se refiere a una llegada acordada. La pregunta conserva el verbo de la
+          afirmación."
+        note: >-
+          **Compara.** `¿A qué hora llegas?` pide la hora sin proponer las ocho. Una corrección útil
+          sería `No, a las nueve`. Para la una se dice `a la una`, con artículo singular.
+
+
+          **Prueba.** Confirma si la llegada es a las nueve. Respuesta: `¿Llegas a las nueve?`.
+          Cambia solamente la hora.
   - subskill_id: useful_detail
-    explanation: Añade detalles que ayuden a responder a la pregunta. Una respuesta más larga no es
-      necesariamente más útil.
+    explanation: Al dar indicaciones, un solo punto de referencia puede no bastar para identificar un
+      lugar. Añadir otro permite precisar la ubicación. Dos expresiones de lugar pueden describir el
+      mismo sitio desde referencias distintas.
     examples:
       - text: Está al lado del banco, frente al parque.
-        meaning: El banco y el parque sirven de referencia para encontrarlo.
-        note: En una conversación sobre direcciones, ambas referencias precisan la ubicación.
+        meaning: "`Está` se refiere al lugar ya mencionado. `Al lado del banco` lo sitúa junto al banco;
+          `frente al parque` lo sitúa enfrente del parque. `Del` une `de` y `el`; `al` une `a` y
+          `el`."
+        note: >-
+          **Adáptalo.** `Está al lado de la farmacia` cambia la referencia por una farmacia. `De la`
+          se mantiene separado: la contracción `del` corresponde a `de el`. Elige referencias que la
+          otra persona pueda encontrar.
+
+
+          **Prueba.** Di que está enfrente del banco. Respuesta: `Está frente al banco`. La
+          expresión lleva `a`, que se une con `el`.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

@@ -1,75 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 唔該 可以用嚟提出服務請求；幫我 指出邊個受惠。請求唔一定要用問句。
+    explanation: 雙手拎滿嘢，要請人開門，可以先用 `唔該` 客氣噉提出幫忙。唔一定要明講你，聽者知道係請佢做；句子直接指出行動，唔使變成問句。
     examples:
       - text: 唔該，幫我開門。
-        meaning: 唔該幫我開門。
-        note: 重點係請對方開門，唔係描述對方平時會做乜。
+        meaning: 意思係唔該幫我開門。`幫我` 指幫忙受惠嗰個係我，後面 `開門` 指要做嘅動作。唔係話我幫人開，而係請聽者替我做。
+        note: 試下請人閂門：`唔該，幫我閂門。`將 `開` 換成 `閂`，其餘保留。`我幫你開門` 就係自己提出幫忙；兩個人嘅位置改變，幫忙方向都改變。
   - subskill_id: offers_invitations
-    explanation: 一齊 提出共同行動；好唔好 請對方接受或拒絕。
+    explanation: 朋友諗緊下一步做乜，你邀請佢一齊食飯。`一齊` 指大家同行，`好唔好` 就留畀對方答應，未係宣布已經安排好。
     examples:
       - text: 一齊去食飯，好唔好？
-        meaning: 一齊去食嘢，好唔好？
-        note: 好唔好 問緊係咪接受邀請，唔係評價食物質素。
+        meaning: 意思係邀請大家一齊去食嘢。`去食飯` 係去食一餐，唔一定淨係食白飯。`好唔好` 將肯定同否定選項放埋，問呢個提議可唔可以；邊啲人同行由邀請情境交代。
+        note: 試下邀請飲茶：`一齊去飲茶，好唔好？`活動改成 `飲茶`，仍然畀對方揀。`好呀，一齊去。` 係接受；`唔好意思，我唔得閒。` 就客氣噉拒絕。
   - subskill_id: suggestions
-    explanation: 不如 引入另一個可考慮做法；去邊度由對話交代。
+    explanation: 大家商量去某度，但今日未必人人方便。`不如` 引出值得考慮嘅另一做法。目的地已經係話題，所以短短一句唔使再講去邊。
     examples:
       - text: 不如聽日去。
-        meaning: 不如聽日先去。
-        note: 先 喺呢度將行動延後至聽日，成句係一個建議。
+        meaning: 意思係建議聽日去。`聽日` 指明日子，放喺 `去` 前面；講將來唔使改動作詞。呢句提出日期畀大家考慮，未話已經取得同意。
+        note: 試下提議星期六：`不如星期六去。`換日子，保留建議。`我聽日去` 講自己安排，`不如聽日去` 就提出選項。加成 `不如聽日先去` 會特別帶出等到聽日先去嘅意思。
   - subskill_id: commitments
-    explanation: 答應 明確作出承諾。單純預測將來會點，未必係承諾。
+    explanation: 朋友需要本書，你承擔帶嚟嘅責任。`我答應你` 明確向對方作出承諾，後面交代答應做乜同幾時做。
     examples:
       - text: 我答應你，聽日會帶本書嚟。
-        meaning: 我答應你，聽日會帶本書嚟。
-        note: 答應你 表明講者向對方承擔責任。
+        meaning: 意思係答應聽日帶書嚟。`聽日` 交代時間，`會帶` 交代將會帶，`本書` 用量詞 `本` 指對話入面嗰本書。句尾 `嚟` 將帶嘢方向指向相關會面地點或者聽者嗰邊。
+        note: 試下答應星期五帶：`我答應你，星期五會帶本書嚟。`只換日子。`我可能會帶本書嚟` 講可能性；`可能` 保留不確定，唔等於明確答應。
   - subskill_id: accepting_declining
-    explanation: 收到邀請後，講自己冇空可以間接拒絕；冇邀請語境時就可能只係報告事實。
+    explanation: 有人邀請你聽日參加，但你冇空。先簡單道歉，再交代時間唔得，就可以令對方明白你參加唔到。
     examples:
       - text: 唔好意思，我聽日唔得閒。
-        meaning: 唔好意思，我聽日冇時間。
-        note: 要連住上文邀請理解；冇時間 本身唔代表唔鍾意對方。
+        meaning: 意思係唔好意思，聽日冇空。`唔好意思` 令拒絕客氣啲，`我聽日` 指自己聽日嘅安排，`唔得閒` 係冇時間。`唔` 否定 `得閒`，唔係話唔鍾意邀請。
+        note: 試下拒絕星期六邀請：`唔好意思，我星期六唔得閒。`換日子。接受可以講 `好呀，我聽日得閒。`有邀請先令有冇空關乎參加；其他場合亦可以只係報時間表。
   - subskill_id: negotiating_plans
-    explanation: 先排除一個時間，再用 得唔得 詢問另一個時間。
+    explanation: 約三點撞咗另一個安排，可以先話三點唔得，再問四點得唔得，畀對方一個具體替代時間。
     examples:
       - text: 三點唔得，四點得唔得？
-        meaning: 三點唔得，四點得唔得？
-        note: 四點 係針對原本三點安排提出嘅替代方案。
+        meaning: 意思係三點唔得，問四點得唔得。`三點` 同 `四點` 指鐘點，`唔得` 排除第一個安排，`得唔得` 用 `得` 嘅肯定否定形式核實第二個可唔可行，唔使重複會面。
+        note: 試下保留三點唔得，改提議五點：`三點唔得，五點得唔得？`只改替代時間。`五點得` 直接講五點得，`五點得唔得` 就請聽者確認，唔係代佢決定。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/coordinating-action/cantonese-coordinating-action-explained-in-english.yaml
-    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/coordinating-action/cantonese-coordinating-action-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

@@ -51,3 +51,33 @@ it('zooms every length by the same factor and refuses zoom outside its bounds', 
   expect(() => zoomExtent(extent, 0.5)).toThrow(/outside/)
   expect(() => zoomExtent(extent, MAX_ZOOM + 1)).toThrow(/outside/)
 })
+
+it('draws the language alone when asked, dropping the conversation outline', () => {
+  const extent = skillChartExtent(levelsWith([2, 3, 20], [2, 3, 9]), [1, 4, 2], 'normalized', 'language')
+  expect(extent.skills).toEqual([2 / 3, 1, CHART_LIMIT])
+  expect(extent.rings).toEqual([1 / 3, 2 / 3])
+  expect(extent.conversation).toBeNull()
+})
+
+it('draws the conversation alone, normalized: busiest skill on the gold ring, no earned rings', () => {
+  const extent = skillChartExtent(levelsWith([2, 3, 20], [2, 3, 9]), [1, 4, 2], 'normalized', 'conversation')
+  expect(extent.skills).toEqual([0.25, 1, 0.5])
+  expect(extent.rings).toEqual([])
+  expect(extent.goal).toBe(1)
+  expect(extent.conversation).toBeNull()
+})
+
+it('draws the conversation alone to the same scale as the totals, keeping the goal in points', () => {
+  const extent = skillChartExtent(levelsWith([2, 3, 22], [2, 3, 9]), [1, 4, 2], 'scale', 'conversation')
+  const unit = CHART_LIMIT / 22
+  expect(extent.skills[1]).toBeCloseTo(4 * unit)
+  expect(extent.rings).toEqual([])
+  expect(extent.goal).toBeCloseTo(3 * unit)
+  expect(extent.conversation).toBeNull()
+})
+
+it('draws an empty conversation as nothing and refuses the conversation view without one', () => {
+  const extent = skillChartExtent(levelsWith([1, 2, 3], [1, 2, 3]), [0, 0, 0], 'normalized', 'conversation')
+  expect(extent.skills).toEqual([0, 0, 0])
+  expect(() => skillChartExtent(levelsWith([1, 2, 3], [1, 2, 3]), null, 'scale', 'conversation')).toThrow(/no conversation/)
+})

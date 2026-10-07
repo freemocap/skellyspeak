@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-learner-first-cantonese-2026-10-07
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: information_exchange
 language: spanish
 explanation_language: cantonese
@@ -20,30 +20,42 @@ sections:
 
           **試吓。** 用 `el baño` 問洗手間喺邊度。答案：`¿Dónde está el baño?` 問一個洗手間，所以用單數 `está`。
   - subskill_id: answering_information
-    explanation: 相關嘅短答可以直接提供所問資料，唔使重複動詞。
+    explanation: 有人問你喺邊度時，短短一句地方就可以提供所需資料。問題已經交代咗人物同動詞，回答可以只講地方。呢種係自然對話，唔係答漏咗。
     examples:
       - text: En casa.
-        meaning: 喺屋企。
-        note: 呢句回答¿Dónde estás?；冇呢條問題，回答作用就未清楚。
+        meaning: 意思係「喺屋企」。`En` 引出位置，`casa` 喺呢度係屋企。接住 `¿Dónde estás?`，呢句就回答答緊嗰個人喺邊度。日常講 `en casa` 唔加冠詞。
+        note: |-
+          **比較。** `En la casa de Ana` 指特定一間屋：Ana 嘅屋。地方答案唔可以回答問到達時間嘅 `¿Cuándo llegas?`。
+
+          **試吓。** 用 `el parque` 回答 `¿Dónde estás?`。答案：`En el parque`。呢個名詞短語要保留冠詞。
   - subskill_id: checking_facts
-    explanation: 就心目中已有嘅命題或細節尋求確認。
+    explanation: 你以為客人八點到，可以核實呢個時間，唔使由頭問起。西班牙文可以用語調同書面問號，將普通陳述變成係非問句。
     examples:
       - text: ¿Llegas a las ocho?
-        meaning: 你八點到？
-        note: 確認安排時，呢句核實建議到達時間。
+        meaning: 意思係「你八點到？」`Llegas` 係你到達，`a las ocho` 係八點。呢度用現在式講已安排嘅到達。唔使加英文問句入面嗰種額外助動詞。
+        note: >-
+          **比較。** `¿A qué hora llegas?` 直接問幾點到，冇提出八點。可以用 `No, a las nueve` 更正時間。一點要講 `a la
+          una`，冠詞用單數。
+
+
+          **試吓。** 核實係咪九點到。答案：`¿Llegas a las nueve?`。只換時間就得。
   - subskill_id: useful_detail
-    explanation: 補充真正回答問題嘅資料；答得長唔一定有用。
+    explanation: 指路時，得一個地標可能仲未夠清楚。加多一個就可以縮窄位置。西班牙文可以將兩段地方描述放埋一齊，用兩個參照點指出同一個地方。
     examples:
       - text: Está al lado del banco, frente al parque.
-        meaning: 喺銀行隔籬，公園對面。
-        note: 問路時，兩個地標令位置更清楚。
+        meaning: 意思係「喺銀行隔籬，公園對面」。`Está` 指已經講緊嗰個地方。`Al lado del banco` 係銀行隔籬，`frente al parque` 係公園對面。`Del` 由
+          `de` 同 `el` 合成；`al` 由 `a` 同 `el` 合成。
+        note: |-
+          **改一改。** `Está al lado de la farmacia` 換成喺藥房隔籬。`De la` 唔合併；只有 `de el` 合成 `del`。揀對方搵得到嘅地標。
+
+          **試吓。** 講喺銀行對面。答案：`Está frente al banco`。呢個表達用 `a`，同 `el` 合成 `al`。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -57,15 +69,15 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -79,13 +91,13 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -99,6 +111,6 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-learner-first-cantonese-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

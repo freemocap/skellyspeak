@@ -1,33 +1,33 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: shared-teaching-expansion-spanish-2026-10-07
 skill_id: time_events
 explanation_language: spanish
 title: Tiempo y acontecimientos
-introduction: Situar los acontecimientos en el tiempo y expresar cómo se desarrollan.
+introduction: Hablar de cuándo ocurren las cosas, cuánto duran y en qué orden suceden.
 sections:
   - subskill_id: present_events
     title: Situaciones presentes
-    concept: Situar un estado, una actividad o un hábito en el período actual.
+    concept: Hablar de situaciones actuales, actividades y hábitos.
   - subskill_id: past_events
     title: Acontecimientos pasados
-    concept: Situar algo antes del momento actual o de otro momento de referencia.
+    concept: Contar cosas que ocurrieron antes.
   - subskill_id: future_events
     title: Acontecimientos futuros
-    concept: Situar algo después del momento actual o de otro momento de referencia.
+    concept: Hablar de lo que ocurrirá o puede ocurrir después.
   - subskill_id: duration_frequency
     title: Duración y frecuencia
-    concept: Expresar cuánto dura algo o con qué frecuencia ocurre.
+    concept: Decir cuánto dura algo o con qué frecuencia ocurre.
   - subskill_id: event_sequence
     title: Secuencia
-    concept: Ordenar unos acontecimientos con respecto a otros.
+    concept: Dejar claro qué sucede primero y qué sucede después.
   - subskill_id: event_phase
     title: Acontecimientos en curso y terminados
-    concept: Distinguir las fases de desarrollo o finalización de una acción.
+    concept: Decir si algo empieza, continúa o ya ha terminado.
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -38,5 +38,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: shared-teaching-expansion-spanish-2026-10-07
+    scope: Learner-facing introductions and concepts; Spanish editorial review pending.

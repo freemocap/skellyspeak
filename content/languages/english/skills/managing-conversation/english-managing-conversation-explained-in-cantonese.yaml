@@ -1,23 +1,34 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-learner-first-cantonese-2026-10-07
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: managing_conversation
 language: english
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: 按情境用問候或道別語。結束語亦可以表示今次交流到此為止。
+    explanation: 結束語幫雙方知道對話就嚟完。同比較快會再見嘅人傾完，先講一句友善評語再道別，就唔會突然中斷交流。
     examples:
       - text: It was good to talk. See you tomorrow.
-        meaning: 講者結束對話，並表示之後再見。
-        note: 呢個道別係用嚟結束交流，唔係只描述將來事件。
+        meaning: "`It was good to talk` 正面回顧啱啱嘅對話。`See you tomorrow` 係提到下次見面嘅簡短道別。省略咗嘅內容大家明白，唔使每次講完整句。"
+        note: >-
+          開始可以用問候，例如 `Hello, how are you?`；結束就用道別。`See you tomorrow` 適合預計聽日再見。如果唔知幾時，`See you later`
+          冇咁具體。
+
+
+          **試一試。** 下次星期五見，點樣結束對話？答案係 `It was good to talk. See you on Friday`；`on Friday`
+          指實際日子，`tomorrow` 就係翌日。
   - subskill_id: acknowledging
-    explanation: 表示你收到或明白對方嘅話。
+    explanation: 回應表示對方嘅訊息已經傳到你。有人解釋喺邊度攞包裹後，一句短回應可以表示你跟得到指示，對方可以繼續或者結束。
     examples:
       - text: Right, I understand.
-        meaning: 講者表示明白之前嘅解釋。
-        note: 呢個回應依賴對方啱啱講過嘅內容。
+        meaning: 呢個情境中 `Right` 表示收到解釋。`I understand` 話你明白意思。兩句一齊回應啱啱講嘅內容，唔使重複成段解釋。
+        note: >-
+          明白同同意唔同。意思清楚但唔贊成，可以講 `I understand, but I disagree`。仍然唔肯定時，要問具體問題，唔好假裝明白。
+
+
+          **試一試。** 對方話包裹喺接待處，確認重點：`Right, I understand. I’ll collect it at
+          reception`。重複關鍵地點，對方有需要就可以更正你。
   - subskill_id: clarification
     explanation: 澄清可以補返對話入面唔明嘅地方。你可能要對方重複聽漏嘅說話、解釋生字，或者換個方法講同一個意思。問句嘅用詞可以指出你需要邊種幫助。
     examples:
@@ -35,70 +46,93 @@ sections:
           **試一試。** 有人話 `Use the usual entrance`，但你唔知係邊個入口。其中一個問法係 `What do you mean by the usual
           entrance?`。重複唔明嘅短語，對方就知你想問乜。
   - subskill_id: rephrasing
-    explanation: 第一個講法唔清楚時，用另一種方式重述原意。
+    explanation: 第一個解釋難跟時，換個講法可以幫到對方。你解釋完時間表，朋友仍然唔知對出發有咩影響，就用簡單啲嘅說話重講實際重點。
     examples:
       - text: In other words, we need to leave before lunch.
-        meaning: 講者換個講法，交代出發安排嘅限制。
-        note: in other words 表明新講法同之前嗰句講緊同一個意思。
+        meaning: "`In other words` 表示同一意思嘅另一種講法。`We need to leave` 講必須離開，`before lunch` 交代時間。新句子令上文更容易用得著。"
+        note: >-
+          要重述意思，唔係只換一個生字。如果真係改計劃，就講清楚：`Actually, let’s leave after lunch` 係新決定，唔係舊意思嘅另一版本。
+
+
+          **試一試。** 幫遊客講清楚 `The last entry is at four`。其中一個答案係 `In other words, we need to arrive by
+          four`；`by four` 指最遲到達時間。
   - subskill_id: correcting_misunderstanding
-    explanation: 將對方理解錯嘅內容，同你本來想講嘅內容作對比。
+    explanation: 更正係將聽錯嘅細節換成你原本想講嘅。你講星期二，朋友重複星期四，就講出兩個日子，令分別清楚。短句更正往往比重講成段對話有效。
     examples:
       - text: I meant Tuesday, not Thursday.
-        meaning: 本來講緊嘅日子係星期二。
-        note: meant 同 not 明確指出邊個日子先啱，修正誤解。
+        meaning: "`I meant` 指你原本想表達嘅意思；`meant` 係 `mean` 嘅過去式。`Tuesday` 提供正確日子，`not Thursday` 排除朋友理解嗰個日子。"
+        note: >-
+          `I meant Tuesday` 更正訊息。`I’ve changed it to Tuesday` 就表示計劃本身改咗。如果係你令對方混淆，可以加 `Sorry, I
+          meant Tuesday`，但仍然要清楚更正。
+
+
+          **試一試。** 朋友聽到十五，但你講五十。答案係 `I meant fifty, not fifteen`；先講正確數字，再明確排除錯嗰個。
   - subskill_id: turns_topics
-    explanation: 想插話或轉話題時，先畀提示，方便對方跟得上。
+    explanation: 有時你未問完，對話已經轉去下一項。開會時可以先示意想就而家嘅主題講一陣，幫大家理解你點解插話。
     examples:
       - text: Before we move on, can I ask about the price?
-        meaning: 講者想攞一個發言機會講價錢。
-        note: before we move on 喺度安排討論流程，唔係交代對話以外某件事嘅時間。
+        meaning: "`Before we move on` 指離開而家嘅主題之前。`Can I ask` 請求發言空間；`about the price` 講清楚想問價錢。呢度 `move on`
+          係討論繼續，唔係身體移動。"
+        note: |-
+          想轉新話題，可以用 `By the way, how was your trip?`。想留喺原本主題，就講未處理完嗰點。可以嘅話等合適停頓先講；一句客氣說話唔代表任何插話都合適。
+
+          **試一試。** 大家轉話題前想問送貨。答案係 `Before we move on, can I ask about delivery?`；講明送貨，就清楚交代想要嘅發言空間。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - dingemanse2015_communication_repair
         - bcCheckingUnderstandingTeaching20261007
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-cantonese-2026-10-07
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - dingemanse2015_communication_repair
         - bcCheckingUnderstandingTeaching20261007
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-cantonese-2026-10-07
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - dingemanse2015_communication_repair
     - bcCheckingUnderstandingTeaching20261007
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
+    - bcAgreementTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: english-learner-first-cantonese-2026-10-07
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

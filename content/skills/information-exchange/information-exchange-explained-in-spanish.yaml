@@ -1,27 +1,27 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: shared-teaching-expansion-spanish-2026-10-07
 skill_id: information_exchange
 explanation_language: spanish
 title: Intercambio de información
-introduction: Pedir, aportar y comprobar información pertinente.
+introduction: Hacer preguntas, responderlas y comprobar que la información sea clara y correcta.
 sections:
   - subskill_id: asking_information
     title: Pedir información
-    concept: Preguntar por un dato, una descripción o una explicación.
+    concept: Pedir información que todavía no tienes.
   - subskill_id: answering_information
     title: Responder de forma pertinente
-    concept: Aportar la información que solicita una pregunta concreta.
+    concept: Dar la información que la otra persona está pidiendo.
   - subskill_id: checking_facts
     title: Comprobar datos
-    concept: Verificar si una idea o un detalle es correcto.
+    concept: Comprobar si un dato o algo que has oído es correcto.
   - subskill_id: useful_detail
     title: Aportar detalles útiles
-    concept: Ampliar o resumir información según las necesidades de la conversación.
+    concept: Añadir detalles que ayuden a la otra persona a entender o usar la información.
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -32,5 +32,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: shared-teaching-expansion-spanish-2026-10-07
+    scope: Learner-facing introductions and concepts; Spanish editorial review pending.

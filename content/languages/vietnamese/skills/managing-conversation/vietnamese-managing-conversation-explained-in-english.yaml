@@ -1,61 +1,97 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Hẹn gặp lại closes contact with an expectation of meeting again.
+    explanation: You are ending an encounter and expect to meet again next week. `Hẹn gặp lại` is a
+      see you again closing; `tuần sau` specifies next week. `Gặp` is meet, `lại` supplies
+      again, and `sau` follows week to mark the next one. Without `tuần sau`, `Hẹn gặp lại!`
+      leaves the date open. A closing anticipates another meeting; it is not the same as setting
+      an exact appointment time, which would need more detail.
     examples:
       - text: Hẹn gặp lại tuần sau!
         meaning: See you next week!
-        note: The closing names the next expected contact.
+        note: "Close without specifying the week. `Hẹn gặp lại!` works: removing the time phrase keeps
+          the farewell but leaves the next meeting open."
   - subskill_id: acknowledging
-    explanation: Hiểu rồi acknowledges reaching understanding.
+    explanation: "An explanation has just made sense to you, and you show that understanding has
+      changed. `À` marks recognition; `bây giờ` means now and `tôi hiểu` means I understand.
+      Final `rồi` presents the newly reached understanding. `Tôi hiểu rồi` can acknowledge
+      comprehension without necessarily agreeing with an opinion. `Tôi đồng ý` would state
+      agreement. The particle `rồi` is not just a past-tense label: with now in this sentence it
+      signals the achieved state."
     examples:
       - text: À, bây giờ tôi hiểu rồi.
         meaning: Ah, now I understand.
-        note: Use after an explanation; it need not endorse the speaker’s opinion.
+        note: "Say you have not understood yet. `Tôi chưa hiểu.` works: `chưa` before `hiểu` means not
+          yet, rather than retaining the achieved-state `rồi`."
   - subskill_id: clarification
-    explanation: A question with nói lại asks for repetition of a prior contribution.
+    explanation: You missed what a peer said and ask them to repeat it. `Bạn` addresses the peer;
+      `nói lại` means say again, and `được không?` asks whether they can do it. In this setting
+      it requests repetition rather than tests a speaking skill. `Lại` is essential to the again
+      meaning. Hearing the words again may fix an audibility problem; if the words themselves
+      are unclear, `“Tạm thời” nghĩa là gì?` asks what temporary means instead.
     examples:
       - text: Bạn nói lại được không?
         meaning: Could you say that again?
-        note: Bạn suits a peer in this example; the prior utterance supplies what to repeat.
+        note: "Ask the peer to say it again more slowly, using `chậm hơn`. `Bạn nói lại chậm hơn được
+          không?` works: `lại` keeps repetition and `chậm hơn` adds more slowly."
   - subskill_id: rephrasing
-    explanation: Nói cách khác introduces another formulation.
+    explanation: A booking explanation was lengthy, so you state its practical meaning in simpler
+      terms. `Nói cách khác` means in other words. `Cần` expresses necessity; `đặt lịch` is
+      arrange a booking or appointment, and `trước` means beforehand. The people who need to
+      book can be understood from the exchange. `Trước` here leaves the later event implicit;
+      `trước khi đến` makes before arriving explicit. The introduction promises a restatement,
+      so the message should preserve the original requirement.
     examples:
       - text: Nói cách khác, cần đặt lịch trước.
         meaning: In other words, you need to book in advance.
-        note: Use after explaining a booking procedure.
+        note: "Make booking before arrival explicit. `Nói cách khác, cần đặt lịch trước khi đến.` works:
+          `trước khi đến` clarifies the ordering rather than adding a different obligation."
   - subskill_id: correcting_misunderstanding
-    explanation: Ý tôi là identifies intended meaning and can contrast it with an incorrect interpretation.
+    explanation: The listener understood Friday, but you meant Saturday. `Ý tôi là` means what I
+      mean is; `thứ bảy` supplies the intended day and `không phải thứ sáu` rejects Friday.
+      `Không phải` is useful for denying an identity or identification; ordinary action negation
+      can simply use `không`, as in `Tôi không đến`. This correction provides both the
+      replacement and the mistaken interpretation, so the listener need not guess which detail
+      to repair.
     examples:
       - text: Ý tôi là thứ bảy, không phải thứ sáu.
         meaning: I mean Saturday, not Friday.
-        note: The speaker corrects which day was intended.
+        note: "Correct Saturday to Sunday. `Ý tôi là chủ nhật, không phải thứ bảy.` works: the intended
+          day comes after `là`, and the mistaken one follows `không phải`."
   - subskill_id: turns_topics
-    explanation: A proposal can manage a transition within the conversation.
+    explanation: The current question has been discussed, and you propose moving the group to
+      another one. `Chúng ta` includes the listener; `chuyển sang` means switch to, and `câu hỏi
+      khác` means another question. `Khác` follows the noun phrase it describes. Final `nhé`
+      makes this a proposal for cooperation in the conversation. Merely naming `câu hỏi khác`
+      would not say what the group should do. The transition works best when the earlier point
+      is settled or the need to move on is clear.
     examples:
       - text: Chúng ta chuyển sang câu hỏi khác nhé.
         meaning: Let’s move on to another question.
-        note: The requested action concerns the discussion itself.
+        note: "Propose switching to another topic with `chủ đề khác`. `Chúng ta chuyển sang chủ đề khác
+          nhé.` works: the thing being changed becomes the topic, while the cooperative
+          transition stays."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_suggestions2026
     - niu_vietnamese_patterns2026
+    - msuVietnameseSuggestionsTeaching20261007
+    - niuVietnameseTimeTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

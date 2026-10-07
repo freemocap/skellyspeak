@@ -1,57 +1,77 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: coordinating_action
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 可以直接要求行動，或者用慣常嘅禮貌問句。請求入面嘅poder唔一定問身體能力。
+    explanation: 間房凍，你可能想請對方閂門。用 `poder` 問句係常見嘅請求方式。呢個情境係想對方做件事，唔係測試佢有冇體力。
     examples:
       - text: ¿Puedes cerrar la puerta, por favor?
-        meaning: 唔該可唔可以閂門？
-        note: 預期對方做嘅係閂門。
+        meaning: 意思係「唔該，你可唔可以閂門？」`Puedes` 用熟悉嘅單數稱呼，`cerrar` 指閂呢個動作，`la puerta` 指道門。`Por favor` 係唔該。`Puedes`
+          後面嘅動作用不定式。
+        note: >-
+          **改一改。** `¿Puede cerrar la puerta, por favor?` 用 `usted` 稱呼一個人。`¿Puedes abrir la puerta?`
+          就請人開門。禮貌亦要睇語氣同情境。
+
+
+          **試吓。** 用熟悉嘅稱呼，請人開窗：`abrir la ventana`。答案：`¿Puedes abrir la ventana, por favor?`。動作保留字典形式。
   - subskill_id: offers_invitations
-    explanation: 提出幫忙，或者邀請對方參加活動。
+    explanation: 邀請人食晚飯，係畀對方機會一齊參與。用 `querer` 問佢想唔想參加，喺合適情境就成為邀請；對方可以接受或者拒絕。
     examples:
       - text: ¿Quieres venir a cenar?
-        meaning: 你想唔想嚟食晚飯？
-        note: 呢個情境下，問句係邀請參與。
+        meaning: 意思係「你想唔想嚟食晚飯？」`Quieres` 問對方想唔想，`venir` 係嚟，`a cenar` 講目的：食晚飯。呢句用熟悉嘅單數稱呼。
+        note: |-
+          **改一改。** `¿Quieres venir a comer?` 用 `comer` 邀請人嚟食飯。`¿Quieres cenar?` 只問想唔想食晚飯，冇明確請佢嚟某個地方。
+
+          **試吓。** 用 `pasear` 邀請人嚟散步。答案：`¿Quieres venir a pasear?`。保留 `venir a`，換個活動。
   - subskill_id: suggestions
-    explanation: Podemos後接不定式，可以提議一齊做嘢。
+    explanation: 計劃出街時，你可以提出一個選項畀大家考慮。`Podemos` 後面加活動，可以建議大家一齊做。佢提出可能嘅計劃，唔係命令或者已經落實嘅安排。
     examples:
       - text: Podemos ir mañana.
-        meaning: 我哋可以聽日去。
-        note: 討論安排時，呢句提出一個選項。
+        meaning: 意思係「我哋可以聽日去」。`Podemos` 嘅「我哋」包括講者，`ir` 係去，`mañana` 指聽日。商量計劃時，呢句提出聽日作為選項。
+        note: |-
+          **比較。** `Tenemos que ir mañana` 係聽日一定要去，加咗必要性。`Podemos ir hoy` 保留建議，只換成今日。
+
+          **試吓。** 用 `comer aquí` 建議喺呢度食飯。答案：`Podemos comer aquí`。換 `podemos` 後面嘅活動，保持不定式。
   - subskill_id: commitments
-    explanation: 作出承諾要用承擔責任嘅措辭；單純講將來唔等於承諾。
+    explanation: 對方需要依靠你時，明確承諾可以講清楚你願意負責。講將來會做乜，可能只係描述計劃；`prometo` 就話畀對方知你答應做到。
     examples:
       - text: Te prometo que voy a llamarte.
-        meaning: 我答應你，我會打電話畀你。
-        note: Prometo明確表示承諾。
+        meaning: 意思係「我答應你，我會打電話畀你」。`Te` 指接受承諾嘅對方。`Prometo que` 引出承諾內容；`voy a llamarte` 係我會打電話畀你。`Llamarte`
+          尾嘅 `te` 指接電話嘅人。
+        note: |-
+          **改一改。** `Voy a llamarte` 只講計劃，冇明確承諾。同一個打電話動作亦可以講 `Te voy a llamar`，將代詞放喺變位動詞前面。
+
+          **試吓。** 答應聽日打電話。答案：`Te prometo que voy a llamarte mañana`。加時間，承諾人同接電話嘅人唔變。
   - subskill_id: accepting_declining
-    explanation: 簡短接受或拒絕要靠所回應嘅提議理解；可以有禮貌噉拒絕，唔使長篇解釋。
+    explanation: 回答邀請唔一定要好長。去唔到時，簡單道歉再拒絕，可以講清楚答案而唔使交代私人細節。邀請已經指出活動，所以回答可以唔重複。
     examples:
       - text: Lo siento, no puedo.
-        meaning: 唔好意思，我唔得。
-        note: 邀請之後咁講，就係拒絕。
+        meaning: 意思係「唔好意思，我唔得」。`Lo siento` 係慣常道歉；`no puedo` 表示做唔到提出嗰件事。接住晚飯邀請，對方就知道你去唔到食飯。
+        note: |-
+          **比較。** `Sí, gracias` 接受邀請。`No quiero` 係唔想，原因同做唔到唔同。`No puedo ir` 可以講明係去唔到。
+
+          **試吓。** 拒絕邀請，講今日去唔到。答案：`Lo siento, hoy no puedo ir`。`Hoy` 指今日，`ir` 補出冇講嘅活動。
   - subskill_id: negotiating_plans
-    explanation: 回應計劃時，提出可以解決障礙嘅替代方案。
+    explanation: 對方提出嘅時間唔得，提供另一個時間就有助傾成安排。可以先指出困難，再提出可行選擇。兩部分講清楚要改啲乜。
     examples:
       - text: A las seis no puedo; ¿quedamos a las siete?
-        meaning: 我六點唔得，七點見好唔好？
-        note: 講者改時間，處理原有時間限制。
+        meaning: 意思係「六點我唔得；不如七點見？」`A las seis` 指唔得嘅時間，`no puedo` 說明困難。`¿Quedamos a las siete?`
+          提議七點見；`quedamos` 包括雙方。
+        note: |-
+          **改一改。** `¿Nos vemos a las siete?` 亦可以提議七點見面。單講 `No puedo` 拒絕咗時間，但冇提出替代方案。要對方答應先算傾成。
+
+          **試吓。** 七點唔得，提議八點。答案：`A las siete no puedo; ¿quedamos a las ocho?`。先講唔得嘅時間，再喺問句提出新時間。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/coordinating-action/spanish-coordinating-action-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -59,21 +79,20 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/coordinating-action/spanish-coordinating-action-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -81,18 +100,18 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/coordinating-action/spanish-coordinating-action-explained-in-english.yaml
-    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -100,9 +119,11 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

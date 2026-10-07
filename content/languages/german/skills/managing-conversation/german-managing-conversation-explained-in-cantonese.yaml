@@ -1,53 +1,64 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: german-teaching-cantonese-2026-10-07
 language: german
 skill_id: managing_conversation
 explanation_language: cantonese
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: guten Tag 可以作中性問候。auf Wiedersehen 或 bis morgen 可以道別，後者亦提到下次見面。
+    explanation: 要離開傾偈時，簡單交代理由再道別，就清楚結束。`Ich muss jetzt los` 話而家要走，`Bis morgen` 期待聽日再見。
     examples:
       - text: Ich muss jetzt los. Bis morgen!
-        meaning: 我而家要走喇，聽日見！
-        note: 先交代離開，再用 bis morgen 結束交流，唔需要完整句子先可以道別。
+        meaning: "**例句。** 我而家要走喇，聽日見！ `muss` 表必要，`jetzt` 係而家，`los` 表示出發；呢個常用講法省略咗可以理解到嘅原形，例如 `gehen`。`Bis
+          morgen` 字面係直到聽日，用作道別。"
+        note: 試下而家走，但預計星期五見：`Ich muss jetzt los. Bis Freitag!`。道別時間改成 `Freitag`。`Guten Morgen` 係朝早打招呼，`Bis
+          morgen` 係聽日再見，唔受而家鐘點限制。
   - subskill_id: acknowledging
-    explanation: ah, jetzt verstehe ich 可以表示理解。明白一個立場，唔一定等於贊同。
+    explanation: 人哋解釋分別之後，可以表示而家明白。`verstehen` 表理解；呢句回應確認聽明，唔一定係同意某個判斷。
     examples:
       - text: Ah, jetzt verstehe ich den Unterschied.
-        meaning: 哦，我而家明白個分別喇。
-        note: 回應對方對兩個選項嘅解釋。jetzt 後面係 verstehe，ich 放動詞後面。
+        meaning: "**例句。** 哦，我而家明白個分別喇。 `Ah` 表示突然明白，`jetzt` 係而家，放先之後跟變位 `verstehe` 同主語 `ich`。`den
+          Unterschied` 係分別，男性賓格賓語。"
+        note: 試下主語放先：`Ah, ich verstehe jetzt den Unterschied`。`ich` 佔第一位置，`verstehe` 保持第二，`jetzt` 移後。`Ich
+          bin einverstanden` 表同意，唔係淨係聽明。
   - subskill_id: clarification
-    explanation: was meinst du mit …? 可以問對方意思，亦可以要求重複。要針對上文唔清楚嘅部分。
+    explanation: 指示入面例如暫定呢個詞，可能意思唔清楚。`Was meinst du mit` 問對方個詞指乜，唔係叫佢成段再講一次。
     examples:
       - text: Was meinst du mit „vorläufig“?
-        meaning: 你講「暫定」係咩意思？
-        note: 對方形容計劃為 vorläufig 後，用呢句釐清。du 指一位熟悉對象；引用詞保留德文。
+        meaning: "**例句。** 你講「暫定」係咩意思？ `Was` 係乜，`meinst du` 係你指，`mit` 引出引用嘅講法。`vorläufig`
+          係暫定或者暫時，引用佢就清楚指出要解釋邊部分。"
+        note: 試下正式問唔熟嘅成年人：`Was meinen Sie mit „vorläufig“?`。`du` 改成 `Sie`，`meinst` 改成 `meinen`，引用詞唔變。`Kannst
+          du das wiederholen?` 只叫人重複，未必解決意思唔明。
   - subskill_id: rephrasing
-    explanation: anders gesagt 引入較清楚重述，要保留或解釋已有意思，唔係另開話題。
+    explanation: 傾預訂時，重新講清楚先要做乜會容易明。`Anders gesagt` 引出同一意思嘅另一講法，呢度係預訂之前需要確認。
     examples:
       - text: "Anders gesagt: Wir brauchen die Zusage vor der Buchung."
-        meaning: 即係話，我哋要先收到確認，之後先預訂。
-        note: 重述預訂要先確認嘅條件。引入短語只標示重述，真正內容仍然要喺後面講清楚。
+        meaning: "**例句。** 即係話，我哋要先收到確認，之後先預訂。 `Anders gesagt` 係換個講法，`Wir brauchen` 係我哋需要，`die Zusage`
+          係確認或答應。`vor der Buchung` 係預訂之前，時間介詞 `vor` 後用與格 `der`。"
+        note: "試下改成自己需要：`Anders gesagt: Ich brauche die Zusage vor der Buchung`。`wir brauchen` 改成 `ich
+          brauche`。`nach der Buchung` 係預訂之後，會將原本先後次序倒轉。"
   - subskill_id: correcting_misunderstanding
-    explanation: ich meinte …, nicht … 用正確意思取代誤解。meinte 係 meinen 過去式，指之前想表達嘅內容。
+    explanation: 人哋以為你指正門，可以講出原本想指嘅入口，再明確排除另一個。
     examples:
       - text: Ich meinte den Hintereingang, nicht den Haupteingang.
-        meaning: 我意思係後面個入口，唔係正門。
-        note: 對方以為係正門時，兩個第四格名詞短語分別指出正確同錯誤選項。
+        meaning: "**例句。** 我意思係後面個入口，唔係正門。 `Ich meinte` 係我原本指，講返之前說話。`den Hintereingang` 係後門入口，`nicht den
+          Haupteingang` 係唔係正門入口。兩個名詞都係男性賓格賓語。"
+        note: 試下反方向糾正：`Ich meinte den Haupteingang, nicht den Hintereingang`。交換兩個入口短語。原本想指嗰個喺 `nicht`
+          前，要排除嗰個喺後，聽者就知道應該去邊。
   - subskill_id: turns_topics
-    explanation: darf ich noch etwas zu … sagen? 可以就某話題要求再發言，唔等於直接發送一則相關訊息。
+    explanation: 討論期間想補充價錢方面嘅嘢，`Darf ich` 問可唔可以發言，話題短語指出想講邊方面。
     examples:
       - text: Darf ich noch etwas zum Preis sagen?
-        meaning: 我可唔可以再講少少價錢方面嘅事？
-        note: 討論接近決定時請求發言。zum 係 zu dem，不定式 sagen 配合情態動詞。
+        meaning: "**例句。** 我可唔可以再講少少價錢方面嘅事？ `noch etwas` 係另外一啲嘢，`zum Preis` 係價錢方面，合埋 `zu dem`。`sagen` 係講，喺
+          `Darf` 後以原形放句尾。"
+        note: 試下問可唔可以補充預訂方面：`Darf ich noch etwas zur Buchung sagen?`。`Buchung` 係女性，所以 `zur` 合埋 `zu
+          der`。呢句客氣問可唔可以發言；`Wie viel kostet es?` 就直接問價錢資料。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/german/skills/managing-conversation/german-managing-conversation-explained-in-english.yaml
-    at revision german-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - goethe_de_discourse2026
     - goethe_de_discussion2026
@@ -57,18 +68,18 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: german-teaching-cantonese-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/german/skills/managing-conversation/german-managing-conversation-explained-in-english.yaml
-        at revision german-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
       sources:
         - goethe_de_discourse2026
         - goethe_de_discussion2026
@@ -78,6 +89,7 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: german-teaching-cantonese-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

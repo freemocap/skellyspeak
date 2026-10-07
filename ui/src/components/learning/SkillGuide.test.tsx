@@ -5,6 +5,35 @@ import { SkillGuide } from './SkillGuide'
 import { skillDemo } from '../../domain/learning/catalog/skillDemo'
 import { getSkillGuide } from '../../platform/ipc/skill-evidence'
 vi.mock('../../platform/ipc/skill-evidence', () => ({ getSkillGuide: vi.fn() }))
+it('shows the standalone guide without a disclosure and offers only valid varieties', async () => {
+  const request = vi.mocked(getSkillGuide)
+  request.mockReset().mockResolvedValue({ markdown: 'Visible guide.', generated: false, explanationLanguage: 'english', provenance: {} })
+  const snapshot = { ...skillDemo, guide_explanation_language: 'english', guides: [
+    { id: 'one', name: 'One', skills: { quantity: null } },
+    { id: 'two', name: 'Two', skills: { quantity: null } },
+  ] }
+  const view = render(<SkillGuide initiallyOpen={false} collapsible={false} snapshot={snapshot} skillId="quantity" active="one" />)
+  expect(await screen.findByText('Visible guide.')).toBeVisible()
+  expect(view.container.querySelector('details.practice-skill')).toBeNull()
+  expect(screen.queryByText('Skill guide')).not.toBeInTheDocument()
+  expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['One', 'Two'])
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } })
+  expect(screen.getByRole('combobox')).toHaveValue('one')
+  expect(request).toHaveBeenCalledExactlyOnceWith(snapshot.target, 'one', 'quantity', 'english', false)
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'two' } })
+  await waitFor(() => expect(request).toHaveBeenLastCalledWith(snapshot.target, 'two', 'quantity', 'english', false))
+})
+
+it('keeps an unknown variety as a disabled prompt without requesting an invalid guide', () => {
+  const request = vi.mocked(getSkillGuide)
+  request.mockReset()
+  const snapshot = { ...skillDemo, guide_explanation_language: 'english', guides: [{ id: 'one', name: 'One', skills: { quantity: null } }] }
+  render(<SkillGuide initiallyOpen collapsible={false} snapshot={snapshot} skillId="quantity" active="unknown" />)
+  expect(screen.getByText('Choose a variety')).toBeDisabled()
+  expect(screen.getByRole('combobox')).toHaveValue('')
+  expect(request).not.toHaveBeenCalled()
+})
+
 it('opens authored Markdown for an explicit variety and never substitutes a missing guide', () => {
   const snapshot = { ...skillDemo, guides: [
     { id: 'one', name: 'One', skills: { quantity: '## Shared language guidance\n\nAuthored quantity guidance.' } },

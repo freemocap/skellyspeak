@@ -1,47 +1,75 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: reasons_connections
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Perché 可以引出行動或情況嘅原因；呢個用法有別於問 perché? 去查問點解。
+    explanation: 有人問點解搭巴士，天氣可以解釋你嘅選擇。`perché` 喺行動後面引出原因，將交通決定同落雨連起嚟，唔只係提兩件無關嘅事。
     examples:
       - text: Prendo l’autobus perché piove.
-        meaning: 因為落雨，我搭巴士。
-        note: Perché 後面交代選擇交通工具嘅原因；呢度兩個動詞都係直陳式現在時。
+        meaning: 意思係「我搭巴士，因為落雨」。`Prendo l’autobus` 講行動；`perché piove` 講原因。`Piove` 描述落雨，唔加獨立主語代詞。`Perché`
+          最尾要保留重音符號。
+        note: |-
+          **比較。** `Perché prendi l’autobus?` 用同一個字問點解。回答入面 `perché` 引出因為；作用要睇句子。
+
+          **試吓。** 用 `resto a casa` 講因為落雨所以留喺屋企。答案：`Resto a casa perché piove`。先講行動，再用 `perché` 講原因。
   - subskill_id: consequences
-    explanation: Quindi 將情況同結果連起來，唔係只交代下一件事。
+    explanation: 條橋封咗，可能要改路。`quindi` 將呢個情況同結果連起嚟。第二分句係對封橋嘅回應，唔只係時間上之後發生嘅事。
     examples:
       - text: Il ponte è chiuso, quindi cambiamo strada.
-        meaning: 條橋封咗，所以我哋行第二條路。
-        note: Quindi 表示改路線係封橋之後嘅應對。
+        meaning: 意思係「條橋封咗，所以我哋改路」。`Il ponte è chiuso` 講障礙。`Quindi` 引出結果；`cambiamo strada` 係我哋改路。`Cambiamo`
+          包括講者。
+        note: >-
+          **比較。** `Poi cambiamo strada` 只講之後改路，冇明確將條橋講成原因。`Cambiamo strada perché il ponte è chiuso`
+          就先講行動再講原因。
+
+
+          **試吓。** 用 `il negozio è chiuso` 同 `torniamo a casa` 講間舖閂咗所以返屋企。答案：`Il negozio è chiuso,
+          quindi torniamo a casa`。第二部分係第一部分嘅回應。
   - subskill_id: conditions
-    explanation: Se 配合直陳式，可以提出尚未確定嘅條件，後句交代相應結果；唔使硬套英文 would 結構。
+    explanation: 散步計劃可以睇聽日天氣。`se` 引出決定計劃嘅情況。呢種開放條件容許落雨可能，但冇話一定會發生；另一分句講如果落雨會點做。
     examples:
       - text: Se domani piove, rimandiamo la passeggiata.
-        meaning: 如果聽日落雨，我哋就延遲散步。
-        note: 延遲與否取決於聽日落唔落雨；呢啲現在式表達未確定嘅將來情況。
+        meaning: 意思係「如果聽日落雨，我哋就押後散步」。`Se domani piove` 講條件。`Rimandiamo la passeggiata`
+          講按條件而定嘅計劃。兩個動詞都係現在式，`domani` 講清楚將來背景。
+        note: >-
+          **比較。** `Piove, quindi rimandiamo la passeggiata` 將落雨當成實際原因。意大利文合適嘅開放條件亦可以用將來式，唔係全面禁止 `se`
+          後面用將來動詞。
+
+
+          **試吓。** 用 `facciamo la passeggiata` 講唔落雨先散步。答案：`Se domani non piove, facciamo la
+          passeggiata`。否定條件，再講新計劃。
   - subskill_id: contrast
-    explanation: Ma 連接有分歧嘅性質或想法。兩邊內容要顯示對比，單靠 ma 唔夠。
+    explanation: 較短路線聽落可能容易啲，但斜坡可以係缺點。`ma` 標示優點同意料之外困難嘅反差。句子保留兩個事實，唔係否定其中一個。
     examples:
       - text: Il percorso è più breve, ma è molto ripido.
-        meaning: 條路短啲，但好斜。
-        note: 路程短嘅優點同斜度形成對比；più breve 係比較描述。
+        meaning: 意思係「條路較短，但好斜」。`Il percorso è più breve` 講優點；`più` 將短講成同情境另一條路比較。`Ma è molto ripido`
+          加上有反差嘅缺點。
+        note: >-
+          **比較。** `E` 只加第二個描述，唔突出反差。`Più breve` 比較長度；`molto ripido` 只講好斜，冇比較兩條斜路。
+
+
+          **試吓。** 用 `più lungo` 同 `meno ripido` 講條路較長但冇咁斜。答案：`Il percorso è più lungo, ma è meno
+          ripido`。兩個特徵都同另一條路比較。
   - subskill_id: supporting_claims
-    explanation: 相連嘅陳述可以支持判斷。可以明用 perché，亦可以用清楚嘅解釋提供理據。
+    explanation: 推薦工作坊時，具體經驗可以解釋點解你信佢。判斷後面加支持觀察，幫對方評估原因。觀察支持可靠性，唔保證每次將來工作都一樣。
     examples:
       - text: "Questo laboratorio è affidabile: consegna sempre i lavori in tempo."
-        meaning: 呢間工場好可靠：佢哋次次都準時交貨。
-        note: 一向準時交貨支持可靠嘅判斷，唔係無關嘅補充資料。
+        meaning: 意思係「呢間工作坊可靠：佢成日都準時交貨」。`Questo laboratorio è affidabile` 講判斷。`Consegna sempre i lavori in
+          tempo` 講支持模式：一直準時交。`Consegna` 冇重複主語，仍然指工作坊。
+        note: >-
+          **比較。** 重複 `È molto affidabile` 只加強字眼，冇新觀察。`Sempre` 聲稱恆常模式；`una volta` 只講一次。
+
+
+          **試吓。** 用 `rispetta sempre le scadenze` 講一直遵守期限，支持可靠判斷。答案：`Questo laboratorio è
+          affidabile: rispetta sempre le scadenze`。第二分句提供判斷依據。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/reasons-connections/italian-reasons-connections-explained-in-english.yaml
-    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_causal2026
     - treccani_it_conditions2026
@@ -50,18 +78,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/reasons-connections/italian-reasons-connections-explained-in-english.yaml
-        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - treccani_it_causal2026
         - treccani_it_conditions2026
@@ -70,6 +96,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

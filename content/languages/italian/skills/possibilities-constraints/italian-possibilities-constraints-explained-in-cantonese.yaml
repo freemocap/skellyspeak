@@ -1,47 +1,75 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: Sapere 加不定式可以表示識做某件事；potere 可以講條件容唔容許。兩個動詞都唔止一種對話作用。
+    explanation: 個轆要整，對方想知你識唔識。`sapere` 加不定式可以表達識點做。佢講學識嘅能力，唔係今日有冇工具或者時間。
     examples:
       - text: So riparare una ruota.
-        meaning: 我識整車轆。
-        note: So 係 sapere 嘅第一人稱現在式；riparare 維持不定式，交代技能。
+        meaning: 意思係「我識整轆」。`So` 係 `sapere` 表示講者嘅形式；`riparare` 用不定式指出技能。`Una ruota` 係一個轆。`So` 同 `riparare`
+          之間冇介詞。
+        note: >-
+          **比較。** `Posso riparare la ruota oggi` 講今日情況容許整。識點做同今日做唔做到可以唔同。`Non so riparare una ruota`
+          否定技能。
+
+
+          **試吓。** 講佢識整轆。答案：`Sa riparare una ruota`。將 `so` 換成 `sa`，活動保持不定式。
   - subskill_id: permission
-    explanation: Posso 加不定式問句可以請求許可。問自己可唔可以做，同請對方去做係兩回事。
+    explanation: 將袋放喺人哋地方之前，可能要先問准。`posso` 問句問自己嘅行動可唔可以。不定式指出你想獲准做乜。
     examples:
       - text: Posso lasciare la borsa qui?
-        meaning: 我可唔可以放個袋喺度？
-        note: 向管理地方嘅人詢問可唔可以放低個袋。
+        meaning: 意思係「我可唔可以將個袋放喺呢度？」`Posso` 指講者，`lasciare` 係留下，`la borsa` 指個袋，`qui` 指呢度。向負責地方嘅人問，就係請求准許。
+        note: >-
+          **比較。** `Puoi lasciare la borsa qui?` 換成問對方嘅行動。`Potrei lasciare la borsa qui?`
+          就係自己較婉轉嘅請求。語氣同情境都重要。
+
+
+          **試吓。** 用 `il cappotto` 問准將外套放喺呢度。答案：`Posso lasciare il cappotto qui?`。換物件，保留問自己准許嘅
+          `posso`。
   - subskill_id: obligation
-    explanation: Dovere 加不定式可以表示要求。語境要顯示必要性，唔係純粹心願。
+    explanation: 活動入口可能要求成班人出示門票。dovere 加不定式表達大家一定要做乜。句子講要求，情境提供邊個作出要求。
     examples:
       - text: Dobbiamo mostrare i biglietti all’ingresso.
-        meaning: 我哋一定要喺入口出示門票。
-        note: Dobbiamo 係複數，mostrare 係不定式；句子陳述入場要求。
+        meaning: 意思係「我哋要喺入口出示門票」。`Dobbiamo` 指我哋同必要性。`Mostrare` 係出示，`i biglietti` 指門票。`All’ingresso` 提供地方，由
+          `a` 同 `l’ingresso` 合成。
+        note: >-
+          **改一改。** `Devo mostrare il biglietto` 將人物換成我，門票換成一張。想清楚講出示門票唔係必要，可以用 `Non è necessario
+          mostrare il biglietto`，避免只否定義務帶來歧義。
+
+
+          **試吓。** 用 `il documento` 講我哋要出示文件。答案：`Dobbiamo mostrare il documento`。物件變單數，人物仍然係我哋。
   - subskill_id: possibility
-    explanation: Forse 唔使配合情態動詞，都可以表示可能。其餘分句交代考慮緊嘅事件或情況。
+    explanation: 諗緊去唔去間舖，可能估佢仲開住但未肯定。`forse` 將陳述標成可能性。句子其餘部分講你考慮緊嘅情況。
     examples:
       - text: Forse il negozio è ancora aperto.
-        meaning: 間舖頭可能仲開緊。
-        note: Forse 表示未能肯定；ancora 表示可能仍然營業。
+        meaning: 意思係「可能間舖仲開住」。`Forse` 表達唔確定，`il negozio è aperto` 描述間舖狀態，`ancora` 係仍然。`Aperto` 配合陽性單數
+          `negozio`。
+        note: >-
+          **比較。** 刪走 `forse`，`Il negozio è ancora aperto` 就係肯定陳述，唔係估計。`È già chiuso`
+          係已經閂咗，改變狀態同時間關係。
+
+
+          **試吓。** 用 `la farmacia` 講藥房可能仲開住。答案：`Forse la farmacia è ancora aperta`。換名詞，`aperta` 改用陰性。
   - subskill_id: certainty
-    explanation: Non so se 表示知識有限。呢度 se 係「是否」，引出間接問句，唔係有結果分句嘅假設條件。
+    explanation: 有時你冇資料確認間舖開唔開。`non so se` 引出未知道答案嘅問題。佢講你唔知乜，唔係話間舖已經閂咗。
     examples:
       - text: Non so se il negozio è aperto.
-        meaning: 我唔知間舖頭開咗未。
-        note: 講者唔肯定舖頭狀態，唔係斷言佢閂咗。
+        meaning: 意思係「我唔知間舖開唔開」。`Non so` 係我唔知。`Se il negozio è aperto` 提供未知內容：間舖開唔開。呢度 `se`
+          引出間接問句，唔係另一個行動嘅條件。
+        note: >-
+          **比較。** `Se il negozio è aperto, entriamo` 係條件：開就入去。`So che il negozio è aperto` 聲稱知道，用
+          `che` 引出已知事實。
+
+
+          **試吓。** 講唔知課程係咪九點開始。答案：`Non so se il corso comincia alle nove`。保留未知開頭，換後面嘅問題。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/possibilities-constraints/italian-possibilities-constraints-explained-in-english.yaml
-    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - zanichelli_it_modals2026
     - treccani_it_conditional2026
@@ -49,18 +77,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/possibilities-constraints/italian-possibilities-constraints-explained-in-english.yaml
-        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - zanichelli_it_modals2026
         - treccani_it_conditional2026
@@ -68,6 +94,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

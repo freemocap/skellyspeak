@@ -1,59 +1,98 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: 識 describes learned ability here; distinguish knowledge of a skill from permission.
+    explanation: When deciding who can make bread for a meal, it helps to say you have learned the
+      skill. `識` before an activity means know how to do it; permission and available time are
+      separate questions.
     examples:
       - text: 我識整麵包。
-        meaning: I know how to make bread.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I know how to make bread. `我` names the speaker, `識` expresses know-how and `整麵包` is make
+          bread. The activity follows `識` directly, with no added linking word. Replacing the
+          subject does not change `識` or `整`.
+        note: "Try it: say your friend knows how to make bread. Answer: `佢識整麵包。` Change the subject to `佢`.
+          `我唔識整麵包` denies know-how; `我今日唔得閒整麵包` says you have no time today and leaves your skill
+          unspecified."
   - subskill_id: permission
-    explanation: 可唔可以 asks permission in this setting; elsewhere it could concern practical possibility.
+    explanation: At a shared workspace, you ask the person responsible whether you may use a table.
+      `可唔可以` offers positive and negative alternatives for permission; the proposed action follows
+      it.
     examples:
       - text: 我可唔可以用呢張枱？
-        meaning: May I use this table?
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: May I use this table? `我` is the person wanting to act, `用` means use, and `呢張枱` identifies
+          this table with classifier `張`. `可唔可以` is the common A-not-A question form built from
+          `可以`. The setting makes it a request for permission.
+        note: "Try it: ask to use the chair instead. Answer: `我可唔可以用呢張椅？` Replace `枱` with `椅`; both use `張`
+          here. `可以，你用啦。` grants permission. The same question pattern can concern feasibility, so
+          the person and setting help establish what is being asked."
   - subskill_id: obligation
-    explanation: 一定要 expresses a requirement, with 今日 specifying its deadline.
+    explanation: An assignment is due today, so handing it in is required rather than merely desirable.
+      `一定要` strengthens the requirement, and the day sets when it must be done.
     examples:
       - text: 我今日一定要交份功課。
-        meaning: I must hand in the assignment today.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I must hand in the assignment today. `我今日` gives person and day; `一定要交` means definitely
+          must hand in. `份功課` identifies the assignment with classifier `份`, appropriate for a
+          document or piece of work.
+        note: "Try it: make tomorrow the deadline. Answer: `我聽日一定要交份功課。` Change `今日` to `聽日`. `我唔使交份功課`
+          removes the requirement; `我唔可以交份功課` says handing it in is not allowed or possible. These
+          negatives do different jobs."
   - subskill_id: possibility
-    explanation: 可能 marks uncertainty and 會 supports a prediction; neither says rain has already occurred.
+    explanation: The forecast leaves some uncertainty about tomorrow’s weather. `可能` introduces that
+      uncertainty, while `會` presents the rain as a possible future occurrence.
     examples:
       - text: 聽日可能會落雨。
-        meaning: It might rain tomorrow.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: It might rain tomorrow. `聽日` comes first to set the day, `可能會` means may or might, and `落雨`
+          is rain. Cantonese describes this weather event without inserting a separate pronoun
+          corresponding to English it.
+        note: "Try it: predict possible snow tomorrow. Answer: `聽日可能會落雪。` Replace the weather with `落雪`.
+          `聽日會落雨` presents the forecast more directly; `聽日可能唔會落雨` instead leaves open the
+          possibility that it will not rain."
   - subskill_id: certainty
-    explanation: 肯定 presents the speaker’s confidence, not proof that the proposition is true.
+    explanation: You are confident that someone has gone home. `我肯定` expresses that confidence, and the
+      following clause names the event you are certain about.
     examples:
       - text: 我肯定佢已經返咗屋企。
-        meaning: I am certain they have already gone home.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: I am certain they have already gone home. `佢` names one person, `已經` means already, and
+          `返咗屋企` presents going home as accomplished. `返` is return and `咗` follows the action; `屋企`
+          gives home.
+        note: "Try it: state the same confidence about several people. Answer: `我肯定佢哋已經返咗屋企。` Change `佢` to
+          `佢哋`; `返咗` stays unchanged. `我唔肯定佢係咪返咗屋企` instead means you are not sure whether they went
+          home, adding `係咪` for the unresolved question."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

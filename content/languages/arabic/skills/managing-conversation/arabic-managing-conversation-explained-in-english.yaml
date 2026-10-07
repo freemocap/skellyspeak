@@ -1,23 +1,34 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-learner-first-english-2026-10-07
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Conventional greetings can open an exchange in either variety.
+    explanation: A morning greeting gives you a simple way to begin an exchange with someone you meet.
+      The reply can use a different conventional phrase; it need not repeat the greeting word for
+      word.
     examples:
       - text: صَبَاحُ الْخَيْرِ!
-        meaning: Good morning!
-        note: Modern Standard Arabic. An opening greeting; the Levantine form has no formal case ending.
+        meaning: "**The example.** Good morning! `صَبَاحُ` means morning and `الْخَيْرِ` means goodness.
+          Together this is the conventional greeting good morning. Learn the phrase as a greeting,
+          rather than trying to translate every English word into a separate Arabic word."
+        note: "A conventional reply is `صَبَاحُ النُّورِ`, literally morning of light. For an evening
+          greeting, use `مَسَاءُ الْخَيْرِ`. Try it: greet someone in the evening. Answer: `مَسَاءُ
+          الْخَيْرِ`; the time-of-day noun changes while the greeting pattern remains."
   - subskill_id: acknowledging
-    explanation: A short response can acknowledge that a message has been understood.
+    explanation: After someone explains how a task works, you can let them know the explanation has
+      reached you. Saying you understood does not necessarily mean that you agree with the plan.
     examples:
       - text: حَسَنًا، فَهِمْتُ.
-        meaning: Okay, I understand.
-        note: Modern Standard Arabic. Receipt of the explanation does not necessarily mean agreement.
+        meaning: "**The example.** Okay, I understand. `حَسَنًا` is okay or all right; `فَهِمْتُ` means I
+          understood. The past form presents understanding as achieved, which naturally gives I
+          understand in this reply. Its ending identifies the speaker."
+        note: "For a group, `حَسَنًا، فَهِمْنَا` says okay, we understood. Keep understanding distinct from
+          an agreement statement when the two differ. Try it: acknowledge on behalf of your group.
+          Answer: `حَسَنًا، فَهِمْنَا`; the ending changes from I to we."
   - subskill_id: clarification
     explanation: Hearing a sentence does not always mean understanding what the speaker intends. `مَاذَا
       تَقْصِدُ بِهٰذَا؟` asks the other person to explain what they mean. The example addresses one
@@ -34,92 +45,131 @@ sections:
 
           **Try it.** Which part identifies the expression you want explained? Answer: `بِهٰذَا`.
   - subskill_id: rephrasing
-    explanation: A simpler restatement can clarify an existing instruction.
+    explanation: A booking explanation may be too complicated. Rephrasing keeps its practical meaning
+      but expresses the main requirement more simply, rather than adding a different instruction.
     examples:
       - text: بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ نَحْجِزَ مُسْبَقًا.
-        meaning: More simply, we need to book in advance.
-        note: Modern Standard Arabic. Use to restate a more complicated booking explanation.
+        meaning: "**The example.** More simply, we need to book in advance. `بِعِبَارَةٍ أَبْسَطَ` means in
+          a simpler expression. `يَجِبُ أَنْ` introduces a requirement; `نَحْجِزَ` means we book, in
+          the form following `أَنْ`. `مُسْبَقًا` is in advance. The opening tells the listener this
+          is a restatement."
+        note: "For my own booking, use `يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`. The person marking is on the
+          booking verb. Try it: restate the requirement for yourself alone. Answer: `بِعِبَارَةٍ
+          أَبْسَطَ، يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`; change we to I, keeping the requirement."
   - subskill_id: correcting_misunderstanding
-    explanation: A correction can replace a mistaken time with the intended one.
+    explanation: The listener heard today, but you meant tomorrow. A correction names your intended
+      information first and explicitly rules out the mistaken version.
     examples:
       - text: أَقْصِدُ غَدًا، وَلَيْسَ الْيَوْمَ.
-        meaning: I mean tomorrow, not today.
-        note: Modern Standard Arabic. The listener had understood today.
+        meaning: "**The example.** I mean tomorrow, not today. `أَقْصِدُ` means I mean or intend. `غَدًا` is
+          tomorrow; `وَلَيْسَ الْيَوْمَ` means and not today. The two time expressions make the
+          correction specific, so the listener knows exactly what to replace."
+        note: "Reverse the days for the opposite correction: `أَقْصِدُ الْيَوْمَ، وَلَيْسَ غَدًا`.
+          Correcting a detail is different from rejecting the whole meeting. Try it: correct someone
+          who heard tomorrow when you meant today. Answer: use that reversed sentence; intended time
+          comes first."
   - subskill_id: turns_topics
-    explanation: A topic marker can introduce a related scheduling question.
+    explanation: A conversation has moved away from an appointment, and you need to settle its time.
+      Naming the topic before your question helps the listener follow the shift.
     examples:
       - text: بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي صَبَاحًا؟
-        meaning: About the appointment, shall we meet in the morning?
-        note: Modern Standard Arabic. The opening phrase shifts attention to the appointment.
+        meaning: "**The example.** About the appointment, shall we meet in the morning? `بِخُصُوصِ
+          الْمَوْعِدِ` means regarding the appointment. `هَلْ` introduces a yes/no question;
+          `نَلْتَقِي` means we meet and `صَبَاحًا` means in the morning. The topic phrase frames the
+          question rather than answering it."
+        note: "Use `مَسَاءً` for in the evening. Try it: return to the appointment and propose evening.
+          Answer: `بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي مَسَاءً؟`; the topic and shared action
+          remain, while the proposed time changes."
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
     - levantongueAbilityTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-learner-first-english-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
 variety_sections:
   arabic-levantine:
     - subskill_id: opening_closing
-      explanation: Conventional greetings can open an exchange in either variety.
+      explanation: A morning greeting gives you a simple way to begin an exchange with someone you meet.
+        The reply can use a different conventional phrase; it need not repeat the greeting word for
+        word.
       examples:
         - text: صَبَاحْ الْخَيْرْ!
-          meaning: Good morning!
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. An opening
-            greeting; the Levantine form has no formal case ending.
+          meaning: "**The example.** Good morning! `صَبَاحْ` means morning and `الْخَيْرْ` means goodness. The
+            whole phrase is good morning, used to open a spoken exchange. It is a conventional
+            greeting rather than a report about what happened this morning."
+          note: "A familiar reply is `صَبَاحْ النُّورْ`, literally morning of light. An evening greeting is
+            `مَسَا الْخَيْرْ`. Try it: reply to the morning greeting. Answer: `صَبَاحْ النُّورْ`;
+            you acknowledge the greeting with its conventional response."
     - subskill_id: acknowledging
-      explanation: A short response can acknowledge that a message has been understood.
+      explanation: After someone explains how a task works, you can let them know the explanation has
+        reached you. Saying you understood does not necessarily mean that you agree with the plan.
       examples:
         - text: طَيِّبْ، فِهِمْتْ.
-          meaning: Okay, I understand.
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. Receipt of the
-            explanation does not necessarily mean agreement.
+          meaning: "**The example.** Okay, I understand. `طَيِّبْ` means okay in this reply; `فِهِمْتْ` means
+            I understood. A short response is enough to show that the explanation is now clear. The
+            past form focuses on reaching understanding rather than narrating a long earlier event."
+          note: "`طَيِّبْ، فِهِمْنَا` gives the response for we. Use a separate agreement expression if you
+            also want to accept the proposal. Try it: acknowledge for two or more people. Answer:
+            `طَيِّبْ، فِهِمْنَا`; the plural speaker ending makes the group explicit."
     - subskill_id: clarification
       explanation: Sometimes the words are clear but the intended meaning is not. `شُو قَصْدَكْ بِهَادْ؟`
         asks the other person to explain what they mean by something they just said. The example
@@ -137,23 +187,37 @@ variety_sections:
             **Try it.** Identify the part meaning your intention. Answer: `قَصْدَكْ`. Keep that
             whole word together when learning the expression.
     - subskill_id: rephrasing
-      explanation: A simpler restatement can clarify an existing instruction.
+      explanation: A booking explanation may be too complicated. Rephrasing keeps its practical meaning
+        but expresses the main requirement more simply, rather than adding a different instruction.
       examples:
         - text: بِكَلَامْ أَبْسَطْ، لَازِمْ نِحْجِزْ مِنْ قَبْلْ.
-          meaning: More simply, we need to book in advance.
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. Use to restate
-            a more complicated booking explanation.
+          meaning: "**The example.** More simply, we need to book in advance. `بِكَلَامْ أَبْسَطْ` means in
+            simpler words. `لَازِمْ` expresses need; `نِحْجِزْ` is we book, and `مِنْ قَبْلْ` gives
+            in advance here. The booking action after `لَازِمْ` has no ordinary b-prefix."
+          note: "For I need to book, use `لَازِمْ أَحْجِزْ مِنْ قَبْلْ`. A rephrasing should preserve the
+            earlier requirement, not quietly change its day or person. Try it: state the same
+            requirement for yourself. Answer: `بِكَلَامْ أَبْسَطْ، لَازِمْ أَحْجِزْ مِنْ قَبْلْ`;
+            the new I-form is explicit."
     - subskill_id: correcting_misunderstanding
-      explanation: A correction can replace a mistaken time with the intended one.
+      explanation: The listener heard today, but you meant tomorrow. A correction names your intended
+        information first and explicitly rules out the mistaken version.
       examples:
         - text: قَصْدِي بُكْرَا، مِشْ الْيَوْمْ.
-          meaning: I mean tomorrow, not today.
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. The listener
-            had understood today.
+          meaning: "**The example.** I mean tomorrow, not today. `قَصْدِي` means my intention or what I mean.
+            `بُكْرَا` is tomorrow; `مِشْ الْيَوْمْ` means not today. The attached my suffix makes
+            the correction about your intended message."
+          note: "For the opposite correction, say `قَصْدِي الْيَوْمْ، مِشْ بُكْرَا`. Keep the rejected
+            information after the negative word. Try it: correct tomorrow to today. Answer: `قَصْدِي
+            الْيَوْمْ، مِشْ بُكْرَا`; the intended day now comes before the rejected one."
     - subskill_id: turns_topics
-      explanation: A topic marker can introduce a related scheduling question.
+      explanation: A conversation has moved away from an appointment, and you need to settle its time.
+        Naming the topic before your question helps the listener follow the shift.
       examples:
         - text: بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي الصُّبْحْ؟
-          meaning: About the appointment, shall we meet in the morning?
-          note: Levantine Arabic; conversational wording, with regional alternatives possible. The opening
-            phrase shifts attention to the appointment.
+          meaning: "**The example.** About the appointment, shall we meet in the morning? `بِالنِّسْبِة
+            لِلْمَوْعِدْ` means regarding the appointment. `نِلْتَقِي` is we meet and `الصُّبْحْ`
+            means in the morning here. A questioning tone presents the meeting time for agreement,
+            while the opening phrase guides the topic shift."
+          note: "For an evening proposal, replace the time with `بِالْمَسَا`. Try it: ask about meeting in the
+            evening. Answer: `بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي بِالْمَسَا؟`; keep the topic
+            phrase but change the time expression as a whole."

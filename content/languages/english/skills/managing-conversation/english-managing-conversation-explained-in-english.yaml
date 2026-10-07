@@ -1,24 +1,47 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-learner-first-english-2026-10-07
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: managing_conversation
 language: english
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Use a greeting or farewell appropriate to the encounter. A closing can also signal that
-      the interaction is ending.
+    explanation: A closing helps both people recognise that the conversation is ending. After a chat
+      with someone you expect to see again, a friendly comment followed by a farewell lets you leave
+      without abruptly stopping the exchange.
     examples:
       - text: It was good to talk. See you tomorrow.
-        meaning: The speaker closes the conversation and anticipates another meeting.
-        note: The farewell manages the encounter rather than just describing a future event.
+        meaning: "`It was good to talk` looks back positively on the conversation. `See you tomorrow` is a
+          short farewell that mentions the next meeting. The missing words are understood; you do
+          not need to say a full sentence every time."
+        note: >-
+          Use a greeting to begin, such as `Hello, how are you?`; use a farewell to finish. `See you
+          tomorrow` suits an expected meeting tomorrow. If the time is unknown, `See you later` is
+          less specific.
+
+
+          **Try it.** Close a chat when your next meeting is Friday. Answer: `It was good to talk.
+          See you on Friday`. `On Friday` gives the actual day, while `tomorrow` would mean the next
+          day.
   - subskill_id: acknowledging
-    explanation: Show that you received or followed what the other person said.
+    explanation: Acknowledging shows a speaker that their message has reached you. After someone
+      explains where to collect a parcel, a short response can show that you have followed the
+      directions and that they can continue or finish.
     examples:
       - text: Right, I understand.
-        meaning: The speaker acknowledges the preceding explanation.
-        note: This response depends on something another participant has just said.
+        meaning: "`Right` marks receipt of the explanation in this setting. `I understand` says its meaning
+          is clear to you. Together, they acknowledge what was just said; they do not repeat the
+          whole explanation."
+        note: >-
+          Understanding is different from agreement. You can say `I understand, but I disagree` when
+          the meaning is clear but the view is not yours. If you are still unsure, ask a specific
+          question instead of pretending to understand.
+
+
+          **Try it.** Someone explains that your parcel is at reception. Confirm the detail: `Right,
+          I understand. I’ll collect it at reception`. Repeating the key place lets them correct you
+          if necessary.
   - subskill_id: clarification
     explanation: Clarification helps repair a gap in understanding during a conversation. You might need
       someone to repeat what you missed, explain an unfamiliar word or say the same idea another
@@ -38,39 +61,74 @@ sections:
           is. One answer: `What do you mean by the usual entrance?` Repeating the unclear phrase
           makes the question specific.
   - subskill_id: rephrasing
-    explanation: Restate your meaning with a different formulation when the first version was unclear.
+    explanation: Rephrasing helps when your first explanation was hard to follow. Suppose you have
+      explained a timetable, but your friend still does not see what it means for your departure.
+      Restate the practical point in simpler words.
     examples:
       - text: In other words, we need to leave before lunch.
-        meaning: The speaker restates the intended departure constraint.
-        note: In other words marks the connection to the earlier formulation.
+        meaning: "`In other words` signals another way of expressing the same idea. `We need to leave` gives
+          the requirement, and `before lunch` sets its timing. The new sentence makes the earlier
+          explanation easier to use."
+        note: >-
+          Rephrase the meaning, not just one difficult word. If you actually change the plan, say
+          so: `Actually, let’s leave after lunch`. That introduces a new decision rather than
+          another version of the old one.
+
+
+          **Try it.** Make `The last entry is at four` clearer for a visitor. One answer: `In other
+          words, we need to arrive by four`. `By four` states the latest arrival time.
   - subskill_id: correcting_misunderstanding
-    explanation: Contrast the mistaken interpretation with the meaning you intended.
+    explanation: A correction replaces a mistaken detail with the one you intended. If your friend
+      repeats Thursday after you said Tuesday, name both days so that the difference is clear. A
+      short correction often works better than repeating the whole conversation.
     examples:
       - text: I meant Tuesday, not Thursday.
-        meaning: The intended day is Tuesday.
-        note: Meant and not explicitly repair the mistaken day.
+        meaning: "`I meant` refers to your intended meaning; `meant` is the past form of `mean`. `Tuesday`
+          supplies the correct day, and `not Thursday` rules out the day your friend understood."
+        note: >-
+          `I meant Tuesday` repairs the message. `I’ve changed it to Tuesday` says the plan itself
+          has changed. If you caused the confusion, you can add `Sorry, I meant Tuesday` without
+          hiding the correction.
+
+
+          **Try it.** Your friend heard fifteen, but you said fifty. Answer: `I meant fifty, not
+          fifteen`. Give the intended number first, then explicitly reject the mistaken one.
   - subskill_id: turns_topics
-    explanation: Signal a turn request or a topic change so the listener can follow the conversation.
+    explanation: A conversation sometimes moves on before you have asked what you need to know. At a
+      meeting, you can signal that you want a brief turn on the current topic. This helps the group
+      understand why you are interrupting.
     examples:
       - text: Before we move on, can I ask about the price?
-        meaning: The speaker requests a turn about the price.
-        note: Before we move on manages the discussion, not the time of an external event.
+        meaning: "`Before we move on` refers to leaving the current subject. `Can I ask` requests space to
+          speak, and `about the price` identifies your question’s topic. `Move on` here means
+          continue the discussion, rather than physically move."
+        note: >-
+          For a new subject, `By the way, how was your trip?` signals a change. To stay with the
+          current subject, name the unfinished point. Wait for a suitable pause when possible; the
+          phrase alone cannot make every interruption welcome.
+
+
+          **Try it.** Ask to discuss delivery before the group changes topic. Answer: `Before we
+          move on, can I ask about delivery?` Naming delivery explains the turn you need.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - dingemanse2015_communication_repair
         - bcCheckingUnderstandingTeaching20261007
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-english-2026-10-07
+        revision: english-teaching-expanded-english-2026-10-07
         scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core

@@ -1,88 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: possibilities_constraints
 language: french
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: savoir 加不定式表達學識嘅技能；pouvoir 可以表達能力或條件容許。要按語境同許可區分。
+    explanation: 單車需要修理，而你學過所需技術。`Je sais` 係我識，`réparer une roue de vélo` 係修理一個單車輪。`Savoir`
+      後面接原形動詞，可以講學識咗嘅本領，呢度唔加 `de`。`Je peux réparer la roue` 就可以表示目前情況容許你整，例如有工具同時間。`Nous savons
+      réparer` 改成我哋識，後面動詞仍然保持原形。
     examples:
       - text: Je sais réparer une roue de vélo.
         meaning: 我識整單車輪。
-        note: sais réparer 表達識做，唔保證手上工具足以即刻維修。
+        note: 試下講你哋識整單車。`Nous savons réparer un vélo.` 可以；`savons` 配合 `nous`，`réparer` 仍然講學識咗嘅技術。
   - subskill_id: permission
-    explanation: 當對方有權決定行動時，pouvoir 問句可以請求許可；其他語境亦可講能力。
+    explanation: 房間有啲熱，但開窗會影響其他人，所以你問可唔可以。`Est-ce que` 引出問句，`je peux` 係我可唔可以，`ouvrir la fenêtre`
+      講要做嘅動作。情境令呢句係問准許，而唔係問身體能力。`Vous pouvez ouvrir la fenêtre` 可以准許對方；`Vous ne pouvez pas
+      ouvrir la fenêtre` 就係唔准，`ne` 同 `pas` 夾住變位動詞。
     examples:
       - text: Est-ce que je peux ouvrir la fenêtre ?
         meaning: 我可唔可以開窗？
-        note: 共用房間入面，呢句問准唔准開窗，唔係測試身體能力。
+        note: 試下問可唔可以關門。`Est-ce que je peux fermer la porte ?` 可以；准許問法唔變，原形動詞片語換成新動作。
   - subskill_id: obligation
-    explanation: devoir 加不定式可以表達義務；il faut 表達必要，il faut que 後面接有自己主語同虛擬式嘅子句。
+    explanation: 你哋退租房間，規定中午前要交返鎖匙。`Nous devons` 係我哋必須，`rendre les clés` 係交返啲鎖匙，`avant midi`
+      定咗限期。`Devons` 配合 `nous`，`rendre` 保持原形。`Nous ne devons pas garder les clés`
+      係唔應該留住鎖匙，唔係冇需要留住。要講冇必要，可以用 `Nous n’avons pas besoin de garder les clés.`。
     examples:
       - text: Nous devons rendre les clés avant midi.
         meaning: 我哋中午前一定要還鎖匙。
-        note: devons rendre 將責任放喺 nous；avant midi 交代期限。
+        note: 試下向稱呼為 `vous` 嘅人講呢個要求。`Vous devez rendre les clés avant midi.` 可以；主語同配合嘅 `devoir` 形式一齊改變。
   - subskill_id: possibility
-    explanation: peut-être 或合適情態結構可以保留不確定性。句式要配合把握程度。
+    explanation: 天氣預測未確定，所以你講今晚可能落雪。`Il va neiger` 係將會落雪，天氣主語 `il` 唔係指某個人；`peut-être`
+      係可能，令預測保留不確定性。`Cette nuit` 指今晚。亦可以講 `Peut-être qu’il va neiger cette nuit.`。冇 `peut-être`
+      嘅 `Il va neiger cette nuit` 就較肯定。表示可能嘅 `peut-être` 要用連字號，唔好同分開寫、表示可以係嘅兩個字混淆。
     examples:
       - text: Il va peut-être neiger cette nuit.
         meaning: 今晚可能落雪。
-        note: peut-être 限定預測，唔係確定宣告會落雪。
+        note: 試下改講今晚可能落雨。`Il va peut-être pleuvoir cette nuit.` 可以；`pleuvoir` 換咗天氣現象，喺 `va` 後面保持原形。
   - subskill_id: certainty
-    explanation: je suis certain que 等用語表示對說法有把握。devoir 亦可以表達推論，唔可以見到佢就判定係義務或肯定。
+    explanation: 你啱啱查看過服務櫃位，所以有把握講佢已經關閉。`Je suis certaine que` 係我肯定，`le guichet est fermé`
+      講明櫃位關咗；`je viens de vérifier` 係我啱啱核實過，交代點解有把握。`Certaine` 形容女性講者，男性形式係 `certain`。`Fermé`
+      配合陽性 `guichet`，唔係配合講者。`Je pense que` 就冇咁明確表達肯定程度。
     examples:
       - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
         meaning: 我肯定櫃位閂咗，我啱啱查過。
-        note: certaine 配合女性講者；後面交代理據，但唔代表應用程式已核實真實世界情況。
-provenance:
+        note: "試下改成男性講者講同一個核實過嘅事實。`Je suis certain que le guichet est fermé : je viens de vérifier.`
+          可以；只改 `certain`，櫃位同核實動作都冇變。"
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/possibilities-constraints/french-possibilities-constraints-explained-in-english.yaml
-    at revision french-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - tex_modals2026
     - tex_conditional2026
+    - texRecentPastTeaching20261007
+    - texNearFutureTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/possibilities-constraints/french-possibilities-constraints-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_modals2026
-        - tex_conditional2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/possibilities-constraints/french-possibilities-constraints-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_modals2026
-        - tex_conditional2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

@@ -1,0 +1,40 @@
+.guide-home {
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.guide-home-intro { max-width: 800px; margin-bottom: 3rem; }
+.guide-home-eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ifm-color-primary); margin-bottom: .75rem; }
+.guide-home-intro h1 { font-size: clamp(2.3rem, 6vw, 4rem); line-height: 1.12; letter-spacing: -.035em; }
+.guide-home-lead { font-size: 1.2rem; line-height: 1.7; max-width: 720px; }
+.guide-home-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.75rem; }
+.guide-home-tour { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 2rem; margin-bottom: 3.5rem; border: 1px solid var(--ifm-color-emphasis-300); border-radius: 1rem; background: var(--ifm-background-surface-color); }
+.guide-home-tour > div { max-width: 660px; }
+.guide-home-tour p:last-child { margin-bottom: 0; }
+.guide-home-tour > a { flex-shrink: 0; }
+.guide-home-section-heading { margin-bottom: 1.5rem; }
+.guide-home-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.guide-home-card { padding: 1.5rem; border: 1px solid var(--ifm-color-emphasis-300); border-radius: .75rem; color: var(--ifm-font-color-base); background: var(--ifm-background-surface-color); }
+.guide-home-card:hover { text-decoration: none; border-color: var(--ifm-color-primary); color: var(--ifm-font-color-base); }
+.guide-home-card:focus-visible { outline: 3px solid var(--ifm-color-primary); outline-offset: 3px; }
+.guide-home-card h3 { display: flex; justify-content: space-between; gap: 1rem; font-size: 1.1rem; line-height: 1.4; }
+.guide-home-card h3 span { color: var(--ifm-color-primary); }
+.guide-home-card p { margin-bottom: 0; line-height: 1.65; }
+.guide-home-source { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--ifm-color-emphasis-300); }
+.guide-home-source h2 { font-size: 1.2rem; }
+.guide-home-source p { max-width: 760px; }
+.guide-home-wayfinding { max-width: 800px; min-height: 55vh; }
+
+@media (max-width: 900px) {
+  .guide-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guide-home-tour { align-items: flex-start; flex-direction: column; gap: 1.25rem; }
+}
+
+@media (max-width: 560px) {
+  .guide-home { padding: 2.5rem 1rem; }
+  .guide-home-grid { grid-template-columns: 1fr; }
+  .guide-home-tour { padding: 1.5rem; }
+  .guide-home-actions { align-items: stretch; flex-direction: column; }
+}

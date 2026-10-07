@@ -1,81 +1,151 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: possibilities_constraints
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
 sections:
   - subskill_id: ability
-    explanation: Poder con infinitivo puede expresar capacidad. Saber con infinitivo expresa que se ha
-      aprendido a hacer algo.
+    explanation: Saber hacer una actividad y poder hacerla en una situación concreta no son lo mismo.
+      Para una habilidad aprendida, como nadar, `saber` seguido de un infinitivo expresa que sabes
+      cómo hacerlo. El infinitivo es la forma de diccionario del verbo, como `nadar`.
     examples:
       - text: Sé nadar.
-        meaning: Tengo la capacidad de nadar.
-        note: Saber expresa una capacidad aprendida.
+        meaning: "`Sé` indica que quien habla tiene esa habilidad; `nadar` nombra la actividad sin cambiar
+          de forma. `Yo` es opcional porque `sé` ya identifica a la persona. Conserva la tilde: `se`
+          sin tilde es otra palabra."
+        note: >-
+          **Compara.** `Puedo nadar hoy` indica que las circunstancias te permiten nadar hoy. Puedes
+          saber nadar y no poder hacerlo hoy. Para negar la habilidad, pon `no` delante: `No sé
+          nadar`.
+
+
+          **Prueba.** Di que ella sabe cocinar usando `cocinar`. Respuesta: `Ella sabe cocinar`.
+          Cambia el primer verbo y deja la actividad en infinitivo.
   - subskill_id: permission
-    explanation: Una pregunta con poder puede pedir permiso. La situación ayuda a distinguir este significado.
+    explanation: Cuando necesitas que otra persona permita una acción, una pregunta con `poder` puede
+      pedir permiso. `¿Puedo…?` pregunta si tú puedes hacerla. Es útil al entrar en un espacio
+      compartido o antes de usar un objeto ajeno. La acción va en infinitivo, como `entrar`.
     examples:
       - text: ¿Puedo entrar?
-        meaning: Pido permiso para entrar.
-        note: En una puerta, la pregunta se interpreta como una solicitud de permiso.
+        meaning: "`Puedo` pregunta por el permiso para quien habla y `entrar` nombra la acción. Ante una
+          puerta, la otra persona puede permitir o impedir la entrada. Los signos y la entonación
+          convierten la frase en pregunta."
+        note: >-
+          **Adáptalo.** `¿Puedes entrar?` pregunta por la otra persona, no pide permiso para ti.
+          `¿Podría entrar?` hace la petición más tentativa; también importan el tono y la relación.
+
+
+          **Prueba.** Pide permiso para usar una silla con `usar esta silla`. Respuesta: `¿Puedo
+          usar esta silla?`. Una respuesta posible es `Sí, claro`.
   - subskill_id: obligation
-    explanation: Tener que con infinitivo expresa una obligación personal. Hay que puede expresar una
-      necesidad general.
+    explanation: Una obligación indica algo que una persona necesita hacer o que se espera de ella.
+      `Tener que` seguido de un infinitivo permite expresarla. Aquí quien habla necesita salir; la
+      conversación puede explicar si es por una cita o porque el lugar cierra.
     examples:
       - text: Tengo que salir.
-        meaning: Es necesario que salga.
-        note: Que debe aparecer entre tengo y el infinitivo.
+        meaning: "`Tengo` corresponde a quien habla; `que salir` expresa la acción necesaria. Para hablar de
+          otra persona, cambia el primer verbo: `Ella tiene que salir`. La frase afirma la necesidad
+          sin dar todavía su motivo."
+        note: >-
+          **Compara.** `Hay que salir` expresa una necesidad sin nombrar a una persona concreta. `No
+          tengo que salir` normalmente significa que salir no es obligatorio, no que esté prohibido.
+
+
+          **Prueba.** Di que tienes que devolver la llave con `devolver la llave`. Respuesta: `Tengo
+          que devolver la llave`. Conserva `que` entre los verbos.
   - subskill_id: possibility
-    explanation: Puede que seguido de subjuntivo presenta una posibilidad.
+    explanation: A veces quieres mencionar un resultado posible sin afirmar que ocurrirá. `Puede que`
+      expresa esa posibilidad. El verbo siguiente va en subjuntivo, una forma que exige esta
+      construcción. Ante una previsión de lluvia, quien habla deja abierta esa posibilidad.
     examples:
       - text: Puede que llueva.
-        meaning: Es posible que llueva.
-        note: Llueva va en subjuntivo después de puede que.
+        meaning: "`Puede que llueva` presenta la lluvia como posible. `Llueva` viene de `llover`. Compara
+          `Llueve`, que afirma la lluvia, con `Puede que llueva`, que no la da por segura. No hace
+          falta un pronombre sujeto para este verbo del tiempo."
+        note: >-
+          **Adáptalo.** `Puede que no llueva` deja abierta la posibilidad de que no haya lluvia.
+          Añade `mañana` para indicar el día: `Puede que llueva mañana`.
+
+
+          **Prueba.** Di que quizá no llueva mañana. Respuesta: `Puede que no llueva mañana`.
+          Conserva `llueva`, no lo sustituyas por `llueve` en este patrón.
   - subskill_id: certainty
-    explanation: No estoy seguro expresa el grado de certeza. No tiene por qué referirse a una predicción.
+    explanation: Puedes tener alguna información sin estar en condiciones de confirmarla. `No estoy
+      seguro` o `No estoy segura` expresa esa falta de certeza. Describe tu confianza, no afirma que
+      la otra persona esté equivocada. El adjetivo concuerda con quien habla.
     examples:
       - text: No estoy seguro.
-        meaning: Tengo dudas sobre lo que se está diciendo.
-        note: Un hablante usa seguro para expresar incertidumbre sobre la idea en cuestión.
+        meaning: "`No` niega la certeza; `estoy` identifica a quien habla y `seguro` lleva concordancia
+          masculina. Con concordancia femenina se dice `No estoy segura`. El adjetivo describe a la
+          persona, no el género del asunto discutido."
+        note: >-
+          **Adáptalo.** `No estoy seguro de la hora` indica sobre qué tienes dudas. `No sé` expresa
+          que no tienes la información, en lugar de valorar tu grado de confianza.
+
+
+          **Prueba.** Una mujer no puede confirmar la hora. Una respuesta: `No estoy segura de la
+          hora`. Conserva `estoy` y cambia la terminación del adjetivo.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - yepesSubjunctiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesSaberTeaching20261007
+    - yepesSubjunctiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

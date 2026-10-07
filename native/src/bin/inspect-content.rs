@@ -30,6 +30,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Complete communication content: {}",
             registry.communication_content_hash()
         );
+    } else if args.first().map(String::as_str) == Some("--turn-assessment-request") {
+        let [_, language, variety] = args.as_slice() else {
+            return Err("Usage: inspect-content --turn-assessment-request <language> <variety>; provide state JSON on stdin".into());
+        };
+        use std::io::Read;
+        let mut state = String::new();
+        std::io::stdin().take(16001).read_to_string(&mut state)?;
+        if state.len() > 16000 {
+            return Err("Assessment state exceeds 16000 bytes.".into());
+        }
+        let state: serde_json::Value = serde_json::from_str(&state)?;
+        if !state["currentLearnerMessage"].is_string() || !state["precedingExchange"].is_array() {
+            return Err(
+                "State requires currentLearnerMessage text and a precedingExchange array.".into(),
+            );
+        }
+        println!(
+            "{}",
+            serde_json::to_string_pretty(
+                &registry.skill_presence_request(language, variety, state)?
+            )?
+        );
     } else if args.first().map(String::as_str) == Some("--communication-request") {
         let [_, language, variety, explanation] = args.as_slice() else {
             return Err("Usage: inspect-content --communication-request <language> <variety> <explanation-language>; provide state JSON on stdin".into());

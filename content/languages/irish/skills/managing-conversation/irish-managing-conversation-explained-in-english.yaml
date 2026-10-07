@@ -1,61 +1,93 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: irish-skills-2026-10-04
+revision: irish-guides-2026-10-07
 language: irish
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: A farewell can close contact without specifying a permanent departure.
+    explanation: At the end of a visit or call, `Slán go fóill!` is a farewell meaning goodbye for now.
+      `Slán` is the farewell word; `go fóill` adds for now and leaves open meeting or speaking
+      again. It is a conventional closing rather than a statement about an action in progress.
     examples:
       - text: Slán go fóill!
         meaning: Goodbye for now!
-        note: Use at the end of the current exchange.
+        note: "A greeting at arrival is `Dia duit`, whereas `Slán go fóill` belongs at departure. Try
+          closing a call when you expect to speak again. Answer: `Slán go fóill!` The expression
+          fits the ending of the exchange and conveys goodbye for now."
   - subskill_id: acknowledging
-    explanation: Tuigim can acknowledge comprehension of an explanation.
+    explanation: After an explanation becomes clear, `Tuigim anois, go raibh maith agat` acknowledges
+      understanding and thanks the speaker. `Tuigim` means I understand, with I included in its
+      ending; `anois` says now. `Go raibh maith agat` is the conventional thank-you to one person.
+      The acknowledgment tells the explainer that the clarification has helped.
     examples:
       - text: Tuigim anois, go raibh maith agat.
         meaning: I understand now, thank you.
-        note: Understanding need not mean agreement with an opinion.
+        note: "When you still do not understand, `Ní thuigim` states that difficulty. Try acknowledging
+          understanding without adding thanks. Answer: `Tuigim anois.` The sentence still reports
+          the change to understanding; the courtesy expression is optional."
   - subskill_id: clarification
-    explanation: A request to repeat points back to the previous contribution.
+    explanation: If a sentence was too fast or unclear, `Abair é sin arís, le do thoil` asks one person
+      to say that again. `Abair` is the command say, `é sin` means that, and `arís` again. `Le do
+      thoil` adds please. This requests repetition of the same material, which can help before
+      asking for a different explanation.
     examples:
       - text: Abair é sin arís, le do thoil.
         meaning: Please say that again.
-        note: É sin identifies what should be repeated; the request addresses one listener.
+        note: "If repetition is not enough, `Cad is brí leis sin?` asks what that means. Try requesting
+          repetition again but without the courtesy phrase. Answer: `Abair é sin arís.` The action
+          and the material to repeat remain explicit."
   - subskill_id: rephrasing
-    explanation: Is é sin le rá introduces a restatement.
+    explanation: "When a plan needs clearer wording, `Is é sin le rá, caithfimid áit a chur in áirithe
+      roimh ré` introduces a reformulation: that is to say, we must book a place in advance.
+      `Caithfimid` includes we and expresses necessity. `Áit a chur in áirithe` means to reserve a
+      place, with the object `áit` before the action phrase. `Roimh ré` means in advance."
     examples:
       - text: Is é sin le rá, caithfimid áit a chur in áirithe roimh ré.
         meaning: In other words, we must book a place in advance.
-        note: Use after explaining a reservation procedure.
+        note: "The opening announces that the following requirement restates the practical point. Try
+          rephrasing the requirement as booking today, using `inniu`. Answer: `Is é sin le rá,
+          caithfimid áit a chur in áirithe inniu.` The reformulation signal and booking obligation
+          remain; the time is now today rather than the less specific in advance."
   - subskill_id: correcting_misunderstanding
-    explanation: I gceist agam identifies what the speaker has in mind.
+    explanation: If a listener has mistaken the meeting day, `Dé Sathairn atá i gceist agam, ní Dé
+      hAoine` corrects it to Saturday rather than Friday. The intended day is placed first for
+      focus. `Atá i gceist agam` means that I mean or have in mind, and `ní Dé hAoine` rejects the
+      mistaken day. The correction supplies both the replacement and what it replaces.
     examples:
       - text: Dé Sathairn atá i gceist agam, ní Dé hAoine.
         meaning: I mean Saturday, not Friday.
-        note: The speaker corrects the day understood by the listener.
+        note: "The two day phrases can trade places if Friday was intended. Try making that correction.
+          Answer: `Dé hAoine atá i gceist agam, ní Dé Sathairn.` Friday is now the focused intended
+          day, and Saturday is explicitly excluded."
   - subskill_id: turns_topics
-    explanation: Maidir le frames what the following contribution is about.
+    explanation: In a discussion with several questions, `Maidir leis an gcéad cheist eile, cad a
+      cheapann tú?` turns to the next question and invites the listener’s view. `Maidir le` means
+      regarding; `leis an gcéad cheist eile` identifies the next question. `Cad a cheapann tú?` asks
+      what do you think, with the verb after linking `a` and the person `tú` after it.
     examples:
       - text: Maidir leis an gcéad cheist eile, cad a cheapann tú?
         meaning: As for the next question, what do you think?
-        note: The speaker shifts topic and invites the listener’s turn.
+        note: "The topic phrase identifies what the opinion question concerns. Try turning to this proposal
+          instead of the next question. Answer: `Maidir leis an moladh seo, cad a cheapann tú?` The
+          opening now names the proposal, while the second part still invites the listener’s view."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Irish teaching, English explanations, original examples and practice
+    adaptations informed by scoped public references; no independent linguistic review.
   sources:
     - teanglann_maidir2026
     - brasicke_irish_copula2026
+    - focloirIrishGrammarTeaching20261007
+    - teanglannBiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: irish-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: irish-guides-2026-10-07
+    scope: Entire guide, including constructions, principal examples, practice adaptations, English
+      meanings, contexts and declared variety applicability. Public source review does not certify
+      these original lessons.
 varieties:
   irish-ireland:
     disposition: use_core

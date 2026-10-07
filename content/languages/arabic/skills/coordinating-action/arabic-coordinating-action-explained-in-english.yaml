@@ -1,94 +1,211 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-teaching-expansion-english-2026-10-07
 language: arabic
 skill_id: coordinating_action
 explanation_language: english
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
 sections:
   - subskill_id: requests
-    explanation: An imperative with a courtesy expression can request an action.
+    explanation: "A request asks another person to do something. Imagine a draught coming through an
+      open door: you want it closed and add a courtesy phrase to soften the request."
     examples:
       - text: أَغْلِقِ الْبَابَ، مِنْ فَضْلِكَ.
-        meaning: Close the door, please.
-        note: Modern Standard Arabic. Addressed to one man; the requested action is closing the door.
-      - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
-        meaning: Close the door, please.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Addressed
-          to one man; the requested action is closing the door.
+        meaning: "**The example.** Close the door, please. `أَغْلِقِ` tells one man to close something;
+          `الْبَابَ` is the door. `مِنْ فَضْلِكَ` means please, addressed to that man. The short
+          vowel at the end of the command helps connect it to the following word in careful
+          connected speech."
+        note: "To address one woman, use `أَغْلِقِي` and the courtesy form `مِنْ فَضْلِكِ`. Try it: ask a
+          woman to close the door, please. Answer: `أَغْلِقِي الْبَابَ، مِنْ فَضْلِكِ`. The command
+          gains a long final vowel and the courtesy suffix changes to match the listener."
   - subskill_id: offers_invitations
-    explanation: A question about the speaker’s help can make an offer.
+    explanation: When someone is struggling with a task, you can offer your own help rather than asking
+      them to help you. A short question lets them accept or decline.
     examples:
       - text: هَلْ أُسَاعِدُكَ؟
-        meaning: Shall I help you?
-        note: Modern Standard Arabic. Addressed to one man; the speaker offers their own help.
-      - text: أَسَاعْدَكْ؟
-        meaning: Shall I help you?
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Addressed
-          to one man; the speaker offers their own help.
+        meaning: "**The example.** Shall I help you? `هَلْ` introduces a yes/no question. `أُسَاعِدُ` means
+          I help, and the attached `كَ` means you, addressing one man. The I-form makes the speaker
+          the potential helper; the suffix identifies the person receiving help."
+        note: "For one woman, use `هَلْ أُسَاعِدُكِ؟`. Compare `هَلْ تُسَاعِدُنِي؟`, will you help me?,
+          addressed to one man: the helper is now you and the receiver is me. Try it: offer help to
+          a woman. Answer: `هَلْ أُسَاعِدُكِ؟`; keep the I-form and change the listener suffix."
   - subskill_id: suggestions
-    explanation: A why-not question can suggest a shared action.
+    explanation: A group needs somewhere to sit. A why-not question can put forward this place as a
+      shared option without ordering anyone to choose it.
     examples:
       - text: لِمَاذَا لَا نَجْلِسُ هُنَا؟
-        meaning: Why don’t we sit here?
-        note: Modern Standard Arabic. A proposal for the group, not necessarily a demand for an
-          explanation.
-      - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
-        meaning: Why don’t we sit here?
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. A proposal
-          for the group, not necessarily a demand for an explanation.
+        meaning: "**The example.** Why don’t we sit here? `لِمَاذَا` means why and `لَا` negates the
+          following action. `نَجْلِسُ` means we sit; `هُنَا` is here. In this situation, the whole
+          question suggests sitting here rather than asking for a detailed reason against it."
+        note: "Use `هُنَاكَ` for there while keeping the shared we-form. With a different context or tone,
+          why don’t we can be a genuine question about an obstacle. Try it: propose sitting there.
+          Answer: `لِمَاذَا لَا نَجْلِسُ هُنَاكَ؟`; only the place changes."
   - subskill_id: commitments
-    explanation: A future action can express a commitment when accepting responsibility in the exchange.
+    explanation: Someone must bring the keys. When you take that responsibility, naming your future
+      action tells the others what they can rely on you to do.
     examples:
       - text: سَأُحْضِرُ الْمَفَاتِيحَ غَدًا.
-        meaning: I will bring the keys tomorrow.
-        note: Modern Standard Arabic. Use when agreeing to take responsibility for bringing the keys.
-      - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
-        meaning: I will bring the keys tomorrow.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Use when
-          agreeing to take responsibility for bringing the keys.
+        meaning: "**The example.** I will bring the keys tomorrow. The attached `سَـ` in `سَأُحْضِرُ` marks
+          future reference; `أُحْضِرُ` means I bring. `الْمَفَاتِيحَ` names the keys and `غَدًا`
+          means tomorrow. The context of accepting responsibility gives this future statement its
+          force as a commitment."
+        note: "Use `الْيَوْمَ` for today if the arrangement changes. A future verb alone can also describe a
+          prediction; it is not automatically a promise. Try it: move the commitment to today.
+          Answer: `سَأُحْضِرُ الْمَفَاتِيحَ الْيَوْمَ` keeps the action and changes the time."
   - subskill_id: accepting_declining
-    explanation: A negative ability statement can decline an invitation politely.
+    explanation: You have been invited somewhere today but cannot attend. Thanking the person before
+      giving the obstacle helps make a refusal clear and courteous.
     examples:
       - text: شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ الْيَوْمَ.
-        meaning: Thank you, but I cannot come today.
-        note: Modern Standard Arabic. Reply to an invitation for today.
-      - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
-        meaning: Thank you, but I cannot come today.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Reply to an
-          invitation for today.
+        meaning: "**The example.** Thank you, but I cannot come today. `شُكْرًا` is thank you. `لٰكِنَّنِي`
+          means but I; `لَا أَسْتَطِيعُ` means I cannot. `الْحُضُورَ` names attendance, and
+          `الْيَوْمَ` limits the refusal to today. Here the ability verb is followed by a noun for
+          the activity."
+        note: "For an invitation tomorrow, replace `الْيَوْمَ` with `غَدًا`. Keep `لَا` to preserve the
+          refusal. Try it: decline tomorrow’s invitation. Answer: `شُكْرًا، لٰكِنَّنِي لَا
+          أَسْتَطِيعُ الْحُضُورَ غَدًا`. The thanks and inability stay the same; only the date
+          changes."
   - subskill_id: negotiating_plans
-    explanation: A proposal can substitute a new time for a previously discussed one.
+    explanation: A meeting is already planned for today, but tomorrow would work better. Negotiating
+      means proposing that one part change while keeping the shared plan recognizable.
     examples:
       - text: هَلْ يُمْكِنُ أَنْ نَلْتَقِيَ غَدًا بَدَلًا مِنَ الْيَوْمِ؟
-        meaning: Could we meet tomorrow instead of today?
-        note: Modern Standard Arabic. The speaker changes one part of an existing plan.
-      - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
-        meaning: Could we meet tomorrow instead of today?
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
-          changes one part of an existing plan.
-provenance: &a1
+        meaning: "**The example.** Could we meet tomorrow instead of today? `هَلْ يُمْكِنُ` asks whether
+          something is possible. `أَنْ نَلْتَقِيَ` supplies the shared action, that we meet. `غَدًا`
+          is the proposed day; `بَدَلًا مِنَ الْيَوْمِ` means instead of today and identifies what
+          you want to replace."
+        note: "Keep the new day before the instead-of phrase so the alternatives are clear. This asks for
+          agreement; it does not announce that the change is settled. Try it: which day is being
+          replaced? Answer: today, named after `بَدَلًا مِنَ`; tomorrow is the proposed
+          replacement."
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-teaching-expansion-english-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: Conversational requests can use colloquial imperatives or questions. لَيْشْ مَا can
-      propose a shared action; politeness wording varies with the relationship.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
-    disposition: supplement
-    text: Modern Standard requests and offers can use different imperative or question
-      constructions. Addressee forms reflect who is being addressed.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-expansion-english-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: requests
+      explanation: "A request asks another person to do something. Imagine a draught coming through an
+        open door: you want it closed and add a courtesy phrase to soften the request."
+      examples:
+        - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
+          meaning: "**The example.** Close the door, please. `سَكِّرْ` is close, as a command to one man;
+            `الْبَابْ` is the door. `لَوْ سَمَحْتْ` is a conventional please, literally if you
+            permit. Learn it as a courtesy phrase rather than an actual condition to be completed."
+          note: "For one woman, use `سَكِّرِي` and `لَوْ سَمَحْتِي`. Try it: make the complete request to a
+            woman. Answer: `سَكِّرِي الْبَابْ، لَوْ سَمَحْتِي`. Both endings change; the door and
+            the requested action remain the same."
+    - subskill_id: offers_invitations
+      explanation: When someone is struggling with a task, you can offer your own help rather than asking
+        them to help you. A short question lets them accept or decline.
+      examples:
+        - text: أَسَاعْدَكْ؟
+          meaning: "**The example.** Shall I help you? `أَسَاعْدَكْ` combines I help with a suffix meaning
+            you, addressed here to one man. The questioning tone turns the potential action into an
+            offer. The verb has no ordinary b-prefix in this offer pattern."
+          note: "To offer help to a woman, use `أَسَاعْدِكْ؟` in this spoken model. Compare `تْسَاعْدْنِي؟`,
+            can you help me?, which asks the listener for help. Try it: choose the offer when you
+            are volunteering. Answer: `أَسَاعْدَكْ؟` for a man; the initial I-form keeps you as
+            helper."
+    - subskill_id: suggestions
+      explanation: A group needs somewhere to sit. A why-not question can put forward this place as a
+        shared option without ordering anyone to choose it.
+      examples:
+        - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
+          meaning: "**The example.** Why don’t we sit here? `لَيْشْ` is why, `مَا` is not, `نِقْعُدْ` is we
+            sit, and `هُونْ` means here. Together they suggest a shared action. The we-form includes
+            the speaker; it is not a command telling only the listener to sit."
+          note: "Replace `هُونْ` with `هُنِيكْ` to suggest there. Learn the whole suggestion as a spoken
+            pattern; the same why-not wording can ask about a real obstacle in another situation.
+            Try it: which word includes the speaker in the plan? Answer: `نِقْعُدْ`, the we-form."
+    - subskill_id: commitments
+      explanation: Someone must bring the keys. When you take that responsibility, naming your future
+        action tells the others what they can rely on you to do.
+      examples:
+        - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
+          meaning: "**The example.** I will bring the keys tomorrow. `رَحْ` points to the future, `أَجِيبْ`
+            means I bring, `الْمَفَاتِيحْ` is the keys, and `بُكْرَا` is tomorrow. After `رَحْ`,
+            this verb appears without its ordinary b-prefix. You are committing to an action because
+            you have accepted the task."
+          note: "After `رَحْ`, keep the action without an ordinary b-prefix. Try it: promise to bring the keys
+            today instead. Answer: `رَحْ أَجِيبْ الْمَفَاتِيحْ الْيَوْمْ`. Replacing `بُكْرَا` with
+            `الْيَوْمْ` changes the day, while you retain responsibility for the same action."
+    - subskill_id: accepting_declining
+      explanation: You have been invited somewhere today but cannot attend. Thanking the person before
+        giving the obstacle helps make a refusal clear and courteous.
+      examples:
+        - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
+          meaning: "**The example.** Thank you, but I cannot come today. `شُكْرًا` thanks the inviter and
+            `بَسّ` introduces but. `مَا بَقْدَرْ` means I cannot; `أَجِي` is come in the following
+            dependent action, without a b-prefix. `الْيَوْمْ` means today. The inability is the
+            reason for declining."
+          note: "Use `بُكْرَا` for an invitation tomorrow, keeping `مَا` before the ability verb. Try it:
+            decline tomorrow’s invitation. Answer: `شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي بُكْرَا`. The
+            dependent coming form still has no b-prefix; the time is the only changed detail."
+    - subskill_id: negotiating_plans
+      explanation: A meeting is already planned for today, but tomorrow would work better. Negotiating
+        means proposing that one part change while keeping the shared plan recognizable.
+      examples:
+        - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
+          meaning: "**The example.** Could we meet tomorrow instead of today? `مُمْكِنْ` opens a possibility
+            question and `نِلْتَقِي` means we meet. `بُكْرَا` is tomorrow; `بَدَلْ الْيَوْمْ` means
+            instead of today. The we-form includes both parties, while the two time expressions
+            isolate the requested change."
+          note: "The action after `مُمْكِنْ` has no ordinary b-prefix in this proposal. Reversing the two days
+            reverses the requested change. Try it: are you cancelling the meeting entirely? Answer:
+            no; `نِلْتَقِي` remains the plan, and only its day is being renegotiated."

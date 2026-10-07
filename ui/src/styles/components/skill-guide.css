@@ -1,4 +1,7 @@
 /* Authored lessons share the app's reading controls and surface tokens. */
+.skill-guide-controls { padding: var(--space-4) var(--space-8); border-bottom: var(--border-width) solid var(--line-soft); }
+.skill-guide-controls label { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); font-size: var(--type-ui); color: var(--ink-2); }
+.skill-guide-controls select { flex: 0 1 auto; min-width: 0; max-width: 100%; }
 .skill-guide-document { color: var(--ink); font: var(--type-body)/var(--leading-normal) var(--font-sans); padding: var(--space-6) var(--space-8) var(--space-8); }
 .skill-guide-document h3 { font-size: var(--type-title); margin-block: var(--space-4) var(--space-6); }
 .skill-guide-document h4 { font-size: var(--type-title); margin-block: var(--space-10) var(--space-4); border-bottom: var(--border-width) solid var(--line); padding-bottom: var(--space-3); }

@@ -1,54 +1,99 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: people_places
 explanation_language: english
 shared_explanation: skills/people-places/people-places-explained-in-english.yaml
 sections:
   - subskill_id: identification
-    explanation: Use essere with a noun phrase to identify someone. A possessive such as mia agrees
-      with that noun, and an ordinary phrase such as la mia collega includes its article.
+    explanation: When introducing a colleague, you can identify the person and explain your connection
+      to them. Italian uses a form of `essere`, to be, with the identifying noun phrase. Here the
+      colleague is Sara, and the words referring to her have feminine singular agreement.
     examples:
       - text: Questa è la mia collega Sara.
-        meaning: This is my colleague Sara.
-        note: Questa and mia refer to a woman; collega has feminine agreement here. The sentence
-          introduces her identity.
+        meaning: “This is my colleague Sara.” `Questa` points to her, `è` identifies her and `la mia collega
+          Sara` gives the relationship and name. `Collega` can refer to a man or woman; `la mia`
+          makes the feminine agreement clear here.
+        note: >-
+          **Adapt it.** `Questo è il mio collega Luca` introduces a male colleague: the article,
+          possessive and demonstrative change, but `collega` keeps its ending. Ordinary possessive
+          phrases such as `la mia collega` include the article.
+
+
+          **Try it.** Introduce your female colleague Anna. Answer: `Questa è la mia collega Anna`.
+          Replace the name and keep the feminine forms.
   - subskill_id: qualities_states
-    explanation: Adjectives describing a subject with essere agree in gender and number. They keep
-      that agreement even though they follow the verb rather than a noun.
+    explanation: Before leaving a room, it may matter whether the windows are open. An adjective after
+      `essere` describes their state and agrees with the subject. Italian does not require a
+      separate verb simply because a state may change.
     examples:
       - text: Le finestre sono aperte.
-        meaning: The windows are open.
-        note: Aperte is feminine plural like finestre; sono matches the plural subject.
+        meaning: “The windows are open.” `Le finestre` is feminine plural; `sono` is the plural verb.
+          `Aperte` means open and takes feminine plural agreement with the windows, even though it
+          follows the verb.
+        note: >-
+          **Adapt it.** `La finestra è aperta` describes one window. `Le finestre sono chiuse`
+          describes the opposite state. The adjective must still agree after the verb.
+
+
+          **Try it.** Say the door is open with `la porta`. Answer: `La porta è aperta`. Use
+          singular `è` and feminine singular `aperta`.
   - subskill_id: location_movement
-    explanation: "A spatial expression such as accanto a locates one thing relative to another.
-      Combine a with the required article: a + la becomes alla."
+    explanation: Someone looking for a pharmacy needs a landmark they can find. A location phrase can
+      place the pharmacy relative to a station. The expression `accanto a` means next to; its final
+      preposition combines with the landmark’s article.
     examples:
       - text: La farmacia è accanto alla stazione.
-        meaning: The pharmacy is next to the station.
-        note: È accanto alla locates the pharmacy; the sentence does not describe a journey to the
-          station.
+        meaning: “The pharmacy is next to the station.” `La farmacia` is the place to find, `è` locates it
+          and `accanto alla stazione` gives the reference point. `Alla` combines `a` with feminine
+          singular `la`.
+        note: >-
+          **Compare.** `Vado alla stazione` describes going to the station, not being beside it.
+          `Accanto al museo` changes the landmark; `a` and `il` combine as `al`.
+
+
+          **Try it.** Locate the pharmacy beside the museum. Answer: `La farmacia è accanto al
+          museo`. Keep the whole expression `accanto a` and combine its preposition with the
+          article.
   - subskill_id: possession_relations
-    explanation: Avere can state possession. With an unmodified singular close-family noun, a
-      possessive such as mia normally appears without an article.
+    explanation: If you want to borrow equipment, naming the person who has it can help. This sentence
+      first identifies a family relationship, then says what the sister owns. Italian normally omits
+      the article before an unmodified singular close-family noun with a possessive such as `mia`.
     examples:
       - text: Mia sorella ha una macchina da cucire.
-        meaning: My sister has a sewing machine.
-        note: Mia sorella expresses the family relationship without la. Ha introduces what she
-          possesses; macchina da cucire means sewing machine.
+        meaning: “My sister has a sewing machine.” `Mia sorella` identifies the speaker’s sister. `Ha` means
+          has, while `una macchina da cucire` names a sewing machine. Here `da cucire` describes
+          what the machine is for.
+        note: >-
+          **Compare.** `Le mie sorelle` names several sisters and includes the article. `La mia
+          macchina` also needs an article: the singular-family exception does not apply to an
+          object.
+
+
+          **Try it.** Say your brother has a sewing machine with `mio fratello`. Answer: `Mio
+          fratello ha una macchina da cucire`. The owner changes; `ha` still refers to one person.
   - subskill_id: quantity_comparison
-    explanation: Use a number to count items. Più + adjective gives a comparative; di can introduce
-      the other noun phrase being compared.
+    explanation: Choosing furniture may involve both counting what is available and comparing its
+      weight. A number gives the quantity. The expression `più` followed by an adjective compares a
+      quality, and di introduces the other items being compared here.
     examples:
       - text: Abbiamo quattro sedie. Questa sedia è più leggera delle altre.
-        meaning: We have four chairs. This chair is lighter than the others.
-        note: Quattro counts chairs. Delle is di + le before altre; leggera agrees with feminine
-          singular sedia.
+        meaning: "“We have four chairs. This chair is lighter than the others.” `Abbiamo quattro sedie`
+          gives the count. `Questa sedia` selects one chair; `più leggera` says lighter. `Delle
+          altre` means than the others: `delle` combines `di` and plural `le`."
+        note: >-
+          **Adapt it.** `Questo tavolo è più leggero degli altri` compares masculine tables, so the
+          agreement and combined article change. Keep the accent in `più`.
+
+
+          **Try it.** Say this chair is heavier than the others with `pesante`. Answer: `Questa
+          sedia è più pesante delle altre`. Replace the quality; the feminine comparison group stays
+          the same.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_agreement2026
     - treccani_it_possessives2026
@@ -59,10 +104,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

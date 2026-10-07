@@ -1,49 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: vietnamese-skills-2026-10-04
+revision: vietnamese-teaching-expanded-english-2026-10-07
 language: vietnamese
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Mấy giờ asks for clock time within the normal clause order.
+    explanation: You want to visit a shop and need its closing time. `Cửa hàng` is the shop; `đóng
+      cửa` means close, and `lúc mấy giờ` asks at what time. The question phrase occupies the
+      place where the answer belongs, so the basic sentence order need not be inverted. `Cửa
+      hàng đóng cửa lúc năm giờ` supplies five o'clock in the same position. `Mấy giờ` asks for
+      clock time, whereas `ở đâu` asks for location. The verb does not need a separate question
+      auxiliary.
     examples:
       - text: Cửa hàng đóng cửa lúc mấy giờ?
         meaning: What time does the shop close?
-        note: Lúc mấy giờ identifies the missing closing time.
+        note: "Ask when the shop opens, using `mở cửa`. `Cửa hàng mở cửa lúc mấy giờ?` works: the event
+          changes to opening while the requested information remains a clock time."
   - subskill_id: answering_information
-    explanation: A short time phrase can answer a previously identified question.
+    explanation: After a question about the shop's closing time, the time phrase alone can supply
+      the missing detail. `Lúc` means at this time, `năm` means five and `giờ` gives the hour.
+      The shop and closing are already understood, so `Lúc năm giờ` is a complete conversational
+      answer. When morning versus afternoon matters, `năm giờ chiều` specifies five in the
+      afternoon. This is a clock time; `năm tiếng` instead names a duration of five hours.
     examples:
       - text: Lúc năm giờ.
         meaning: At five o’clock.
-        note: Use after the shop closing-time question; giờ identifies clock time.
+        note: Answer with six o'clock. `Lúc sáu giờ.` works in the shared closing-time exchange because
+          `sáu` replaces the hour and the earlier question still supplies the event.
   - subskill_id: checking_facts
-    explanation: Đúng không after a proposition asks whether it is correct.
+    explanation: You believe the shop closes at five and ask someone to confirm. `Cửa hàng đóng cửa
+      lúc năm giờ` states your proposed fact. Final `đúng không?` means is that right? and
+      leaves the listener free to confirm or correct it. This differs from `lúc mấy giờ?`, which
+      requests an unknown time rather than proposing five. The tag checks the whole statement;
+      `đúng` need not be changed to match a different subject or day.
     examples:
       - text: Cửa hàng đóng cửa lúc năm giờ, đúng không?
         meaning: The shop closes at five, right?
-        note: The speaker checks a candidate hour.
+        note: "Check that the shop closes at six instead. `Cửa hàng đóng cửa lúc sáu giờ, đúng không?`
+          works: the proposed hour changes, and the confirmation tag remains."
   - subskill_id: useful_detail
-    explanation: A location phrase can supply the distinguishing information the listener needs.
+    explanation: A visitor sees more than one side of a building, and the courtyard identifies where
+      to enter. `Cửa vào` names the entrance; `ở` locates it and `phía sân` means the courtyard
+      side. `Ở` is useful for locating something already in place. A more specific direction can
+      use `ở phía sau`, at the back, or `ở bên trái`, on the left. These details help only when
+      the visitor can identify the landmark or the viewpoint; left and right may need a shared
+      orientation.
     examples:
       - text: Cửa vào ở phía sân.
         meaning: The entrance is on the courtyard side.
-        note: This is useful when the listener is trying to locate the entrance.
+        note: "Locate the entrance at the back. `Cửa vào ở phía sau.` is an answer: `phía sau` replaces
+          the courtyard side, and `ở` still marks the location."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_identity2026
     - msu_vietnamese_duration2026
+    - niuVietnameseTimeTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: vietnamese-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: vietnamese-teaching-expanded-english-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core

@@ -3,6 +3,7 @@
  * panel as on the Skills page, a new learner, and level celebrations.
  *
  * `?theme=dark` renders the dark theme.
+ * `?shown=language|conversation|both` and `?chart=radial|bars` preset the skill chart's stored choices.
  * `?celebrate=catch-up` runs the real queue against a mocked native catch-up.
  * `?celebrate=language` / `?celebrate=skills` shows one celebration and holds it. */
 import { createRoot } from 'react-dom/client'
@@ -29,12 +30,16 @@ import '../src/styles/index.css'
 const params = new URLSearchParams(location.search)
 const theme = params.get('theme')
 if (theme) document.documentElement.dataset.theme = theme
+for (const [param, key] of [['shown', 'skellyspeak_skill_chart_shown'], ['chart', 'skellyspeak_skill_chart_type']] as const) {
+  const value = params.get(param)
+  if (value) localStorage.setItem(key, value)
+}
 const celebrate = params.get('celebrate')
 
 /** Credited messages per skill, in catalog order: a level-4 learner whose weakest skills have 5. */
-const POINTS = [9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6]
+const POINTS = [9, 6, 11, 5, 7, 5, 13, 8]
 /** How many of each skill's credits came from the preview conversation. */
-const IN_CONVERSATION = [1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 0, 1]
+const IN_CONVERSATION = [1, 0, 2, 1, 1, 0, 2, 0]
 
 function learner(points: number[], inConversation: number[]): SkillSnapshot {
   const snapshot = structuredClone(skillDemo)
@@ -111,10 +116,10 @@ function Preview() {
               <ConversationProgress chatId="preview" />
             </section>
             <main data-preview="page" className="skills-page" style={{ flex: 1, minWidth: 0 }}>
-              <SkillLevelsPanel snapshot={snapshot} conversation={null} onInspect={() => {}} />
+              <SkillLevelsPanel snapshot={snapshot} languageName="Spanish" conversation={null} onInspect={() => {}} />
             </main>
             <aside data-preview="newcomer" style={{ width: 360, flex: 'none' }}>
-              <SkillLevelsPanel snapshot={newcomer} conversation={null} onInspect={null} />
+              <SkillLevelsPanel snapshot={newcomer} languageName="Spanish" conversation={null} onInspect={null} />
             </aside>
           </div>
         </div>

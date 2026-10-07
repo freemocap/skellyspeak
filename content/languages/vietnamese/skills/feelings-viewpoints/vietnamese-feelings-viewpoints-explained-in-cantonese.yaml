@@ -1,71 +1,65 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 活動前面嘅muốn表示想做嗰件事。
+    explanation: 你對縫紉班有興趣，講自己想學乜。`Tôi` 指講者，`muốn` 係想，`học may` 係學車衫；`may` 指縫紉，`học` 講係要學嘅技能。活動直接跟喺
+      `muốn` 後面，唔使加英文嗰種不定式標記。`Tôi muốn học nấu ăn` 改成想學煮食。想學唔代表報咗名；`Tôi sẽ học may`
+      就將學縫紉表達為將來動作。
     examples:
       - text: Tôi muốn học may.
         meaning: 我想學縫紉。
-        note: Học may指出想學嘅活動，唔係承諾。
+        note: 試下講想學煮食。`Tôi muốn học nấu ăn.` 可以；`nấu ăn` 換咗縫紉，`muốn học` 保留想學嘅意思。
   - subskill_id: preferences
-    explanation: Thích配合hơn，比較鍾意兩個選項嘅程度。
+    explanation: 有茶同咖啡可以揀，你較鍾意茶。`Tôi thích trà` 係我鍾意茶，加上 `hơn cà phê` 就比較成比咖啡更鍾意。較鍾意嗰樣擺前面；`Tôi thích
+      cà phê hơn trà` 就倒轉偏好。`Thích` 唔會因為講者性別或者人數改變。冇 `hơn` 同情境提供嘅比較，淨係鍾意茶唔代表唔鍾意咖啡，亦唔一定表示茶優先。
     examples:
       - text: Tôi thích trà hơn cà phê.
         meaning: 比起咖啡，我鍾意茶多啲。
-        note: Trà係較鍾意嘅選項。
+        note: 試下倒轉偏好。答案係 `Tôi thích cà phê hơn trà.`；交換兩款飲品，`hơn` 仍然放喺較鍾意嗰樣同另一樣之間。
   - subskill_id: emotions
-    explanation: Vui描述開心，唔一定要加繫詞。
+    explanation: 你聽到好消息，講自己幾開心。`Tôi rất vui` 係我好開心，`rất` 加強 `vui` 嘅程度；`khi nghe tin này`
+      即聽到呢個消息時，交代感受嘅場合。越南文可以直接用 `vui` 講感受，唔使加 `là`。`Tin này` 將呢個放喺消息後面。`Tôi buồn khi nghe tin
+      này` 就改講難過，所以換感受係換描述詞，唔係換動詞詞尾。
     examples:
       - text: Tôi rất vui khi nghe tin này.
         meaning: 聽到呢個消息，我好開心。
-        note: Khi nghe tin này交代感受由來。
+        note: 試下對同一消息表達難過。`Tôi buồn khi nghe tin này.` 可以；`buồn` 換咗開心，而引起感受嘅場合保留。
   - subskill_id: opinions
-    explanation: Tôi nghĩ將後面命題框定為個人判斷。
+    explanation: 大家討論過兩種做法，你覺得呢種較容易。`Tôi nghĩ` 係我認為，將判斷表達為你嘅看法；`cách này` 係呢種方法，`dễ hơn`
+      即較容易，另一種方法由對話提供。`Dễ` 唔變形，`hơn` 表達比較。`Cách này dễ` 就只係話呢種方法容易。任務同另一選擇都係大家知道嘅資料時，會較容易討論呢個意見。
     examples:
       - text: Tôi nghĩ cách này dễ hơn.
         meaning: 我覺得呢個方法容易啲。
-        note: 比較關乎討論緊嘅方法。
+        note: 試下講相反判斷，即較難。`Tôi nghĩ cách này khó hơn.` 可以；`khó` 換 `dễ`，`hơn` 保留同另一做法嘅比較。
   - subskill_id: agreement_disagreement
-    explanation: Đồng ý表示同意，không作否定。
+    explanation: 有人提出計劃，你清楚講唔同意。`Tôi không đồng ý` 係我唔同意，`với đề xuất này` 指出反對嘅係呢個提議。`Không`
+      放喺同意說法前面表示否定。刪走否定，`Tôi đồng ý với đề xuất này` 就係同意；`tôi hiểu`
+      只講明白，未必贊成。指明個提議，可以避免對方唔知你反對邊一點。
     examples:
       - text: Tôi không đồng ý với đề xuất này.
         meaning: 我唔同意呢個建議。
-        note: Với đề xuất này指出反對乜。
-provenance:
+        note: 試下改為同意呢個提議。`Tôi đồng ý với đề xuất này.` 可以；刪走 `không` 改咗立場，但同意嘅對象保留。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/feelings-viewpoints/vietnamese-feelings-viewpoints-explained-in-english.yaml
-    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_identity2026
     - msu_vietnamese_suggestions2026
+    - msuVietnameseComparisonTeaching20261007
+    - niuVietnameseComparisonTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/feelings-viewpoints/vietnamese-feelings-viewpoints-explained-in-english.yaml
-        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - msu_vietnamese_identity2026
-        - msu_vietnamese_suggestions2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

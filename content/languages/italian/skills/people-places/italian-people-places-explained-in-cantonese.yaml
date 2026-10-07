@@ -1,47 +1,68 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: people_places
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Essere 配合名詞短語可以識別一個人。Mia 等所有詞要同名詞配合；la mia collega 呢類一般短語保留冠詞。
+    explanation: 介紹同事時，可以指出佢係邊個同埋同你有咩關係。意大利文用表示「係」嘅 `essere` 適當形式，加身份名詞短語。呢度同事係 Sara，指住佢嘅詞用陰性單數配合。
     examples:
       - text: Questa è la mia collega Sara.
-        meaning: 呢位係我同事 Sara。
-        note: Questa 同 mia 指女性；呢度 collega 按陰性配合。句子介紹佢嘅身份。
+        meaning: 意思係「呢位係我同事 Sara」。`Questa` 指佢，`è` 識別身份，`la mia collega Sara` 提供關係同名字。`Collega` 可以指男或者女；呢度
+          `la mia` 指出陰性配合。
+        note: >-
+          **改一改。** `Questo è il mio collega Luca` 介紹男同事：冠詞、物主詞同指示詞都改，但 `collega` 詞尾保持一樣。`La mia
+          collega` 呢類普通物主短語要有冠詞。
+
+
+          **試吓。** 介紹女同事 Anna。答案：`Questa è la mia collega Anna`。換名字，保留陰性形式。
   - subskill_id: qualities_states
-    explanation: 用 essere 描述主語嘅形容詞，要配合性別同數；即使放喺動詞後面都一樣。
+    explanation: 離開間房之前，可能要知道啲窗開住未。`essere` 後面嘅形容詞描述狀態，並配合主語。唔會因為狀態可能改變，就一定換另一個動詞。
     examples:
       - text: Le finestre sono aperte.
-        meaning: 啲窗開住。
-        note: Aperte 同 finestre 一樣係陰性複數；sono 配合複數主語。
+        meaning: 意思係「啲窗開住」。`Le finestre` 係陰性複數；`sono` 係複數動詞。`Aperte` 解開住，用陰性複數配合啲窗；即使喺動詞後面都要配合。
+        note: |-
+          **改一改。** `La finestra è aperta` 講一隻窗。`Le finestre sono chiuse` 講相反狀態。動詞後面嘅形容詞都要配合。
+
+          **試吓。** 用 `la porta` 講道門開住。答案：`La porta è aperta`。用單數 `è` 同陰性單數 `aperta`。
   - subskill_id: location_movement
-    explanation: Accanto a 等位置表達交代相對位置。A 要同相應冠詞結合，例如 a 加 la 變 alla。
+    explanation: 搵藥房時，對方需要搵得到嘅地標。位置短語可以指出藥房同車站嘅相對位置。`accanto a` 解隔籬，尾嘅介詞會同地標嘅冠詞合併。
     examples:
       - text: La farmacia è accanto alla stazione.
-        meaning: 藥房喺車站隔籬。
-        note: È accanto alla 交代藥房位置，唔係描述去車站嘅路程。
+        meaning: 意思係「藥房喺車站隔籬」。`La farmacia` 指要搵嘅地方，`è` 引出位置，`accanto alla stazione` 提供參照點。`Alla` 由 `a` 同陰性單數
+          `la` 合成。
+        note: |-
+          **比較。** `Vado alla stazione` 講去車站，唔係喺佢隔籬。`Accanto al museo` 換成博物館；`a` 同 `il` 合成 `al`。
+
+          **試吓。** 講藥房喺博物館隔籬。答案：`La farmacia è accanto al museo`。保留成個 `accanto a`，將介詞同冠詞合併。
   - subskill_id: possession_relations
-    explanation: Avere 可以表示擁有。冇其他修飾語嘅單數近親稱謂，mia 等所有詞前通常唔加冠詞。
+    explanation: 想借器材時，指出邊個有就有幫助。呢句先交代家庭關係，再講姊妹擁有乜。意大利文用 `mia` 呢類物主詞修飾冇其他修飾語嘅單數近親名詞時，通常唔加冠詞。
     examples:
       - text: Mia sorella ha una macchina da cucire.
-        meaning: 我家姐有部衣車。
-        note: Mia sorella 表達親屬關係，冇加 la。Ha 引出擁有嘅物品；macchina da cucire 係衣車。
+        meaning: 意思係「我姊妹有一部衣車」。`Mia sorella` 指講者姊妹。`Ha` 係有，`una macchina da cucire` 指一部衣車。`Da cucire`
+          喺呢度講部機用嚟縫紉。
+        note: >-
+          **比較。** `Le mie sorelle` 講幾位姊妹，要有冠詞。`La mia macchina` 亦要有冠詞：單數親屬例外唔適用於物件。
+
+
+          **試吓。** 用 `mio fratello` 講兄弟有衣車。答案：`Mio fratello ha una macchina da cucire`。主人換咗，`ha`
+          仍然配合一個人。
   - subskill_id: quantity_comparison
-    explanation: 數詞數物件；più 加形容詞表達比較，di 可以引出另一個比較名詞短語。
+    explanation: 揀傢俬時，可能要數有幾多件，再比較重量。數字講數量。`più` 加形容詞比較特徵；呢度用 di 引出其他比較對象。
     examples:
       - text: Abbiamo quattro sedie. Questa sedia è più leggera delle altre.
-        meaning: 我哋有四張凳。呢張比其他嗰啲輕。
-        note: Quattro 數凳嘅數量。Altre 前嘅 delle 係 di 加 le；leggera 配合陰性單數 sedia。
+        meaning: 意思係「我哋有四張櫈。呢張比其他輕」。`Abbiamo quattro sedie` 講數量。`Questa sedia` 揀出一張櫈，`più leggera`
+          解輕啲。`Delle altre` 係比其他；`delle` 由 `di` 同複數 `le` 合成。
+        note: |-
+          **改一改。** `Questo tavolo è più leggero degli altri` 比較陽性嘅枱，配合形式同合併冠詞都要改。`Più` 要保留重音符號。
+
+          **試吓。** 用 `pesante` 講呢張櫈比其他重。答案：`Questa sedia è più pesante delle altre`。換特徵，比較組仍然用陰性。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/people-places/italian-people-places-explained-in-english.yaml at
-    revision italian-skills-2026-10-04. Target examples and variety applicability retained exactly;
-    no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_agreement2026
     - treccani_it_possessives2026
@@ -52,18 +73,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/people-places/italian-people-places-explained-in-english.yaml at
-        revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - treccani_it_agreement2026
         - treccani_it_possessives2026
@@ -74,6 +93,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."

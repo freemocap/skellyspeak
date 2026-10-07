@@ -1,61 +1,81 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: reasons_connections
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: 因为 introduces an explanation. The main statement can precede it when the speaker
-      gives the reason after describing the decision.
+    explanation: A broken bicycle can explain why you choose the bus today. The decision comes first,
+      then `因为` introduces its reason. Mandarin also allows the reason first when that better fits
+      the conversation.
     examples:
       - text: 我坐公交车，因为自行车坏了。
-        meaning: I am taking the bus because my bicycle is broken.
-        note: The broken bicycle explains the transport choice. 了 presents the changed condition of the
-          bicycle.
+        meaning: "**The example.** I am taking the bus because my bicycle is broken. `坐公交车` means take the
+          bus. `因为` means because, and `自行车坏了` says the bicycle has become broken: `坏` describes the
+          faulty condition, and final `了` signals the changed situation."
+        note: "Try putting the reason first. Answer: `因为自行车坏了，所以我坐公交车。` `所以` introduces the result after the
+          reason. Both linking words can occur together naturally; `了` alone does not tell you
+          whether the breakdown was today or earlier."
   - subskill_id: consequences
-    explanation: 所以 introduces the consequence of a preceding circumstance. Its relation must be
-      supplied by the two clauses.
+    explanation: A bridge closure forces a change of route. `所以` connects that problem to what the group
+      did as a result, making the relation clearer than simply listing two events.
     examples:
       - text: 桥封了，所以我们换了一条路。
-        meaning: The bridge was closed, so we took another route.
-        note: The closure explains changing routes. 一条路 uses the classifier 条 for a road or route.
+        meaning: "**The example.** The bridge was closed, so we took another route. `桥封了` is the bridge
+          became closed. `我们换了一条路` reports changing to a different route: `换` is change, its
+          following `了` marks the event, and `一条路` counts one route with `条`."
+        note: "Try saying you changed routes because the road was closed instead. Answer: `路封了，所以我们换了一条路。`
+          Replace `桥` with `路` in the first clause. `然后` means then and can order events without
+          stating the causal link supplied by `所以`."
   - subskill_id: conditions
-    explanation: 如果 can introduce a condition, with 就 linking the consequence. No special
-      conditional verb conjugation is needed.
+    explanation: Tomorrow’s outing may depend on the weather. `如果` introduces an event that has not been
+      settled, and `就` connects that condition to the group’s response if it occurs.
     examples:
       - text: 如果明天下雨，我们就改天去。
-        meaning: If it rains tomorrow, we will go another day.
-        note: Rain is hypothetical. 改天 gives the proposed change under that condition.
+        meaning: "**The example.** If it rains tomorrow, we will go another day. `明天下雨` is rain tomorrow.
+          `我们就改天去` is then we will go another day: `改天` means on another day, and `去` is go. The
+          plan changes only under the rain condition."
+        note: "Try using cold weather as the condition. Answer: `如果明天很冷，我们就改天去。` Replace `下雨` with `很冷`, be
+          cold. `因为明天下雨` gives rain as a reason; `如果` leaves it as a condition rather than asserting
+          that it will happen."
   - subskill_id: contrast
-    explanation: 虽然 and 但是 can be paired to present a concession and a contrasting main point. This
-      pairing is normal Mandarin.
+    explanation: A short route may still be hard to walk because of a steep slope. `虽然` introduces the
+      favorable point, and `但是` brings out the drawback that limits its usefulness.
     examples:
       - text: 虽然路很短，但是坡很陡。
-        meaning: Although the route is short, the slope is steep.
-        note: The steep slope is a drawback despite the route’s short length.
+        meaning: "**The example.** Although the route is short, the slope is steep. `路很短` is the route is
+          short, and `坡很陡` is the slope is steep. Each quality is described directly with `很`; `虽然`
+          and `但是` connect the two into a concession and contrast."
+        note: "Try saying the route is long but the slope is gentle. Answer: `虽然路很长，但是坡很缓。` Replace `短` with
+          `长` and `陡` with `缓`. Pairing `虽然` with `但是` is ordinary Mandarin; it need not follow
+          English rules about although and but."
   - subskill_id: supporting_claims
-    explanation: 觉得 can state an inference and 因为 its supporting observation. Distinguish evidence
-      for a belief from the cause of the observed event.
+    explanation: A light still being on may suggest that someone is inside. Stating the observation
+      after `因为` shows why you think so, while `我觉得` leaves the conclusion as your judgement rather
+      than certain knowledge.
     examples:
       - text: 我觉得里面还有人，因为灯还亮着。
-        meaning: I think someone is still inside because the light is still on.
-        note: The light supports the inference. 还 marks continuation; the sentence does not claim the
-          light caused someone to be inside.
+        meaning: "**The example.** I think someone is still inside because the light is still on. `里面` is
+          inside, and `还有人` says someone is still there: `有` expresses presence. `灯还亮着` is the light
+          is still on, with `还` meaning still and `着` keeping the lit state in view."
+        note: "Try supporting the same inference with continuing voices. Answer: `我觉得里面还有人，因为里面还有说话声。` `说话声`
+          means the sound of speaking. The observation supports the belief; it does not cause the
+          people to be inside. Neither clue makes the conclusion certain."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-learner-first-cantonese-2026-10-07
+revision: arabic-teaching-expansion-cantonese-2026-10-07
 language: arabic
 skill_id: information_exchange
 explanation_language: cantonese
@@ -17,76 +17,92 @@ sections:
 
           **試吓。** 答案要補返邊個短語嘅資料？答案：`فِي أَيِّ سَاعَةٍ`。
   - subskill_id: answering_information
-    explanation: 鐘點短語可以獨立回答之前條問題。
+    explanation: 人哋問間舖幾點閂，欠嘅資訊就係時間。問題已經講咗間舖同動作，所以單講時間都係完整嘅對話回答。
     examples:
       - text: فِي السَّاعَةِ الْخَامِسَةِ.
-        meaning: 五點。
-        note: 現代標準阿拉伯語。回答關門時間，唔需要完整句子。
+        meaning: "**例句。** 五點。 `فِي` 呢度係喺某個時間，`السَّاعَةِ` 係小時，`الْخَامِسَةِ`
+          係第五，合埋係五點。呢個時鐘表達用序數形容詞，配合女性名詞小時。"
+        note: 六點用 `فِي السَّاعَةِ السَّادِسَةِ`。五點唔同持續五個鐘。試下回答六點閂：`فِي السَّاعَةِ السَّادِسَةِ`；改序數，保留時間框架。
   - subskill_id: checking_facts
-    explanation: 先提出一個說法，再加確認問題，可以核實候選事實。
+    explanation: 你估間舖今日閂，但想確認先安排。先講你以為係真嘅資訊，再加短問題，畀對方確認或者更正。
     examples:
       - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
-        meaning: 間舖今日冇開，係咪？
-        note: 現代標準阿拉伯語。講者提出冇開門呢個可能答案，請對方確認。
+        meaning: "**例句。** 間舖今日冇開，係咪？ `الْمَحَلُّ مُغْلَقٌ` 係間舖閂咗，`الْيَوْمَ` 係今日。`أَلَيْسَ كَذٰلِكَ؟`
+          係「係咪噉？」前面提出待確認事實，後面問係咪正確。"
+        note: 將 `الْيَوْمَ` 換成 `غَدًا`，就係確認聽日閂唔閂。呢句唔係開放式問幾點閂，而係提出一個具體事實。試下：有用嘅更正要答乜？答案係今日係咪閂，唔係淨係講無關嘅開門時間。
   - subskill_id: useful_detail
-    explanation: 位置細節可以分清對方要搵嘅入口。
+    explanation: 聽者搵緊入口。講附近地標，可以幫佢分清入口喺邊，呢項細節直接幫助佢下一步行動。
     examples:
       - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
-        meaning: 入口喺麵包舖隔籬。
-        note: 現代標準阿拉伯語。對方搵緊入口時用。
+        meaning: "**例句。** 入口喺麵包舖隔籬。 `الْمَدْخَلُ` 係入口，`بِجَانِبِ` 係旁邊，`الْمَخْبَزِ`
+          係麵包舖。地方短語利用地標指出入口位置，唔使另加現在式嘅「係」。"
+        note: 可以將地標換成辦公室 `الْمَكْتَبِ`：`الْمَدْخَلُ بِجَانِبِ
+          الْمَكْتَبِ`。旁邊唔係入面。試下：聽者應該搵邊度？答案係麵包舖旁邊，唔係舖入面；關係短語指出呢個分別。
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+    practice. Original principal examples retained; independent linguistic and Cantonese translation
+    review pending.
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
     - levantongueAbilityTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahPossessiveTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-learner-first-cantonese-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: arabic-teaching-expansion-cantonese-2026-10-07
+    scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+      answers and explanation-language naturalness. Reviewed teaching sources support specific
+      constructions, not certification of the entire document.
 varieties:
   arabic-levantine:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
   arabic-modern-standard:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored meaning-first teaching expansion, including worked examples, contrasts and
+        practice. Original principal examples retained; independent linguistic and Cantonese
+        translation review pending.
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
         - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: arabic-learner-first-cantonese-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: arabic-teaching-expansion-cantonese-2026-10-07
+        scope: All selected Modern Standard and Levantine lessons, principal and inline examples, practice
+          answers and explanation-language naturalness. Reviewed teaching sources support specific
+          constructions, not certification of the entire document.
 variety_sections:
   arabic-levantine:
     - subskill_id: asking_information
@@ -100,20 +116,23 @@ variety_sections:
 
             **試吓。** 淨係答係，算唔算答咗？唔算，要交代閂門時間。疑問詞指出缺少邊項資料。
     - subskill_id: answering_information
-      explanation: 鐘點短語可以獨立回答之前條問題。
+      explanation: 人哋問間舖幾點閂，欠嘅資訊就係時間。問題已經講咗間舖同動作，所以單講時間都係完整嘅對話回答。
       examples:
         - text: عَ السَّاعَة خَمْسِة.
-          meaning: 五點。
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。回答關門時間，唔需要完整句子。
+          meaning: "**例句。** 五點。 `عَ` 帶出時間，`السَّاعَة` 係小時，`خَمْسِة` 係五，合埋係五點。呢個口語時鐘格式用數字，回答唔使再講一次「閂」。"
+          note: 六點用 `عَ السَّاعَة سِتِّة`。如果有歧義，就要交代朝早定夜晚。試下：呢個短語係咪話間舖開五個鐘？唔係；佢講時鐘時間，唔係時長。
     - subskill_id: checking_facts
-      explanation: 先提出一個說法，再加確認問題，可以核實候選事實。
+      explanation: 你估間舖今日閂，但想確認先安排。先講你以為係真嘅資訊，再加短問題，畀對方確認或者更正。
       examples:
         - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
-          meaning: 間舖今日冇開，係咪？
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者提出冇開門呢個可能答案，請對方確認。
+          meaning: "**例句。** 間舖今日冇開，係咪？ `الْمَحَلّ مْسَكَّرْ` 係間舖閂咗，`الْيَوْمْ` 係今日。最後 `صَحّ؟`
+            係「啱唔啱？」佢請對方確認前面陳述，唔係問新話題。"
+          note: 冇咗 `صَحّ؟`，句子就可以淨係宣布閂舖。疑問語氣令資訊保留更正空間。試下改問聽日：`الْمَحَلّ مْسَكَّرْ بُكْرَا، صَحّ؟`；日子改咗，確認請求保留。
     - subskill_id: useful_detail
-      explanation: 位置細節可以分清對方要搵嘅入口。
+      explanation: 聽者搵緊入口。講附近地標，可以幫佢分清入口喺邊，呢項細節直接幫助佢下一步行動。
       examples:
         - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
-          meaning: 入口喺麵包舖隔籬。
-          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對方搵緊入口時用。
+          meaning: "**例句。** 入口喺麵包舖隔籬。 `الْمَدْخَلْ` 係入口，`جَنْبْ` 係旁邊，`الْمَخْبَزْ`
+            係麵包舖。地標放喺位置詞後面。成句話畀人知搵邊度，唔係淨係列出兩個地方。"
+          note: 換成辦公室地標，用 `الْمَدْخَلْ جَنْبْ الْمَكْتَبْ`。保留關係詞，新地標先有用。試下：淨係講麵包舖，會少咗乜？答案係佢同入口嘅位置關係，`جَنْبْ`
+            提供嗰個關係。

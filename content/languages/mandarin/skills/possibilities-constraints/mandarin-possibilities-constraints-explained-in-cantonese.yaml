@@ -1,69 +1,69 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: mandarin-teaching-cantonese-2026-10-07
 language: mandarin
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 会 放喺活動前面，常用嚟講學返嚟嘅技能；其他情態詞可能講當下條件或許可，唔好全部當成廣東話「會」。
+    explanation: 單車壞咗時，大家需要知道邊個識整。活動前嘅 `会` 呢度表示學識咗嘅能力。`我会修自行车` 回答識唔識整，冇承諾幾時整。
     examples:
       - text: 我会修自行车。
-        meaning: 我識整單車。
-        note: 討論實用技能時，会 表達識做，唔係預測某次維修將會發生。
+        meaning: "**例句。** 我識整單車。`我` 係講者，`会` 係識做，`修` 係修理，`自行车` 係單車。活動放喺 `会` 後，被修理嘅嘢放喺 `修` 後。換咗人稱，動詞唔使加另一套詞尾。"
+        note: 冇呢種技能用 `不会`，放喺活動前。試下講成班人識整：`我们会修自行车。` 主語改成 `我们`，其餘保留。`我今天不能修自行车` 係今日做唔到，可能冇時間或工具，未必唔識。
   - subskill_id: permission
-    explanation: 第一人稱問句用 可以，可以請求許可。對方身分同場合會令意思清楚。
+    explanation: 想喺人哋地方擺袋，向負責人問准就清楚。`我可以` 帶出想做嘅事，句尾 `吗` 將陳述變成問准唔准嘅問題。袋先講，之後先交代放去邊。
     examples:
       - text: 我可以把包放在这里吗？
-        meaning: 我可唔可以將個袋放喺呢度？
-        note: 把包 引入要擺放嘅物件。適合問負責呢個地方嘅人。
+        meaning: "**例句。** 我可唔可以將個袋放喺呢度？`把包` 將被處理嘅袋放喺動作前。`放在这里` 係放喺呢度：`放` 係放，`在这里` 交代放好後嘅位置。`可以` 放成個動作前，`吗`
+          放最後。"
+        note: 試下改問可唔可以放喺嗰度：`我可以把包放在那里吗？` 將 `这里` 換成 `那里`，位置仍然跟喺 `放在` 後。對方可以簡答 `可以`，即係准。`我把包放在这里` 就係陳述擺放，冇問准。
   - subskill_id: obligation
-    explanation: 必须 放喺謂語前面，表示必須做，比單純表達偏好強。
+    explanation: 圖書館限期可以令還書變成今日一定要做嘅事。`必须` 表示要求，唔係願望。日期喺 `必须` 前，動作喺後。
     examples:
       - text: 我们今天必须还书。
-        meaning: 我哋今日一定要還書。
-        note: 今天 交代期限；必须 表示還書係必要。
+        meaning: "**例句。** 我哋今日必須還書。`我们` 係我哋，`今天` 係今日，`还书` 係還書。呢度 `还` 讀 `huán`，係歸還，唔係讀 `hái` 嘅「仲」。`必须`
+          指還書呢個動作有必要做。"
+        note: 試下改成今日唔使還：`我们今天不用还书。` `不用` 取消必要性，唔係禁止還。`我们今天不能还书` 就可能係做唔到或者唔准，要睇情境。
   - subskill_id: possibility
-    explanation: 可能 放喺一個說法前面，表示有機會發生，唔係肯定會發生。
+    explanation: 決定出唔出門時，未肯定嘅天氣都重要。`可能` 將落雨講成可能發生，唔係肯定預報。先講下午，再講不確定，之後先講事件。
     examples:
       - text: 下午可能下雨。
-        meaning: 下晝可能落雨。
-        note: 可能 限定 下雨 嘅確定程度；下午 交代可能發生嘅時段。
+        meaning: "**例句。** 下午可能落雨。`下午` 係下晝，`可能` 係有可能，`下雨` 係落雨。呢句唔使另加一個對應英文天氣主語嘅代詞。"
+        note: 試下改成聽日可能落雨：`明天可能下雨。` 時間換成 `明天`，`可能` 留喺 `下雨` 前。`下午下雨` 直接陳述落雨；`下午可能不下雨` 就保留唔落雨嘅可能。
   - subskill_id: certainty
-    explanation: 不确定 表示冇把握。內嵌嘅 是不是 問句指出唔肯定嘅內容。
+    explanation: 安排聽日工作之前，可能未知道係咪休息日。`不确定` 講自己未肯定，後面 `是不是` 喺呢個陳述入面提出未解決嘅兩種可能。
     examples:
       - text: 我不确定明天是不是休息日。
-        meaning: 我唔肯定聽日係咪放假。
-        note: 是不是 喺不確定陳述入面列出兩種可能，唔係斷言聽日唔放假。
+        meaning: "**例句。** 我唔肯定聽日係咪休息日。`我不确定` 係我唔肯定，`明天` 係聽日，`是不是` 係係或唔係，`休息日` 係休息日。兩個可能仍然考慮緊，未有肯定其中一個。"
+        note: 試下話成班人未肯定：`我们不确定明天是不是休息日。` 只將 `我` 改成 `我们`。`明天不是休息日` 就肯定話聽日唔係休息日，唔再表達不確定。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/mandarin/skills/possibilities-constraints/mandarin-possibilities-constraints-explained-in-english.yaml
-    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: mandarin-teaching-cantonese-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/mandarin/skills/possibilities-constraints/mandarin-possibilities-constraints-explained-in-english.yaml
-        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+        practice; primary teaching passages consulted. Independent linguistic and translation review
+        pending.
       sources:
         - oxford_mandarin_grammar2026
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: mandarin-teaching-cantonese-2026-10-07
+        scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+          meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.

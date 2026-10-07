@@ -1,61 +1,84 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: 会 before an activity commonly expresses an acquired skill. Other modals can instead
-      concern present circumstances or permission.
+    explanation: When a bicycle breaks, the group needs to know who has the skill to repair it. `会`
+      before an activity expresses learned ability here. `我会修自行车` answers that practical question;
+      it does not promise a repair at a particular time.
     examples:
       - text: 我会修自行车。
-        meaning: I know how to repair bicycles.
-        note: In a discussion of practical skills, 会 states learned ability, not a prediction of a
-          particular repair.
+        meaning: "**The example.** I know how to repair bicycles. `我` is I, `会` is know how to, `修` is
+          repair, and `自行车` is bicycle. The activity follows `会`, with the thing repaired after `修`.
+          The verb has no separate ending for I or we."
+        note: "To report lack of this skill, `不会` goes before the activity. Try saying your group knows how
+          to repair bicycles. Answer: `我们会修自行车。` Change `我` to `我们`; `会` and the activity stay
+          unchanged. `我今天不能修自行车` instead says you cannot do the repair today, perhaps because you
+          lack time or tools."
   - subskill_id: permission
-    explanation: 可以 in a first-person question can request permission. The listener’s role and the
-      setting make that reading clear.
+    explanation: Before putting a bag in someone else’s space, asking the person responsible makes
+      permission clear. `我可以` introduces the proposed action, and final `吗` turns the statement into
+      a yes/no question. The bag is named before its placement.
     examples:
       - text: 我可以把包放在这里吗？
-        meaning: May I put my bag here?
-        note: 把包 introduces the object to be placed. Ask the person responsible for the space.
+        meaning: "**The example.** May I put my bag here? `把包` brings the bag forward as the object being
+          handled. `放在这里` says put it here: `放` is put and `在这里` gives its resulting location. `可以`
+          precedes the whole action, while `吗` comes last."
+        note: "Try asking to put the bag there instead. Answer: `我可以把包放在那里吗？` Replace `这里` with `那里`; keep
+          the location after `放在`. A permission answer can simply be `可以`, yes, you may. `我把包放在这里`
+          states the placement without asking permission."
   - subskill_id: obligation
-    explanation: 必须 before a predicate states a requirement. It is stronger than simply expressing a
-      preference.
+    explanation: A library deadline can make returning books necessary today. `必须` states that
+      requirement rather than a wish. The day comes before `必须`, and the action follows it.
     examples:
       - text: 我们今天必须还书。
-        meaning: We must return the books today.
-        note: 今天 supplies the deadline. 必须 makes returning them necessary.
+        meaning: "**The example.** We must return the books today. `我们` is we, `今天` is today, and `还书` is
+          return books. Here `还` is read `huán`, return, rather than `hái`, still. `必须` applies to
+          the returning action."
+        note: "Try removing the requirement. Answer: `我们今天不用还书。` `不用` means do not need to; it does not
+          forbid returning them. `我们今天不能还书` instead says returning is not possible or not allowed,
+          depending on the situation."
   - subskill_id: possibility
-    explanation: 可能 before a proposition leaves the event open as a possibility. It does not assert
-      certainty.
+    explanation: When deciding whether to go out, uncertain weather matters. `可能` leaves rain as a
+      possibility rather than a definite forecast. The afternoon gives the time, followed by
+      uncertainty and then the event.
     examples:
       - text: 下午可能下雨。
-        meaning: It may rain in the afternoon.
-        note: 可能 qualifies 下雨. 下午 locates the possible event later in the day.
+        meaning: "**The example.** It may rain in the afternoon. `下午` means afternoon, `可能` means possibly,
+          and `下雨` means rain. Mandarin does not need a separate weather subject corresponding to
+          English it in this sentence."
+        note: "Try placing the possible rain tomorrow instead. Answer: `明天可能下雨。` Replace the time with `明天`;
+          keep `可能` before `下雨`. `下午下雨` presents rain as a statement, while `下午可能不下雨` leaves open
+          the possibility that it will not rain."
   - subskill_id: certainty
-    explanation: 不确定 can state lack of confidence about a proposition. An embedded 是不是 question
-      identifies the uncertainty.
+    explanation: Before arranging tomorrow’s work, you may not know whether it is a day off. `不确定`
+      states your uncertainty, and the following `是不是` presents the unresolved alternatives within
+      that statement.
     examples:
       - text: 我不确定明天是不是休息日。
-        meaning: I am not sure whether tomorrow is a day off.
-        note: 是不是 presents the two possibilities within the uncertainty statement. It does not assert
-          that tomorrow is not a day off.
+        meaning: "**The example.** I am not sure whether tomorrow is a day off. `我不确定` is I am not sure.
+          `明天` is tomorrow, `是不是` is whether it is or is not, and `休息日` is a day off. The two
+          alternatives are being considered, not asserted."
+        note: "Try expressing the group’s uncertainty. Answer: `我们不确定明天是不是休息日。` Only `我` changes to `我们`.
+          `明天不是休息日` says tomorrow is not a day off; it removes the uncertainty instead of expressing
+          it."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

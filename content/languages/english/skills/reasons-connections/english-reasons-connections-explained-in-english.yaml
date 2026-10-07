@@ -1,58 +1,116 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-teaching-expanded-english-2026-10-07
 skill_id: reasons_connections
 language: english
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Because can introduce the reason for a situation or decision.
+    explanation: A reason helps someone understand why an action made sense. If a friend asks why you
+      did not go out, you can connect staying inside to the flooded road. `Because` introduces the
+      explanation for the situation or choice.
     examples:
       - text: We stayed inside because the road was flooded.
-        meaning: Flooding explains why the group stayed inside.
-        note: The clauses are linked causally, not merely placed in time order.
+        meaning: "`We stayed inside` gives the action. `Because the road was flooded` supplies its reason.
+          After `because`, this example has a complete statement with a subject, `the road`, and
+          verb, `was`."
+        note: >-
+          `Because of the flood` gives a similar reason with a noun phrase instead: `We stayed
+          inside because of the flood`. Keep the two constructions distinct; the incorrect `because
+          of the road was flooded` mixes them.
+
+
+          **Try it.** Explain that you left early because you were tired. Answer: `I left early
+          because I was tired`. The words after `because` form a complete explanation of why you
+          left.
   - subskill_id: consequences
-    explanation: So can connect a situation to its result.
+    explanation: A consequence tells what followed from a situation. If there was no space on a bus,
+      walking may have been your response. Connecting those facts helps a listener understand the
+      decision, rather than just hearing two unrelated events.
     examples:
       - text: The bus was full, so we walked.
-        meaning: The full bus led the group to walk.
-        note: The second clause is presented as a consequence.
+        meaning: "`The bus was full` gives the situation. `So` introduces its result, `we walked`. The
+          reason comes first in this construction, and the response follows. Both verbs place the
+          account in the past."
+        note: >-
+          Compare `We walked because the bus was full`: the same reason now comes after the action.
+          `The bus was full, and we walked` lists both facts but does not make their connection as
+          explicit.
+
+
+          **Try it.** Connect a closed café to buying food elsewhere. Answer: `The café was closed,
+          so we bought food elsewhere`. `So` marks the second action as a consequence of the first
+          situation.
   - subskill_id: conditions
-    explanation: An if-clause can make an outcome depend on a condition. Choose
-      forms suited to an open possibility or an imagined situation.
+    explanation: A condition makes a plan depend on what happens. When deciding where to eat, rain may
+      determine whether you use an indoor table. You can describe that possible future without
+      claiming that it definitely will rain.
     examples:
       - text: If it rains, we will eat indoors.
-        meaning: Eating indoors depends on rain.
-        note: The present form rains expresses the future condition here.
+        meaning: "`If it rains` gives the condition. `We will eat indoors` gives the result if that
+          condition is met. In this open future pattern, `rains` has a present form even though the
+          rain is still in the future. `Will` goes in the result."
+        note: >-
+          Do not normally add `will` to this condition: use `If it rains`, not the incorrect `If it
+          will rain` in this example. You can reverse the order: `We will eat indoors if it rains`.
+
+
+          **Try it.** Make taking the bus depend on being late. Answer: `If we are late, we will
+          take the bus`. `Are` states the future condition; `will take` supplies the resulting plan.
   - subskill_id: contrast
-    explanation: But and although can relate ideas that contrast or create an
-      unexpected combination.
+    explanation: Contrast brings together two facts that pull a decision in different directions. A
+      longer route may take more time, yet its safety could make it worthwhile. `But` helps a
+      listener see that the second fact qualifies the first.
     examples:
       - text: The route is longer, but it is safer.
-        meaning: Greater distance is contrasted with greater safety.
-        note: But signals the relationship between the two evaluations.
+        meaning: "`The route is longer` describes a drawback. `But it is safer` adds the advantage; `it`
+          refers to the same route. Both `longer` and `safer` compare it with another route
+          understood from the discussion."
+        note: >-
+          `And` would simply add a fact. `Although the route is longer, it is safer` makes the
+          contrast in another way. In this construction, avoid doubling the link with the incorrect
+          `Although the route is longer, but it is safer`.
+
+
+          **Try it.** Contrast a small room with its comfort. Answer: `The room is small, but it is
+          comfortable`. `But` signals that its size does not prevent the positive quality.
   - subskill_id: supporting_claims
-    explanation: Give grounds that support a claim, rather than only repeating the claim.
+    explanation: Support gives a listener grounds for believing a claim. If a friend wonders whether a
+      shop is open, describing customers you can see is more useful than just repeating your
+      conclusion. The support should be relevant to the particular claim.
     examples:
       - text: The shop is open; I can see customers inside.
-        meaning: Visible customers support the claim that the shop is open.
-        note: The second clause supplies evidence for the first.
+        meaning: "`The shop is open` states the conclusion. `I can see customers inside` gives the
+          observation behind it. `Inside` places the customers in the shop. The semicolon joins two
+          complete statements closely related in meaning."
+        note: >-
+          The observation supports the conclusion but does not prove it: customers might still be
+          inside after closing. If you are less certain, say `I think the shop is open; I can see
+          customers inside`. Keep your confidence in proportion to what you know.
+
+
+          **Try it.** Support a claim that it is raining using a direct observation. Answer: `It is
+          raining; I can see drops hitting the window`. The second statement supplies relevant
+          evidence.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: AI-authored teaching expansion in english; seven accepted pilot sections retained, other
+        lessons rewritten with original exercises. Principal examples retained in shared sections;
+        US replacement lessons use American spellings. No independent linguistic review; exact
+        backend model metadata not recorded.
       sources:
         - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-teaching-expanded-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1

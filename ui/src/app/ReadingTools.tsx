@@ -1,6 +1,8 @@
 import { AskCoachContext } from '../components/learning/AskCoachButton'
 import { useNavigationStore } from '../state/navigation/navigation'
-import { ReadingScopeContext, type ReadingScope } from '../components/reading/ReadingContext'
+import { ReadAloudSlotContext, ReadingScopeContext, type ReadingScope } from '../components/reading/ReadingContext'
+import { useIsMobile } from '../components/layout/useIsMobile'
+import { useAiTrayStore } from '../state/navigation/ai-tray'
 import { useLayoutEffect, useMemo, useRef, type ReactNode } from 'react'
 import { clearInspectionResources } from '../platform/audio/inspection-resource'
 import type { Settings } from '../types'
@@ -23,7 +25,11 @@ export function ReadingTools({ settings, defaultScope, onAsk, children }: { sett
       { followSource: source })
       .then(result => result.receipt),
   }), [])
-  const reading = <ReadingHelp key={settings?.scope?.sessionId ?? "startup"} services={services} languages={settings || defaultScope ? languages() : []}>{children}</ReadingHelp>
+  // On a phone, read-aloud status rises in the page's slot above its recording
+  // panel, the AI tray's, instead of floating over the recorder.
+  const traySlot = useAiTrayStore(state => state.slot)
+  const readAloudSlot = useIsMobile() ? traySlot : null
+  const reading = <ReadAloudSlotContext value={readAloudSlot}><ReadingHelp key={settings?.scope?.sessionId ?? "startup"} services={services} languages={settings || defaultScope ? languages() : []}>{children}</ReadingHelp></ReadAloudSlotContext>
   const ask = (question: string) => {
     useNavigationStore.getState().draftReadingQuestion(question)
     // Preserve unsaved settings: defer navigation until the settings dialog closes.

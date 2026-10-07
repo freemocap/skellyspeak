@@ -1,54 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: Wollen with a bare infinitive can express a wish or intention. Möchte often
-      expresses a softer wish; neither form alone promises that an action will happen.
+    explanation: A course you plan to take in autumn can be presented as something you want to do. `Ich
+      will` expresses the speaker’s intention or wish; German `will` is a form of `wollen`, not a
+      future auxiliary.
     examples:
       - text: Ich will im Herbst einen Sprachkurs besuchen.
-        meaning: I want to attend a language course in the autumn.
-        note: Will besuchen expresses the speaker’s intended action. Will is a form of wollen, not the
-          German future auxiliary.
+        meaning: "**The example.** I want to attend a language course in the autumn. `im Herbst` means in
+          autumn; `im` combines `in dem`. `einen Sprachkurs` is a language course, a masculine
+          accusative object. `besuchen` here means attend and stays in the infinitive at the end
+          after `will`."
+        note: "`Ich möchte` presents a wish more gently than `Ich will`. Try it: express the same wish with
+          that softer wording. Answer: `Ich möchte im Herbst einen Sprachkurs besuchen`. The course,
+          season and infinitive stay unchanged; the modal changes the tone."
   - subskill_id: preferences
-    explanation: Gern describes enjoyment of an activity; lieber can express a preference for one
-      alternative. It is the comparative form associated with gern.
+    explanation: "When two ways of travelling are available, `lieber` identifies the one you prefer. It
+      is the comparative of `gern`: `gern` says you enjoy something, while `lieber` ranks it against
+      another choice."
     examples:
       - text: Ich fahre lieber mit dem Zug als mit dem Bus.
-        meaning: I prefer travelling by train to travelling by bus.
-        note: Lieber … als compares the speaker’s preferences; mit takes dative in both transport
-          phrases.
+        meaning: "**The example.** I prefer travelling by train to travelling by bus. `Ich fahre` is I
+          travel or go by transport. `mit dem Zug` means by train and `mit dem Bus` by bus; `mit`
+          takes dative `dem`. `lieber … als` connects the preferred choice with the less preferred
+          one."
+        note: "Try it: prefer the bus instead. Answer: `Ich fahre lieber mit dem Bus als mit dem Zug`.
+          Exchange the two transport phrases; keep `lieber` before the preferred choice and `als`
+          before the other. `Ich fahre gern mit dem Zug` expresses enjoyment without this ranking."
   - subskill_id: emotions
-    explanation: Sich freuen über with accusative expresses pleasure about something. The reflexive
-      pronoun agrees with the person experiencing the feeling.
+    explanation: A welcome message has arrived, and you want to say it makes you happy. `sich freuen
+      über` expresses pleasure about something; the reflexive pronoun belongs with the person who
+      feels it.
     examples:
       - text: Ich freue mich über deine Nachricht.
-        meaning: I am happy about your message.
-        note: Mich belongs with ich in sich freuen; über deine Nachricht names what brings the pleasure.
+        meaning: "**The example.** I am happy about your message. `Ich freue mich` means I am happy; `mich`
+          goes with `ich`. `über deine Nachricht` names the reason, your message. Feminine
+          accusative `deine` agrees with `Nachricht` after `über` in this expression."
+        note: "`Ich freue mich auf deinen Besuch` means I look forward to your visit: `auf` introduces
+          something anticipated. Try it: say your whole group is pleased about the message. Answer:
+          `Wir freuen uns über deine Nachricht`. `wir` takes `freuen` and reflexive `uns`; the
+          reason stays unchanged."
   - subskill_id: opinions
-    explanation: Meiner Meinung nach marks a personal position. When that phrase starts a main
-      clause, the finite verb follows it before the subject.
+    explanation: People choosing a route may disagree about whether it is suitable. `Meiner Meinung
+      nach` marks the following judgement as your opinion; `zu lang` says its length exceeds what is
+      acceptable.
     examples:
       - text: Meiner Meinung nach ist dieser Weg zu lang.
-        meaning: In my opinion, this route is too long.
-        note: Ist follows the whole introductory phrase. Zu lang evaluates the route rather than merely
-          naming a distance.
+        meaning: "**The example.** In my opinion, this route is too long. `Meiner Meinung nach` means in my
+          opinion and occupies the first position. The finite verb `ist` comes next, before the
+          subject `dieser Weg`, this route. `zu` before `lang` means too, rather than very."
+        note: "Try it: judge the route too short instead. Answer: `Meiner Meinung nach ist dieser Weg zu
+          kurz`. Only the adjective changes. `sehr lang` means very long and does not itself say the
+          length is unsuitable; `zu lang` makes that judgement."
   - subskill_id: agreement_disagreement
-    explanation: Respond to the actual claim with wording such as das sehe ich auch so or da bin ich
-      anderer Meinung. Agreement with a claim differs from accepting an invitation.
+    explanation: "Someone says the repair is no longer worthwhile. A reply can disagree and give a
+      different assessment: `anderer Meinung sein` means to hold a different opinion."
     examples:
       - text: "Da bin ich anderer Meinung: Die Reparatur lohnt sich noch."
-        meaning: "I disagree on that point: the repair is still worthwhile."
-        note: Reply to a partner’s claim that repairing the item is no longer worth it. Da points back
-          to that position; the second clause states the opposing judgment.
-provenance: &a1
+        meaning: "**The example.** I disagree on that point: the repair is still worthwhile. `Da` points
+          back to that claim. `bin ich anderer Meinung` is I have a different opinion, with `bin`
+          before `ich` after the opening. `Die Reparatur lohnt sich noch` means the repair is still
+          worthwhile; `noch` stresses that it remains worth doing."
+        note: "To agree, `Das sehe ich auch so` means I see it that way too. Try it: disagree on behalf of
+          your group. Answer: `Da sind wir anderer Meinung: Die Reparatur lohnt sich noch`. `bin
+          ich` becomes `sind wir`; the repair remains the singular subject of `lohnt`."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - umich_de_modals2026
     - umich_de_comparison2026
@@ -58,11 +83,28 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - umich_de_modals2026
+        - umich_de_comparison2026
+        - umich_de_prepositional2026
+        - goethe_de_discussion2026
+        - umich_de_connectors2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

@@ -1,94 +1,136 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: time_events
 language: french
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 現在式可以講習慣、目前狀態或即時活動。en ce moment 可以明確交代而家做緊，唔需要另設進行時態。
+    explanation: 有人問你做緊乜，你正準備晚餐。`Je prépare` 係現在式，可以表示我準備或者我準備緊；`le dîner` 係晚餐，`en ce moment`
+      即而家，講明係當下嘅活動。法文可以直接用呢個現在式，唔需要另加進行式。`Je prépare le dîner tous les soirs`
+      就透過每晚表達習慣。動詞形式可以一樣，時間片語會改變活動嘅理解。
     examples:
       - text: Je prépare le dîner en ce moment.
         meaning: 我而家準備緊晚餐。
-        note: prépare 係現在式；en ce moment 指出今次當下活動，唔係一般習慣。
+        note: 試下講你哋而家準備緊呢餐。`Nous préparons le dîner en ce moment.` 可以；`préparons` 配合
+          `nous`，時間片語仍然指目前呢一次。
   - subskill_id: past_events
-    explanation: 過去時結構要配合事件呈現方式。複合過去式常推進敘事；未完成過去式常交代持續背景或習慣。唔係見到某個時間詞就必定用其中一種。
+    explanation: 你回想尋日離開屋企時，當時已經落緊雨。`Hier` 係尋日，`il pleuvait` 用未完成過去式講持續緊嘅天氣；`quand nous avons quitté
+      la maison` 就將離開表達為呢個背景入面已完成嘅事件。`Avons quitté` 由現在式助動詞 `avons` 同過去分詞 `quitté` 組成。淨係 `hier`
+      唔能夠決定用邊種過去式；`Il a plu toute la journée` 可以將成日落雨當作有界限嘅整件事，唔係離開時嘅背景。
     examples:
       - text: Hier, il pleuvait quand nous avons quitté la maison.
         meaning: 噚日我哋離開屋企嗰陣，落緊雨。
-        note: pleuvait 交代持續背景；avons quitté 將離開呈現為背景中發生嘅事件。
+        note: 試下保留落雨背景，改成你一個人離開。`Hier, il pleuvait quand j’ai quitté la maison.`
+          可以；天氣仍然用未完成過去式，離開就改成配合我嘅 `j’ai quitté`。
   - subskill_id: future_events
-    explanation: 現在式 aller 加不定式可以講計劃；亦可以用簡單將來式，或者有清楚將來語境嘅現在式。
+    explanation: 大家計劃聽日參觀花園。`Nous allons` 本身係配合我哋嘅現在式 `aller`，但接住 `visiter` 就組成將來說法，即我哋將會參觀。`Le
+      jardin` 指地方，`demain` 定喺聽日。只有 `aller` 隨人稱改變，`visiter` 保持原形。`Nous allons au jardin`
+      冇第二個動詞，就係用 `aller` 表達去一個目的地。呢個將來說法可以講計劃，唔代表一定即刻發生。
     examples:
       - text: Nous allons visiter le jardin demain.
         meaning: 我哋聽日會去參觀花園。
-        note: allons visiter 表達計劃；demain 定位將來。aller 有變位，visiter 保持不定式。
+        note: 試下改成你自己嘅計劃。`Je vais visiter le jardin demain.` 可以；`vais` 配合 `je`，`visiter` 同日期都唔變。
   - subskill_id: duration_frequency
-    explanation: depuis 配合持續至今嘅情況，常用嚟計已經幾耐；pendant 計時長，chaque 同頻率副詞講重複。
+    explanation: 你三個月前開始喺呢度工作，而家仍然喺度。`Je travaille ici` 講目前持續嘅情況，`depuis trois mois`
+      量度由開始到而家有幾耐。如果講起點，`depuis janvier` 係由一月開始。已經完成嘅時段可以講 `J’ai travaillé ici pendant trois
+      mois.`。頻率就回答幾密，例如 `Je travaille ici trois jours par semaine` 係每星期三日。持續時間同頻率雖然都有數字，但交代唔同資料。
     examples:
       - text: Je travaille ici depuis trois mois.
         meaning: 我喺呢度返工三個月喇。
-        note: 法文用現在式配合 depuis 描述延續至今嘅情況。英文譯法用完成式，唔代表法文都要用完成式。
+        note: 試下講持續緊嘅工作由一月開始。`Je travaille ici depuis janvier.` 可以；`depuis` 後面而家係起點，唔係一段時間長度。
   - subskill_id: event_sequence
-    explanation: d’abord、puis、ensuite 交代次序。before、after 對應嘅法文結構各有補語要求；次序本身唔表達因果。
+    explanation: 你講返大家安排旅程嘅先後。`D’abord` 係首先，`puis` 係然後；`nous avons acheté les billets` 講買票，`nous
+      avons choisi nos places` 講揀座位。兩個動作都用 `avons` 加過去分詞：`acheter` 變 `acheté`，`choisir` 變
+      `choisi`。`Nos` 配合複數 `places`。呢啲連接詞表示次序，本身唔代表前一件事造成後一件事；`donc` 先係引出結果。
     examples:
       - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
         meaning: 我哋先買飛，之後先揀位。
-        note: d’abord 同 puis 排列先後，冇話買飛導致揀位。
+        note: 試下倒轉兩個動作嘅次序。`D’abord, nous avons choisi nos places, puis nous avons acheté les billets.`
+          可以；兩句交換位置，但各自保留過去式。
   - subskill_id: event_phase
-    explanation: commencer à、être en train de、finir de 加不定式，可以交代活動開始、進行或完成等階段。
+    explanation: 廚房而家執好咗，你講啱啱完成。`Je viens de` 表示最近過去，即我啱啱；`finir de` 係完成，`ranger la cuisine`
+      講執廚房呢個活動。兩個 `de` 分別屬於唔同結構，所以都要保留。`Finir` 同 `ranger` 喺各自結構後面保持原形。`Je suis en train de
+      ranger la cuisine` 就係仲執緊，`Je commence à ranger` 係開始執。
     examples:
       - text: Je viens de finir de ranger la cuisine.
         meaning: 我啱啱執完廚房。
-        note: finir de 標示完成；viens de 進一步交代係啱啱完成。
-provenance:
+        note: 試下講啱啱清潔完張枱。`Je viens de finir de nettoyer la table.` 可以；兩個帶 `de` 嘅結構都保留，只換最後嘅活動。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/time-events/french-time-events-explained-in-english.yaml at revision
-    french-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - tex_past_aspect2026
     - tex_depuis2026
+    - texNearFutureTeaching20261007
+    - texCompoundPastTeaching20261007
+    - texRecentPastTeaching20261007
+    - oqlfMealsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/time-events/french-time-events-explained-in-english.yaml at revision
-        french-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_past_aspect2026
-        - tex_depuis2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/time-events/french-time-events-explained-in-english.yaml at revision
-        french-skills-2026-10-04. Target examples and variety applicability retained exactly; no
-        independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_past_aspect2026
-        - tex_depuis2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: present_events
+      explanation: 有人問你做緊乜，你正準備午餐。`Je prépare` 係現在式，可以表示我準備或者我準備緊；`le dîner` 係午餐，`en ce moment`
+        即而家，講明係當下嘅活動。法文可以直接用呢個現在式，唔需要另加進行式。`Je prépare le dîner tous les jours`
+        就透過每日表達習慣。動詞形式可以一樣，時間片語會改變活動嘅理解。
+      examples:
+        - text: Je prépare le dîner en ce moment.
+          meaning: 我而家準備緊午餐。
+          note: 試下講你哋而家準備緊呢餐。`Nous préparons le dîner en ce moment.` 可以；`préparons` 配合
+            `nous`，時間片語仍然指目前呢一次。
+    - subskill_id: past_events
+      explanation: 你回想尋日離開屋企時，當時已經落緊雨。`Hier` 係尋日，`il pleuvait` 用未完成過去式講持續緊嘅天氣；`quand nous avons quitté
+        la maison` 就將離開表達為呢個背景入面已完成嘅事件。`Avons quitté` 由現在式助動詞 `avons` 同過去分詞 `quitté` 組成。淨係
+        `hier` 唔能夠決定用邊種過去式；`Il a plu toute la journée` 可以將成日落雨當作有界限嘅整件事，唔係離開時嘅背景。
+      examples:
+        - text: Hier, il pleuvait quand nous avons quitté la maison.
+          meaning: 噚日我哋離開屋企嗰陣，落緊雨。
+          note: 試下保留落雨背景，改成你一個人離開。`Hier, il pleuvait quand j’ai quitté la maison.`
+            可以；天氣仍然用未完成過去式，離開就改成配合我嘅 `j’ai quitté`。
+    - subskill_id: future_events
+      explanation: 大家計劃聽日參觀花園。`Nous allons` 本身係配合我哋嘅現在式 `aller`，但接住 `visiter` 就組成將來說法，即我哋將會參觀。`Le
+        jardin` 指地方，`demain` 定喺聽日。只有 `aller` 隨人稱改變，`visiter` 保持原形。`Nous allons au jardin`
+        冇第二個動詞，就係用 `aller` 表達去一個目的地。呢個將來說法可以講計劃，唔代表一定即刻發生。
+      examples:
+        - text: Nous allons visiter le jardin demain.
+          meaning: 我哋聽日會去參觀花園。
+          note: 試下改成你自己嘅計劃。`Je vais visiter le jardin demain.` 可以；`vais` 配合 `je`，`visiter` 同日期都唔變。
+    - subskill_id: duration_frequency
+      explanation: 你三個月前開始喺呢度工作，而家仍然喺度。`Je travaille ici` 講目前持續嘅情況，`depuis trois mois`
+        量度由開始到而家有幾耐。如果講起點，`depuis janvier` 係由一月開始。已經完成嘅時段可以講 `J’ai travaillé ici pendant trois
+        mois.`。頻率就回答幾密，例如 `Je travaille ici trois jours par semaine`
+        係每星期三日。持續時間同頻率雖然都有數字，但交代唔同資料。
+      examples:
+        - text: Je travaille ici depuis trois mois.
+          meaning: 我喺呢度返工三個月喇。
+          note: 試下講持續緊嘅工作由一月開始。`Je travaille ici depuis janvier.` 可以；`depuis` 後面而家係起點，唔係一段時間長度。
+    - subskill_id: event_sequence
+      explanation: 你講返大家安排旅程嘅先後。`D’abord` 係首先，`puis` 係然後；`nous avons acheté les billets` 講買票，`nous
+        avons choisi nos places` 講揀座位。兩個動作都用 `avons` 加過去分詞：`acheter` 變 `acheté`，`choisir` 變
+        `choisi`。`Nos` 配合複數 `places`。呢啲連接詞表示次序，本身唔代表前一件事造成後一件事；`donc` 先係引出結果。
+      examples:
+        - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          meaning: 我哋先買飛，之後先揀位。
+          note: 試下倒轉兩個動作嘅次序。`D’abord, nous avons choisi nos places, puis nous avons acheté les billets.`
+            可以；兩句交換位置，但各自保留過去式。
+    - subskill_id: event_phase
+      explanation: 廚房而家執好咗，你講啱啱完成。`Je viens de` 表示最近過去，即我啱啱；`finir de` 係完成，`ranger la cuisine`
+        講執廚房呢個活動。兩個 `de` 分別屬於唔同結構，所以都要保留。`Finir` 同 `ranger` 喺各自結構後面保持原形。`Je suis en train de
+        ranger la cuisine` 就係仲執緊，`Je commence à ranger` 係開始執。
+      examples:
+        - text: Je viens de finir de ranger la cuisine.
+          meaning: 我啱啱執完廚房。
+          note: 試下講啱啱清潔完張枱。`Je viens de finir de nettoyer la table.` 可以；兩個帶 `de` 嘅結構都保留，只換最後嘅活動。

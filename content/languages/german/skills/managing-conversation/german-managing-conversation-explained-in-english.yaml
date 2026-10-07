@@ -1,67 +1,92 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: german-skills-2026-10-04
+revision: german-teaching-english-2026-10-07
 language: german
 skill_id: managing_conversation
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Guten Tag can open a neutral encounter. Auf Wiedersehen or a phrase such as bis
-      morgen can close it; the latter anticipates another meeting.
+    explanation: When you need to leave a conversation, a short explanation followed by a farewell makes
+      the transition clear. `Ich muss jetzt los` says you must go now, and `Bis morgen` looks ahead
+      to seeing the listener tomorrow.
     examples:
       - text: Ich muss jetzt los. Bis morgen!
-        meaning: I have to go now. See you tomorrow!
-        note: The departure prepares the closing. Bis morgen takes leave while anticipating contact
-          tomorrow; no full sentence is needed for the farewell.
+        meaning: "**The example.** I have to go now. See you tomorrow! `muss` expresses necessity, `jetzt`
+          means now, and `los` conveys setting off; an infinitive such as `gehen` can be understood
+          in this familiar expression. `Bis morgen` literally means until tomorrow and works as a
+          farewell."
+        note: "Try it: leave now but expect to meet on Friday. Answer: `Ich muss jetzt los. Bis Freitag!`
+          Replace the farewell’s time with `Freitag`. `Guten Morgen` is a greeting in the morning;
+          `Bis morgen` looks forward to tomorrow regardless of the current time."
   - subskill_id: acknowledging
-    explanation: "A response such as ah, jetzt verstehe ich can register understanding. Its
-      conversational position matters: understanding a position does not necessarily endorse
-      it."
+    explanation: After someone explains a difference, you can signal that it is now clear. `verstehen`
+      expresses understanding; this reply acknowledges the explanation without necessarily agreeing
+      with a judgement.
     examples:
       - text: Ah, jetzt verstehe ich den Unterschied.
-        meaning: Ah, now I understand the difference.
-        note: After the partner explains two options, this acknowledges that explanation. Verstehe
-          follows jetzt, with ich after the verb.
+        meaning: "**The example.** Ah, now I understand the difference. `Ah` marks the moment of
+          recognition. `jetzt` means now and comes first, followed by finite `verstehe` and subject
+          `ich`. `den Unterschied` is the difference, a masculine accusative object."
+        note: "Try it: start the statement with yourself instead of the time. Answer: `Ah, ich verstehe
+          jetzt den Unterschied`. `ich` takes the first position, `verstehe` remains second, and
+          `jetzt` moves later. `Ich bin einverstanden` expresses agreement rather than just
+          understanding."
   - subskill_id: clarification
-    explanation: Ask what the partner means with was meinst du mit …? or request repetition. Specify
-      the trouble in the preceding contribution rather than introducing an unrelated fact
-      question.
+    explanation: A word such as provisional may be unclear in someone’s instructions. `Was meinst du
+      mit` asks what they mean by that particular word, rather than asking them to repeat the whole
+      message.
     examples:
       - text: Was meinst du mit „vorläufig“?
-        meaning: What do you mean by “provisional”?
-        note: After the partner calls a plan vorläufig, this asks for its intended meaning. Du addresses
-          one familiar person; the quoted word remains German.
+        meaning: "**The example.** What do you mean by “provisional”? `Was` means what, `meinst du` means do
+          you mean, and `mit` introduces the quoted expression. `vorläufig` means provisional or for
+          the time being; quoting it makes clear which part needs explanation."
+        note: "Try it: ask an unfamiliar adult formally. Answer: `Was meinen Sie mit „vorläufig“?` `du`
+          changes to `Sie` and `meinst` to `meinen`; the quoted word stays unchanged. `Kannst du das
+          wiederholen?` instead asks for repetition, which may still leave the meaning unclear."
   - subskill_id: rephrasing
-    explanation: Anders gesagt can introduce a clearer restatement. It must preserve or explain an
-      identifiable earlier meaning, not merely add a new topic.
+    explanation: A booking discussion can become clearer when you restate what must happen first.
+      `Anders gesagt` introduces another formulation of the same point, here the need for
+      confirmation before booking.
     examples:
       - text: "Anders gesagt: Wir brauchen die Zusage vor der Buchung."
-        meaning: In other words, we need confirmation before booking.
-        note: After explaining that booking depends on prior confirmation, this restates the order more
-          plainly. The phrase introduces the reformulation; it is not itself the reformulated
-          content.
+        meaning: "**The example.** In other words, we need confirmation before booking. `Anders gesagt`
+          means put differently. `Wir brauchen` is we need; `die Zusage` means the confirmation or
+          agreement. `vor der Buchung` means before the booking, with dative `der` after temporal
+          `vor`."
+        note: "Try it: make this your own requirement instead of the group’s. Answer: `Anders gesagt: Ich
+          brauche die Zusage vor der Buchung`. Change `wir brauchen` to `ich brauche`. `nach der
+          Buchung` would mean after booking and would reverse the intended order."
   - subskill_id: correcting_misunderstanding
-    explanation: Ich meinte …, nicht … can replace the interpretation received with the one
-      intended. Meinte is a past form of meinen, used here to refer to the earlier intended
-      meaning.
+    explanation: Someone has understood you to mean the main entrance. You can repair the
+      misunderstanding by naming the intended entrance and explicitly excluding the other one.
     examples:
       - text: Ich meinte den Hintereingang, nicht den Haupteingang.
-        meaning: I meant the rear entrance, not the main entrance.
-        note: After the partner assumes the main entrance, the two accusative noun phrases identify the
-          intended and mistaken alternatives.
+        meaning: "**The example.** I meant the rear entrance, not the main entrance. `Ich meinte` means I
+          meant and refers back to what you said. `den Hintereingang` is the rear entrance; `nicht
+          den Haupteingang` is not the main entrance. Both nouns are masculine accusative objects of
+          the intended reference."
+        note: "Try it: correct the misunderstanding in the opposite direction. Answer: `Ich meinte den
+          Haupteingang, nicht den Hintereingang`. Exchange the entrance phrases. The intended one
+          comes before `nicht`; the excluded one follows it, so the listener can act on the
+          correction."
   - subskill_id: turns_topics
-    explanation: Darf ich noch etwas zu … sagen? can request another turn on a named topic. A turn
-      request differs from merely sending a message about that topic.
+    explanation: During a discussion you may want to add something about the price. `Darf ich` asks to
+      take the floor, and the topic phrase tells others what your contribution concerns.
     examples:
       - text: Darf ich noch etwas zum Preis sagen?
-        meaning: May I say something else about the price?
-        note: In a discussion moving toward a decision, this requests the floor on price. Zum is zu dem;
-          the infinitive sagen follows the modal construction.
-provenance: &a1
+        meaning: "**The example.** May I say something else about the price? `noch etwas` means something
+          else or something further. `zum Preis` means about the price and combines `zu dem`.
+          `sagen` means say and remains in the infinitive at the end after `Darf`."
+        note: "Try it: ask to add something about the booking. Answer: `Darf ich noch etwas zur Buchung
+          sagen?` `zur` combines `zu der`, because `Buchung` is feminine. The polite question
+          requests a turn; a question such as `Wie viel kostet es?` directly requests price
+          information."
+provenance:
   origin: ai
-  authorship: AI-authored German assessment guidance, learner explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored German teaching revision with contextual openings, worked examples and
+    practice, informed by scoped teaching sources. Independent linguistic and Cantonese translation
+    review pending.
   sources:
     - goethe_de_discourse2026
     - goethe_de_discussion2026
@@ -71,11 +96,28 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: german-skills-2026-10-04
-    scope: Entire document, including examples, English meanings, context and applicability to
-      german-germany. Sources support the specified constructions; they do not certify the
-      original examples.
+    revision: german-teaching-english-2026-10-07
+    scope: All teaching explanations, original and adapted examples, practice answers and
+      English/Cantonese meaning in the selected german-germany variety. Sources support particular
+      constructions, not certification of these lessons.
 varieties:
   german-germany:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored German teaching revision with contextual openings, worked examples and
+        practice, informed by scoped teaching sources. Independent linguistic and Cantonese
+        translation review pending.
+      sources:
+        - goethe_de_discourse2026
+        - goethe_de_discussion2026
+        - umich_de_questions2026
+        - umich_de_subjunctive2026
+        - umich_de_word_order2026
+      generation: null
+      review:
+        status: needs_review
+        revision: german-teaching-english-2026-10-07
+        scope: All teaching explanations, original and adapted examples, practice answers and
+          English/Cantonese meaning in the selected german-germany variety. Sources support
+          particular constructions, not certification of these lessons.

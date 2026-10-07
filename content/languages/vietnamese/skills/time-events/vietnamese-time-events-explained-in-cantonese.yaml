@@ -1,77 +1,72 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: time_events
 explanation_language: cantonese
 shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
 sections:
   - subskill_id: present_events
-    explanation: 動詞前面嘅đang可以明確標示進行中活動。
+    explanation: 有人問你而家做緊乜，你整緊單車。`Tôi` 指你，`đang` 放喺 `sửa` 前面表示修理進行中，`xe đạp` 係單車。冇標記嘅 `Tôi sửa xe
+      đạp` 喺合適情境都可以講整單車，但冇咁明確表示而家進行緊。`Đang` 唔係附喺動詞嘅詞尾；人物或者活動改變時，仍然係獨立字。
     examples:
       - text: Tôi đang sửa xe đạp.
         meaning: 我整緊單車。
-        note: 一般當前語境將活動定位到而家。
+        note: 試下講你哋整緊單車。`Chúng tôi đang sửa xe đạp.` 可以；`chúng tôi` 將人物改成唔包括聽者嘅我哋，`đang sửa` 保持一樣。
   - subskill_id: past_events
-    explanation: 過去時間表達可以定位行動，唔使改動詞。
+    explanation: 你講返尋日整單車。`Hôm qua` 係尋日，將 `tôi sửa xe đạp` 放喺過去。`Sửa`
+      同現在或者將來情境用嘅修理字一樣，越南文唔會將佢變成過去式。過去時間片語可以令另一個標記唔必要。`Tôi đã sửa xe đạp rồi`
+      就可以強調已經整咗，加上達成動作嘅理解，唔係用過去詞尾代替尋日。
     examples:
       - text: Hôm qua tôi sửa xe đạp.
         meaning: 我尋日整咗架單車。
-        note: Hôm qua提供過去時間；動詞仍然係sửa。
+        note: 試下講尋日你哋做同一活動。`Hôm qua chúng tôi sửa xe đạp.` 可以；過去時間保留，只換人物片語。
   - subskill_id: future_events
-    explanation: Sẽ可以表達稍後行動，時間短語指定幾時。
+    explanation: 你計劃聽日去攞零件。`Ngày mai` 係聽日，`tôi sẽ` 係我將會，`đi lấy phụ tùng` 係去攞零件。`Đi` 講去，`lấy`
+      講攞，一齊組成計劃嘅活動。`Sẽ` 放喺活動片語前面，兩個動詞都唔加將來詞尾。將來情境已經清楚時，標記可以省略，但呢度加上佢令計劃較明確。
     examples:
       - text: Ngày mai tôi sẽ đi lấy phụ tùng.
         meaning: 我聽日會去攞零件。
-        note: Ngày mai交代日子；đi lấy結合去同領取。
+        note: 試下改成你哋嘅攞零件計劃。`Ngày mai chúng tôi sẽ đi lấy phụ tùng.` 可以；只換人物片語，`sẽ đi lấy` 保留將來活動。
   - subskill_id: duration_frequency
-    explanation: Mỗi配合時間範圍，lần配合數字，表達頻率。
+    explanation: 你講游水習慣有幾密。`Mỗi tuần` 係每星期，`tôi đi bơi` 係我去游水，`hai lần` 數兩次。星期時段同次數一齊表達每星期兩次。`Lần`
+      係一次，唔係一個鐘；`hai tiếng` 先係兩個鐘。`Mỗi tháng` 將時段改成每月，`bơi` 唔需要加習慣詞尾。
     examples:
       - text: Mỗi tuần tôi đi bơi hai lần.
         meaning: 我一個星期游兩次水。
-        note: Hai lần數次數，唔係鐘數。
+        note: 試下講每星期游三次。`Mỗi tuần tôi đi bơi ba lần.` 可以；`ba lần` 改咗次數，星期時段冇變。
   - subskill_id: event_sequence
-    explanation: Trước tiên同sau đó排列程序動作。
+    explanation: 你交代準備食物嘅次序。`Trước tiên` 係首先，引出 `rửa tay` 即洗手；`sau đó` 係之後，引出 `chuẩn bị rau`
+      即準備蔬菜。按指示做嗰個人已經清楚，所以呢度唔使主語。呢啲片語講先後，唔代表第一個動作造成第二個。`Trước khi chuẩn bị rau, rửa tay`
+      用準備蔬菜之前洗手表達同一次序。
     examples:
       - text: Trước tiên rửa tay, sau đó chuẩn bị rau.
         meaning: 先洗手，再準備啲蔬菜。
-        note: 指令語境交代聽者。
+        note: 試下用 `nấu ăn` 將洗手之後嘅第二步改成煮食。`Trước tiên rửa tay, sau đó nấu ăn.` 可以；次序詞保留，只換第二個動作。
   - subskill_id: event_phase
-    explanation: 活動後面嘅xong標示到達終點。
+    explanation: 你睇到本書最後一頁，講已經完成。`Tôi đọc` 係我睇，動作後面 `xong` 標示完成，`cuốn sách` 用量詞 `cuốn` 指本書。句尾 `rồi`
+      表達已經達成。`Tôi đang đọc cuốn sách` 就係睇緊；淨係停低嘅 `Tôi ngừng đọc` 唔保證睇到尾。`Xong`
+      講活動達到終點，唔只係將佢放喺過去。
     examples:
       - text: Tôi đọc xong cuốn sách rồi.
         meaning: 我已經睇完本書。
-        note: Đọc xong明確表示閱讀完成；rồi表達已達成狀態。
-provenance:
+        note: 試下講你哋睇完本書。`Chúng tôi đọc xong cuốn sách rồi.` 可以；閱讀者改變，但 `đọc xong` 同 `rồi` 保留已完成嘅意思。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/time-events/vietnamese-time-events-explained-in-english.yaml at
-    revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - niu_vietnamese_patterns2026
     - msu_vietnamese_duration2026
+    - niuVietnameseTimeTeaching20261007
+    - niuVietnameseOffersCompletionTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/time-events/vietnamese-time-events-explained-in-english.yaml at
-        revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - niu_vietnamese_patterns2026
-        - msu_vietnamese_duration2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

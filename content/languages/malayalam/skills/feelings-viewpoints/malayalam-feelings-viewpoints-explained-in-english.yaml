@@ -1,55 +1,88 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: malayalam-skills-2026-10-04
+revision: malayalam-teaching-english-2026-10-07
 language: malayalam
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: A dative experiencer and ആഗ്രഹമുണ്ട് can express desire for an action.
+    explanation: A sewing class interests you, and you want to acquire that skill. The desire is
+      expressed as something you have, with `എനിക്ക്` before the activity and `ആഗ്രഹമുണ്ട്` after
+      it.
     examples:
       - text: എനിക്ക് തയ്യൽ പഠിക്കാൻ ആഗ്രഹമുണ്ട്.
-        meaning: I want to learn to sew.
-        note: പഠിക്കാൻ names the desired learning action; no commitment is made.
+        meaning: "**The example.** I want to learn to sew. `തയ്യൽ` is sewing, and `പഠിക്കാൻ` is to learn.
+          `ആഗ്രഹം` means desire; `ആഗ്രഹമുണ്ട്` combines that noun with `ഉണ്ട്`. The infinitive names
+          what the desire concerns rather than promising that you will do it."
+        note: "Try saying you want to learn swimming. Answer: `എനിക്ക് നീന്തൽ പഠിക്കാൻ ആഗ്രഹമുണ്ട്.` Replace
+          `തയ്യൽ` with `നീന്തൽ`, swimming. `എനിക്ക് നീന്താൻ കഴിയും` reports that you can already
+          swim; wanting to learn does not claim the ability."
   - subskill_id: preferences
-    explanation: ഇഷ്ടം can express liking with a dative experiencer and a comparative alternative.
+    explanation: Tea and coffee are both available, and you want to identify the one you like more.
+      `എനിക്ക്` gives the person with the preference; the coffee comparison comes before the favored
+      tea.
     examples:
       - text: എനിക്ക് കാപ്പിയെക്കാൾ ചായയാണ് ഇഷ്ടം.
-        meaning: I prefer tea to coffee.
-        note: ചായയാണ് focuses tea as the favored option.
+        meaning: "**The example.** I prefer tea to coffee. `കാപ്പിയെക്കാൾ` means than coffee, `ചായയാണ്`
+          highlights tea with joined `ആണ്`, and `ഇഷ്ടം` means liking. The sentence selects tea as
+          what you like in comparison with coffee."
+        note: "Try preferring coffee instead. Answer: `എനിക്ക് ചായയെക്കാൾ കാപ്പിയാണ് ഇഷ്ടം.` Exchange the
+          drinks and use the corresponding joined forms: `ചായയെക്കാൾ` for than tea and `കാപ്പിയാണ്`
+          for coffee is. `എനിക്ക് ചായ ഇഷ്ടമാണ്` expresses liking tea without comparing it with
+          coffee."
   - subskill_id: emotions
-    explanation: A feeling construction can describe an emotional response to news.
+    explanation: News can cause your feelings to change. The sentence first says when you heard it, then
+      describes happiness arising for you. This feeling construction uses `എനിക്ക്` for the person
+      experiencing it.
     examples:
       - text: ഈ വാർത്ത കേട്ടപ്പോൾ എനിക്ക് സന്തോഷമായി.
-        meaning: I was happy when I heard this news.
-        note: എനിക്ക് identifies the experiencer of the happiness.
+        meaning: "**The example.** I was happy when I heard this news. `ഈ വാർത്ത` is this news and
+          `കേട്ടപ്പോൾ` means when I heard, with the hearer understood from the sentence.
+          `സന്തോഷമായി` expresses becoming happy, combining happiness with a became-form. It reports
+          your response at that moment."
+        note: "Try saying the other news made you happy. Answer: `ആ വാർത്ത കേട്ടപ്പോൾ എനിക്ക് സന്തോഷമായി.`
+          Replace `ഈ` with `ആ`, that. The feeling is more than a report of hearing: `ഞാൻ ഈ വാർത്ത
+          കേട്ടു` simply says I heard this news and leaves your reaction unstated."
   - subskill_id: opinions
-    explanation: തോന്നുന്നു can present a following or preceding proposition as an impression.
+    explanation: After discussing a way to complete a task, you can say it seems easy to you. The
+      evaluated content comes before `എനിക്ക് തോന്നുന്നു`, it seems to me, making the judgement your
+      impression.
     examples:
       - text: ഈ രീതി എളുപ്പമാണെന്ന് എനിക്ക് തോന്നുന്നു.
-        meaning: I think this method is easy.
-        note: എന്ന് links the content of the impression.
+        meaning: "**The example.** I think this method is easy. `ഈ രീതി` is this method. `എളുപ്പമാണെന്ന്`
+          joins easy is to `എന്ന്`, the marker linking the content to the impression. `എനിക്ക്` is
+          to me and `തോന്നുന്നു` is seems. This is a natural impression frame, not an English
+          subject-verb order copied word for word."
+        note: "Try giving the impression that it is difficult. Answer: `ഈ രീതി ബുദ്ധിമുട്ടാണെന്ന് എനിക്ക്
+          തോന്നുന്നു.` Replace the easy-content with `ബുദ്ധിമുട്ടാണെന്ന്`, that it is difficult. `ഈ
+          രീതി എളുപ്പമാണ്` states that the method is easy without the same explicit impression
+          frame."
   - subskill_id: agreement_disagreement
-    explanation: യോജിക്കുക with an appropriate complement expresses agreement; negation rejects it.
+    explanation: Someone proposes a plan, and you do not support it. The proposal is linked to the
+      agreeing action with `നിർദ്ദേശത്തോട്`; final negation makes your stance clear.
     examples:
       - text: ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നില്ല.
-        meaning: I disagree with this suggestion.
-        note: നിർദ്ദേശത്തോട് identifies the suggestion being rejected.
+        meaning: "**The example.** I disagree with this suggestion. `ഞാൻ` is I, `ഈ നിർദ്ദേശത്തോട്` is with
+          this suggestion, and `യോജിക്കുന്നില്ല` is do not agree. The noun's changed form marks the
+          relation to the suggestion, while the final action is negative."
+        note: "Try expressing agreement instead. Answer: `ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നു.` Replace
+          `യോജിക്കുന്നില്ല` with positive `യോജിക്കുന്നു`. Keep the suggestion's relation ending.
+          `മനസ്സിലായി` acknowledges understanding, which can be true even when you disagree."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Malayalam English teaching revision with worked forms and
+    practice. Independent linguistic review pending.
   sources:
+    - moagMalayalamTeaching20261007
     - nizar_malayalam_dative2010
-    - ut_malayalam_dialogues2026
+    - utMalayalamSandhiTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: malayalam-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: malayalam-teaching-english-2026-10-07
+    scope: All English teaching, original and adapted examples and practice answers for
+      malayalam-kerala. Source consultation does not certify original lessons.
 varieties:
   malayalam-kerala:
     disposition: use_core

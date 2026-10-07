@@ -1571,5 +1571,13 @@
   "Start conversation": "開始對話",
   "Ask coach": "問教練",
   "Start with this sentence": "用呢句開始",
-  "Explain this sentence": "解釋呢句"
+  "Explain this sentence": "解釋呢句",
+  "Chart controls": "圖表控制項",
+  "Points shown": "顯示嘅分數",
+  "Language": "語言",
+  "Both": "兩者",
+  "{value0} pt": "{value0} 分",
+  "Busiest skill in this conversation": "呢段對話最高分嘅技能",
+  "{value0}: {value1} points in this conversation": "{value0}：呢段對話 {value1} 分",
+  "Busiest skill · {value0} pt": "最高分嘅技能 · {value0} 分"
 }

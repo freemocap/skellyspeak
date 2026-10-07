@@ -1,65 +1,56 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: vietnamese-teaching-expanded-cantonese-2026-10-07
 language: vietnamese
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Mấy giờ喺正常分句次序中問鐘點。
+    explanation: 你想去舖頭，要知幾點關門。`Cửa hàng` 係舖頭，`đóng cửa` 係關門，`lúc mấy giờ`
+      問幾點。問句片語放喺答案應該出現嘅位置，基本語序唔使倒轉。`Cửa hàng đóng cửa lúc năm giờ` 喺同一位置提供五點。`Mấy giờ` 問鐘點，`ở
+      đâu` 問地方；動詞唔使加問句助動詞。
     examples:
       - text: Cửa hàng đóng cửa lúc mấy giờ?
         meaning: 間舖頭幾點閂門？
-        note: Lúc mấy giờ指出未知關門時間。
+        note: 試下用 `mở cửa` 問舖頭幾點開門。`Cửa hàng mở cửa lúc mấy giờ?` 可以；事件改成開門，要問嘅仍然係鐘點。
   - subskill_id: answering_information
-    explanation: 已知問題後，可以用短時間表達回答。
+    explanation: 對方已經問舖頭關門時間，淨係時間片語就可以補上所需資料。`Lúc` 引出時間，`năm` 係五，`giờ` 指鐘點。舖頭同關門已經清楚，所以 `Lúc năm
+      giờ` 可以係完整嘅對話答案。需要分清朝早同下晝時，`năm giờ chiều` 指下晝五點。呢個係鐘點；`năm tiếng` 就係五個鐘嘅長度。
     examples:
       - text: Lúc năm giờ.
         meaning: 五點鐘。
-        note: 回應舖頭關門時間；giờ標示鐘點。
+        note: 試下答六點。喺大家講緊關門時間嘅對話，`Lúc sáu giờ.` 可以；`sáu` 換咗鐘點，之前問題仍然提供事件。
   - subskill_id: checking_facts
-    explanation: 命題後面嘅đúng không問內容啱唔啱。
+    explanation: 你記得舖頭五點關門，想請人確認。`Cửa hàng đóng cửa lúc năm giờ` 提出你理解嘅資料；句尾 `đúng không?`
+      係問係咪啱，對方可以確認或者更正。呢種唔同 `lúc mấy giờ?`，後者問未知時間，冇先提出五點。句尾核實成個陳述，主語或者日期改變時，`đúng` 唔需要變形。
     examples:
       - text: Cửa hàng đóng cửa lúc năm giờ, đúng không?
         meaning: 間舖頭五點閂門，係咪？
-        note: 講者核實候選鐘點。
+        note: 試下核實舖頭係咪六點關門。`Cửa hàng đóng cửa lúc sáu giờ, đúng không?` 可以；提出嘅鐘點改變，確認句尾保留。
   - subskill_id: useful_detail
-    explanation: 位置短語提供聽者所需嘅分辨資料。
+    explanation: 來客見到棟樓有幾面，庭院可以幫佢搵入口。`Cửa vào` 係入口，`ở` 引出位置，`phía sân` 係庭院嗰邊。`Ở`
+      可以講已經喺某度嘅物件位置。更具體可以用 `ở phía sau` 即後面，或者 `ở bên trái`
+      即左邊。提示有用嘅前提係對方搵得到地標或者知道視角；左右可能需要講清楚由邊度望。
     examples:
       - text: Cửa vào ở phía sân.
         meaning: 入口喺庭院嗰邊。
-        note: 聽者搵緊入口時，呢個資料有用。
-provenance:
+        note: 試下講入口喺後面。`Cửa vào ở phía sau.` 可以；`phía sau` 換咗庭院嗰邊，`ở` 仍然表示位置。
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/vietnamese/skills/information-exchange/vietnamese-information-exchange-explained-in-english.yaml
-    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored Vietnamese teaching and original examples informed by cited primary
+    sources; no independent linguistic or explanation-language review.
   sources:
     - msu_vietnamese_identity2026
     - msu_vietnamese_duration2026
+    - niuVietnameseTimeTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: vietnamese-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, meanings, original forms and explained practice; sources support
+      named claims rather than certification of generated examples.
 varieties:
   vietnamese-vietnam:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/vietnamese/skills/information-exchange/vietnamese-information-exchange-explained-in-english.yaml
-        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - msu_vietnamese_identity2026
-        - msu_vietnamese_duration2026
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

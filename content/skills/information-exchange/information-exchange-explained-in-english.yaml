@@ -1,27 +1,27 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: shared-teaching-pilot-2026-10-07
+revision: shared-teaching-expansion-english-2026-10-07
 skill_id: information_exchange
 explanation_language: english
 title: Information exchange
-introduction: Seek, supply and verify information relevant to the exchange.
+introduction: Ask questions, answer them and check that the information is clear and correct.
 sections:
   - subskill_id: asking_information
     title: Asking for information
     concept: Ask for information you do not yet have.
   - subskill_id: answering_information
     title: Answering relevantly
-    concept: Supply information responsive to an identifiable question.
+    concept: Give the information the other person is asking for.
   - subskill_id: checking_facts
     title: Checking facts
-    concept: Verify whether a proposition or reported detail is correct.
+    concept: Check whether a detail or something you heard is correct.
   - subskill_id: useful_detail
     title: Providing useful detail
-    concept: Elaborate or summarize information to meet the exchange's needs.
+    concept: Give enough detail to make your information useful.
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -32,5 +32,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: shared-teaching-pilot-2026-10-07
-    scope: Entire document; linguistic review pending.
+    revision: shared-teaching-expansion-english-2026-10-07
+    scope: Learner-facing introductions and concepts; translation review pending.

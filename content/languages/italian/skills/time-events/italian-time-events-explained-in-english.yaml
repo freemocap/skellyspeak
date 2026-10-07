@@ -1,65 +1,125 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: italian-skills-2026-10-04
+revision: italian-teaching-english-2026-10-07
 language: italian
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: Stare + gerund makes an ongoing activity explicit. The simple present can also
-      describe current or habitual activity when context supplies the time.
+    explanation: During a workshop, someone may ask what you are doing right now. `Stare` followed by a
+      gerund presents an activity in progress. The first verb identifies the person; the gerund
+      names the action underway.
     examples:
       - text: Sto sistemando gli attrezzi.
-        meaning: I am putting the tools in order.
-        note: Sto is the first-person present of stare; sistemando is the gerund of sistemare.
+        meaning: “I am putting the tools in order.” `Sto` is the speaker’s present form of `stare`.
+          `Sistemando` comes from `sistemare`, put in order, and `gli attrezzi` names the tools. The
+          article is `gli` before this plural noun beginning with a vowel.
+        note: >-
+          **Compare.** `Sistemo gli attrezzi ogni sera` describes a routine. The simple present can
+          also describe a current action when the context makes that clear; the progressive
+          emphasizes its unfolding.
+
+
+          **Try it.** Say we are putting the tools in order. Answer: `Stiamo sistemando gli
+          attrezzi`. Change `sto` to `stiamo`; the gerund stays unchanged.
   - subskill_id: past_events
-    explanation: Passato prossimo uses a present form of avere or essere and a past participle.
-      Other past tenses also occur; the choice depends on the event, context and usage.
+    explanation: After shopping for a painting class, you can report a completed purchase. The passato
+      prossimo combines a present auxiliary with a past participle. With `comprare`, to buy, the
+      auxiliary is `avere`.
     examples:
       - text: Ieri ho comprato due pennelli.
-        meaning: Yesterday I bought two paintbrushes.
-        note: Ho comprato uses avere with the participle comprato. Ieri explicitly places the purchase
-          earlier.
+        meaning: “Yesterday I bought two paintbrushes.” `Ieri` places the purchase yesterday. `Ho comprato`
+          combines the speaker’s `ho` with participle `comprato`; `due pennelli` gives the purchased
+          items. The number changes the noun to plural, not the verb.
+        note: >-
+          **Adapt it.** `Abbiamo comprato due pennelli` says we bought them: change the auxiliary to
+          `abbiamo`. The passato prossimo is not limited to very recent events; past-tense choice
+          also depends on context and usage.
+
+
+          **Try it.** Say you bought one paintbrush yesterday. Answer: `Ieri ho comprato un
+          pennello`. Keep `ho comprato` and change the object to singular.
   - subskill_id: future_events
-    explanation: A present form can describe a programmed future event when a time expression
-      anchors it. A future form is another option, rather than a requirement for every later
-      event.
+    explanation: A timetable can tell you about an event that is still ahead. Italian can use a present
+      verb for a scheduled future event when a time expression makes the future reference clear.
+      Here the course has a start time for tomorrow.
     examples:
       - text: Domani il corso comincia alle nove.
-        meaning: Tomorrow the course starts at nine.
-        note: Domani makes the reference future. Alle introduces the hour; comincia is a present form.
+        meaning: “Tomorrow the course starts at nine.” `Domani` sets the future day. `Il corso comincia`
+          names the course and its starting; `alle nove` gives the time. `Alle` combines `a` and
+          `le`.
+        note: >-
+          **Compare.** `Il corso comincerà domani` uses a future verb instead. The original present
+          is natural for a scheduled event; it does not mean the course is starting now. One o’clock
+          is `all’una`.
+
+
+          **Try it.** Say tomorrow’s course starts at ten. Answer: `Domani il corso comincia alle
+          dieci`. The time changes; the scheduled-event present can remain.
   - subskill_id: duration_frequency
-    explanation: For a situation continuing now, a present verb with da + a duration can measure how
-      long it has lasted. A repeated-time expression such as ogni venerdì describes frequency
-      instead.
+    explanation: When someone asks how long you have worked somewhere, you can measure a situation that
+      started earlier and continues now. Italian commonly uses the present with `da` and a duration
+      for this meaning. The example does not say the job has ended.
     examples:
       - text: Lavoro qui da sei mesi.
-        meaning: I have been working here for six months.
-        note: The situation continues now. Italian uses the present here; its English meaning uses a
-          perfect construction.
+        meaning: “I have been working here for six months.” `Lavoro` is the speaker’s present form; `qui`
+          means here. `Da sei mesi` measures the ongoing six-month period. Italian does not need a
+          past auxiliary to express this continuing situation.
+        note: >-
+          **Compare.** `Ho lavorato qui per sei mesi` can describe a finished six-month period.
+          `Lavoro qui ogni venerdì` gives frequency instead: every Friday.
+
+
+          **Try it.** Say you still work here and started two months ago. Answer: `Lavoro qui da due
+          mesi`. Keep the present and use `da` for duration up to now.
   - subskill_id: event_sequence
-    explanation: Prima and poi can place actions in succession. Their temporal ordering does not
-      itself mean that the first action causes the second.
+    explanation: Preparing a meal involves actions in a useful order. `Prima` introduces the earlier
+      step and `poi` introduces the next. Both verbs can include the speaker in a shared plan, so
+      the sequence tells the group what happens first.
     examples:
       - text: Prima prepariamo il tavolo, poi mettiamo i piatti.
-        meaning: First we prepare the table, then we put out the plates.
-        note: Prima and poi establish the order of these two activities.
+        meaning: “First we prepare the table, then we put out the plates.” `Prima prepariamo il tavolo`
+          gives the first action; `poi mettiamo i piatti` gives the next. The endings of
+          `prepariamo` and `mettiamo` identify we without requiring `noi`.
+        note: >-
+          **Compare.** `Prima mettiamo i piatti, poi prepariamo il tavolo` reverses the order.
+          `Quindi` can present a consequence, whereas this use of `poi` simply marks a later step.
+
+
+          **Try it.** After preparing the table, put out the glasses with `i bicchieri`. Answer:
+          `Prima prepariamo il tavolo, poi mettiamo i bicchieri`. Replace only the object of the
+          second step.
   - subskill_id: event_phase
-    explanation: Finire di + infinitive names a completed process. Continuing to work on something
-      or stopping partway through is a different phase.
+    explanation: When checking how a painting job is going, finished and still underway are different
+      answers. `Finire di` followed by an infinitive marks the end of a task. `Stare` with a gerund
+      describes work in progress; `ancora` can say it continues.
     examples:
       - text: Ho finito di dipingere la porta.
-        meaning: I have finished painting the door.
-        note: Finito di dipingere states completion of the painting process.
+        meaning: “I have finished painting the door.” `Ho finito` reports completion and `di dipingere`
+          names the finished activity. `La porta` is what was painted. The infinitive follows `di`;
+          it is not a gerund here.
+        note: >-
+          **Compare.** `Ho smesso di dipingere` says you stopped painting, which does not guarantee
+          the door is finished. Completion is the important meaning of `finito`.
+
+
+          **Try it.** Say you finished painting the window with `la finestra`. Answer: `Ho finito di
+          dipingere la finestra`. Keep `finito di` and change the object.
       - text: Sto ancora dipingendo la porta.
-        meaning: I am still painting the door.
-        note: Sto dipingendo presents work in progress, and ancora indicates continuation. It contrasts
-          with the completed task.
+        meaning: “I am still painting the door.” `Sto dipingendo` describes painting in progress. `Ancora`
+          tells us it continues, so this does not report a completed door.
+        note: >-
+          **Adapt it.** `Stiamo ancora dipingendo` changes the workers to we; `dipingendo` remains
+          unchanged.
+
+
+          **Try it.** Say she is still painting the door. Answer: `Sta ancora dipingendo la porta`.
+          Change the first verb to `sta` and retain the ongoing activity.
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - treccani_it_present2026
     - treccani_it_past2026
@@ -69,10 +129,9 @@ provenance: &a1
   generation: null
   review:
     status: needs_review
-    revision: italian-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: italian-teaching-english-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core

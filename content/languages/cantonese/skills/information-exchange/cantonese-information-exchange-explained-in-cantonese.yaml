@@ -1,63 +1,65 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 幾點 放喺句內問鐘點，唔需要英文式助動詞倒裝。
+    explanation: 去間舖之前，需要知道幾點關門。`幾點` 放喺時間片語位置，問缺少嘅鐘點，間舖仍然放句首。
     examples:
       - text: 間舖頭幾點閂門？
-        meaning: 間舖幾點閂門？
-        note: 未知資訊係關門時間，唔係邊間舖。
+        meaning: 意思係問間舖嘅關門時間。`間舖頭` 用量詞 `間` 指大家講緊嘅舖，`幾點` 問鐘點，`閂門` 呢度係收舖關門。問題冇預先提出一個關門時間。
+        note: 試下問開門時間：`間舖頭幾點開門？``閂門` 換成 `開門`。可以答 `六點` 或者 `六點開門`，時間補上 `幾點` 嗰個位置，唔使換另一種問句次序。
   - subskill_id: answering_information
-    explanation: 上文問關門時間時，簡短鐘點短語就可以完整回答；功能要睇語境。
+    explanation: 對方啱啱問舖頭幾點關門，間舖同關門都已經清楚，所以淨係講鐘點已經答到問題。
     examples:
       - text: 六點。
-        meaning: 六點。
-        note: 呢度 六點 補足上一條問題所缺嘅時間。
+        meaning: 意思係六點。`六` 係數字，`點` 交代鐘點。完整可以講 `間舖頭六點閂門`。冇講朝早定下晝時，要由對話理解係邊個六點。
+        note: 試下答六點半關：`六點半。``半` 加六點之後半個鐘。要講清楚可以用 `下晝六點半`。`六個鐘` 係六小時長度，唔係所問鐘點。
   - subskill_id: checking_facts
-    explanation: 係咪 核實一個已有候選答案，唔係完全開放咁查問資訊。
+    explanation: 你記得間舖六點關門，想請人確認。先陳述記得嘅時間，再用句尾 `係咪呀` 請對方核實或者更正。
     examples:
       - text: 間舖頭六點閂門，係咪呀？
-        meaning: 間舖六點閂門，係咪？
-        note: 六點 已經喺問題入面提出，對方可以確認或修正。
+        meaning: 意思係核實六點係咪關門時間。`間舖頭六點閂門` 先講間舖，再講提出嘅時間同動作。`係咪` 常用作 `係唔係` 嘅縮短形式，句尾 `呀` 配合日常問句語氣。
+        note: 試下核實七點關：`間舖頭七點閂門，係咪呀？`只改提出嘅時間。更正可以答 `唔係，六點閂門。`，先否定再提供正確時間，唔使對方估。
   - subskill_id: useful_detail
-    explanation: 位置描述同 嗰張 交代用邊張枱。細節要能夠解決相關分別先有用。
+    explanation: 有幾張枱可用，指出窗口旁邊嗰張，就知道要用邊張。位置描述放喺揀出嗰張枱嘅片語之前。
     examples:
       - text: 用窗口旁邊嗰張枱。
-        meaning: 用窗邊嗰張枱。
-        note: 窗邊 將要用嘅枱同其他枱區分開。
+        meaning: 意思係用窗邊嗰張枱。`用` 講動作，`窗口旁邊` 講位置，`嗰張枱` 指嗰一張，`張` 係枱嘅量詞。位置加指示令佢同其他枱分開。
+        note: 試下改用門口旁邊嗰張：`用門口旁邊嗰張枱。`地標換成 `門口`。`嗰張枱` 揀一張，`嗰啲枱` 就揀嗰幾張枱，用 `啲` 指複數組。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/information-exchange/cantonese-information-exchange-explained-in-english.yaml
-    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/information-exchange/cantonese-information-exchange-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

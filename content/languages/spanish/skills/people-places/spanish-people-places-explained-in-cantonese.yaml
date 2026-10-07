@@ -1,51 +1,70 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: people_places
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
 sections:
   - subskill_id: identification
-    explanation: Ser用嚟識別人或物；動詞同語境足以識別主語時，西班牙文可以省略主語代詞。
+    explanation: 初次見面時，簡短自我介紹可以話畀對方知你係邊個。西班牙文用 `ser` 表達身份；`soy` 係「我係」。動詞已經指出係講緊自己，所以唔一定要加 `yo`。
     examples:
       - text: Soy Ana.
-        meaning: 我係Ana。
-        note: Soy識別講者身份。
+        meaning: 意思係「我係 Ana」。`Soy` 指出介紹緊自己，`Ana` 提供名字。呢種自我介紹唔喺名字前面加冠詞。
+        note: >-
+          **改一改。** `Soy Luis` 介紹 Luis；`Ella es Ana` 就指出另一個人係 Ana。主語係佢時，用 `es` 代替 `soy`。`Estoy Ana`
+          唔可以表達呢個身份。
+
+
+          **試吓。** 用 Marta 呢個名介紹自己。答案：`Soy Marta`。保留 `soy`，換個名就得。
   - subskill_id: qualities_states
-    explanation: 按想表達嘅描述揀ser或estar；兩者可以改變意思，唔能夠只用永久與否判斷。
+    explanation: 入房之前，你可能要講道門開咗未。`Estar` 描述你見到嘅狀態。`Ser` 同 `estar` 可以帶出唔同種類嘅描述；單靠「係咪永久」唔足以揀啱動詞。
     examples:
       - text: La puerta está abierta.
-        meaning: 道門開住。
-        note: Estar描述門目前嘅狀態。
+        meaning: 意思係「道門開住」。`La puerta` 指道門，`está` 引出狀態，`abierta` 係「開住」。`Abierta` 嘅詞尾配合陰性單數名詞 `puerta`。
+        note: |-
+          **改一改。** `Las puertas están abiertas` 講幾道門，動詞同形容詞都要改。`La puerta es grande` 就描述道門嘅特徵：佢好大。
+
+          **試吓。** 用 `cerrada` 講道門閂住。答案：`La puerta está cerrada`。換個狀態，主語同動詞保持一樣。
   - subskill_id: location_movement
-    explanation: 位置或移動動詞配合地點或路徑短語。
+    explanation: 有人搵緊本書時，講位置可以幫佢搵到。`Estar` 可以指出人或者物件喺邊度，後面加地方先講得清楚。呢個例子入面，本書擺喺枱上。
     examples:
       - text: El libro está en la mesa.
-        meaning: 本書喺張枱上面。
-        note: Estar en交代本書相對張枱嘅位置。
+        meaning: 意思係「本書喺枱上」。`El libro` 係本書，`está` 引出位置，`en la mesa` 係喺枱上。`En` 可以解喺裏面或者上面，要睇兩件物件嘅關係。
+        note: |-
+          **比較。** `Voy a la mesa` 講行去張枱，唔係靜態位置。`El libro está aquí` 用 `aquí` 代替成段地方描述。
+
+          **試吓。** 用 `la mochila` 講本書喺背囊裏面。答案：`El libro está en la mochila`。位置用 `en`，唔係表示方向嘅 `a`。
   - subskill_id: possession_relations
-    explanation: 所有詞同de可以表達擁有或關係；所有詞配合被擁有名詞，唔係物主。
+    explanation: 兩個人都有相似嘅書時，指出邊個擁有本書就容易分清楚。西班牙文可以喺物件後面加 `de`，再講主人。`Mi` 呢類物主詞亦可以指出關係：呢度講係邊個嘅家姐或者細妹。
     examples:
       - text: Es el libro de mi hermana.
-        meaning: 本書係我姊妹嘅。
-        note: De指出同本書嘅關係。
+        meaning: 意思係「呢本係我姊妹嘅書」。`Es` 指出正講緊嗰本書係乜，`el libro` 係本書。`De mi hermana` 指本書屬於我姊妹。`Mi`
+          將姊妹同講者連起嚟，唔係描述本書。
+        note: |-
+          **改一改。** `Es mi libro` 係「呢本係我嘅書」。`Son mis libros` 講幾本書：`mis` 配合書嘅數量，唔係主人嘅數量。呢度唔用英文式所有格撇號。
+
+          **試吓。** 用 `mi hermano` 講「呢本係我兄弟嘅書」。答案：`Es el libro de mi hermano`。主人前面保留 `de`。
   - subskill_id: quantity_comparison
-    explanation: 數詞同數量詞交代數量；más ... que同menos ... que比較性質或數量。
+    explanation: 揀箱時，同另一個箱比較大小會容易啲。西班牙文喺特徵前面用 `más`，喺比較對象前面用 `que`。呢句比較大小，唔係講有幾多個箱。
     examples:
       - text: Esta caja es más grande que esa.
-        meaning: 呢個箱比嗰個大。
-        note: Más grande que提供比較同基準。
+        meaning: 意思係「呢個箱比嗰個大」。`Esta caja` 指近處呢個箱；`es más grande` 話佢大啲。`Que esa` 指另一個箱，唔使重複 `caja`。`Esta` 同
+          `esa` 配合陰性名詞。
+        note: >-
+          **改一改。** `Esta caja es menos grande que esa` 將比較反轉。`Tengo más cajas` 就講箱嘅數量多啲。講出比較對象時，要保留
+          `que`。
+
+
+          **試吓。** 用 `este libro` 同 `ese` 比較兩本書。答案：`Este libro es más grande que ese`。`Libro`
+          係陽性，所以指示詞都改成陽性。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/people-places/spanish-people-places-explained-in-english.yaml at
-        revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -53,21 +72,19 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/people-places/spanish-people-places-explained-in-english.yaml at
-        revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -75,18 +92,17 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/people-places/spanish-people-places-explained-in-english.yaml at
-    revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -94,9 +110,10 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

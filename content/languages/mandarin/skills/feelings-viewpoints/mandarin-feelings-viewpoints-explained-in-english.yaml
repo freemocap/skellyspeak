@@ -1,60 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: mandarin-skills-2026-10-04
+revision: mandarin-teaching-english-2026-10-07
 language: mandarin
 skill_id: feelings_viewpoints
 explanation_language: english
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 想 before an action can express wanting to do it. 学 introduces the skill to be learned.
+    explanation: A bicycle repair can be a skill you want to learn, even before you can do it. `想`
+      before an activity expresses that wish; `学` introduces what you want to learn.
     examples:
       - text: 我想学修自行车。
-        meaning: I want to learn to repair bicycles.
-        note: 想学 names the desire to learn; 修自行车 names the activity. No promise is made.
+        meaning: "**The example.** I want to learn to repair bicycles. `我想` is I want to, `学` is learn, and
+          `修自行车` is repair bicycles. The whole repair activity follows `学`; `想` applies to learning
+          it."
+        note: "Try saying the group wants to learn this skill. Answer: `我们想学修自行车。` Change `我` to `我们`, with
+          no verb ending change. `我会修自行车` says you already know how; `我想学` expresses a wish to
+          acquire the skill."
   - subskill_id: preferences
-    explanation: 更喜欢 can select the more favored option. The alternatives may be named explicitly in
-      a topic-like phrase.
+    explanation: When choosing a drink, you can name the alternatives first and then give your
+      preference. `更喜欢` identifies the option you like more, rather than a difference in price or
+      size.
     examples:
       - text: 咖啡和红茶，我更喜欢红茶。
-        meaning: Between coffee and black tea, I prefer black tea.
-        note: The first phrase sets up the alternatives. 更喜欢 expresses preference rather than a physical
-          comparison.
+        meaning: "**The example.** Between coffee and black tea, I prefer black tea. `咖啡和红茶` sets up coffee
+          and black tea; `和` joins the two. `我更喜欢红茶` says I like black tea more. `更` comes before
+          `喜欢`, and the preferred drink follows it."
+        note: "Try preferring coffee instead. Answer: `咖啡和红茶，我更喜欢咖啡。` Change only the drink after `更喜欢`.
+          `我喜欢红茶` expresses liking black tea but does not itself compare it with coffee."
   - subskill_id: emotions
-    explanation: 高兴 describes happiness. A clause about the cause of the feeling can precede the
-      emotional statement.
+    explanation: Good news can prompt a feeling you want to share. The hearing comes first, followed by
+      your emotional response. `高兴` expresses happiness directly rather than needing a separate
+      linking verb.
     examples:
       - text: 听到这个消息，我很高兴。
-        meaning: I am happy to hear this news.
-        note: 听到 identifies what prompted the feeling; 高兴 is the speaker’s emotional response.
+        meaning: "**The example.** I am happy to hear this news. `听到` means hear, with `到` marking that the
+          news reaches you. `这个消息` is this news. After the comma, `我很高兴` gives the response: I am
+          happy. `很` does not necessarily mean emphatically very here."
+        note: "Try reporting the group’s happiness. Answer: `听到这个消息，我们很高兴。` Change the person feeling it to
+          `我们`; the hearing phrase stays. `我听到这个消息` only reports hearing the news and leaves the
+          feeling unstated."
   - subskill_id: opinions
-    explanation: 觉得 can frame a proposition as the speaker’s judgment. The following content states
-      what is being evaluated.
+    explanation: After discussing a way to solve a problem, you can give your own evaluation. `我觉得`
+      frames what follows as your judgement, and `不错` gives a positive assessment.
     examples:
       - text: 我觉得这个办法不错。
-        meaning: I think this method is quite good.
-        note: 不错 is a positive evaluation here, rather than a neutral statement that a method exists.
+        meaning: "**The example.** I think this method is quite good. `这个办法` is this method or approach.
+          `不错` literally contains not and wrong, but here it is the familiar positive judgement not
+          bad. `觉得` introduces that evaluation rather than physical touch."
+        note: "Try evaluating a different method. Answer: `我觉得那个办法不错。` Replace `这个` with `那个`. `这个办法很贵` says
+          the approach is expensive; adding `我觉得` presents that assessment as your own judgement."
   - subskill_id: agreement_disagreement
-    explanation: 也 and 这么想 can connect the speaker to a previously expressed view. The preceding
-      contribution supplies what so refers to.
+    explanation: Someone has given an opinion about a method, and you share that view. `也` adds you to
+      the people thinking it; `这么` refers back to the opinion already expressed.
     examples:
       - text: 我也这么想。
-        meaning: I think so too.
-        note: Reply to a clear opinion about the method. This endorses the view, not merely hearing or
-          understanding its wording.
+        meaning: "**The example.** I think so too. `我` is I, `也` is also, `这么` is this way, and `想` is think
+          here. The order puts `也` before the thinking phrase. The listener needs the earlier
+          opinion to know what you agree with."
+        note: "Try expressing disagreement instead. Answer: `我不这么想。` Replace `也` with `不`; you no longer
+          share the view. `我明白了` says you now understand the explanation, which can be true even
+          when you disagree."
 provenance: &a1
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: AI-authored contextual Mandarin teaching revision with worked examples, contrasts and
+    practice; primary teaching passages consulted. Independent linguistic and translation review
+    pending.
   sources:
     - oxford_mandarin_grammar2026
   generation: null
   review:
     status: needs_review
-    revision: mandarin-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: mandarin-teaching-english-2026-10-07
+    scope: All teaching prose, original and adapted examples, practice answers and explanation-language
+      meanings for mandarin-mainland-china. Source cross-checks do not certify original lessons.
 varieties:
   mandarin-mainland-china:
     disposition: use_core

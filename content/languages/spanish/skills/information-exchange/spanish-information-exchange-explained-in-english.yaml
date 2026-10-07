@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-learner-first-english-2026-10-07
+revision: spanish-teaching-english-2026-10-07
 skill_id: information_exchange
 language: spanish
 explanation_language: english
@@ -25,31 +25,62 @@ sections:
           **Try it.** Ask where the bathroom is, using `el baño`. Answer: `¿Dónde está el baño?` Use
           the singular `está` because you are asking about one bathroom.
   - subskill_id: answering_information
-    explanation: A relevant short answer can supply exactly what the question asks for without repeating
-      its verb.
+    explanation: When someone asks where you are, a short place phrase can give all the information they
+      need. The question supplies the person and verb, so the reply can simply name the place. This
+      is ordinary conversation, not an incomplete answer.
     examples:
       - text: En casa.
-        meaning: At home.
-        note: This answers ¿Dónde estás?; without that question its response function is uncertain.
+        meaning: “At home.” `En` introduces the location and `casa` means home here. After `¿Dónde estás?`,
+          the phrase answers where the person replying is. `En casa` has no article in this everyday
+          expression.
+        note: >-
+          **Compare.** `En la casa de Ana` names a particular house: Ana’s. A place answer would not
+          answer `¿Cuándo llegas?`, which asks when you arrive.
+
+
+          **Try it.** Answer `¿Dónde estás?` with the park, `el parque`. Answer: `En el parque`.
+          Keep the article that belongs to this noun phrase.
   - subskill_id: checking_facts
-    explanation: Ask for confirmation of a proposition or detail you already have in mind.
+    explanation: If you think a visitor is arriving at eight, you can check that detail rather than ask
+      an entirely open question. Spanish can turn an ordinary statement into a yes-or-no question
+      through intonation and written question marks.
     examples:
       - text: ¿Llegas a las ocho?
-        meaning: Are you arriving at eight?
-        note: When confirming an arrangement, this checks the proposed arrival time.
+        meaning: “Are you arriving at eight?” `Llegas` means you arrive and `a las ocho` gives the time. The
+          present tense refers to an arranged arrival here. There is no extra question verb
+          corresponding to English “do”.
+        note: >-
+          **Compare.** `¿A qué hora llegas?` asks for the time without proposing eight. A useful
+          correction is `No, a las nueve`. For one o’clock the expression is `a la una`, with a
+          singular article.
+
+
+          **Try it.** Check whether the arrival is at nine. Answer: `¿Llegas a las nueve?`. Replace
+          only the time.
   - subskill_id: useful_detail
-    explanation: Add details that help answer the actual question. Length alone does not make an answer useful.
+    explanation: When giving directions, one landmark may still leave someone unsure which place you
+      mean. A second landmark can narrow the location down. Spanish place phrases can be combined to
+      describe the same location from two useful reference points.
     examples:
       - text: Está al lado del banco, frente al parque.
-        meaning: It is beside the bank, opposite the park.
-        note: In an exchange about directions, the two landmarks make the location more precise.
+        meaning: “It is beside the bank, opposite the park.” `Está` refers to the place already being
+          discussed. `Al lado del banco` means beside the bank; `frente al parque` means opposite
+          the park. `Del` joins `de` and `el`; `al` joins `a` and `el`.
+        note: >-
+          **Adapt it.** `Está al lado de la farmacia` changes the landmark to the pharmacy. `De la`
+          stays separate, because only `de el` contracts to `del`. Choose landmarks the listener can
+          find.
+
+
+          **Try it.** Say it is opposite the bank. Answer: `Está frente al banco`. The expression
+          uses `a`, which combines with `el`.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -63,15 +94,15 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -85,13 +116,13 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: spanish-learner-first-english-2026-10-07
-        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-          sections retain prior review limitations. Linguistic and translation review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -105,6 +136,6 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-learner-first-english-2026-10-07
-    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
-      sections retain prior review limitations. Linguistic and translation review pending.
+    revision: spanish-teaching-english-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

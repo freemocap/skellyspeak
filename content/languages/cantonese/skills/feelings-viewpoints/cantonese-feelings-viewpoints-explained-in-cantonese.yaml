@@ -1,69 +1,71 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: cantonese-teaching-cantonese-2026-10-07
 language: cantonese
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
 sections:
   - subskill_id: wants_intentions
-    explanation: 想 引入願望；要判斷係咪已確定計劃，需要更多語境。
+    explanation: 烘焙班聽落幾有趣，可以講想學邊種技能。`想` 喺活動前面引出願望，`學` 加上學習意思，未係話已經識做。
     examples:
       - text: 我想學整麵包。
-        meaning: 我想學整麵包。
-        note: 想學 只講願望，唔表示已經報班或答應開始學。
+        meaning: 意思係想學識整麵包。`我` 指講者，`想學` 係有學習願望，`整麵包` 係要學嘅活動。想、學同整接成一串，全部理解為同一個人做。
+        note: 試下改成想學煮飯：`我想學煮飯。`換活動就得。`我識整麵包` 話已經識，`我想學整麵包` 只講願望，未話報咗班或者答應開始。
   - subskill_id: preferences
-    explanation: 鍾意 配合 多過 可以比較偏好，唔係只講飲品名稱。
+    explanation: 揀飲品時，可以比較自己鍾意兩種活動嘅程度。`鍾意` 講喜好，`多過` 前面係較鍾意嗰種，後面係另一個選項。
     examples:
       - text: 我鍾意飲茶多過飲咖啡。
-        meaning: 我鍾意飲茶多過飲咖啡。
-        note: 多過 呢度比較鍾意嘅程度，唔係飲咗幾多杯。
+        meaning: 意思係飲茶比飲咖啡更合自己心意。`我鍾意` 引出喜好，`飲茶` 同 `飲咖啡` 係兩個活動。呢度 `多過` 比較鍾意程度，因為成句講喜好，唔係數飲咗幾杯。
+        note: 試下改成較鍾意咖啡：`我鍾意飲咖啡多過飲茶。`交換兩個活動。`我鍾意飲茶` 只講鍾意，未同咖啡比較；比較要喺 `多過` 後面交代另一個選擇。
   - subskill_id: emotions
-    explanation: 開心 交代情緒；好開心 前面唔需要加 係。
+    explanation: 收到好消息，今日心情好。`開心` 呢類感受可以直接描述人，`好` 交代程度，唔使另外加表示係嘅詞。
     examples:
       - text: 我今日好開心。
-        meaning: 我今日好開心。
-        note: 好開心 直接描述 我 嘅狀態。
+        meaning: 意思係今日心情開心。`我` 指人，`今日` 指時間，`好開心` 講感受。時間放喺感受之前；`好` 常用嚟令肯定描述自然，程度有幾強要睇情境同重音。
+        note: 試下講成班人今日開心：`我哋今日好開心。``我` 換成 `我哋`，感受詞唔跟人稱或者複數改詞尾。`我今日唔開心` 用 `唔` 放喺 `開心` 前講唔開心，唔保留肯定嘅 `好`。
   - subskill_id: opinions
-    explanation: 我覺得 表明評價係講者嘅看法。
+    explanation: 大家比較解決問題嘅做法，你講其中一個嘅個人評價。`我覺得` 引出自己看法，後面描述交代你點評價。
     examples:
       - text: 我覺得呢個辦法幾好。
-        meaning: 我覺得呢個方法幾好。
-        note: 幾好 係正面評價，唔係只話個方法存在。
+        meaning: 意思係覺得呢個方法唔錯。`呢個辦法` 指呢個做法，`呢` 指示，`個` 係量詞。`幾好` 講相當好，呢度 `幾` 修飾特徵 `好`，唔係問有幾多。
+        note: 試下評價個辦法幾有用：`我覺得呢個辦法幾有用。``好` 換成 `有用`。`呢個辦法有三個步驟` 只交代有三步，意見開頭就畀你講自己點評價。
   - subskill_id: agreement_disagreement
-    explanation: 明白同贊同係兩回事；不過 帶出相反立場。
+    explanation: 你明白個提議，但仍然唔支持。回應可以先確認理解，再講唔同意，將兩種反應分清。
     examples:
       - text: 我明你嘅意思，不過我唔同意。
-        meaning: 我明你嘅意思，不過我唔同意。
-        note: 講者表示理解到，但冇接受對方嘅觀點。
+        meaning: 意思係明白你想講乜，但唔贊成。`我明` 講理解，`你嘅意思` 用 `嘅` 將你同意思連起，`不過` 引出轉折，`唔同意` 用 `唔` 放喺 `同意` 前面否定。
+        note: 試下代表成班人唔同意：`我哋明你嘅意思，不過我哋唔同意。`兩個講者主語都改成 `我哋`。同意可以講 `我明你嘅意思，我同意。`，刪走否定，亦唔需要轉折嘅 `不過`。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/cantonese/skills/feelings-viewpoints/cantonese-feelings-viewpoints-explained-in-english.yaml
-    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: cantonese-teaching-cantonese-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/cantonese/skills/feelings-viewpoints/cantonese-feelings-viewpoints-explained-in-english.yaml
-        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
       sources:
         - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: cantonese-teaching-cantonese-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

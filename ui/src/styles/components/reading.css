@@ -226,20 +226,36 @@
 .reading-selected-word.reading-inspector-source { align-items: flex-start; justify-content: space-between; gap: var(--space-5); margin: 0 0 var(--space-8); padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--bubble-partner-line); border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-sm); background: var(--bubble-partner-bg); box-shadow: var(--shadow-sm); font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-normal); }
 .reading-inspector-source > .token-audio { flex: none; border-color: var(--bubble-partner-line); background: var(--sheet); color: var(--partner-ink); }
 [data-reading-tools] > .reading-progress { margin: 0 0 var(--space-6); padding: var(--space-6) var(--space-7); border: var(--border-width) dashed var(--coach-line); border-radius: var(--radius-lg); background: var(--coach-tint); color: var(--coach-ink); font-size: var(--type-ui); font-weight: var(--weight-medium); }
+/* The read-aloud status for reading speech: one line while audio loads or
+   plays, the failure as a card with Retry and Close, nothing after success.
+   The same floating-card recipe as the progress card and word help. On a wide
+   screen it floats bottom-right in the top layer; on a phone it rises in the
+   page's tray slot above the recording panel, in flow, so it never covers the
+   recorder. */
 .reading-audio-status {
-  z-index: var(--z-popover);
-  position: fixed;
-  inset: auto var(--space-3) var(--space-3) auto;
-  max-width: min(90vw, 32rem);
-  max-height: 40vh;
-  overflow: auto;
-  padding: var(--space-2);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--sheet);
-  color: var(--ink);
-  box-shadow: var(--shadow-floating);
+  position: fixed; inset: auto var(--space-4) max(var(--space-4), env(safe-area-inset-bottom)) auto; z-index: var(--z-popover);
+  box-sizing: border-box; width: max-content; min-width: 0; max-width: min(24rem, calc(100vw - var(--space-8))); max-height: 60vh; overflow: auto;
+  margin: 0; padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+  display: flex; align-items: center; gap: var(--space-4);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-floating);
+  font: var(--type-ui)/var(--leading-snug) var(--font-sans);
+  animation: panel-rise var(--dur-base) var(--ease-out);
 }
+.reading-audio-status > .activity-indicator { padding: 0; }
+.reading-audio-status > .activity-indicator, .reading-audio-line { color: var(--ink-2); font-weight: var(--weight-medium); }
+.reading-audio-line { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.reading-audio-line > svg { flex: none; color: var(--interaction-ink); }
+.reading-audio-status .btn { flex: none; min-height: 32px; padding: var(--space-2) var(--space-5); box-shadow: none; }
+/* A failure: the card takes the notice's level colour instead of framing a second card inside. */
+.reading-audio-status[data-level] { flex-direction: column; align-items: stretch; gap: var(--space-4); padding: var(--space-4) var(--space-5); }
+.reading-audio-status[data-level='needs-you'] { border-color: var(--warning-line); background: var(--warning-tint); }
+.reading-audio-status[data-level='broke'] { border-color: var(--danger-line); background: var(--danger-tint); }
+.reading-audio-status > [role='alert'].error-notice { min-height: 0; padding: 0; border: 0; background: transparent; }
+.reading-audio-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+.reading-audio-status[data-placement='slot'] { position: static; width: auto; max-width: none; margin: 0 var(--space-3) var(--space-3); }
+@media (pointer: coarse) { .reading-audio-status .btn { min-height: var(--touch-target); } }
+@media (prefers-reduced-motion: reduce) { .reading-audio-status { animation: none; } }
 @media (pointer: coarse) { .token-audio, .token-coach { min-width: 44px; min-height: 44px; } }
 
 /* Source words inherit their sentence metrics. Hover/focus never creates a new

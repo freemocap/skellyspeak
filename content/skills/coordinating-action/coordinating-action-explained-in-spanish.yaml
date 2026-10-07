@@ -1,33 +1,33 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: shared-teaching-expansion-spanish-2026-10-07
 skill_id: coordinating_action
 explanation_language: spanish
 title: Coordinar acciones
-introduction: Pedir, proponer y negociar lo que hará cada participante.
+introduction: Pedir ayuda, proponer ideas y acordar qué hacer juntos.
 sections:
   - subskill_id: requests
     title: Peticiones
-    concept: Pedir a otra persona que haga o deje de hacer algo.
+    concept: Pedir a alguien que haga algo o que deje de hacerlo.
   - subskill_id: offers_invitations
     title: Ofrecimientos e invitaciones
-    concept: Ofrecer ayuda o proponer la participación de otra persona.
+    concept: Ofrecer ayuda o invitar a alguien a participar.
   - subskill_id: suggestions
     title: Sugerencias
-    concept: Proponer una acción para que se valore.
+    concept: Proponer una acción para que otros la consideren.
   - subskill_id: commitments
     title: Compromisos
-    concept: Asumir la responsabilidad de realizar una acción futura.
+    concept: Decir qué te comprometes a hacer.
   - subskill_id: accepting_declining
     title: Aceptar y rechazar
-    concept: Responder a una petición, una oferta, una invitación o una propuesta.
+    concept: Aceptar o rechazar una petición, una oferta, una invitación o una propuesta.
   - subskill_id: negotiating_plans
     title: Negociar un plan
-    concept: Ajustar una propuesta a las necesidades o limitaciones de quienes participan.
+    concept: Ajustar un plan para tener en cuenta a las personas que participan.
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -38,5 +38,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: shared-teaching-expansion-spanish-2026-10-07
+    scope: Learner-facing introductions and concepts; Spanish editorial review pending.

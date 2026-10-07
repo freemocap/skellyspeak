@@ -1,68 +1,109 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-skills-2026-10-05
+revision: cantonese-teaching-english-2026-10-07
 language: cantonese
 skill_id: time_events
 explanation_language: english
 shared_explanation: skills/time-events/time-events-explained-in-english.yaml
 sections:
   - subskill_id: present_events
-    explanation: 緊 marks an ongoing activity; it is aspect, not an English-style present-tense ending.
+    explanation: Someone asks what your friend is doing at this moment. `緊` after the action presents it
+      as underway, which suits describing the reading you can currently see.
     examples:
       - text: 佢睇緊書。
-        meaning: They are reading a book.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: They are reading a book. `佢` refers to one person, `睇` means read or look, and `書` means
+          books or a book without specifying a count. `緊` goes between `睇` and `書`. It describes the
+          activity’s unfolding, not a change in the verb for person.
+        note: "Try it: say the friend is eating now. Answer: `佢食緊飯。` Replace `睇書` with `食飯`, keeping `緊`
+          after the action. `佢噚日呢個時候睇緊書` describes reading underway at this time yesterday; a past
+          time phrase can accompany the same aspect marker."
   - subskill_id: past_events
-    explanation: 噚日 supplies past time; 咗 presents the purchase as a completed event, not a universal
-      past-tense suffix.
+    explanation: After a shopping trip, you report a book purchase made yesterday. The time word places
+      the event in the past; `咗` presents buying as an accomplished event.
     examples:
       - text: 我噚日買咗本書。
-        meaning: I bought a book yesterday.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I bought a book yesterday. `我噚日` gives I and yesterday. `買咗` is bought in this setting,
+          with `咗` after `買`; `本書` means a book, using classifier `本`. An unnumbered classifier
+          phrase can introduce one item after the action.
+        note: "Try it: report buying two books yesterday. Answer: `我噚日買咗兩本書。` Put `兩` before `本`. To say the
+          purchase did not happen, `我噚日冇買書` uses `冇` and omits accomplished `咗`; simply adding a
+          general `唔` does not give that ordinary past-event negative."
   - subskill_id: future_events
-    explanation: 聽日 anchors the future event without requiring a separate future auxiliary.
+    explanation: You have arranged a library visit for tomorrow. A future day can make the plan clear
+      without changing the form of the movement word or adding an obligatory future marker.
     examples:
       - text: 我聽日去圖書館。
-        meaning: I am going to the library tomorrow.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I am going to the library tomorrow. `我` is I, `聽日` is tomorrow, and `去圖書館` means go to the
+          library. The day comes before `去`. The destination follows the movement word without an
+          added word corresponding to English to.
+        note: "Try it: move the visit to Saturday. Answer: `我星期六去圖書館。` Change only the day. `我聽日會去圖書館` can
+          also express the future with `會`; it is available, but not required merely because the
+          visit is tomorrow."
   - subskill_id: duration_frequency
-    explanation: 每個星期 and 兩次 specify frequency, not how long a visit lasts.
+    explanation: A friend asks how often you visit the library. A regular time interval before the
+      action and a count after it give the frequency; the already discussed library can be left
+      unstated.
     examples:
       - text: 我每個星期去兩次。
-        meaning: I go twice every week.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: I go twice every week. `每個星期` means every week, with `每` before the week phrase. `去兩次`
+          means go twice; `次` counts occurrences and `兩` gives two. This does not say how long each
+          visit lasts.
+        note: "Try it: visit three times weekly. Answer: `我每個星期去三次。` Replace `兩` with `三`. A length-of-visit
+          answer would be `我每次去兩個鐘`, I go for two hours each time: `每次` sets each visit, and `兩個鐘`
+          measures duration."
   - subskill_id: event_sequence
-    explanation: 完 marks completion; 先 orders leaving after the meal. The exchange supplies the participants.
+    explanation: Before leaving home, the group plans to finish eating. The construction links finishing
+      one activity to doing the next, so the order is clear even without repeating who performs
+      them.
     examples:
       - text: 食完飯先出門。
-        meaning: Leave after finishing the meal.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
+        meaning: "Leave after finishing the meal. `食完飯` means finish eating a meal: `完` follows the action
+          `食` and gives completion. `先出門` means only then head out. Here `先` is before the second
+          action and makes it wait for completion of the first."
+        note: "Try it: finish drinking tea before leaving. Answer: `飲完茶先出門。` Change `食飯` to `飲茶`, keeping
+          `完` after the first action. `我哋先食飯，跟住出門` also gives eating first then leaving; the
+          placement of `先` changes with that two-clause wording."
   - subskill_id: event_phase
-    explanation: 仲未 presents the expected event as not yet realised, rather than denying a habit or
-      refusing food.
+    explanation: Someone asks whether you have had a meal. `仲未` says that the expected eating has still
+      not happened up to now, leaving it as something that may happen later.
     examples:
       - text: 我仲未食飯。
-        meaning: I have not eaten yet.
-        note: Original teaching example; interpret its function in the conversational context described
-          above.
-provenance: &a1
+        meaning: I have not eaten yet. `我` identifies the person; `仲` means still and `未` means not yet.
+          Together they precede `食飯`, have a meal. This describes the current stage, rather than
+          refusing to eat or denying a usual habit.
+        note: "Try it: say the whole group has not eaten yet. Answer: `我哋仲未食飯。` Replace the person without
+          changing the activity. `我已經食咗飯` gives the completed counterpart; it uses `已經` and
+          accomplished `咗`, rather than adding `咗` to the not-yet clause."
+provenance:
   origin: ai
-  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
-    the cited grammar; no independent linguistic review.
+  authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+    scoped public grammar companion chapters; independent Cantonese linguistic and English
+    explanation review pending.
   sources:
     - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-skills-2026-10-05
-    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
-      applicability. Source consultation does not certify linguistic accuracy."
+    revision: cantonese-teaching-english-2026-10-07
+    scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+      explanation meaning for conversational Hong Kong Cantonese. Public companion examples support
+      particular claims, not certification of authored teaching.
 varieties:
   cantonese-hong-kong:
     disposition: use_core
-    provenance: *a1
+    provenance:
+      origin: ai
+      authorship: AI-authored contextual Cantonese teaching, worked examples and practice informed by
+        scoped public grammar companion chapters; independent Cantonese linguistic and English
+        explanation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-english-2026-10-07
+        scope: All subskills in this guide, including original examples, adapted forms, exercise answers and
+          explanation meaning for conversational Hong Kong Cantonese. Public companion examples
+          support particular claims, not certification of authored teaching.

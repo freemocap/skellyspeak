@@ -1,51 +1,72 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-teaching-cantonese-2026-10-07
 skill_id: reasons_connections
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Porque將事件或選擇連到原因。
+    explanation: 有人問點解你留低，講原因可以令對方明白你嘅選擇。`Porque` 連接行動同解釋。呢度因為攰，所以講者留低而唔出街。
     examples:
       - text: Me quedo porque estoy cansada.
-        meaning: 我留低，因為我攰。
-        note: 第二個分句提供留低嘅原因。
+        meaning: 意思係「我留低，因為我攰」。`Me quedo` 係我留低；代詞係 `quedarse` 呢個意思嘅一部分。`Porque` 引出原因，`estoy cansada`
+          講講者狀態。`Cansada` 用陰性配合。
+        note: |-
+          **比較。** `¿Por qué te quedas?` 問原因，用兩個字而且有重音符號。答案嘅 `porque` 係一個字，冇重音符號。用陽性配合會講 `cansado`。
+
+          **試吓。** 用 `estoy enfermo` 講因為病所以留低。答案：`Me quedo porque estoy enfermo`。原因放喺 `porque` 後面。
   - subskill_id: consequences
-    explanation: Por eso引出前述情況嘅結果。
+    explanation: 一個情況可以解釋你點解作出某個行動。`Por eso` 指返前面情況，再引出結果。呢度落雨解釋咗點解講者帶遮。
     examples:
       - text: Llueve; por eso llevo paraguas.
-        meaning: 落緊雨，所以我帶住把遮。
-        note: 帶遮係對落雨嘅應對。
+        meaning: 意思係「落緊雨，所以我帶遮」。`Llueve` 講落雨；西班牙文唔加天氣主語代詞。`Por eso` 係因為咁。`Llevo paraguas` 講回應：我帶遮。
+        note: |-
+          **比較。** `Llevo paraguas porque llueve` 先講行動，再解釋原因。用 `por eso` 就先講原因，後講結果。唔好只用佢連接冇關係嘅事件。
+
+          **試吓。** 落雨，所以留喺屋企。答案：`Llueve; por eso me quedo en casa`。第二部分係對落雨嘅回應。
   - subskill_id: conditions
-    explanation: Si引出條件；尚未確定嘅條件可以用現在直陳式。
+    explanation: 有啲計劃要睇情況。`Si` 引出條件；條件成立，句子另一部分先適用。呢度落雨先留喺屋企，講者冇話一定會落雨。
     examples:
       - text: Si llueve, me quedo en casa.
-        meaning: 如果落雨，我就留喺屋企。
-        note: 留家取決於落唔落雨。
+        meaning: 意思係「如果落雨，我就留喺屋企」。`Si llueve` 用直陳式現在式 `llueve` 提出條件。`Me quedo en casa`
+          講依條件而定嘅計劃。雖然兩個動詞都係現在式，計劃情境可以指將來。
+        note: >-
+          **比較。** `Porque llueve, me quedo en casa` 將落雨講成實際原因。呢種開放條件用 `si llueve`，唔係 `si
+          llueva`。有重音符號嘅 `sí` 係肯定；條件 `si` 冇。
+
+
+          **試吓。** 講唔落雨就出街。答案：`Si no llueve, salgo`。`No` 否定條件，`salgo` 講計劃。
   - subskill_id: contrast
-    explanation: Pero可以連接互相對照嘅事實或預期。
+    explanation: 價錢高可以係缺點，但有用仍然係優點。`Pero` 連接兩個同預期有反差嘅事實。呢度講者將負面評價同正面評價放埋一齊。
     examples:
       - text: Es caro, pero es útil.
-        meaning: 佢貴，但有用。
-        note: 第二個評價同第一個作對比。
+        meaning: 意思係「佢貴，但係有用」。`Es caro` 評價價錢，`pero` 引出反差，`es útil` 講優點。兩個描述都指對話已經提過嗰件嘢。
+        note: >-
+          **改一改。** `Es cara, pero es útil` 描述陰性名詞，例如 `la herramienta`。`Útil` 唔變，`caro` 改成 `cara`。用
+          `y` 只係加資料，唔特別標示反差。
+
+
+          **試吓。** 講一件貴但有用嘅工具。答案：`La herramienta es cara, pero es útil`。`Cara` 配合陰性名詞。
   - subskill_id: supporting_claims
-    explanation: 提供支持主張嘅理由或觀察，唔係只用更強語氣重複。
+    explanation: 你睇唔到某人係咪喺屋企時，可以用觀察支持估計。`Creo que` 引出推斷，`porque` 再講有咩證據。觀察支持結論，但唔等於證明一定啱。
     examples:
       - text: Creo que está en casa porque la luz está encendida.
-        meaning: 我諗佢哋喺屋企，因為盞燈開咗。
-        note: 燈光係支持推論嘅證據。
+        meaning: 意思係「我估佢喺屋企，因為盞燈著住」。`Creo que` 標示講者嘅想法；`está en casa` 係對一個人嘅結論。`Porque la luz está
+          encendida` 提供觀察。`Encendida` 配合陰性 `luz`。
+        note: >-
+          **比較。** 只重複 `Está en casa` 冇提供證據。`Sé que está en casa` 聲稱知道，唔係估計。人唔喺度都可能留燈，所以原句容許估錯。
+
+
+          **試吓。** 用 `su coche está aquí` 支持同一個估計。答案：`Creo que está en casa porque su coche está
+          aquí`。架車喺度係觀察，唔係肯定證明。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/reasons-connections/spanish-reasons-connections-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -53,21 +74,19 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/reasons-connections/spanish-reasons-connections-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
       sources:
         - rae_possession2026
         - rae_future2026
@@ -75,18 +94,17 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-teaching-cantonese-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/reasons-connections/spanish-reasons-connections-explained-in-english.yaml
-    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -94,9 +112,10 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-teaching-cantonese-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

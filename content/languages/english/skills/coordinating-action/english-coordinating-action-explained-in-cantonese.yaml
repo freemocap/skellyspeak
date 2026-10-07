@@ -1,94 +1,130 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: coordinating_action
 language: english
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 想請人做嘢，可以用直接請求或有禮貌嘅問句。唔好只按問句外形判斷意思。
+    explanation: 請求係請另一個人做嘢。雙手攞滿嘢時，你可能想有人幫你托住個箱一陣。用 `Could you` 問，比 `Hold this box` 呢類直接指令婉轉。
     examples:
       - text: Could you hold this box for a moment?
-        meaning: 講者請對方幫手托住個箱。
-        note: 呢句係請對方行動，唔係問佢身體上有冇能力做。
+        meaning: "`Could you` 指向幫手嗰個人；`hold this box` 講要做嘅動作。`For a moment` 表示只需幫一陣。`Could` 後用原形 `hold`，唔加
+          `to`。"
+        note: >-
+          `Could you hold this box?` 請對方做；`Could I put this box here?` 就為自己嘅行動問許可。對方可以答
+          `Sure`，然後接住個箱。
+
+
+          **試一試。** 有禮貌噉請人閂門。答案係 `Could you close the door, please?`；`you` 指做嘢嘅人，`close` 保持原形。
   - subskill_id: offers_invitations
-    explanation: 可以主動提出幫忙，或者邀請對方參與。呢類話語通常等對方接受或拒絕。
+    explanation: 邀請畀對方選擇參與活動。你哋一班人去食午飯，可以用 `Would you like to` 歡迎另一個人加入，唔預設佢一定嚟。同一個開頭亦可以用嚟提供對方可能想要嘅嘢。
     examples:
       - text: Would you like to join us for lunch?
-        meaning: 講者邀請對方一齊食午飯。
-        note: 呢條問題係提出邀請，唔係純粹查問對方喜好。
+        meaning: "`Would you like to` 引出建議嘅活動。`Join us` 係加入我哋；`for lunch` 指一齊食午飯。呢個講法要喺 `join` 前面保留 `to`。"
+        note: >-
+          比較 `Would you like some tea?`：`like` 後面係一樣嘢，冇動詞，亦唔使 `to`。想主動幫手可以講 `Shall I carry
+          that?`，做動作嘅人就變成自己。
+
+
+          **試一試。** 邀請朋友散步。答案係 `Would you like to go for a walk?`；`to go` 引出活動。`Yes, thanks`
+          係接受；`Sorry, I cannot today` 係婉拒。
   - subskill_id: suggestions
-    explanation: 將一項行動提出嚟，畀其他人考慮。
+    explanation: 建議係將一個選擇放入大家嘅討論。揀路線時，你可以提出比較靜嘅路，唔強迫大家一定行嗰條。`We could` 表示有一個大家可以考慮嘅做法。
     examples:
       - text: We could take the quieter route.
-        meaning: 講者建議行比較靜嘅路線。
-        note: could 呢度提出一個選項。究竟係建議定講可能性，要睇語境。
+        meaning: "`We` 包括自己同同行嘅人。`Could take` 提出可能行動；`the quieter route` 指比另一條路少噪音嘅路線。`Could` 後用 `take`，唔用
+          `to take`。"
+        note: >-
+          `We should take the quieter route` 係較強嘅推薦；`We will take it` 可以宣布決定。建議仍然容許對方答 `Good idea` 或
+          `That takes too long`。
+
+
+          **試一試。** 提議搭巴士，但未作決定。答案係 `We could take the bus`；`could` 將搭巴士保留為討論中嘅選項。
   - subskill_id: commitments
-    explanation: 講明你答應做乜。單純預測將來會發生嘅事，唔一定構成承諾。
+    explanation: 承諾話畀對方知可以指望你做乜。朋友需要地址時，你答今晚會傳畀佢，就交代咗邊個負責呢件事。`I will` 可以表達呢個決定或承諾。
     examples:
       - text: I will send you the address tonight.
-        meaning: 講者答應發送地址。
-        note: 如果上文係對方問你攞地址，呢句就係答應會採取行動。
+        meaning: "`I` 係負責嘅人。呢段對話中 `will send` 答應發送；`you` 係收件人，`the address` 係所傳資料，`tonight` 交代時間。日常縮寫係
+          `I’ll`。"
+        note: |-
+          承諾同預測要按語境分。`It will rain tonight` 預測天氣，唔係答應做嘢。有用嘅承諾要講清楚任務同做得到嘅時間。
+
+          **試一試。** 朋友請你聽日打畀佢，你答應。答案係 `I’ll call you tomorrow`；`will` 後用原形 `call`，`tomorrow` 講清楚時間。
   - subskill_id: accepting_declining
-    explanation: 回應對方實際提出嘅建議。上文已經交代內容時，簡短回應都可以完整。
+    explanation: 清楚回應令對方知道要唔要預埋你。獲邀食晚飯時，可以先多謝主人，再講自己留唔到。可以簡短交代理由，唔使作一大段解釋。
     examples:
       - text: Thanks, but I cannot stay for dinner.
-        meaning: 講者婉拒晚餐邀請。
-        note: 呢個拒絕係回應邀請，唔係只講時間安排。
+        meaning: "`Thanks` 先回應邀請。`But` 引出限制；`cannot stay` 表示留唔到，`for dinner` 指所婉拒嘅晚飯邀請。日常口語常用 `can’t`。"
+        note: >-
+          `Thanks, I’d love to` 係接受邀請。`Maybe` 就未落實答案，如果已經知去唔到，就唔好只答呢個字。亦可以提出替代：`Could we have lunch
+          tomorrow?`。
+
+
+          **試一試。** 婉拒留下飲咖啡。其中一個答案係 `Thanks, but I can’t stay for coffee`；既保留多謝，亦直接講清楚留唔到。
   - subskill_id: negotiating_plans
-    explanation: 針對原有計劃嘅限制，提出替代方案。
+    explanation: 協調計劃係搵一個雙方都做到嘅選擇。五點太早，就保留見面呢件事，提出六點。具體替代方案比只話原本計劃唔得容易回應。
     examples:
       - text: Could we meet at six instead of five?
-        meaning: 講者建議更改見面時間。
-        note: instead of 將新建議同原本計劃連起嚟。
+        meaning: "`Could we meet` 請大家考慮改動。`At six` 提出新時間；`instead of five` 指要取代五點。`Could` 後面 `meet` 保持原形。"
+        note: >-
+          `At six or five?` 只係畀兩個選擇，未清楚提出取代。`Instead of` 講明你想改乜。對方可以接受，或者答 `Six is too late. How
+          about half past five?`。
+
+
+          **試一試。** 保留活動，但由星期一改到星期三。答案係 `Could we meet on Wednesday instead of Monday?`；日子配 `on`，鐘點配
+          `at`。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/coordinating-action/english-coordinating-action-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_modals2026
         - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/coordinating-action/english-coordinating-action-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_modals2026
         - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/coordinating-action/english-coordinating-action-explained-in-english.yaml
-    at revision english-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - bc_modals2026
     - bunt2020_dialogue_acts
+    - bcCanCouldTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

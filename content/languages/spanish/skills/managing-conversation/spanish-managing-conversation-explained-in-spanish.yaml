@@ -1,87 +1,163 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-es-2026-10-04
+revision: spanish-teaching-spanish-2026-10-07
 skill_id: managing_conversation
 language: spanish
 explanation_language: spanish
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Usa un saludo o una despedida en el encuentro real, no solo como una palabra citada.
+    explanation: Al terminar una conversación amistosa, una despedida señala que el intercambio acaba.
+      `Hasta luego` es una despedida habitual. Sugiere volver a verse, pero su uso cotidiano no
+      exige una hora concreta para otro encuentro.
     examples:
       - text: Hasta luego.
-        meaning: Me despido de la otra persona.
-        note: Cierra un encuentro; repetirlo en un ejercicio de vocabulario no cumple esa función.
+        meaning: "`Hasta` señala un límite y `luego` significa más tarde. Juntas forman una despedida
+          convencional; el sentido de la expresión va más allá de cada palabra por separado."
+        note: >-
+          **Adáptalo.** `Hasta mañana` sirve cuando esperas ver a la persona mañana. `Hola` abre una
+          conversación. Una despedida por sí sola no fija el próximo encuentro.
+
+
+          **Prueba.** Despídete antes de volver a ver a alguien mañana. Respuesta: `Hasta mañana`.
+          Sustituye `luego` por el día previsto.
   - subskill_id: acknowledging
-    explanation: Indica que has recibido lo dicho o responde a un acto social. Entiendo no implica
-      necesariamente estar de acuerdo.
+    explanation: Si alguien te avisa de un cambio de planes, agradecerlo muestra que has recibido y
+      valoras el mensaje. `Gracias por` permite agradecer una acción concreta. Después de `por`, la
+      acción va aquí en infinitivo.
     examples:
       - text: Gracias por avisarme.
-        meaning: Agradezco que me hayas informado.
-        note: Reconoce la información útil y da las gracias.
+        meaning: "`Gracias` expresa agradecimiento; `por avisarme` da el motivo. `Avisar` significa
+          comunicar algo y el `me` unido al verbo indica a quién avisaron: a quien habla."
+        note: >-
+          **Adáptalo.** `Gracias por ayudarme` agradece la ayuda. `Entendido` confirma que
+          comprendiste sin expresar agradecimiento. No pongas directamente un verbo conjugado
+          después de `por`.
+
+
+          **Prueba.** Agradece una llamada con `llamarme`. Respuesta: `Gracias por llamarme`. El
+          `me` identifica a quien recibió la llamada.
   - subskill_id: clarification
-    explanation: Pide que repitan o expliquen algo cuando no hayas entendido la intervención anterior.
+    explanation: A veces oyes todas las palabras, pero no entiendes la intención de la otra persona. Una
+      pregunta de aclaración le pide que explique el sentido. Así puedes resolver la duda antes de
+      responder con una interpretación equivocada.
     examples:
       - text: ¿Qué quieres decir?
-        meaning: Pido que expliques lo que intentas comunicar.
-        note: Se pide explicar una intervención poco clara, no comprobar un dato ya entendido.
+        meaning: "`Qué` pregunta por el contenido, `quieres` se refiere a la persona a quien hablas y
+          `decir` nombra la acción de hablar. Aquí `querer decir` pregunta por el significado, no
+          simplemente por el deseo de hablar."
+        note: >-
+          **Compara.** `¿Puedes repetirlo?` pide repetición y puede ayudar si no oíste bien. `¿Qué
+          significa esta palabra?` pregunta el significado de una palabra. Conserva la tilde de
+          `qué` en la pregunta.
+
+
+          **Prueba.** Has oído la frase, pero no entiendes el mensaje. Pregunta `¿Qué quieres
+          decir?`. Pides una explicación, no solo escuchar las mismas palabras.
   - subskill_id: rephrasing
-    explanation: Quiero decir introduce otra forma de expresar lo que intentabas comunicar.
+    explanation: Si tu primera explicación no quedó clara, puedes expresar el mensaje de forma más
+      precisa. `Quiero decir que` introduce lo que quieres comunicar. La oración siguiente debe
+      aportar el detalle que resuelve la confusión.
     examples:
       - text: Quiero decir que llego después de las ocho.
-        meaning: Aclaro que mi llegada será después de las ocho.
-        note: En una secuencia de aclaración, reformula la hora de llegada.
+        meaning: "`Quiero decir que` introduce la explicación; `llego` indica tu llegada. `Después de las
+          ocho` la sitúa más tarde de las ocho, no exactamente a esa hora."
+        note: >-
+          **Compara.** `Llego a las ocho` fija la llegada a las ocho. `Llego antes de las ocho` la
+          sitúa antes. Después de `después`, conserva `de` delante de la hora.
+
+
+          **Prueba.** Aclara que llegas antes de las nueve. Respuesta: `Quiero decir que llego antes
+          de las nueve`. Cambia la expresión temporal y conserva el inicio aclaratorio.
   - subskill_id: correcting_misunderstanding
-    explanation: Contrasta la interpretación equivocada con lo que querías decir.
+    explanation: Si alguien confunde dos días, una corrección útil nombra el día previsto y el
+      equivocado. `Me refiero a` introduce aquello de lo que hablas. Así la otra persona no tiene
+      que adivinar qué corriges después de un simple no.
     examples:
       - text: No, me refiero al martes, no al jueves.
-        meaning: El día que quería indicar era el martes.
-        note: Corrige qué día entendió la otra persona.
+        meaning: "`No` rechaza la interpretación equivocada. `Me refiero al martes` identifica el día
+          previsto; `no al jueves` excluye el otro. `Al` une `a` con `el`."
+        note: >-
+          **Adáptalo.** `Me refiero a Ana, no a Luis` corrige la identidad de una persona. Se
+          mantiene `a`, pero estos nombres no llevan el artículo que aparece con los días.
+
+
+          **Prueba.** Corrige jueves por viernes. Respuesta: `No, me refiero al viernes, no al
+          jueves`. Nombra primero el día previsto y después el equivocado.
   - subskill_id: turns_topics
-    explanation: Usa una expresión de transición o de gestión de turnos al cambiar la dirección de la
-      conversación.
+    explanation: Una conversación puede pasar a una idea relacionada que acabas de recordar. `Por
+      cierto` señala ese cambio para que la otra persona pueda seguirlo. Aquí se deja el tema
+      anterior para preguntar por su hermana.
     examples:
       - text: Por cierto, ¿cómo está tu hermana?
-        meaning: Introduzco una pregunta sobre tu hermana.
-        note: Por cierto señala un cambio de tema.
+        meaning: "`Por cierto` introduce el nuevo punto; `cómo está` pregunta por su estado. `Tu hermana`
+          identifica a la persona. `Cómo` lleva tilde interrogativa; el posesivo `tu` no la lleva."
+        note: >-
+          **Compara.** `¿Dónde está tu hermana?` pregunta su ubicación, no cómo se encuentra. `Por
+          cierto` introduce un nuevo punto; no expresa la causa de un hecho.
+
+
+          **Prueba.** Cambia el tema para preguntar por `tu hermano`. Respuesta: `Por cierto, ¿cómo
+          está tu hermano?`. Cambia la persona y conserva la señal de tema y la pregunta.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
-        independiente.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - yepesGerundTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-es-2026-10-04
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-spanish-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
-    validación automática comprueba la estructura.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - yepesGerundTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-es-2026-10-04
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-spanish-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

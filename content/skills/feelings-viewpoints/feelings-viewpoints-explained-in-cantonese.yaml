@@ -1,32 +1,30 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: shared-teaching-expansion-cantonese-2026-10-07
 skill_id: feelings_viewpoints
 explanation_language: cantonese
 title: 感受與觀點
-introduction: 表達內在狀態、評價同立場。
+introduction: 講感受、願望、喜好同睇法。
 sections:
   - subskill_id: wants_intentions
     title: 願望與打算
-    concept: 表達希望出現嘅結果，或者打算做嘅事。
+    concept: 講你想要乜，或者打算做乜。
   - subskill_id: preferences
     title: 偏好
-    concept: 表達鍾意、唔鍾意，或者喺幾個選項之間點揀。
+    concept: 講你鍾意乜，或者比較想揀邊個選擇。
   - subskill_id: emotions
     title: 情緒
-    concept: 表達一個人嘅情緒反應或感受。
+    concept: 講一個人有咩感受。
   - subskill_id: opinions
     title: 意見
-    concept: 表達帶評價嘅立場或個人判斷。
+    concept: 講你對一件事有咩看法。
   - subskill_id: agreement_disagreement
     title: 同意與不同意
-    concept: 表示贊同或反對之前提出嘅觀點。
+    concept: 回應一個想法，表示同意或者講出唔同睇法。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml at revision
-    spanish-communication-2026-10-03. Target examples and variety applicability retained exactly; no
-    independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored plain-language teaching concepts. Skill identities and assessment criteria
+    unchanged; linguistic and translation review pending.
   sources:
     - rae_possession2026
     - rae_future2026
@@ -37,6 +35,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: shared-teaching-expansion-cantonese-2026-10-07
+    scope: Learner-facing introductions and concepts; translation review pending.

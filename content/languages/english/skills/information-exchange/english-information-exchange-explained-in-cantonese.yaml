@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-learner-first-cantonese-2026-10-07
+revision: english-teaching-expanded-cantonese-2026-10-07
 skill_id: information_exchange
 language: english
 explanation_language: cantonese
@@ -22,67 +22,95 @@ sections:
 
           **試一試。** 問佢哋住邊度。答案：`Where do they live?`。`They` 配 `do`，`live` 保持原形。
   - subskill_id: answering_information
-    explanation: 直接提供對方要嘅資訊就得，唔需要每次重複成個句子。
+    explanation: 簡短答案往往已經夠用。新相識問你喺邊度返工，就答地點；如果上文唔清楚，可以用完整句子。問題已經提供咗唔需要再重複嘅資料。
     examples:
       - text: At the library.
-        meaning: 回答「Where do you work?」時，呢句交代返工地點係圖書館。
-        note: 上文條問題令呢個短語成為切題而完整嘅答案。
+        meaning: "`At` 引出工作地點，`the library` 指圖書館。對方問 `Where do you work?`，答 `At the library` 就夠。完整講法係 `I
+          work at the library`。"
+        note: >-
+          答案要配合問題要嘅資料：`At seven` 答時間，`At the library` 答地點。係非問句就要另一種回應：`Do you work at the library?`
+          可以答 `Yes, I do`。
+
+
+          **試一試。** 對方問 `Where do you study?`，而你喺屋企讀書。答案係 `At home`；地點已經回答咗問題，唔使重複 `I study`。
   - subskill_id: checking_facts
-    explanation: 問某個具體細節或說法係咪正確。
+    explanation: 核實事實可以避免按錯誤資料行動。去買嘢之前，你可能聽講七點關門，想確認一下。係非問句將呢個可能正確嘅資料交畀對方核實。
     examples:
       - text: Does the shop close at seven?
-        meaning: 講者核實所講嘅關門時間。
-        note: 呢條問題係確認一個具體事實。
+        meaning: "`The shop` 係單數，所以問題用 `Does` 開頭。`Close` 係動詞原形；`at seven` 指要核實嘅時間。比較陳述句 `The shop closes at
+          seven`：問句有 `does`，`close` 就唔再加 `-s`。"
+        note: >-
+          回應可以確認或更正：`Yes, it does` 或 `No, it closes at six`。如果完全唔知時間，就問 `What time does the shop
+          close?`。
+
+
+          **試一試。** 核實 `The buses stop here`。答案係 `Do the buses stop here?`；複數 `the buses` 配
+          `do`，`stop` 保持原形。
   - subskill_id: useful_detail
-    explanation: 加上有用資料，幫對方識別或理解講緊嘅對象。
+    explanation: 有用細節令指路更容易跟。搵入口嘅人需要知道位置，亦可能需要睇得見嘅地標。先答主要位置，再加幫到佢認出地方嘅資料。
     examples:
       - text: The entrance is on the left, beside the blue sign.
-        meaning: 講者清楚指出入口位置。
-        note: beside the blue sign 補充咗有助識別嘅位置細節。
+        meaning: "`The entrance` 指要搵嘅入口。`On the left` 交代喺左邊，`beside the blue sign`
+          加上地標，即係喺藍色招牌旁邊。兩個短語都描述同一個入口。"
+        note: >-
+          要揀對方搵得到嘅地標。`Beside` 係旁邊；改成 `behind` 就係喺招牌後面。加資料要令位置更清楚先有用。
+
+
+          **試一試。** 幫 `The lift is on the right` 加一個地標。其中一個答案係 `The lift is on the right, beside
+          reception`；接待處幫對方認出部升降機。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_questions2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - bcPresentSimpleTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-cantonese-2026-10-07
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-        Original examples retained within their variety; independent linguistic review pending."
+      authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+        other lessons rewritten with original exercises. Principal examples retained in shared
+        sections; US replacement lessons use American spellings. No independent linguistic review;
+        exact backend model metadata not recorded.
       sources:
         - bc_questions2026
         - bcGuideSequence20261007
         - yepesGuideSequence20261007
+        - bcPresentSimpleTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: english-learner-first-cantonese-2026-10-07
+        revision: english-teaching-expanded-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
-    Original examples retained within their variety; independent linguistic review pending."
+  authorship: AI-authored teaching expansion in cantonese; seven accepted pilot sections retained,
+    other lessons rewritten with original exercises. Principal examples retained in shared sections;
+    US replacement lessons use American spellings. No independent linguistic review; exact backend
+    model metadata not recorded.
   sources:
     - bc_questions2026
     - bcGuideSequence20261007
     - yepesGuideSequence20261007
+    - bcPresentSimpleTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: english-learner-first-cantonese-2026-10-07
+    revision: english-teaching-expanded-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

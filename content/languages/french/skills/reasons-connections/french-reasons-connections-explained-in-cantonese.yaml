@@ -1,88 +1,75 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: french-teaching-expanded-cantonese-2026-10-07
 skill_id: reasons_connections
 language: french
 explanation_language: cantonese
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: parce que 引入原因；puisque 可以將原因表達為雙方已接受嘅資訊。理由短語可直接回答 pourquoi。
+    explanation: 條路封咗，解釋點解你哋等緊。`Nous attendons` 講發生緊乜，`parce que` 引出原因 `la route est
+      fermée`。後面係完整句子，有自己嘅主語同動詞。`Fermée` 配合陰性 `route`。如果原因只係一個名詞，可以用 `à cause de`，例如 `Nous
+      attendons à cause de la neige.`。兩種說法後面接嘅內容唔同：`parce que` 接完整解釋，`à cause de` 接名詞片語。
     examples:
       - text: Nous attendons parce que la route est fermée.
         meaning: 我哋等緊，因為條路封咗。
-        note: parce que 將封路表達為等候原因，唔係單純同時發生。
+        note: 試下解釋因為舖頭關門，所以你哋等緊。`Nous attendons parce que le magasin est fermé.` 可以；原因係完整句子，`fermé` 配合陽性
+          `magasin`。
   - subskill_id: consequences
-    explanation: donc、alors 等結果結構可以連結情況同後果；要由內容判斷係咪真有因果意思。
+    explanation: 尾班巴士走咗，所以大家決定行返屋企。`Le dernier bus est parti` 講已完成嘅事，`donc` 連到結果 `nous allons
+      rentrer à pied`。`Allons rentrer` 係將會返去，`à pied` 係步行。`Partir` 嘅複合過去式用 `être`，所以有 `est
+      parti`；將來計劃就用現在式 `aller` 接原形動詞。`Puis` 只講先後，`donc` 就將後一句表達為結果。
     examples:
       - text: Le dernier bus est parti, donc nous allons rentrer à pied.
         meaning: 尾班巴士走咗，所以我哋會行路返屋企。
-        note: donc 將行路返屋企表達為錯過巴士嘅結果，唔止係下一步。
+        note: 試下將結果改成喺呢度等。`Le dernier bus est parti, donc nous allons attendre ici.` 可以；`donc`
+          保留結果關係，`attendre ici` 換成新計劃。
   - subskill_id: conditions
-    explanation: 開放將來條件通常用 si 加現在式，結果可用將來式；假設條件可以配合未完成過去式同條件式。要按意思選擇。
+    explanation: 圖書館有開門，你哋先會喺嗰度做嘢。`Si la bibliothèque est ouverte` 講條件，`nous y travaillerons`
+      講之後會做乜。`Y` 代替喺圖書館，避免重複，放喺 `travaillerons` 前面。真實可能發生嘅將來條件，可以喺 `si`
+      後面用現在式、結果用將來式，唔需要因為講將來就將條件動詞改成將來式。`Quand la bibliothèque sera ouverte`
+      就係當圖書館開門時，將開門當作預期時間。
     examples:
       - text: Si la bibliothèque est ouverte, nous y travaillerons.
         meaning: 如果圖書館開門，我哋就喺嗰度做嘢。
-        note: 條件 si 後面用現在式 est；travaillerons 表達將來結果，y 指返圖書館。
+        note: 試下將結果改成喺嗰度溫書。`Si la bibliothèque est ouverte, nous y étudierons.` 可以；條件仍然係現在式，結果係將來式，`y`
+          繼續指圖書館。
   - subskill_id: contrast
-    explanation: mais 連接對比；pourtant 可以標示出乎預期嘅對比。連起嚟嘅意思本身要支持呢種關係。
+    explanation: 個袋細，但意外地裝得晒你所需嘅嘢。`Le sac est petit` 令人預期容量有限，`mais` 引出相反嘅情況 `il contient tout mon
+      matériel`。`Il` 指返陽性 `sac`，`tout mon matériel` 係我全部器材。呢度 `matériel` 係集合性嘅單數名詞，所以 `tout`
+      用陽性單數形式。`Et` 只係加資料，`mais` 就突出第二件事點樣同第一件事形成反差。
     examples:
       - text: Le sac est petit, mais il contient tout mon matériel.
         meaning: 個袋細，但裝得晒我啲器材。
-        note: mais 對比體積同容量；後半句唔係更正前半句。
+        note: 試下講個箱細但裝得晒器材。`La boîte est petite, mais elle contient tout mon matériel.` 可以；陰性箱用 `petite`
+          同 `elle`，器材片語仍然係陽性單數。
   - subskill_id: supporting_claims
-    explanation: 用相關觀察、例子或解釋支持論點，唔好只更強烈咁重複同一評價。
+    explanation: 你推薦一條路線，用最近嘅經驗解釋判斷。`Ce trajet est plus rapide` 係呢條路線較快；冒號後 `hier, j’ai gagné vingt
+      minutes` 講尋日慳咗二十分鐘。`Ai gagné` 表達完成咗嘅經驗，實際分鐘數令支持理由具體。呢次觀察支持當時嘅比較，唔代表證明每次都較快。淨係講 `C’est
+      mieux` 只有判斷，冇呢種可以核實嘅細節。
     examples:
       - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
         meaning: 呢條路快啲；噚日我慳咗二十分鐘。
-        note: 所講嘅時間節省支持比較。呢個係講者證據，唔係應用程式獨立核實過嘅事實。
-provenance:
+        note: "試下將觀察到嘅節省時間改成十分鐘。`Ce trajet est plus rapide : hier, j’ai gagné dix minutes.`
+          可以；證據數字改變，經驗仍然係已完成嘅過去事件。"
+provenance: &a1
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/french/skills/reasons-connections/french-reasons-connections-explained-in-english.yaml
-    at revision french-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI 撰寫嘅法文教學及原創例子，參考所列來源；未經獨立語言專家審核。
   sources:
     - tex_si2026
     - threshold_general_notions
+    - texPlaceYTeaching20261007
+    - texCompoundPastTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: french-teaching-expanded-cantonese-2026-10-07
+    scope: All teaching sections, examples and selected-variety replacements; sources support named
+      claims, not certification of generated examples.
 varieties:
   french-france:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/reasons-connections/french-reasons-connections-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_si2026
-        - threshold_general_notions
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1
   french-canada:
     disposition: use_core
-    provenance:
-      origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/french/skills/reasons-connections/french-reasons-connections-explained-in-english.yaml
-        at revision french-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
-      sources:
-        - tex_si2026
-        - threshold_general_notions
-      generation: null
-      review:
-        status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+    provenance: *a1

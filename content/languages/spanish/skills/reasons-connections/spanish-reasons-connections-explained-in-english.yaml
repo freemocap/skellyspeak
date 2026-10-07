@@ -1,79 +1,151 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-teaching-english-2026-10-07
 skill_id: reasons_connections
 language: spanish
 explanation_language: english
 shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
 sections:
   - subskill_id: causes_reasons
-    explanation: Porque connects an event or choice to its reason.
+    explanation: If someone asks why you are staying, giving the reason makes your choice
+      understandable. `Porque` connects the action with its explanation. Here tiredness explains why
+      the speaker stays instead of going out.
     examples:
       - text: Me quedo porque estoy cansada.
-        meaning: I am staying because I am tired.
-        note: The second clause gives the reason for staying.
+        meaning: “I am staying because I am tired.” `Me quedo` says I stay; the pronoun belongs to
+          `quedarse` in this meaning. `Porque` introduces the reason and `estoy cansada` names the
+          speaker’s state. `Cansada` uses feminine agreement.
+        note: >-
+          **Compare.** `¿Por qué te quedas?` asks why: the question uses two words and an accent.
+          The answer’s `porque` is one word without an accent. A speaker using masculine agreement
+          says `cansado`.
+
+
+          **Try it.** Answer that you stay because you are ill, using `estoy enfermo`. Answer: `Me
+          quedo porque estoy enfermo`. Put the reason after `porque`.
   - subskill_id: consequences
-    explanation: Por eso presents a result of the preceding situation.
+    explanation: A situation can explain the action you take in response. `Por eso` points back to that
+      situation and introduces its result. Here rain explains why the speaker carries an umbrella.
     examples:
       - text: Llueve; por eso llevo paraguas.
-        meaning: It is raining, so I am carrying an umbrella.
-        note: The umbrella follows as a response to the rain.
+        meaning: "“It is raining, so I am carrying an umbrella.” `Llueve` states the rain; Spanish does not
+          add a weather subject pronoun. `Por eso` means for that reason. `Llevo paraguas` gives the
+          response: I carry an umbrella."
+        note: >-
+          **Compare.** `Llevo paraguas porque llueve` starts with the response and then explains it.
+          With `por eso`, the reason comes first and the result follows. Do not use it merely to
+          connect unrelated events.
+
+
+          **Try it.** It is raining, so you stay home. Answer: `Llueve; por eso me quedo en casa`.
+          The second part follows from the rain.
   - subskill_id: conditions
-    explanation: Si introduces a condition. For an open condition, present indicative can describe the
-      condition.
+    explanation: Some plans depend on what happens. `Si` introduces the condition that must hold for the
+      other part of the sentence to apply. In this example, staying home is the plan if it rains;
+      the speaker does not say rain is certain.
     examples:
       - text: Si llueve, me quedo en casa.
-        meaning: If it rains, I will stay home.
-        note: Staying home depends on the rain.
+        meaning: “If it rains, I will stay home.” `Si llueve` gives the condition with present indicative
+          `llueve`. `Me quedo en casa` gives the dependent plan. Although both verbs are present
+          forms, the planning context can refer to the future.
+        note: >-
+          **Compare.** `Porque llueve, me quedo en casa` gives rain as an actual reason. The open
+          condition uses `si llueve`, not `si llueva`. `Sí` with an accent means yes; conditional
+          `si` has none.
+
+
+          **Try it.** Make going out depend on there being no rain. Answer: `Si no llueve, salgo`.
+          `No` negates the condition and `salgo` gives the plan.
   - subskill_id: contrast
-    explanation: Pero can connect opposing facts or expectations.
+    explanation: A price can be a drawback while usefulness is still an advantage. `Pero` connects two
+      facts whose combination contrasts with an expectation. Here the speaker balances a negative
+      evaluation with a positive one.
     examples:
       - text: Es caro, pero es útil.
-        meaning: It is expensive, but it is useful.
-        note: The second evaluation contrasts with the first.
+        meaning: “It is expensive, but it is useful.” `Es caro` gives the price judgment; `pero` introduces
+          the contrast. `Es útil` gives the advantage. Both descriptions refer to the same thing
+          already named in the conversation.
+        note: >-
+          **Adapt it.** `Es cara, pero es útil` describes a feminine noun such as `la herramienta`.
+          `Útil` keeps its form; `caro` changes to `cara`. `Y` would simply add a fact without
+          marking the contrast.
+
+
+          **Try it.** Describe an expensive but useful tool. Answer: `La herramienta es cara, pero
+          es útil`. Match `cara` to the feminine noun.
   - subskill_id: supporting_claims
-    explanation: Give a reason or observation that supports accepting your claim, not just a stronger
-      repetition.
+    explanation: When you cannot directly see whether someone is home, an observation may support your
+      guess. You can introduce the inference with `creo que` and then use `porque` to explain the
+      evidence. The observation supports the conclusion without proving it.
     examples:
       - text: Creo que está en casa porque la luz está encendida.
-        meaning: I think they are home because the light is on.
-        note: The light is evidence supporting the inference.
+        meaning: “I think they are home because the light is on.” `Creo que` marks the speaker’s belief;
+          `está en casa` is the conclusion about one person. `Porque la luz está encendida` supplies
+          the observation. `Encendida` agrees with feminine `luz`.
+        note: >-
+          **Compare.** Simply repeating `Está en casa` gives no evidence. `Sé que está en casa`
+          claims knowledge rather than a guess. The light could be left on when the person is away,
+          so the original wording leaves room for error.
+
+
+          **Try it.** Support the same guess with `su coche está aquí`. Answer: `Creo que está en
+          casa porque su coche está aquí`. The car’s presence is the observation, not certainty.
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: AI-authored teaching revision. Original principal examples retained; independent
+        linguistic and explanation-language review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-teaching-english-2026-10-07
+        scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+          explained practice. Independent linguistic and explanation-language review pending."
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: AI-authored teaching revision. Original principal examples retained; independent
+    linguistic and explanation-language review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-teaching-english-2026-10-07
+    scope: "Entire guide: all subskills audited, with worked examples, adaptations, contrasts and
+      explained practice. Independent linguistic and explanation-language review pending."

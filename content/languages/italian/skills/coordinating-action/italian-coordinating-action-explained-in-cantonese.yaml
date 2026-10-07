@@ -1,53 +1,79 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: italian-teaching-cantonese-2026-10-07
 language: italian
 skill_id: coordinating_action
 explanation_language: cantonese
 shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
 sections:
   - subskill_id: requests
-    explanation: 用 puoi 加不定式問句，可以請人做一件事。Per favore 令要求有禮貌；亦可以用條件式 potresti。
+    explanation: 間房凍，請人閂窗就提供清楚嘅行動。`puoi` 問句係向一個人作出熟悉稱呼請求嘅常見方式。呢個情境係請佢合作，唔只係測試體力。
     examples:
       - text: Puoi chiudere la finestra, per favore?
-        meaning: 唔該可唔可以閂埋隻窗？
-        note: 對附近幫到手嘅人講，就係請佢閂窗。Chiudere 喺 puoi 後面維持不定式。
+        meaning: 意思係「唔該，你可唔可以閂窗？」`Puoi` 用熟悉單數稱呼，`chiudere` 指閂，`la finestra` 指窗。`Per favore` 加上唔該。`Puoi`
+          後面動作保持不定式。
+        note: >-
+          **改一改。** `Può chiudere la finestra, per favore?` 用正式稱呼 `Lei`。`Potresti chiudere la
+          finestra?` 就令熟悉稱呼嘅請求婉轉啲。
+
+
+          **試吓。** 用 `aprire la porta` 請熟人開門。答案：`Puoi aprire la porta, per favore?`。換活動同物件，保留 `puoi`。
   - subskill_id: offers_invitations
-    explanation: Vuoi venire 問句可以邀請對方參加活動。係邀請定純粹問喜好，要睇語境。
+    explanation: 邀請畀對方機會參加活動。`vuoi` 問句問佢願唔願意。呢度工作坊同同行嘅人，講清楚參與包括乜。
     examples:
       - text: Vuoi venire al laboratorio con noi?
-        meaning: 你想唔想同我哋一齊去工作坊？
-        note: 安排出行時講，係邀請參與；vuoi 非正式噉稱呼一個人。
+        meaning: 意思係「你想唔想同我哋嚟工作坊？」`Vuoi` 問想唔想，`venire` 係嚟。`Al laboratorio` 講目的地，`con noi` 係同我哋。`Al` 由 `a` 同
+          `il` 合成。
+        note: |-
+          **比較。** `Vuoi venire?` 留畀情境交代目的地。`Devi venire` 表達要求，唔係邀請。原句容許對方接受或者拒絕。
+
+          **試吓。** 用 `il parco` 邀請對方同你哋去公園。答案：`Vuoi venire al parco con noi?`。換目的地，保留邀請開頭。
   - subskill_id: suggestions
-    explanation: Potremmo 加不定式，提出可以一齊做嘅事。條件式令提議柔和啲，唔代表大家已經同意。
+    explanation: 一齊工作時，休息可以係下一個選項。`potremmo` 提出我哋可以做嘅事，留畀大家商量。佢係 potere 嘅條件式；呢個建議唔係講過去。
     examples:
       - text: Potremmo fare una pausa in giardino.
-        meaning: 我哋可以去花園抖吓。
-        note: Potremmo 係 potere 嘅第一人稱複數條件式；fare 引出建議活動。
+        meaning: 意思係「我哋可以去花園休息吓」。`Potremmo` 嘅我哋包括講者。`Fare una pausa` 係休息，`in giardino` 講地方。活動 `fare` 保持不定式。
+        note: |-
+          **比較。** `Dobbiamo fare una pausa` 表達必要性。`Possiamo fare una pausa` 可以較直接講可行選項。條件式令提議婉轉啲。
+
+          **試吓。** 用 `prendere un caffè` 提議飲杯咖啡。答案：`Potremmo prendere un caffè`。保留包括大家嘅婉轉提議，換活動。
   - subskill_id: commitments
-    explanation: 分工語境下，現在式可以表示承擔將來嘅工作。承諾唔一定要用將來式。
+    explanation: 分配工作坊用品時，講自己會帶乜，可以承擔一個任務。商量計劃入面，現在式陳述可以成為承諾。同一啲字喺另一個情境亦可能只講習慣。
     examples:
       - text: Porto i pennelli per tutti.
-        meaning: 我會幫大家帶畫筆。
-        note: 大家分配邊個帶工作坊用品時，講者負責帶畫筆。
+        meaning: 意思係「我會帶畫筆畀大家」。`Porto` 係我帶，`i pennelli` 指畫筆，`per tutti` 係畀所有人。計劃情境提供承諾同將來理解。
+        note: >-
+          **比較。** `Porto i pennelli ogni settimana` 描述習慣。`Ti prometto che porto i pennelli`
+          明確承諾。單有將來時間詞，唔一定就係承諾。
+
+
+          **試吓。** 用 `i colori` 承擔帶顏料任務。喺計劃對話回答：`Porto i colori per tutti`。換用品，情境仍然提供承擔意思。
   - subskill_id: accepting_declining
-    explanation: 回應要交代會唔會接受具體邀請。Non posso venire 可以拒絕，grazie 就多謝對方邀請。
+    explanation: 邀請你去工作坊嘅人需要清楚答案。先道謝，再講嗰日去唔到，就可以回應同拒絕邀請，唔使長篇交代私人原因。
     examples:
       - text: Grazie, ma domani non posso venire.
-        meaning: 多謝你，不過我聽日嚟唔到。
-        note: 回應聽日嘅邀請；第二個分句明確拒絕，單講 grazie 未交代會唔會嚟。
+        meaning: 意思係「多謝，但聽日我嚟唔到」。`Grazie` 回應邀請。`Ma` 引出拒絕，`domani` 指日子，`non posso venire` 講嚟唔到。`Non` 喺變位動詞之前。
+        note: |-
+          **比較。** `Sì, grazie, vengo volentieri` 係樂意接受。`Non voglio venire` 係唔想嚟，同嚟唔到唔同。
+
+          **試吓。** 用 `venerdì` 講星期五嚟唔到。答案：`Grazie, ma venerdì non posso venire`。換日子，保留有禮貌嘅拒絕。
   - subskill_id: negotiating_plans
-    explanation: 針對已知安排，用問句等方式提出改動。冇先前計劃，淨係講一個日子唔算協商。
+    explanation: 星期五唔得，提出星期六就畀大家另一個方案。有效商量會講限制，再提出具體調整。`possiamo` 問句保留畀大家同意嘅空間。
     examples:
       - text: Venerdì non posso. Possiamo spostare l’incontro a sabato?
-        meaning: 我星期五唔得。可唔可以改星期六見？
-        note: 回應星期五見面嘅提議；先講限制，再提出替代日子。
+        meaning: 意思係「星期五我唔得。我哋可唔可以將會面改到星期六？」`Venerdì non posso` 講唔得嘅日子。`Possiamo spostare l’incontro`
+          問可唔可以改會面，`a sabato` 指新日子。
+        note: >-
+          **比較。** `L’incontro è sabato` 宣布日子，唔係提議改期。只講 `Non posso` 冇提供替代方案。`Possiamo` 後面嘅 `spostare`
+          用不定式。
+
+
+          **試吓。** 星期五唔得，用 `domenica` 提議星期日。答案：`Venerdì non posso. Possiamo spostare l’incontro a
+          domenica?`。只換建議日子。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/italian/skills/coordinating-action/italian-coordinating-action-explained-in-english.yaml
-    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+    no independent linguistic or explanation-language review.
   sources:
     - zanichelli_it_modals2026
     - treccani_it_conditional2026
@@ -57,18 +83,16 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: italian-teaching-cantonese-2026-10-07
+    scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+      independent linguistic and explanation-language review pending."
 varieties:
   italian-italy:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/italian/skills/coordinating-action/italian-coordinating-action-explained-in-english.yaml
-        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: AI-authored teaching revision, preserving original principal examples. Source-informed;
+        no independent linguistic or explanation-language review.
       sources:
         - zanichelli_it_modals2026
         - treccani_it_conditional2026
@@ -78,6 +102,6 @@ varieties:
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: italian-teaching-cantonese-2026-10-07
+        scope: "Entire guide: meanings, forms, worked examples, adaptations and explained practice;
+          independent linguistic and explanation-language review pending."
