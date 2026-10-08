@@ -112,6 +112,7 @@ pub struct Request {
     pub target: access::ResolvedTarget,
     /// The model this aid runs on, selected by its task role.
     pub model: String,
+    pub(crate) model_role: &'static str,
     pub install: String,
     pub attempt: String,
     pub operation: String,
@@ -148,6 +149,16 @@ impl Request {
             &input.explanation,
             input.explanation_variety.as_deref(),
         )?;
+        Self::capture_context(store, input, context)
+    }
+
+    /// Conversation owners have already validated their message size and capture
+    /// language context with the turn. They share execution without changing it.
+    pub(crate) fn capture_context(
+        store: &Store,
+        input: ReadingInput,
+        context: crate::configuration::LanguageContext,
+    ) -> Result<Self> {
         let target = crate::ai::connections::speech_routing::resolve(
             &store.connection,
             input.aid.capability(),
@@ -165,6 +176,7 @@ impl Request {
         let request = Self {
             id: uuid::Uuid::new_v4().to_string(),
             fresh: false,
+            model_role: input.aid.role(),
             input,
             context,
             target,
@@ -220,7 +232,7 @@ impl Request {
         let config = crate::ai::connections::configuration::config(&store.connection)?;
         let model = crate::ai::connections::model_routing::target(
             &current,
-            self.input.aid.role(),
+            self.model_role,
             &config.fast_model,
         )
         .model;

@@ -2,11 +2,9 @@ import { ReadingTemplateContext } from './ReadingContext'
 import { sentenceBlanks } from '../../domain/reading/sentence-blanks'
 import { createPortal } from 'react-dom'
 import { positionWordHelp, wordHelpLayer } from './word-help-layer'
-import { TokenAudio } from './TokenAudio'
-import { GlossHelpParts } from './GlossHelpParts'
+import { WordHelpContent } from './WordHelpContent'
 import { UnannotatedText } from './UnannotatedText'
 import { SpeechFollowText } from './SpeechFollowText'
-import { AskCoachButton } from '../learning/AskCoachButton'
 import { useOverlayLayer } from '../dialogs/useOverlayLayer'
 import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
@@ -107,12 +105,8 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
             onPointerEnter={keepHover} onPointerLeave={leaveHover}
             onClick={event => event.stopPropagation()}>
             {open && <PinnedGlossLayer host={helper} onClose={() => { setRevealed(new Set()); setHovered(null); hoveredWord.current?.focus() }} />}
-            <GlossHelpParts text={text} parts={annotations} />
-            <TokenAudio text={text} start={segment.start} end={segment.end} />
-            <AskCoachButton compact
-              question={`Help me understand “${source}” in this sentence: “${text}”. Saved word details: ${JSON.stringify(annotations.map(part => ({ text: text.slice(part.start, part.end), gloss: part.gloss, romanization: part.romanization, pronunciation: part.pronunciation })))}`}
-              onClose={() => { setRevealed(new Set()); setHovered(null) }}
-            />
+            <WordHelpContent text={text} start={segment.start} end={segment.end} parts={annotations}
+              onClose={() => { setRevealed(new Set()); setHovered(null) }} />
           </span>)}
           {showAids && (revealAids || autoTranslate) && joined('gloss', 'wg')}
           {(showSound ?? (showAids && (revealAids || alwaysRomanize))) && supportsRomanization && joined('romanization', 'wroman')}

@@ -63,6 +63,7 @@ use crate::ai::connections::model_routing::TASK_TEMPERATURE;
 
 #[derive(Clone)]
 pub struct Dispatch {
+    pub kind: String,
     pub structured_output_tokens: i32,
     pub decisions: Option<serde_json::Value>,
     pub temperature: f64,

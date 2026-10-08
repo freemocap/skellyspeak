@@ -229,6 +229,7 @@ mod tests {
     #[test]
     fn completion_metadata_survives_rejection_without_content() {
         let dispatch = Dispatch {
+            kind: "persona_reply".into(),
             structured_output_tokens: 2048,
             decisions: None,
             temperature: 0.7,

@@ -44,6 +44,7 @@ use crate::ai::policy::retry;
 mod audio_analysis;
 mod coaching_results;
 mod reading_results;
+mod scheduled_reading;
 mod scheduler;
 mod speech_results;
 mod startup;

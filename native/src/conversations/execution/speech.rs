@@ -53,6 +53,7 @@ pub(super) fn prepare_speech(
         [turn],
     )?;
     Ok(Dispatch {
+        kind: "persona_speech".into(),
         structured_output_tokens: 2048,
         temperature: super::TASK_TEMPERATURE,
         credential: target.credential.clone().unwrap_or_default(),

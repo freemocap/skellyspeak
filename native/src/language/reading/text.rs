@@ -27,6 +27,10 @@ pub struct Stored {
     pub gloss: Option<WordGlossView>,
     pub translation: Option<String>,
     pub explanations: Option<support::ReplyExplanations>,
+    /// Original validated completion for independent conversation publication.
+    /// Older evictable entries remain readable by saved-source lookup.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completion: Option<provider::Completion>,
 }
 impl Stored {
     pub fn decode(payload: &[u8]) -> Result<Self> {
@@ -70,13 +74,17 @@ impl Request {
             schema,
             key: String::new(),
         };
-        prepared.key = results::text::request_key(
+        prepared.key = self.text_key(&prepared)?;
+        Ok(prepared)
+    }
+
+    pub(crate) fn text_key(&self, prepared: &Prepared) -> Result<String> {
+        results::text::request_key(
             &prepared.dispatch,
             prepared.output(),
-            self.input.aid.receipt_kind(),
+            &format!("{}-shared-v2", self.input.aid.receipt_kind()),
             &json!([self.context, self.config_hash]),
-        )?;
-        Ok(prepared)
+        )
     }
     pub fn validate_text(
         &self,
@@ -97,6 +105,7 @@ impl Request {
             gloss: None,
             translation: None,
             explanations: None,
+            completion: Some(completion.clone()),
         };
         match self.input.aid {
             ReadingAid::WordGloss => {

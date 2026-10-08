@@ -63,6 +63,7 @@ mod tests {
     #[test]
     fn speech_event_is_correlated_durable_and_content_free_on_success_and_failure() {
         let dispatch = Dispatch {
+            kind: "persona_speech".into(),
             structured_output_tokens: 2048,
             temperature: 0.7,
             target: ResolvedTarget {

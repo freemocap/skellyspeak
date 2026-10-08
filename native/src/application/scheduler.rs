@@ -97,10 +97,12 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     0
                 };
                 if coaching.is_none()
+                    && !super::scheduled_reading::owns(&dispatch)
                     && dispatch.speech_source.is_none()
                     && let Some(group) = groups.iter_mut().find(|g| {
                         g.len() < grouped::MAX_ITEMS
                             && g[0].3.is_none()
+                            && !super::scheduled_reading::owns(&g[0].0)
                             && g[0].0.speech_source.is_none()
                             && grouped::compatible(&g[0].0.text_request(), &dispatch.text_request())
                     })
@@ -144,6 +146,10 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     let first = &dispatches[0];
                     if let Some(request) = coaching {
                         let output = state.shared_coaching(request, first, permits[0].take().ok_or_else(internal)?).await;
+                        state.finish_attempt(&app, generations[0], first, output)?;
+                        finished[0] = true;
+                    } else if super::scheduled_reading::owns(first) {
+                        let output = state.scheduled_reading(first, permits[0].take().ok_or_else(internal)?).await;
                         state.finish_attempt(&app, generations[0], first, output)?;
                         finished[0] = true;
                     } else if let Some(source) = &first.speech_source {

@@ -57,6 +57,22 @@ remain stable when called by audio transport. Language-specific test examples,
 localized messages and font asset declarations are data, not exceptions for
 embedding language behavior in feature code.
 
+### Executable graph foundation
+
+`ai/graph/` owns the isolated typed DAG compiler, bound operation registry,
+composition, execution state machine and direct inspection. It has no product,
+database or provider dependencies. Production workflows still use their existing
+execution paths; this module does not yet replace them. Follow the
+[architectural foundations](../docs/notes/ai-graph-foundations.md) and
+[initial semantic profile](../docs/notes/ai-graph-core-semantics.md) before extending
+it. Graph topology belongs to the executable artifact; run state overlays that
+artifact. Do not add an independently maintained visualization graph definition.
+`graph::DurableEngine` wraps that same reducer with the
+[checkpoint and owner-transaction contract](../docs/notes/ai-graph-durability.md).
+Production use requires an owner adapter that checks current authority and commits
+publication with the checkpoint. The disposable SQLite fixture is verification,
+not a production workspace migration or storage adapter.
+
 ### Reply-help execution
 
 Transport inputs live in `ai/transport/text_request.rs`. They contain execution

@@ -14,8 +14,17 @@ impl Application {
         self: &Arc<Self>,
         request: Arc<Request>,
     ) -> Result<Retained> {
-        request.validate_source(&*self.lock()?)?;
         let prepared = request.prepare_text()?;
+        self.shared_reading_prepared(request, prepared, None).await
+    }
+
+    pub(super) async fn shared_reading_prepared(
+        self: &Arc<Self>,
+        request: Arc<Request>,
+        prepared: Prepared,
+        permit: Option<tokio::sync::OwnedSemaphorePermit>,
+    ) -> Result<Retained> {
+        request.validate_source(&*self.lock()?)?;
         let cached = if request.fresh {
             None
         } else {
@@ -36,7 +45,9 @@ impl Application {
             let state = self.clone();
             let owner = request.clone();
             tauri::async_runtime::spawn(async move {
-                let result = state.produce_reading(&owner, prepared, &producer).await;
+                let result = state
+                    .produce_reading(&owner, prepared, &producer, permit)
+                    .await;
                 producer.finish(result);
             });
         }
@@ -59,6 +70,7 @@ impl Application {
         request: &Request,
         prepared: Prepared,
         producer: &results::pending::Producer<Retained>,
+        permit: Option<tokio::sync::OwnedSemaphorePermit>,
     ) -> Result<Retained> {
         let id = producer.id();
         {
@@ -76,7 +88,9 @@ impl Application {
             }
             results::begin(&store.connection, id, request.input.aid.receipt_kind())?;
         }
-        let result = self.execute_reading(request, prepared, producer).await;
+        let result = self
+            .execute_reading(request, prepared, producer, permit)
+            .await;
         if let Err(mut error) = result {
             let store = self.lock()?;
             if store.snapshot()?.learner.id == request.install {
@@ -105,6 +119,7 @@ impl Application {
         request: &Request,
         mut prepared: Prepared,
         producer: &results::pending::Producer<Retained>,
+        permit: Option<tokio::sync::OwnedSemaphorePermit>,
     ) -> Result<Retained> {
         let authority = || request.validate_execution(&*self.lock()?);
         authority()?;
@@ -113,12 +128,14 @@ impl Application {
             Some(id) => read_secret(id.clone()).await?,
             None => Zeroizing::new(String::new()),
         };
-        let _permit = self.admission.try_chat().ok_or_else(|| {
-            AppError::new(
-                ErrorCode::AdmissionHeld,
-                "AI work is at capacity. Try reading help again when pending work finishes.",
-            )
-        })?;
+        let _permit = permit
+            .or_else(|| self.admission.try_chat())
+            .ok_or_else(|| {
+                AppError::new(
+                    ErrorCode::AdmissionHeld,
+                    "AI work is at capacity. Try reading help again when pending work finishes.",
+                )
+            })?;
         authority()?;
         if !producer.has_subscribers() {
             return Err(AppError::new(

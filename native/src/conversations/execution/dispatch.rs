@@ -364,6 +364,7 @@ impl Store {
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {
+            kind: kind.clone(),
             structured_output_tokens: if matches!(kind.as_str(), "coach_feedback") {
                 8192
             } else {
