@@ -14,7 +14,7 @@ fn server(
     body: serde_json::Value,
 ) -> (
     String,
-    tokio::sync::oneshot::Receiver<()>,
+    impl std::future::Future<Output = std::result::Result<(), tokio::sync::oneshot::error::RecvError>>,
     std::sync::mpsc::Sender<()>,
     std::thread::JoinHandle<Vec<u8>>,
 ) {
@@ -27,14 +27,20 @@ fn server_on(
     body: serde_json::Value,
 ) -> (
     String,
-    tokio::sync::oneshot::Receiver<()>,
+    impl std::future::Future<Output = std::result::Result<(), tokio::sync::oneshot::error::RecvError>>,
     std::sync::mpsc::Sender<()>,
     std::thread::JoinHandle<Vec<u8>>,
 ) {
     let url = format!("http://{}/v1", listener.local_addr().unwrap());
     let (sent, received) = tokio::sync::oneshot::channel();
     let (release, gate) = std::sync::mpsc::channel();
+    let (start, started) = std::sync::mpsc::channel();
     let worker = std::thread::spawn(move || {
+        // The caller polls `ready` alongside transcription, after workspace setup.
+        // Keep setup time out of the bounded wait for an actual request.
+        if started.recv().is_err() {
+            return Vec::new();
+        }
         listener.set_nonblocking(true).unwrap();
         let deadline = std::time::Instant::now() + Duration::from_secs(5);
         let (mut socket, _) = loop {
@@ -80,10 +86,41 @@ fn server_on(
         write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",body.len(),body).unwrap();
         request
     });
-    (url, received, release, worker)
+    let ready = async move {
+        start.send(()).unwrap();
+        received.await
+    };
+    (url, ready, release, worker)
 }
 fn reply() -> serde_json::Value {
     json!({"version":3,"response":{"text":"Hola","request_id":"recognition-fixture","duration":1.0,"words":[{"word":"Hola","start":0.1,"end":0.6}],"segments":[{"avg_logprob":-0.05,"no_speech_prob":0.01}]}})
+}
+
+#[tokio::test]
+async fn mock_request_deadline_excludes_fixture_setup() {
+    let (url, ready, release, worker) = server(reply());
+    // Workspace initialization can exceed the request timeout on CI runners.
+    tokio::time::sleep(Duration::from_millis(5100)).await;
+    assert!(
+        !worker.is_finished(),
+        "Server timed out during fixture setup"
+    );
+    let request = async {
+        let mut socket = std::net::TcpStream::connect(
+            url.strip_prefix("http://")
+                .unwrap()
+                .strip_suffix("/v1")
+                .unwrap(),
+        )
+        .unwrap();
+        socket
+            .write_all(b"POST /v1/audio/transcriptions HTTP/1.1\r\nContent-Length: 0\r\n\r\n")
+            .unwrap();
+        ready.await.unwrap();
+        release.send(()).unwrap();
+        worker.join().unwrap()
+    };
+    assert!(request.await.starts_with(b"POST /v1/audio/transcriptions "));
 }
 fn setup(
     url: &str,
