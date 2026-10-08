@@ -142,7 +142,7 @@ impl Engine {
                     inputs.insert(name.clone(), v);
                 }
                 Resolved::Absent if graph.operation(node).inputs[name].optional => (),
-                _ => return Err(fault("inputs_unavailable", "node")),
+                _ => return Err(fault(CoreFaultCode::InputsUnavailable, "node")),
             }
         }
         let op = graph.operation(node);
@@ -180,7 +180,7 @@ impl Engine {
         self.next_id = self
             .next_id
             .checked_add(1)
-            .ok_or_else(|| fault("identity_limit", "engine"))?;
+            .ok_or_else(|| fault(CoreFaultCode::IdentityLimit, "engine"))?;
         let attempt = AttemptId(self.next_id);
         let (execution, state, acquisition) = if let Some((id, state)) = shared {
             let mode = if state == AttemptState::Available {
@@ -193,7 +193,7 @@ impl Engine {
             self.next_id = self
                 .next_id
                 .checked_add(1)
-                .ok_or_else(|| fault("identity_limit", "engine"))?;
+                .ok_or_else(|| fault(CoreFaultCode::IdentityLimit, "engine"))?;
             let execution = ExecutionId(self.next_id);
             self.executions.insert(
                 execution,

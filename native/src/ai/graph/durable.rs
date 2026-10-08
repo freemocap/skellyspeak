@@ -101,6 +101,14 @@ impl DurableEngine {
     pub fn stamp(&self) -> &Stamp {
         self.checkpoint.stamp()
     }
+    pub fn inspection_snapshot(
+        &self,
+        run: &str,
+        limits: ExportLimits,
+    ) -> Result<InspectionSnapshot> {
+        self.check_live()?;
+        self.engine.project(self.stamp(), run, limits)
+    }
     pub fn inspect(&self, run: &str) -> Result<Inspection<'_>> {
         self.check_live()?;
         self.engine.inspect(run)
@@ -115,7 +123,7 @@ impl DurableEngine {
 
     fn check_live(&self) -> Result<()> {
         if self.poisoned {
-            Err(fault("reload_required", "checkpoint"))
+            Err(fault(CoreFaultCode::ReloadRequired, "checkpoint"))
         } else {
             Ok(())
         }
@@ -149,7 +157,7 @@ impl DurableEngine {
     pub fn apply(&mut self, event: Event, store: &mut impl CommitStore) -> Result<Vec<Work>> {
         self.check_live()?;
         if matches!(event, Event::Dispatch { .. } | Event::Adopt { .. }) {
-            return Err(fault("effect_requires_owner", "event"));
+            return Err(fault(CoreFaultCode::EffectRequiresOwner, "event"));
         }
         let mut candidate = self.engine.clone();
         let work = candidate.apply(event.clone())?;
@@ -188,14 +196,14 @@ impl DurableEngine {
             .attempts
             .get(node)
             .and_then(|a| a.last())
-            .ok_or_else(|| fault("unknown_attempt", "attempt"))?;
+            .ok_or_else(|| fault(CoreFaultCode::UnknownAttempt, "attempt"))?;
         if !owner.active
             || owner.paused
             || owner.cancelled.contains(node)
             || a.id != attempt
             || a.state != AttemptState::Prepared
         {
-            return Err(fault("invalid_dispatch", "attempt"));
+            return Err(fault(CoreFaultCode::InvalidDispatch, "attempt"));
         }
         let mut candidate = self.engine.clone();
         let work = self.engine.executions[&a.execution].work.clone();

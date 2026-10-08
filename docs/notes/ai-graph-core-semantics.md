@@ -9,6 +9,11 @@ Continuation: [durability and authority](ai-graph-durability.md) now specifies a
 implements a transactional host around this same reducer, with SQLite fixture
 evidence. The production owner adapter and workspace migration are still absent.
 
+[Inspection protocol 1](ai-graph-inspection.md) now exports a bounded snapshot
+using the same parameterized structural types, generated client contracts and
+explicit constant/fault disclosure. Raw `inspect` remains internal; applications
+must use the durable snapshot boundary when that integration is implemented.
+
 ## Scope and representation
 
 The core owns finite, acyclic typed graph validation, implementation binding,
@@ -155,9 +160,9 @@ production workflows merely because the isolated core tests pass.
 | G6: current adoption authority | Exact Available-attempt read/adoption; durable owner transaction interface; SQLite source/authority and publication rollback tests | Concrete product source, access, reset/replacement rules and production adapter |
 | G7: sharing | Independent attempt IDs and acquisition modes; cross-artifact reuse; cancellation permutations | Billing/credit provenance and bounded payload retention |
 | G8: history | Immutable artifact IDs; append-only attempts; versioned bounded checkpoints; UUID engine namespace; CAS and uncertain-commit recovery | Production migration, retained historical implementations, compaction and settlement-capacity policy |
-| G9: failure evidence | Core validation faults preserve structural locations | Bounded typed provider metadata and content-safe diagnostic export; raw inspection does not satisfy G9 |
+| G9: failure evidence | Closed native fault vocabulary; explicit export disclosure; internal records preserved | Bounded typed provider metadata and shared sensitivity handling; raw inspection does not satisfy G9 |
 | G10: refinement | Deterministic reducer and enumerated finite interleavings | Separate abstract model and systematic transition-conformance evidence; current unit tests are not a formal proof |
-| G11: visualization fidelity | Native inspection borrows actual executable topology and reports native reasons | Generated projection, viewer integration and real rendered-edge tests |
+| G11: visualization fidelity | Shared generic artifact/attempt/reason types; generated bounded snapshot; nested topology parity and native reason tests | Viewer integration and real rendered-edge tests |
 
 No stage-completion claim follows merely from passing the core unit tests.
 

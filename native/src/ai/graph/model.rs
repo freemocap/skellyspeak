@@ -1,25 +1,28 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use ts_rs::TS;
 
 pub type Values = BTreeMap<String, serde_json::Value>;
 pub type Result<T> = std::result::Result<T, Fault>;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, TS)]
 #[serde(transparent)]
+#[ts(type = "number")]
 pub struct AttemptId(pub(super) u64);
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, TS)]
 #[serde(transparent)]
+#[ts(type = "number")]
 pub struct ExecutionId(pub(super) u64);
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Acquisition {
     Produced,
     Subscribed,
     Retained,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Reason {
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
+pub enum Reason<F = Fault, I = AttemptId> {
     PolicyDisabled,
     DemandRequired,
     Paused,
@@ -37,11 +40,11 @@ pub enum Reason {
         state: super::Disposition,
     },
     Attempt {
-        id: AttemptId,
-        state: super::AttemptState,
+        id: I,
+        state: super::AttemptState<F>,
     },
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Availability {
     Waiting,
     Blocked,
@@ -51,20 +54,25 @@ pub enum Availability {
 /// Structured failures. Core-generated paths name structural locations. Handler
 /// failures are trusted adapter data, not an automatically redacted wire format.
 /// Never insert credentials or request/response content in either field.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
 pub struct Fault {
     pub code: String,
     pub path: String,
 }
-pub(super) fn fault(code: &str, path: &str) -> Fault {
+pub(super) fn fault(code: super::CoreFaultCode, path: &str) -> Fault {
     Fault {
-        code: code.into(),
+        code: serde_json::to_value(code)
+            .expect("fault code serialization")
+            .as_str()
+            .unwrap()
+            .into(),
         path: path.into(),
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, TS)]
+#[ts(type = "string")]
 pub struct Contract {
     pub name: String,
     pub version: u32,
@@ -105,7 +113,7 @@ impl Contract {
 
 /// A small closed value algebra. Semantic refinements are explicit operations;
 /// type compatibility is exact contract identity, never schema guessing.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Shape {
     Boolean,
     Integer,
@@ -132,7 +140,7 @@ impl Shape {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
 pub struct Port {
     pub contract: Contract,
@@ -141,24 +149,24 @@ pub struct Port {
 }
 pub type Ports = BTreeMap<String, Port>;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Resource {
     Local,
     Provider,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Reuse {
     Fresh,
     Exact,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Activation {
     Automatic,
     OnDemand,
     Disabled,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
 pub struct Operation {
     pub contract: Contract,
@@ -170,54 +178,48 @@ pub struct Operation {
     pub reuse: Reuse,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
-pub enum Source {
+pub enum Source<V = serde_json::Value> {
     Input(String),
-    Output {
-        node: String,
-        port: String,
-    },
-    Constant {
-        contract: Contract,
-        value: serde_json::Value,
-    },
+    Output { node: String, port: String },
+    Constant { contract: Contract, value: V },
     Absent(Contract),
 }
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
-pub struct Node {
+pub struct Node<V = serde_json::Value> {
     pub operation: Contract,
-    pub inputs: BTreeMap<String, Source>,
+    pub inputs: BTreeMap<String, Source<V>>,
     pub after: Vec<String>,
     /// A required boolean source; false explicitly skips the node.
-    pub guard: Option<Source>,
+    pub guard: Option<Source<V>>,
     pub activation: Activation,
 }
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
-pub struct Definition {
+pub struct Definition<V = serde_json::Value> {
     pub contract: Contract,
     pub inputs: Ports,
     pub outputs: Ports,
-    pub nodes: BTreeMap<String, Node>,
-    pub results: BTreeMap<String, Source>,
-    pub compositions: BTreeMap<String, Boundary>,
+    pub nodes: BTreeMap<String, Node<V>>,
+    pub results: BTreeMap<String, Source<V>>,
+    pub compositions: BTreeMap<String, Boundary<V>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
-pub struct Boundary {
+pub struct Boundary<V = serde_json::Value> {
     pub artifact: String,
-    pub source: Box<Definition>,
-    pub bindings: BTreeMap<String, Source>,
+    pub source: Box<Definition<V>>,
+    pub bindings: BTreeMap<String, Source<V>>,
 }
 
 /// This is the executable artifact's actual structure, not an inspector catalog.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]
-pub struct Artifact {
-    pub definition: Definition,
+pub struct Artifact<V = serde_json::Value> {
+    pub definition: Definition<V>,
     pub operations: BTreeMap<Contract, Operation>,
     pub types: BTreeMap<Contract, Shape>,
 }

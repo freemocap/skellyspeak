@@ -26,7 +26,7 @@ impl Registry {
         self.expand(&mut definition, depth)?;
         valid_contract(&definition.contract)?;
         if definition.nodes.len() > 1024 {
-            return Err(fault("graph_limit", "nodes"));
+            return Err(fault(CoreFaultCode::GraphLimit, "nodes"));
         }
         let mut operations = BTreeMap::new();
         let mut handlers = BTreeMap::new();
@@ -35,7 +35,7 @@ impl Registry {
             let (op, handler) = self
                 .operations
                 .get(&node.operation)
-                .ok_or_else(|| fault("unknown_operation", id))?;
+                .ok_or_else(|| fault(CoreFaultCode::UnknownOperation, id))?;
             operations.insert(node.operation.clone(), op.clone());
             handlers.insert(node.operation.clone(), handler.clone());
         }
@@ -60,7 +60,7 @@ impl Registry {
             let shape = self
                 .types
                 .get(&port.contract)
-                .ok_or_else(|| fault("unknown_type", name))?;
+                .ok_or_else(|| fault(CoreFaultCode::UnknownType, name))?;
             types.insert(port.contract.clone(), shape.clone());
         }
         // Source constants and guards may use types absent from operation ports.
@@ -80,7 +80,7 @@ impl Registry {
                 let shape = self
                     .types
                     .get(contract)
-                    .ok_or_else(|| fault("unknown_type", "source"))?;
+                    .ok_or_else(|| fault(CoreFaultCode::UnknownType, "source"))?;
                 types.insert(contract.clone(), shape.clone());
             }
         }
@@ -121,13 +121,13 @@ impl Executable {
     }
     pub(super) fn values(&self, ports: &Ports, values: &Values) -> Result<()> {
         if values.keys().any(|k| !ports.contains_key(k)) {
-            return Err(fault("unexpected_port", "values"));
+            return Err(fault(CoreFaultCode::UnexpectedPort, "values"));
         }
         for (name, port) in ports {
             match values.get(name) {
                 None if port.optional => (),
                 Some(value) if self.artifact.types[&port.contract].accepts(value) => (),
-                _ => return Err(fault("invalid_value", name)),
+                _ => return Err(fault(CoreFaultCode::InvalidValue, name)),
             }
         }
         Ok(())
@@ -139,17 +139,17 @@ impl Executable {
                 .inputs
                 .get(name)
                 .cloned()
-                .ok_or_else(|| fault("unknown_input", name)),
+                .ok_or_else(|| fault(CoreFaultCode::UnknownInput, name)),
             Source::Output { node, port } => {
                 let n = d
                     .nodes
                     .get(node)
-                    .ok_or_else(|| fault("unknown_node", node))?;
+                    .ok_or_else(|| fault(CoreFaultCode::UnknownNode, node))?;
                 let mut p = self.artifact.operations[&n.operation]
                     .outputs
                     .get(port)
                     .cloned()
-                    .ok_or_else(|| fault("unknown_output", port))?;
+                    .ok_or_else(|| fault(CoreFaultCode::UnknownOutput, port))?;
                 p.optional |= n.guard.is_some() || n.activation == Activation::Disabled;
                 Ok(p)
             }
@@ -159,7 +159,7 @@ impl Executable {
             }),
             Source::Constant { contract, value } => {
                 if !self.artifact.types[contract].accepts(value) {
-                    return Err(fault("invalid_constant", "constant"));
+                    return Err(fault(CoreFaultCode::InvalidConstant, "constant"));
                 }
                 Ok(Port {
                     contract: contract.clone(),
@@ -170,12 +170,12 @@ impl Executable {
     }
     fn bindings(&self, ports: &Ports, bindings: &BTreeMap<String, Source>) -> Result<()> {
         if ports.keys().ne(bindings.keys()) {
-            return Err(fault("binding_set", "ports"));
+            return Err(fault(CoreFaultCode::BindingSet, "ports"));
         }
         for (name, target) in ports {
             let source = self.source_port(&bindings[name])?;
             if source.contract != target.contract || (source.optional && !target.optional) {
-                return Err(fault("incompatible_port", name));
+                return Err(fault(CoreFaultCode::IncompatiblePort, name));
             }
         }
         Ok(())
@@ -191,16 +191,16 @@ impl Executable {
             let mut seen = BTreeSet::new();
             for parent in &node.after {
                 if !d.nodes.contains_key(parent) {
-                    return Err(fault("unknown_control_parent", id));
+                    return Err(fault(CoreFaultCode::UnknownControlParent, id));
                 }
                 if !seen.insert(parent) {
-                    return Err(fault("duplicate_control", id));
+                    return Err(fault(CoreFaultCode::DuplicateControl, id));
                 }
             }
             if let Some(guard) = &node.guard {
                 let port = self.source_port(guard)?;
                 if port.optional || self.artifact.types[&port.contract] != Shape::Boolean {
-                    return Err(fault("invalid_guard", id));
+                    return Err(fault(CoreFaultCode::InvalidGuard, id));
                 }
             }
         }
@@ -226,7 +226,7 @@ impl Executable {
                 }
             }
             if before == complete.len() {
-                return Err(fault("dependency_cycle", "nodes"));
+                return Err(fault(CoreFaultCode::DependencyCycle, "nodes"));
             }
         }
         Ok(order)
@@ -234,13 +234,13 @@ impl Executable {
     /// Uses the handler bound during compilation, never an independently resolved catalog.
     pub(super) async fn execute(&self, work: &Work) -> Result<Values> {
         if work.artifact != self.identity {
-            return Err(fault("artifact_mismatch", "work"));
+            return Err(fault(CoreFaultCode::ArtifactMismatch, "work"));
         }
         let op = self
             .artifact
             .operations
             .get(&work.operation)
-            .ok_or_else(|| fault("unknown_operation", "work"))?;
+            .ok_or_else(|| fault(CoreFaultCode::UnknownOperation, "work"))?;
         self.values(&op.inputs, &work.inputs)?;
         let values = (self.handlers[&work.operation])(work.inputs.clone()).await?;
         self.values(&op.outputs, &values)?;
@@ -248,6 +248,7 @@ impl Executable {
     }
 }
 pub(super) fn digest(value: &impl serde::Serialize) -> Result<String> {
-    let bytes = serde_json::to_vec(value).map_err(|_| fault("serialization", "artifact"))?;
+    let bytes =
+        serde_json::to_vec(value).map_err(|_| fault(CoreFaultCode::Serialization, "artifact"))?;
     Ok(format!("{:x}", Sha256::digest(bytes)))
 }

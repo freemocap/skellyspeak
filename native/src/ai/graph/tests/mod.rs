@@ -7,6 +7,7 @@ mod durability;
 mod durable_store;
 mod execution;
 mod interleavings;
+mod projection;
 mod validation;
 
 fn contract(name: &str) -> Contract {
@@ -77,7 +78,7 @@ fn registry() -> Registry {
                             .as_i64()
                             .unwrap()
                             .checked_add(1)
-                            .ok_or_else(|| model::fault("overflow", "value"))?,
+                            .ok_or_else(|| unclassified("overflow", "value"))?,
                     ))
                 })
             }),
@@ -132,4 +133,11 @@ fn advance(engine: &mut Engine, capacity: Event) -> Vec<Work> {
             .unwrap();
     }
     work
+}
+
+fn unclassified(code: &str, path: &str) -> Fault {
+    Fault {
+        code: code.into(),
+        path: path.into(),
+    }
 }

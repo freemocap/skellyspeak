@@ -72,6 +72,10 @@ artifact. Do not add an independently maintained visualization graph definition.
 Production use requires an owner adapter that checks current authority and commits
 publication with the checkpoint. The disposable SQLite fixture is verification,
 not a production workspace migration or storage adapter.
+The [inspection export](../docs/notes/ai-graph-inspection.md) preserves these same
+graph types while replacing sensitive constant values with explicit omissions.
+Generate its TypeScript contracts with the normal `npm run contracts` command;
+do not add a frontend graph catalog. Its protocol is not yet wired to an IPC command.
 
 ### Reply-help execution
 

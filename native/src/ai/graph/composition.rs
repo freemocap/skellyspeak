@@ -12,10 +12,10 @@ impl Definition {
     ) -> Result<BTreeMap<String, Source>> {
         valid_name(prefix)?;
         if self.compositions.contains_key(prefix) {
-            return Err(fault("duplicate_composition", prefix));
+            return Err(fault(CoreFaultCode::DuplicateComposition, prefix));
         }
         if child.source.inputs.keys().ne(inputs.keys()) {
-            return Err(fault("binding_set", prefix));
+            return Err(fault(CoreFaultCode::BindingSet, prefix));
         }
         let results = child
             .artifact
@@ -45,7 +45,7 @@ pub(super) fn qualify(
         Source::Input(name) => inputs
             .get(name)
             .cloned()
-            .ok_or_else(|| fault("unknown_input", name))?,
+            .ok_or_else(|| fault(CoreFaultCode::UnknownInput, name))?,
         Source::Output { node, port } => Source::Output {
             node: format!("{prefix}/{node}"),
             port: port.clone(),
@@ -57,21 +57,21 @@ pub(super) fn qualify(
 impl Registry {
     pub(super) fn expand(&self, definition: &mut Definition, depth: usize) -> Result<()> {
         if depth > 16 {
-            return Err(fault("composition_depth", "graph"));
+            return Err(fault(CoreFaultCode::CompositionDepth, "graph"));
         }
         for (prefix, boundary) in &definition.compositions {
             valid_name(prefix)?;
             let child = self.compile_at(*boundary.source.clone(), depth + 1)?;
             if child.identity != boundary.artifact {
-                return Err(fault("composition_changed", prefix));
+                return Err(fault(CoreFaultCode::CompositionChanged, prefix));
             }
             if child.source.inputs.keys().ne(boundary.bindings.keys()) {
-                return Err(fault("binding_set", prefix));
+                return Err(fault(CoreFaultCode::BindingSet, prefix));
             }
             for (name, node) in child.artifact.definition.nodes {
                 let id = format!("{prefix}/{name}");
                 if definition.nodes.contains_key(&id) {
-                    return Err(fault("duplicate_node", &id));
+                    return Err(fault(CoreFaultCode::DuplicateNode, &id));
                 }
                 let inputs = node
                     .inputs

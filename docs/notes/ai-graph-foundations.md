@@ -261,8 +261,10 @@ implementation checkpoint within stages 2–3, not completion of their exit gate
    of historical evidence. Checkpoint limits alone are not a retention policy.
 2. Specify and verify current external authority and atomic domain adoption, without
    product-specific exceptions in the core.
-3. Specify typed bounded provider metadata, stream events and the redacted generated
-   inspection protocol, including snapshot/stream ordering.
+3. Extend the implemented [redacted inspection snapshot](ai-graph-inspection.md)
+   with typed bounded provider metadata and stream events, including
+   snapshot/stream ordering. The generated snapshot contract alone does not
+   complete provider evidence retention or viewer integration.
 4. Extend the invariant matrix into a separate abstract transition model and bounded
    conformance checks; distinguish those results from ordinary implementation tests.
 5. Verify these contracts before any production workflow reconstruction.

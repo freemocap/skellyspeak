@@ -39,7 +39,7 @@ impl SqlStore {
     }
 }
 fn rejected(code: &str) -> CommitFailure {
-    CommitFailure::Rejected(model::fault(code, "fixture_store"))
+    CommitFailure::Rejected(unclassified(code, "fixture_store"))
 }
 impl CommitStore for SqlStore {
     fn commit(&mut self, request: CommitRequest<'_>) -> std::result::Result<(), CommitFailure> {
@@ -108,10 +108,10 @@ impl CommitStore for SqlStore {
             return Err(rejected("injected_rollback"));
         }
         tx.commit().map_err(|_| {
-            CommitFailure::Indeterminate(model::fault("commit_uncertain", "fixture_store"))
+            CommitFailure::Indeterminate(unclassified("commit_uncertain", "fixture_store"))
         })?;
         if self.fail_after_commit {
-            return Err(CommitFailure::Indeterminate(model::fault(
+            return Err(CommitFailure::Indeterminate(unclassified(
                 "acknowledgment_lost",
                 "fixture_store",
             )));

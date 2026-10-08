@@ -4,22 +4,23 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
+use ts_rs::TS;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AttemptState {
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
+pub enum AttemptState<F = Fault> {
     Prepared,
     Running,
     Available,
     Adopted,
-    Failed(Fault),
+    Failed(F),
     Unknown,
     Cancelled,
 }
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Attempt {
-    pub id: AttemptId,
-    pub execution: ExecutionId,
-    pub state: AttemptState,
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
+pub struct Attempt<F = Fault, I = AttemptId, E = ExecutionId> {
+    pub id: I,
+    pub execution: E,
+    pub state: AttemptState<F>,
     pub acquisition: Acquisition,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -104,7 +105,7 @@ pub enum Event {
     Recover,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub enum Disposition {
     Disabled,
     Unrequested,
@@ -162,7 +163,7 @@ impl Engine {
         let work = self
             .apply(Event::Dispatch { execution })?
             .pop()
-            .ok_or_else(|| fault("missing_work", "execution"))?;
+            .ok_or_else(|| fault(CoreFaultCode::MissingWork, "execution"))?;
         Ok(Invocation {
             graph: self.graphs[&work.artifact].clone(),
             work,
@@ -190,21 +191,21 @@ impl Engine {
         self.node(run, node)?;
         let r = self.run(run)?;
         if !r.active || r.cancelled.contains(node) {
-            return Err(fault("revoked", "node"));
+            return Err(fault(CoreFaultCode::Revoked, "node"));
         }
         let a = r
             .attempts
             .get(node)
             .and_then(|xs| xs.last())
-            .ok_or_else(|| fault("unknown_attempt", "attempt"))?;
+            .ok_or_else(|| fault(CoreFaultCode::UnknownAttempt, "attempt"))?;
         if a.id != attempt || a.state != AttemptState::Available {
-            return Err(fault("invalid_adoption", "attempt"));
+            return Err(fault(CoreFaultCode::InvalidAdoption, "attempt"));
         }
         self.executions[&a.execution]
             .outcome
             .as_ref()
             .and_then(|r| r.as_ref().ok())
-            .ok_or_else(|| fault("missing_result", "execution"))
+            .ok_or_else(|| fault(CoreFaultCode::MissingResult, "execution"))
     }
     pub fn new(graphs: impl IntoIterator<Item = Arc<Executable>>) -> Result<Self> {
         let mut engine = Self::default();
@@ -214,7 +215,7 @@ impl Engine {
                 .insert(graph.identity.clone(), graph)
                 .is_some()
             {
-                return Err(fault("duplicate_artifact", "graphs"));
+                return Err(fault(CoreFaultCode::DuplicateArtifact, "graphs"));
             }
         }
         Ok(engine)
@@ -302,7 +303,9 @@ impl Engine {
         Ok(Some(values))
     }
     pub(super) fn run(&self, id: &str) -> Result<&Run> {
-        self.runs.get(id).ok_or_else(|| fault("unknown_run", "run"))
+        self.runs
+            .get(id)
+            .ok_or_else(|| fault(CoreFaultCode::UnknownRun, "run"))
     }
     pub(super) fn node(&self, run: &str, node: &str) -> Result<&Node> {
         let r = self.run(run)?;
@@ -311,6 +314,6 @@ impl Engine {
             .definition
             .nodes
             .get(node)
-            .ok_or_else(|| fault("unknown_node", "node"))
+            .ok_or_else(|| fault(CoreFaultCode::UnknownNode, "node"))
     }
 }
