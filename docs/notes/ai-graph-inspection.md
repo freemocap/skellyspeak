@@ -33,6 +33,14 @@ run fields, even before an engine/run exists. It does not create a synthetic run
 or label dormant definitions as successful. Both entry points use the same
 structural projection; changing run selection cannot change that artifact.
 
+`Checkpoint::inspection_definition` uses that same projection on the exact saved
+artifact. No registry or executable handlers are needed, even after the original
+implementation has been removed. `artifact_ids` lists the retained manifest; decode
+checks each artifact's identity with the compiler's unchanged fingerprint algorithm.
+This is historical definition access, not handler-free runtime reconstruction or
+permission to resume old work. Runtime recovery still requires exact executable
+bindings. See the [retention contract](ai-graph-retention.md).
+
 All attempt/execution IDs and the revision are decimal strings in this protocol,
 avoiding JavaScript integer rounding. Internal checkpoint IDs remain unchanged.
 Snapshots do not contain checkpoint checksums, run inputs, result values, scopes

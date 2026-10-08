@@ -10,6 +10,7 @@ impl SqlStore {
     pub fn open(path: &std::path::Path) -> Self {
         let conn = Connection::open(path).unwrap();
         conn.execute_batch("CREATE TABLE IF NOT EXISTS checkpoint (id INTEGER PRIMARY KEY CHECK(id=1), stamp TEXT NOT NULL, payload BLOB NOT NULL);
+            CREATE TABLE IF NOT EXISTS archive (engine TEXT, checksum TEXT, payload BLOB NOT NULL, PRIMARY KEY(engine,checksum));
             CREATE TABLE IF NOT EXISTS authority (run TEXT PRIMARY KEY, scope TEXT NOT NULL, input TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS publication (engine TEXT, run TEXT, node TEXT, attempt TEXT, value TEXT, PRIMARY KEY(engine,run,node,attempt));").unwrap();
         Self {
@@ -59,7 +60,7 @@ impl CommitStore for SqlStore {
             CommitIntent::Begin { authority: a, .. }
             | CommitIntent::Dispatch { authority: a, .. }
             | CommitIntent::Adopt { authority: a, .. } => Some(a),
-            CommitIntent::Record => None,
+            CommitIntent::Record | CommitIntent::Compact { .. } => None,
         };
         if let Some(a) = authority {
             let current: Option<String> = tx
@@ -89,7 +90,7 @@ impl CommitStore for SqlStore {
             attempt,
             values,
             ..
-        } = request.intent
+        } = &request.intent
         {
             tx.execute(
                 "INSERT INTO publication VALUES (?1,?2,?3,?4,?5)",
@@ -102,6 +103,36 @@ impl CommitStore for SqlStore {
                 ],
             )
             .map_err(|_| rejected("publication_failed"))?;
+        }
+        if let CommitIntent::Compact { archive } = request.intent {
+            if request.expected != Some(archive.stamp())
+                || request.next.archive_parent() != Some(archive.stamp())
+            {
+                return Err(rejected("archive_reference"));
+            }
+            let existing: Option<Vec<u8>> = tx
+                .query_row(
+                    "SELECT payload FROM archive WHERE engine=?1 AND checksum=?2",
+                    rusqlite::params![archive.stamp().engine, archive.stamp().checksum],
+                    |row| row.get(0),
+                )
+                .optional()
+                .map_err(|_| rejected("archive_read"))?;
+            if let Some(existing) = existing {
+                if existing != archive.bytes() {
+                    return Err(rejected("archive_conflict"));
+                }
+            } else {
+                tx.execute(
+                    "INSERT INTO archive VALUES (?1,?2,?3)",
+                    rusqlite::params![
+                        archive.stamp().engine,
+                        archive.stamp().checksum,
+                        archive.bytes()
+                    ],
+                )
+                .map_err(|_| rejected("archive_write"))?;
+            }
         }
         tx.execute("INSERT INTO checkpoint VALUES (1,?1,?2) ON CONFLICT(id) DO UPDATE SET stamp=excluded.stamp,payload=excluded.payload",rusqlite::params![serde_json::to_string(request.next.stamp()).unwrap(),request.next.bytes()]).map_err(|_|rejected("checkpoint_write"))?;
         if self.fail_before_commit {
@@ -117,5 +148,26 @@ impl CommitStore for SqlStore {
             )));
         }
         Ok(())
+    }
+    fn read_archive(&mut self, expected: &Stamp, max_bytes: usize) -> Result<Vec<u8>> {
+        let length: Option<i64> = self
+            .conn
+            .query_row(
+                "SELECT length(payload) FROM archive WHERE engine=?1 AND checksum=?2",
+                rusqlite::params![expected.engine, expected.checksum],
+                |r| r.get(0),
+            )
+            .optional()
+            .map_err(|_| unclassified("archive_read", "fixture_store"))?;
+        let length = length.ok_or_else(|| unclassified("archive_missing", "fixture_store"))?;
+        if usize::try_from(length).ok().is_none_or(|n| n > max_bytes) {
+            return Err(unclassified("history_limit", "checkpoint"));
+        }
+        // SQL bounds the returned BLOB too; a changed row between reads cannot
+        // force an allocation above the caller's declared read limit.
+        self.conn.query_row(
+            "SELECT payload FROM archive WHERE engine=?1 AND checksum=?2 AND length(payload)=?3",
+            rusqlite::params![expected.engine, expected.checksum, length], |r| r.get(0),
+        ).map_err(|_| unclassified("archive_read", "fixture_store"))
     }
 }

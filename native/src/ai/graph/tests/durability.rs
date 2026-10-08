@@ -6,6 +6,13 @@ fn limits() -> CheckpointLimits {
         events: 100,
     }
 }
+fn durable_limits() -> DurableLimits {
+    DurableLimits {
+        checkpoint: limits(),
+        settlement_event_bytes: 4096,
+        history: history_limits(),
+    }
+}
 fn start(host: &mut DurableEngine, store: &mut SqlStore, graph: &Executable, run: &str) {
     store.authorize(run, "scope-v1");
     host.apply(
@@ -29,7 +36,7 @@ async fn authority_checks_and_publication_share_the_checkpoint_transaction() {
     let dir = tempfile::tempdir().unwrap();
     let mut store = SqlStore::open(&dir.path().join("owner.db"));
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut host = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut host = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut host, &mut store, &graph, "run");
     let work = host.apply(capacity(1), &mut store).unwrap().remove(0);
     let id = attempt(&host, "run");
@@ -94,7 +101,7 @@ fn crash_recovery_is_durable_and_never_reissues_a_claim() {
     let path = dir.path().join("owner.db");
     let mut store = SqlStore::open(&path);
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut host = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut host = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut host, &mut store, &graph, "run");
     host.apply(capacity(1), &mut store).unwrap();
     let id = attempt(&host, "run");
@@ -106,7 +113,7 @@ fn crash_recovery_is_durable_and_never_reissues_a_claim() {
     let mut reopened = SqlStore::open(&path);
     let checkpoint = Checkpoint::decode(&reopened.bytes(), limits()).unwrap();
     let mut recovered =
-        DurableEngine::recover(checkpoint, [graph], limits(), &mut reopened).unwrap();
+        DurableEngine::recover(checkpoint, [graph], durable_limits(), &mut reopened).unwrap();
     assert_eq!(recovered.stamp().engine, engine_id);
     assert_eq!(
         recovered.inspect("run").unwrap().nodes["first"],
@@ -132,7 +139,7 @@ async fn uncertain_adoption_freezes_host_and_reload_does_not_republish() {
     let dir = tempfile::tempdir().unwrap();
     let mut store = SqlStore::open(&dir.path().join("owner.db"));
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut host = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut host = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut host, &mut store, &graph, "run");
     let work = host.apply(capacity(1), &mut store).unwrap().remove(0);
     let id = attempt(&host, "run");
@@ -162,7 +169,8 @@ async fn uncertain_adoption_freezes_host_and_reload_does_not_republish() {
     assert!(host.inspect("run").is_err());
     store.fail_after_commit = false;
     let checkpoint = Checkpoint::decode(&store.bytes(), limits()).unwrap();
-    let recovered = DurableEngine::recover(checkpoint, [graph], limits(), &mut store).unwrap();
+    let recovered =
+        DurableEngine::recover(checkpoint, [graph], durable_limits(), &mut store).unwrap();
     assert_eq!(
         recovered.inspect("run").unwrap().nodes["first"],
         Disposition::Adopted
@@ -175,7 +183,7 @@ fn stale_host_and_uncommitted_dispatch_cannot_produce_effects() {
     let dir = tempfile::tempdir().unwrap();
     let mut store = SqlStore::open(&dir.path().join("owner.db"));
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut stale = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut stale = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut stale, &mut store, &graph, "run");
     stale.apply(capacity(1), &mut store).unwrap();
     let id = attempt(&stale, "run");
@@ -185,7 +193,8 @@ fn stale_host_and_uncommitted_dispatch_cannot_produce_effects() {
     assert_eq!(store.bytes(), before);
     store.fail_before_commit = false;
     let checkpoint = Checkpoint::decode(&before, limits()).unwrap();
-    let current = DurableEngine::recover(checkpoint, [graph], limits(), &mut store).unwrap();
+    let current =
+        DurableEngine::recover(checkpoint, [graph], durable_limits(), &mut store).unwrap();
     assert_eq!(
         stale
             .claim("run", "first", id, &mut store)
@@ -207,7 +216,7 @@ fn shared_execution_accepts_an_authorized_consumer_and_checks_each_adoption() {
     let dir = tempfile::tempdir().unwrap();
     let mut store = SqlStore::open(&dir.path().join("owner.db"));
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut host = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut host = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut host, &mut store, &graph, "a");
     start(&mut host, &mut store, &graph, "b");
     let work = host.apply(capacity(1), &mut store).unwrap();
@@ -235,7 +244,7 @@ fn malformed_incompatible_and_oversized_checkpoints_fail_without_writes() {
     let dir = tempfile::tempdir().unwrap();
     let mut store = SqlStore::open(&dir.path().join("owner.db"));
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut host = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut host = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut host, &mut store, &graph, "run");
     let original = store.bytes();
     let mut unknown: serde_json::Value = serde_json::from_slice(&original).unwrap();
@@ -305,7 +314,7 @@ fn malformed_incompatible_and_oversized_checkpoints_fail_without_writes() {
     let different = Arc::new(registry().compile(different).unwrap());
     let checkpoint = Checkpoint::decode(&original, limits()).unwrap();
     assert_eq!(
-        DurableEngine::recover(checkpoint, [different], limits(), &mut store)
+        DurableEngine::recover(checkpoint, [different], durable_limits(), &mut store)
             .err()
             .unwrap()
             .code,
@@ -341,9 +350,13 @@ fn begin_authority_and_checkpoint_limits_reject_without_changing_history() {
     let graph = Arc::new(registry().compile(definition()).unwrap());
     let mut host = DurableEngine::create(
         [graph.clone()],
-        CheckpointLimits {
-            bytes: 1_000_000,
-            events: 1,
+        DurableLimits {
+            checkpoint: CheckpointLimits {
+                bytes: 1_000_000,
+                events: 2,
+            },
+            settlement_event_bytes: 4096,
+            history: history_limits(),
         },
         &mut store,
     )
@@ -389,10 +402,19 @@ fn begin_authority_and_checkpoint_limits_reject_without_changing_history() {
         events: 100,
     };
     assert_eq!(
-        DurableEngine::recover(checkpoint, [graph], small, &mut store)
-            .err()
-            .unwrap()
-            .code,
+        DurableEngine::recover(
+            checkpoint,
+            [graph],
+            DurableLimits {
+                checkpoint: small,
+                settlement_event_bytes: 4096,
+                history: history_limits(),
+            },
+            &mut store
+        )
+        .err()
+        .unwrap()
+        .code,
         "checkpoint_byte_limit"
     );
     assert_eq!(store.bytes(), before);
@@ -403,7 +425,7 @@ fn uncertain_dispatch_returns_no_invocation_and_recovers_as_unknown() {
     let dir = tempfile::tempdir().unwrap();
     let mut store = SqlStore::open(&dir.path().join("owner.db"));
     let graph = Arc::new(registry().compile(definition()).unwrap());
-    let mut host = DurableEngine::create([graph.clone()], limits(), &mut store).unwrap();
+    let mut host = DurableEngine::create([graph.clone()], durable_limits(), &mut store).unwrap();
     start(&mut host, &mut store, &graph, "run");
     host.apply(capacity(1), &mut store).unwrap();
     let id = attempt(&host, "run");
@@ -418,7 +440,8 @@ fn uncertain_dispatch_returns_no_invocation_and_recovers_as_unknown() {
     assert!(host.poisoned());
     store.fail_after_commit = false;
     let checkpoint = Checkpoint::decode(&store.bytes(), limits()).unwrap();
-    let recovered = DurableEngine::recover(checkpoint, [graph], limits(), &mut store).unwrap();
+    let recovered =
+        DurableEngine::recover(checkpoint, [graph], durable_limits(), &mut store).unwrap();
     assert_eq!(
         recovered.inspect("run").unwrap().nodes["first"],
         Disposition::Unknown

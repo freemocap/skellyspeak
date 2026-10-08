@@ -10,7 +10,7 @@ fn limits() -> ExportLimits {
 fn stamp(engine: &Engine) -> Stamp {
     Stamp {
         engine: uuid::Uuid::new_v4().to_string(),
-        revision: engine.journal().len(),
+        revision: engine.revision(),
         checksum: "fixture".into(),
     }
 }
@@ -321,9 +321,13 @@ fn durable_snapshot_is_revision_bound_and_refuses_uncertain_hosts() {
     let graph = Arc::new(registry().compile(definition()).unwrap());
     let mut host = DurableEngine::create(
         [graph.clone()],
-        CheckpointLimits {
-            bytes: 1_000_000,
-            events: 100,
+        DurableLimits {
+            checkpoint: CheckpointLimits {
+                bytes: 1_000_000,
+                events: 100,
+            },
+            settlement_event_bytes: 4096,
+            history: history_limits(),
         },
         &mut store,
     )

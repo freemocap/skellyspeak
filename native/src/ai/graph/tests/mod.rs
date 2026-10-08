@@ -2,16 +2,26 @@ use super::*;
 use serde_json::json;
 use std::{collections::BTreeMap, sync::Arc};
 
+mod compaction;
 mod dispatch;
 mod durability;
 mod durable_store;
 mod execution;
 mod interleavings;
 mod projection;
+mod retained_definitions;
+mod settlement_capacity;
 mod validation;
 
 fn contract(name: &str) -> Contract {
     Contract::new(name, 1)
+}
+fn history_limits() -> HistoryLimits {
+    HistoryLimits {
+        bytes: 10_000_000,
+        events: 10_000,
+        segments: 100,
+    }
 }
 fn port(optional: bool) -> Port {
     Port {

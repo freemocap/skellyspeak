@@ -123,7 +123,17 @@ returned work descriptors, and never invokes handlers. Recovery distinguishes
 prepared from dispatched work and pauses scheduling. This validates reducer recovery; it does
 not implement workspace migrations or retention. The durable host adds versioned,
 size-limited checkpoint encoding and a transaction contract; the owner implements
-process I/O. Limits reject writes explicitly rather than dropping history.
+process I/O. It reserves byte/event capacity for bounded settlement, each current
+consumer's adoption and recovery before dispatch. Limits reject writes explicitly
+rather than dropping history. Repeated durable recovery at its fixed point does
+not append events; the raw reducer still records explicitly applied events.
+Recorded graph definitions can now be inspected directly from a validated
+checkpoint without any executable handlers. This shares the live definition
+projection and does not permit runtime recovery without compatible bindings.
+The [retention contract](ai-graph-retention.md) separates absolute revision from
+resident suffix length. Format 2 compaction archives exact old checkpoint bytes
+atomically with a native state snapshot; recovery audits every cut by replay.
+Cold-state paging and production migration remain open.
 
 Inspection borrows the exact artifact held by execution. It exports native node
 dispositions, dependency/admission reasons, activation policy, acquisition modes,
@@ -159,7 +169,7 @@ production workflows merely because the isolated core tests pass.
 | G5: demand/readiness/admission | Activation overlay, capacity, fresh retry and checked dispatch tests | Production admission adapters and fairness policy |
 | G6: current adoption authority | Exact Available-attempt read/adoption; durable owner transaction interface; SQLite source/authority and publication rollback tests | Concrete product source, access, reset/replacement rules and production adapter |
 | G7: sharing | Independent attempt IDs and acquisition modes; cross-artifact reuse; cancellation permutations | Billing/credit provenance and bounded payload retention |
-| G8: history | Immutable artifact IDs; append-only attempts; versioned bounded checkpoints; UUID engine namespace; CAS and uncertain-commit recovery | Production migration, retained historical implementations, compaction and settlement-capacity policy |
+| G8: history | Immutable artifact IDs; append-only attempts; versioned bounded checkpoints; UUID engine namespace; CAS and uncertain-commit recovery; reserved settlement/adoption/recovery capacity; atomic archive compaction and replay-validated snapshots | Production migration, retained historical implementations and cold-state/history paging |
 | G9: failure evidence | Closed native fault vocabulary; explicit export disclosure; internal records preserved | Bounded typed provider metadata and shared sensitivity handling; raw inspection does not satisfy G9 |
 | G10: refinement | Deterministic reducer and enumerated finite interleavings | Separate abstract model and systematic transition-conformance evidence; current unit tests are not a formal proof |
 | G11: visualization fidelity | Shared generic artifact/attempt/reason types; generated bounded snapshot; nested topology parity and native reason tests | Viewer integration and real rendered-edge tests |

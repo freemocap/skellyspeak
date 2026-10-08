@@ -43,16 +43,30 @@ pub struct DefinitionSnapshot {
 
 impl Executable {
     fn projected_definition(&self) -> DefinitionSnapshot {
+        self.artifact().projected_definition(self.identity())
+    }
+    pub fn inspection_definition(&self, limits: ExportLimits) -> Result<DefinitionSnapshot> {
+        self.artifact()
+            .inspection_definition(self.identity(), limits)
+    }
+}
+
+impl Artifact {
+    fn projected_definition(&self, identity: &str) -> DefinitionSnapshot {
         DefinitionSnapshot {
             protocol: 1,
-            artifact_id: self.identity().into(),
-            artifact: self.artifact().map_values(&mut |_| ConstantDisclosure {
+            artifact_id: identity.into(),
+            artifact: self.map_values(&mut |_| ConstantDisclosure {
                 omitted: Omission::Content,
             }),
         }
     }
-    pub fn inspection_definition(&self, limits: ExportLimits) -> Result<DefinitionSnapshot> {
-        let snapshot = self.projected_definition();
+    pub(super) fn inspection_definition(
+        &self,
+        identity: &str,
+        limits: ExportLimits,
+    ) -> Result<DefinitionSnapshot> {
+        let snapshot = self.projected_definition(identity);
         super::encoding::bounded_json(&snapshot, limits.bytes, CoreFaultCode::InspectionLimit)?;
         Ok(snapshot)
     }

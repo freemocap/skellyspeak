@@ -257,8 +257,11 @@ typed DAGs, composition and the isolated transition machine. This is a bounded
 implementation checkpoint within stages 2–3, not completion of their exit gates.
 
 1. Extend the implemented [durable transaction boundary](ai-graph-durability.md)
-   with settlement capacity, retention/compaction and production migration treatment
-   of historical evidence. Checkpoint limits alone are not a retention policy.
+   and its reserved settlement/adoption/recovery capacity with bounded historical
+   reads and production migration treatment of historical evidence. The
+   [retention contract](ai-graph-retention.md) now implements format 2 snapshots
+   and atomic archive compaction in the isolated foundation. Recovery still audits
+   the entire retained chain; cold-state paging and production migration remain open.
 2. Specify and verify current external authority and atomic domain adoption, without
    product-specific exceptions in the core.
 3. Extend the implemented [redacted inspection snapshot](ai-graph-inspection.md)

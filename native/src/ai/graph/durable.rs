@@ -11,6 +11,11 @@ pub struct Authority<'a> {
 
 pub enum CommitIntent<'a> {
     Record,
+    /// Retain these exact source bytes immutably in the SAME transaction that
+    /// installs next. The old stamp must match both expected and next's parent.
+    Compact {
+        archive: &'a Checkpoint,
+    },
     Begin {
         authority: Authority<'a>,
         inputs: &'a Values,
@@ -47,6 +52,9 @@ pub struct CommitRequest<'a> {
 /// Implementations must serialize with owner mutation/reset and workspace locking.
 pub trait CommitStore {
     fn commit(&mut self, request: CommitRequest<'_>) -> std::result::Result<(), CommitFailure>;
+    /// Check the stored length against max_bytes BEFORE allocating/reading its
+    /// body. A missing, changed, oversized or unreadable archive is an error.
+    fn read_archive(&mut self, expected: &Stamp, max_bytes: usize) -> Result<Vec<u8>>;
 }
 
 /// Durable effect boundary. No mutable engine access or cloning; invocations are
@@ -54,18 +62,25 @@ pub trait CommitStore {
 pub struct DurableEngine {
     engine: Engine,
     checkpoint: Checkpoint,
-    limits: CheckpointLimits,
+    limits: DurableLimits,
     poisoned: bool,
+    history_usage: super::archive::HistoryUsage,
 }
 
 impl DurableEngine {
     pub fn create(
         graphs: impl IntoIterator<Item = Arc<Executable>>,
-        limits: CheckpointLimits,
+        limits: DurableLimits,
         store: &mut impl CommitStore,
     ) -> Result<Self> {
+        limits.validate()?;
         let engine = Engine::new(graphs)?;
-        let checkpoint = Checkpoint::capture(&engine, &uuid::Uuid::new_v4().to_string(), limits)?;
+        let checkpoint = Checkpoint::capture(
+            &engine,
+            &uuid::Uuid::new_v4().to_string(),
+            limits.checkpoint,
+        )?;
+        limits.reserve(&engine, &checkpoint)?;
         store
             .commit(CommitRequest {
                 expected: None,
@@ -78,23 +93,32 @@ impl DurableEngine {
             checkpoint,
             limits,
             poisoned: false,
+            history_usage: super::archive::HistoryUsage::default(),
         })
     }
 
     pub fn recover(
         checkpoint: Checkpoint,
         graphs: impl IntoIterator<Item = Arc<Executable>>,
-        limits: CheckpointLimits,
+        limits: DurableLimits,
         store: &mut impl CommitStore,
     ) -> Result<Self> {
-        let engine = checkpoint.replay(graphs)?;
+        limits.validate()?;
+        let (engine, history_usage) = checkpoint.replay_history(graphs, limits.history, store)?;
         let mut host = Self {
             engine,
             checkpoint,
             limits,
             poisoned: false,
+            history_usage,
         };
-        host.apply(Event::Recover, store)?;
+        if host.engine.needs_recovery() {
+            host.apply(Event::Recover, store)?;
+        } else {
+            // Recheck caller limits even when recovery is already a fixed point.
+            let checked = Checkpoint::decode(host.checkpoint.bytes(), limits.checkpoint)?;
+            limits.reserve(&host.engine, &checked)?;
+        }
         Ok(host)
     }
 
@@ -135,7 +159,10 @@ impl DurableEngine {
         intent: CommitIntent<'_>,
         store: &mut impl CommitStore,
     ) -> Result<()> {
-        let next = Checkpoint::capture(&candidate, &self.stamp().engine, self.limits)?;
+        let next = self
+            .checkpoint
+            .capture_next(&candidate, self.limits.checkpoint)?;
+        self.limits.reserve(&candidate, &next)?;
         match store.commit(CommitRequest {
             expected: Some(self.stamp()),
             next: &next,
@@ -154,10 +181,52 @@ impl DurableEngine {
         }
     }
 
+    /// Preserve the complete current checkpoint as an immutable archive before
+    /// replacing its journal with an identical native state at the same revision.
+    /// Returns false for an empty suffix; repeated compaction is a true no-op.
+    pub fn compact(&mut self, store: &mut impl CommitStore) -> Result<bool> {
+        self.check_live()?;
+        if self.engine.journal().is_empty() {
+            return Ok(false);
+        }
+        let usage = self
+            .history_usage
+            .add(&self.checkpoint, self.limits.history)?;
+        let mut candidate = self.engine.clone();
+        candidate.rebase();
+        let next = self
+            .checkpoint
+            .compacted(&candidate, self.limits.checkpoint)?;
+        self.limits.reserve(&candidate, &next)?;
+        match store.commit(CommitRequest {
+            expected: Some(self.stamp()),
+            next: &next,
+            intent: CommitIntent::Compact {
+                archive: &self.checkpoint,
+            },
+        }) {
+            Ok(()) => {
+                self.engine = candidate;
+                self.checkpoint = next;
+                self.history_usage = usage;
+                Ok(true)
+            }
+            Err(CommitFailure::Rejected(f)) => Err(f),
+            Err(CommitFailure::Indeterminate(f)) => {
+                self.poisoned = true;
+                Err(f)
+            }
+        }
+    }
+
     pub fn apply(&mut self, event: Event, store: &mut impl CommitStore) -> Result<Vec<Work>> {
         self.check_live()?;
         if matches!(event, Event::Dispatch { .. } | Event::Adopt { .. }) {
             return Err(fault(CoreFaultCode::EffectRequiresOwner, "event"));
+        }
+        self.limits.validate_event(&event)?;
+        if matches!(event, Event::Recover) && !self.engine.needs_recovery() {
+            return Ok(Vec::new());
         }
         let mut candidate = self.engine.clone();
         let work = candidate.apply(event.clone())?;

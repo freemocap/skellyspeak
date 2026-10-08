@@ -72,10 +72,22 @@ artifact. Do not add an independently maintained visualization graph definition.
 Production use requires an owner adapter that checks current authority and commits
 publication with the checkpoint. The disposable SQLite fixture is verification,
 not a production workspace migration or storage adapter.
+`DurableLimits` requires an explicit maximum serialized settlement-event size.
+Admission reserves checkpoint space for running outcomes, consumer adoption and
+recovery. Oversized outcomes fail without truncation; callers must retain them.
+Reservations do not guarantee that a storage commit succeeds.
 The [inspection export](../docs/notes/ai-graph-inspection.md) preserves these same
 graph types while replacing sensitive constant values with explicit omissions.
 Generate its TypeScript contracts with the normal `npm run contracts` command;
 do not add a frontend graph catalog. Its protocol is not yet wired to an IPC command.
+Saved checkpoints expose the same definition projection without executable
+handlers through `Checkpoint::inspection_definition`. This reads historical
+evidence; live recovery still requires compatible implementations. The
+[retention contract](../docs/notes/ai-graph-retention.md) describes format 2 snapshots
+and atomic compaction. Compaction retains exact old checkpoint bytes, preserves
+absolute revisions and checks settlement reservations against the new footprint.
+Recovery audits the full bounded archive chain through native replay. Cold-state
+paging, production storage and history deletion are not implemented.
 
 ### Reply-help execution
 

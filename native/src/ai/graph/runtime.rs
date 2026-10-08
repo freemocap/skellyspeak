@@ -17,13 +17,15 @@ pub enum AttemptState<F = Fault> {
     Cancelled,
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, TS)]
+#[serde(deny_unknown_fields)]
 pub struct Attempt<F = Fault, I = AttemptId, E = ExecutionId> {
     pub id: I,
     pub execution: E,
     pub state: AttemptState<F>,
     pub acquisition: Acquisition,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Run {
     pub(super) artifact: String,
     pub(super) inputs: Values,
@@ -37,7 +39,8 @@ pub struct Run {
     pub(super) paused: bool,
     pub(super) active: bool,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(super) struct Execution {
     pub work: Work,
     pub key: String,
@@ -131,7 +134,7 @@ pub struct Inspection<'a> {
     pub reasons: BTreeMap<String, Vec<Reason>>,
     pub artifact_id: &'a str,
     pub artifact: &'a Artifact,
-    pub revision: usize,
+    pub revision: u64,
     pub nodes: BTreeMap<String, Disposition>,
     pub activation: &'a BTreeMap<String, Activation>,
     pub attempts: &'a BTreeMap<String, Vec<Attempt>>,
@@ -145,6 +148,7 @@ pub struct Engine {
     pub(super) next_id: u64,
     pub(super) capacity: Capacity,
     pub(super) held: BTreeSet<(String, String)>,
+    pub(super) journal_start: u64,
     journal: Vec<Event>,
 }
 /// A single-use invocation claimed from the state machine. Dropping it after
@@ -224,14 +228,30 @@ impl Engine {
     /// This in-memory transaction must be committed with owner adoption when
     /// integrated with persistence; it is not a replacement for SQL transactions.
     pub fn apply(&mut self, event: Event) -> Result<Vec<Work>> {
+        self.revision()
+            .checked_add(1)
+            .ok_or_else(|| fault(CoreFaultCode::RevisionLimit, "event"))?;
         let mut next = self.clone();
         let work = next.transition(&event)?;
         next.journal.push(event);
         *self = next;
         Ok(work)
     }
+    /// Resident suffix only. Retired prefixes belong to the durable archive;
+    /// its length must not be used as the engine's logical revision.
     pub fn journal(&self) -> &[Event] {
         &self.journal
+    }
+    /// Absolute logical revision; compaction never resets it.
+    pub fn revision(&self) -> u64 {
+        self.journal_start
+            .checked_add(self.journal.len() as u64)
+            .expect("validated journal revision")
+    }
+    /// Only the durable archive transition may retire this suffix.
+    pub(super) fn rebase(&mut self) {
+        self.journal_start = self.revision();
+        self.journal.clear();
     }
     /// Replay validates artifact identity and all transitions without invoking
     /// handlers. Recovery makes uncertain executions explicit and pauses runs.
@@ -280,7 +300,7 @@ impl Engine {
             reasons,
             artifact_id: &graph.identity,
             artifact: &graph.artifact,
-            revision: self.journal.len(),
+            revision: self.revision(),
             nodes,
             activation: &r.policy,
             attempts: &r.attempts,

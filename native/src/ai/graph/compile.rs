@@ -97,7 +97,7 @@ impl Registry {
             order: Vec::new(),
         };
         graph.order = graph.validate()?;
-        graph.identity = graph.fingerprint()?;
+        graph.identity = graph.artifact.fingerprint()?;
         Ok(graph)
     }
 }
@@ -107,14 +107,6 @@ impl Executable {
     }
     pub fn identity(&self) -> &str {
         &self.identity
-    }
-    fn fingerprint(&self) -> Result<String> {
-        // Sorted registries retain exact identity independent of registration order.
-        digest(&(
-            &self.artifact.definition,
-            self.artifact.operations.iter().collect::<Vec<_>>(),
-            self.artifact.types.iter().collect::<Vec<_>>(),
-        ))
     }
     pub(super) fn operation(&self, node: &str) -> &Operation {
         &self.artifact.operations[&self.artifact.definition.nodes[node].operation]
@@ -245,6 +237,17 @@ impl Executable {
         let values = (self.handlers[&work.operation])(work.inputs.clone()).await?;
         self.values(&op.outputs, &values)?;
         Ok(values)
+    }
+}
+impl Artifact {
+    pub(super) fn fingerprint(&self) -> Result<String> {
+        // Shared by compilation and retained-evidence validation. Keep this exact
+        // encoding stable: existing artifact identities use it in format 1.
+        digest(&(
+            &self.definition,
+            self.operations.iter().collect::<Vec<_>>(),
+            self.types.iter().collect::<Vec<_>>(),
+        ))
     }
 }
 pub(super) fn digest(value: &impl serde::Serialize) -> Result<String> {
