@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-portuguese-2026-10-07
+language: portuguese
+skill_id: feelings_viewpoints
+explanation_language: portuguese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: "Você quer aprender uma habilidade na cozinha. `Quero aprender a fazer pão` apresenta
+      duas ações: `quero` expressa o desejo e `aprender a fazer` indica a habilidade a aprender. O
+      `a` pertence à construção `aprender a` antes de outro infinitivo. Quem fala é o sujeito não
+      expresso de `quero`. `Quero aprender a nadar` usa a mesma estrutura para a natação. Um desejo,
+      por si só, não é uma promessa de que você realmente fará uma aula."
+    examples:
+      - text: Quero aprender a fazer pão.
+        meaning: Tenho vontade de aprender a fazer pão.
+        note: Diga que quer aprender a fazer sopa. `Quero aprender a fazer sopa.` mantém `quero aprender a
+          fazer` e muda o alimento preparado para `sopa`.
+  - subskill_id: preferences
+    explanation: Você gosta de cozinhar em geral, mas escolhe fazer pão quando há uma escolha. `Gosto de
+      cozinhar, mas prefiro fazer pão` liga um gosto a uma preferência. `Gostar` pede `de` antes do
+      complemento expresso, aqui o infinitivo `cozinhar`; `gosto` concorda com a pessoa que sente
+      esse gosto. `Prefiro` expressa a preferência e introduz diretamente `fazer pão`; não precisa
+      de `de`. `Mas` marca o contraste entre o gosto geral e a atividade preferida. `Gosto de ler,
+      mas prefiro escrever` segue o mesmo padrão.
+    examples:
+      - text: Gosto de cozinhar, mas prefiro fazer pão.
+        meaning: Cozinhar me agrada, mas fazer pão é minha preferência.
+        note: Prefira fazer sopa, mantendo o gosto por cozinhar. `Gosto de cozinhar, mas prefiro fazer
+          sopa.` é uma frase completa; `de` permanece depois de `gosto`, enquanto `prefiro` vem
+          diretamente antes de `fazer`.
+  - subskill_id: emotions
+    explanation: Você acaba de ver o resultado de um projeto e se sente contente. `Estou contente com o
+      resultado` usa `estou`, primeira pessoa do presente de `estar`, para expressar seu estado
+      atual. `Contente` indica satisfação e tem a mesma forma para um homem ou uma mulher no
+      singular; `com o resultado` indica a que o sentimento se refere. Isso expressa uma emoção, não
+      uma avaliação de que o resultado é objetivamente bom. `Estou preocupado com o resultado` muda
+      o sentimento para preocupação; esse adjetivo pode variar conforme quem fala.
+    examples:
+      - text: Estou contente com o resultado.
+        meaning: O resultado me deixou contente.
+        note: Diga que está contente com a notícia. `Estou contente com a notícia.` apresenta o sentimento e
+          sua causa; `com a notícia` substitui `com o resultado`.
+  - subskill_id: opinions
+    explanation: "Em uma conversa sobre a biblioteca, você acha que mais mesas seriam úteis. `Acho que a
+      biblioteca precisa de mais mesas` introduz sua avaliação com `acho que`. A oração depois de
+      `que` apresenta a ideia: `a biblioteca` é o sujeito, `precisa de` expressa a necessidade e
+      `mais mesas` indica o que falta. O `de` pertence à construção `precisar de` antes da coisa
+      necessária. Trata-se da sua opinião, não de um pedido para repetir algo que não ficou claro."
+    examples:
+      - text: Acho que a biblioteca precisa de mais mesas.
+        meaning: Na minha opinião, a biblioteca necessita de mais mesas.
+        note: Diga que a biblioteca precisa de mais cadeiras. `Acho que a biblioteca precisa de mais
+          cadeiras.` mantém a estrutura de opinião e o `de` necessário, trocando mesas por cadeiras.
+  - subskill_id: agreement_disagreement
+    explanation: Alguém propõe fechar a biblioteca aos sábados, e você se opõe. `Não concordo com essa
+      ideia` coloca `não` antes de `concordo` para negar o acordo; `com essa ideia` identifica a
+      proposta rejeitada. `Concordar com` pode ligar o acordo a uma pessoa ou a uma ideia. O
+      contexto importa porque `essa ideia` retoma uma ideia já apresentada.
+    examples:
+      - text: Não concordo com essa ideia.
+        meaning: Discordo dessa ideia.
+        note: Concorde com a proposta. `Concordo com essa ideia.` é uma resposta completa à ideia conhecida;
+          retirar `não` inverte a posição, enquanto `com` continua ligando essa posição à proposta.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; sources support original guidance, not independent validation
+      of this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

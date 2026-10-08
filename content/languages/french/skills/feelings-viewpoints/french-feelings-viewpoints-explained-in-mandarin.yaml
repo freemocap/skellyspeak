@@ -1,0 +1,141 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: feelings_viewpoints
+language: french
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 午饭后散步听起来很吸引人，但说话人表达的是愿望，不是已经定好的安排。`J’ai envie de` 意为我想或我有兴致；`marcher un peu` 意为走一小会儿，`après le
+      déjeuner` 给出时间。短语包含 `avoir`，所以形式随人称变化：`Nous avons envie de marcher.`。`de` 后的动作仍用不定式。`Je vais marcher`
+      更直接地陈述打算；有愿望本身并不表示计划已定。
+    examples:
+      - text: J’ai envie de marcher un peu après le déjeuner.
+        meaning: 午饭后我想稍微散散步。
+        note: 改为表达想休息。`J’ai envie de me reposer un peu après le déjeuner.` 可用：`me reposer` 意为休息，其中反身代词 `me` 对应说话人。
+  - subskill_id: preferences
+    explanation: 这次出行有两种交通方式，说话人更喜欢火车。`Je préfère` 表明偏好；`le train à l’avion` 把首选放在前，另一个选择放在 `à` 后。`Pour ce trajet`
+      把说法限于这次行程，不一定适用于所有旅行。`L’avion` 有撇号，因为 `avion` 以元音开头。只说喜欢某物的 `J’aime le train`，并没有明确与别的选择比较。
+    examples:
+      - text: Je préfère le train à l’avion pour ce trajet.
+        meaning: 这次行程，我更喜欢坐火车，而不是飞机。
+        note: 反过来表达偏好。`Je préfère l’avion au train pour ce trajet.` 可用：`au` 由 `à` 和 `le` 合成，现在把首选放在前面。
+  - subskill_id: emotions
+    explanation: 你听到一则令人高兴的消息，描述它对自己的影响。`Cette nouvelle` 指这则消息；`me fait plaisir` 表示让我高兴。`Me` 指感受的人，而 `fait`
+      与单数的消息一致。`Cette nouvelle nous fait plaisir` 把感受的人改成我们，`fait` 仍不变。`Je suis contente` 则用阴性形容词直接描述说话人；阳性形式是
+      `Je suis content`。
+    examples:
+      - text: Cette nouvelle me fait plaisir.
+        meaning: 这则消息让我很高兴。
+        note: 说这则消息让你们一组人高兴。答案是 `Cette nouvelle nous fait plaisir.`：`nous` 取代 `me`，单数主语仍搭配 `fait`。
+  - subskill_id: opinions
+    explanation: 一条窄路可能不适合骑车，说话人把它作为自己的判断提出。`À mon avis` 意为在我看来。`Ce chemin` 指这条路；`trop étroit` 意为太窄，而非只是很窄，`pour
+      les vélos` 指不适合什么。`Étroit` 与阳性的 `chemin` 一致；若说街道，则是 `Cette rue est trop
+      étroite.`。开头标明这是观点，补充路面空间不足等理由会使讨论更容易。
+    examples:
+      - text: À mon avis, ce chemin est trop étroit pour les vélos.
+        meaning: 在我看来，这条路对自行车来说太窄了。
+        note: 改为评价一条街，而不是小路。`À mon avis, cette rue est trop étroite pour les vélos.` 可用，因为 `cette` 与 `étroite` 都与阴性的
+          `rue` 一致。
+  - subskill_id: agreement_disagreement
+    explanation: 你接受某项安排的价格，但日期还需商量。`Je suis d’accord` 意为我同意，`sur le prix` 限定同意的是价格。`Mais pas sur la date`
+      省去重复的词，却仍明确表达对日期的不同意见。`D’accord avec vous` 指赞同的人；`d’accord sur la date` 指赞同的话题。部分赞同避免让人误以为你接受了全部安排。
+    examples:
+      - text: Je suis d’accord sur le prix, mais pas sur la date.
+        meaning: 我同意价格，但不同意日期。
+        note: 改为赞同日期，但不赞同价格。`Je suis d’accord sur la date, mais pas sur le prix.` 可用：对换两个话题，就反转了赞同的范围。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_modals2026
+    - waystage_language_functions
+    - texAdjectivesTeaching20261007
+    - texObjectPronounsTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_modals2026
+        - waystage_language_functions
+        - texAdjectivesTeaching20261007
+        - texObjectPronounsTeaching20261007
+        - oqlfMealsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_modals2026
+        - waystage_language_functions
+        - texAdjectivesTeaching20261007
+        - texObjectPronounsTeaching20261007
+        - oqlfMealsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+variety_sections:
+  french-canada:
+    - subskill_id: wants_intentions
+      explanation: 早餐后散步听起来很吸引人，但说话人表达的是愿望，不是已经定好的安排。`J’ai envie de` 意为我想或我有兴致；`marcher un peu` 意为走一小会儿，`après le
+        déjeuner` 给出时间。短语包含 `avoir`，所以形式随人称变化：`Nous avons envie de marcher.`。`de` 后的动作仍用不定式。`Je vais marcher`
+        更直接地陈述打算；有愿望本身并不表示计划已定。
+      examples:
+        - text: J’ai envie de marcher un peu après le déjeuner.
+          meaning: 早餐后我想稍微散散步。
+          note: 改为表达想休息。`J’ai envie de me reposer un peu après le déjeuner.` 可用：`me reposer` 意为休息，其中反身代词 `me` 对应说话人。
+    - subskill_id: preferences
+      explanation: 这次出行有两种交通方式，说话人更喜欢火车。`Je préfère` 表明偏好；`le train à l’avion` 把首选放在前，另一个选择放在 `à` 后。`Pour ce trajet`
+        把说法限于这次行程，不一定适用于所有旅行。`L’avion` 有撇号，因为 `avion` 以元音开头。只说喜欢某物的 `J’aime le train`，并没有明确与别的选择比较。
+      examples:
+        - text: Je préfère le train à l’avion pour ce trajet.
+          meaning: 这次行程，我更喜欢坐火车，而不是飞机。
+          note: 反过来表达偏好。`Je préfère l’avion au train pour ce trajet.` 可用：`au` 由 `à` 和 `le` 合成，现在把首选放在前面。
+    - subskill_id: emotions
+      explanation: 你听到一则令人高兴的消息，描述它对自己的影响。`Cette nouvelle` 指这则消息；`me fait plaisir` 表示让我高兴。`Me` 指感受的人，而 `fait`
+        与单数的消息一致。`Cette nouvelle nous fait plaisir` 把感受的人改成我们，`fait` 仍不变。`Je suis contente`
+        则用阴性形容词直接描述说话人；阳性形式是 `Je suis content`。
+      examples:
+        - text: Cette nouvelle me fait plaisir.
+          meaning: 这则消息让我很高兴。
+          note: 说这则消息让你们一组人高兴。答案是 `Cette nouvelle nous fait plaisir.`：`nous` 取代 `me`，单数主语仍搭配 `fait`。
+    - subskill_id: opinions
+      explanation: 一条窄路可能不适合骑车，说话人把它作为自己的判断提出。`À mon avis` 意为在我看来。`Ce chemin` 指这条路；`trop étroit` 意为太窄，而非只是很窄，`pour
+        les vélos` 指不适合什么。`Étroit` 与阳性的 `chemin` 一致；若说街道，则是 `Cette rue est trop
+        étroite.`。开头标明这是观点，补充路面空间不足等理由会使讨论更容易。
+      examples:
+        - text: À mon avis, ce chemin est trop étroit pour les vélos.
+          meaning: 在我看来，这条路对自行车来说太窄了。
+          note: 改为评价一条街，而不是小路。`À mon avis, cette rue est trop étroite pour les vélos.` 可用，因为 `cette` 与 `étroite` 都与阴性的
+            `rue` 一致。
+    - subskill_id: agreement_disagreement
+      explanation: 你接受某项安排的价格，但日期还需商量。`Je suis d’accord` 意为我同意，`sur le prix` 限定同意的是价格。`Mais pas sur la date`
+        省去重复的词，却仍明确表达对日期的不同意见。`D’accord avec vous` 指赞同的人；`d’accord sur la date` 指赞同的话题。部分赞同避免让人误以为你接受了全部安排。
+      examples:
+        - text: Je suis d’accord sur le prix, mais pas sur la date.
+          meaning: 我同意价格，但不同意日期。
+          note: 改为赞同日期，但不赞同价格。`Je suis d’accord sur la date, mais pas sur le prix.` 可用：对换两个话题，就反转了赞同的范围。

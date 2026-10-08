@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-portuguese-2026-10-07
+language: cantonese
+skill_id: managing_conversation
+explanation_language: portuguese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-portuguese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Você precisa sair enquanto os outros talvez fiquem, e espera vê-los amanhã. A primeira oração
+      anuncia sua partida; a segunda acrescenta uma despedida ligada ao próximo encontro.
+    examples:
+      - text: 我走先喇，聽日見。
+        meaning: Estou indo; até amanhã. `我走先` significa que vou primeiro ou saio antes de vocês. O `喇` final indica
+          que a partida se torna relevante agora. `聽日見` significa até amanhã; as pessoas que se encontrarão
+          podem ficar implícitas.
+        note: "Experimente dizer que espera encontrar a pessoa na segunda-feira. Resposta: `我走先喇，星期一見。` Troque o dia
+          do encontro; a expressão de partida permanece. `我先走` coloca `先` antes da ação para enfatizar fazê-la
+          primeiro, enquanto `我走先` serve prontamente como despedida familiar."
+  - subskill_id: acknowledging
+    explanation: Alguém lhe deu uma hora ou instrução, e você mostra que a compreendeu e registrou. A resposta
+      combina reconhecimento com a ação prática que já realizou.
+    examples:
+      - text: 明白，我記低咗。
+        meaning: Entendi e anotei. `明白` pode aparecer sozinho para confirmar a compreensão. `記低` significa anotar; `低`
+          integra essa expressão. O `咗` depois dela apresenta o registro como concluído, sem repetir o objeto
+          porque a informação já é conhecida.
+        note: "Experimente confirmar que entendeu, mas ainda não anotou. Resposta: `明白，我仲未記低。` Troque o concluído
+          `記低咗` por `仲未記低`, ainda não anotado. A compreensão permanece, enquanto o estado do registro muda;
+          compreender não significa concordar."
+  - subskill_id: clarification
+    explanation: A outra pessoa menciona uma loja, mas várias podem se encaixar. Perguntar qual loja resolve a
+      referência incerta, em vez de pedir que repita uma frase já ouvida.
+    examples:
+      - text: 你講邊間舖頭呀？
+        meaning: "De qual loja você está falando? `你講` significa aqui você está falando de. `邊間舖頭` pergunta qual loja:
+          `邊` escolhe a identidade e `間` classifica a loja. `呀` termina a pergunta conversacional. A pessoa
+          vem antes do verbo, e a loja incerta depois."
+        note: "Experimente perguntar qual livro a pessoa quer dizer. Resposta: `你講邊本書呀？` Troque `間舖頭` por `本書`; o
+          classificador muda conforme o objeto. `你可唔可以再講一次？` pede repetição, o que ainda pode deixar a
+          referência pouco clara."
+  - subskill_id: rephrasing
+    explanation: "Uma discussão de viagem mostrou que a hora original de saída é tarde demais. Você reformula a
+      conclusão prática: o grupo precisa sair mais cedo. `即係話` introduz essa reformulação."
+    examples:
+      - text: 即係話，我哋要早啲出門。
+        meaning: Em outras palavras, precisamos sair mais cedo. `我哋` significa nós, `要` expressa necessidade, e `早啲`
+          significa mais cedo ou um pouco mais cedo. `啲` depois da indicação temporal cria um ajuste relativo.
+          `出門` significa sair de casa ou partir.
+        note: "Experimente reformular que o grupo precisa chegar mais cedo. Resposta: `即係話，我哋要早啲到。` Troque `出門` por
+          `到`, chegar. `遲啲到` significaria chegar mais tarde e mudaria a conclusão prática, em vez de
+          reformular a exigência de antecipação."
+  - subskill_id: correcting_misunderstanding
+    explanation: A outra pessoa entendeu segunda-feira, mas você disse terça. Nomear o dia pretendido e excluir o
+      errado torna a correção específica o bastante para atualizar o plano.
+    examples:
+      - text: 我講星期二，唔係星期一。
+        meaning: Eu disse terça-feira, não segunda. `我講星期二` identifica o dia que você disse; a conversa anterior
+          fornece seu momento. `唔係星期一` significa não segunda-feira, rejeitando a interpretação errada. `唔係`
+          nega a identificação, não o ato de falar.
+        note: "Experimente corrigir quinta-feira para sexta. Resposta: `我講星期五，唔係星期四。` O dia pretendido vem primeiro,
+          depois o mal compreendido. `我唔講星期一` significa que eu não digo segunda-feira; nega `講` e não oferece
+          essa substituição precisa."
+  - subskill_id: turns_topics
+    explanation: Uma conversa sobre comida abre espaço para perguntar sobre culinária. `講開` liga a nova pergunta
+      ao assunto já discutido, tornando a transição fácil de acompanhar.
+    examples:
+      - text: 講開食嘢，你鍾意煮咩呀？
+        meaning: Falando de comida, o que você gosta de cozinhar? `食嘢` significa comer ou comida nessa expressão de
+          tópico. `你鍾意煮` significa você gosta de cozinhar; `咩` ocupa a posição do alimento e pergunta o quê. O
+          `呀` final combina com a pergunta conversacional.
+        note: "Experimente ligar uma conversa sobre leitura a uma pergunta sobre livros. Resposta: `講開睇書，你鍾意睇咩書呀？`
+          Tanto o tópico inicial como a atividade da pergunta mudam. `講開睇書` introduz a conexão; `咩書` pergunta
+          quais livros, mantendo o objeto desconhecido depois da ação."
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

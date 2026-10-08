@@ -58,6 +58,8 @@ pub(crate) fn sources(store: &Store, query: &SavedGlossQuery) -> Result<Vec<Save
                 )
             })?;
             let source = SavedGlossSource {
+                dictionary: None,
+                provenance: None,
                 source_id: format!("inference/{id}"),
                 operation_id: Some(view.operation_id),
                 attempt_id: Some(view.attempt_id),

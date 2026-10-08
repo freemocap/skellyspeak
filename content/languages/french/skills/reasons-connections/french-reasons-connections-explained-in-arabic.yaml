@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: reasons_connections
+language: french
+explanation_language: arabic
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-arabic.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "يفسر إغلاق الطريق سبب انتظار مجموعتك. تذكر `Nous attendons` ما يحدث؛ وتقدّم `parce
+      que` السبب `la route est fermée`. تشكل الكلمات بعدها جملة تامة لها فاعل وفعل. تحمل `Fermée`
+      نهاية التأنيث لأنها تصف `route`. ويمكن تقديم سبب اسمي قصير بـ`à cause de`، كما في `Nous
+      attendons à cause de la neige.` يأخذ التركيبان نوعين مختلفين من المتممات: تفسيرًا بجملة كاملة
+      بعد `parce que`، وعبارة اسمية بعد `à cause de`."
+    examples:
+      - text: Nous attendons parce que la route est fermée.
+        meaning: ننتظر لأن الطريق مغلق.
+        note: "اشرح أنكم تنتظرون لأن المتجر مغلق. تصلح `Nous attendons parce que le magasin est fermé.`:
+          السبب جملة، وتطابق `fermé` الاسم المذكر `magasin`."
+  - subskill_id: consequences
+    explanation: غادرت آخر حافلة، فتقرر المجموعة العودة إلى المنزل مشيًا. تذكر `Le dernier bus est
+      parti` الحدث المكتمل. وتربطه `Donc` بالقرار الناتج `nous allons rentrer à pied`. تعني `Allons
+      rentrer` أننا سنعود إلى المنزل، وتعني `à pied` مشيًا. تأتي `Parti` مع `est` لأن الماضي المركب
+      من `partir` يستعمل `être`؛ وتستعمل الخطة المستقبلية `aller` الحاضر مع المصدر. تقدّم `Puis`
+      التسلسل فقط، أما `donc` فتجعل العبارة الثانية نتيجة.
+    examples:
+      - text: Le dernier bus est parti, donc nous allons rentrer à pied.
+        meaning: غادرت آخر حافلة، لذلك سنعود إلى المنزل مشيًا.
+        note: "غيّر الخطة الناتجة إلى الانتظار هنا. تصلح `Le dernier bus est parti, donc nous allons
+          attendre ici.`: تبقي `donc` علاقة النتيجة، وتقدّم `attendre ici` الخطة الجديدة."
+  - subskill_id: conditions
+    explanation: "ستعملون في المكتبة إذا كانت مفتوحة فقط. تقدّم `Si la bibliothèque est ouverte` الشرط؛
+      وتقدّم `nous y travaillerons` ما سيحدث عند تحققه. تحل `Y` محل «في المكتبة» تجنبًا للتكرار،
+      وتأتي قبل `travaillerons`. قد تستعمل إمكانية مستقبلية حقيقية المضارع بعد `si` والمستقبل في
+      النتيجة: لا تفرض الإحالة المستقبلية فعل مستقبل مباشرة بعد `si` الشرطية. أما `Quand la
+      bibliothèque sera ouverte` فتعني «عندما تكون مفتوحة» وتعامل فتحها وقتًا متوقعًا."
+    examples:
+      - text: Si la bibliothèque est ouverte, nous y travaillerons.
+        meaning: إذا كانت المكتبة مفتوحة، فسنعمل هناك.
+        note: "اجعل النتيجة الدراسة هناك. تصلح `Si la bibliothèque est ouverte, nous y étudierons.`: يبقى
+          الشرط في المضارع والنتيجة في المستقبل، وتبقى `y` عائدةً إلى المكتبة."
+  - subskill_id: contrast
+    explanation: تتسع حقيبة صغيرة لكل ما تحتاج إليه على غير المتوقع. تهيئ `Le sac est petit` لتوقع سعة
+      محدودة؛ وتقدّم `mais` الحقيقة المخالفة `il contient tout mon matériel`. يعود `Il` على `sac`
+      المذكر؛ وتعني `tout mon matériel` كل معدّاتي. `Matériel` هنا اسم جمعي مفرد، لذلك تأتي `tout`
+      بصيغة المذكر المفرد. تضيف `Et` معلومةً فحسب؛ أما `mais` فتبرز سبب مفاجأة الحقيقة الثانية بعد
+      الأولى.
+    examples:
+      - text: Le sac est petit, mais il contient tout mon matériel.
+        meaning: الحقيبة صغيرة، لكنها تتسع لكل معدّاتي.
+        note: "صف صندوقًا صغيرًا يتسع لكل معدّاتك. تصلح `La boîte est petite, mais elle contient tout mon
+          matériel.`: يأخذ الصندوق `petite` و`elle` المؤنثتين؛ وتبقى عبارة المعدات مذكرة مفردة."
+  - subskill_id: supporting_claims
+    explanation: توصي بطريق وتذكر ملاحظة حديثة لتفسير حكمك. تقول `Ce trajet est plus rapide` إن هذا
+      الطريق أسرع. وبعد النقطتين تقول `hier, j’ai gagné vingt minutes` إنك وفرت أمس عشرين دقيقة.
+      تعرض `Ai gagné` التجربة المكتملة، وتجعل المدة المقاسة الدليل ملموسًا. تدعم الملاحظة المقارنة
+      في ذلك الموقف، ولا تثبت أن الطريق أسرع دائمًا. يعطي `C’est mieux` وحده حكمًا من غير تفصيل قابل
+      للتحقق.
+    examples:
+      - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
+        meaning: هذا الطريق أسرع؛ فقد وفرت أمس عشرين دقيقة.
+        note: "اذكر عشر دقائق مدةً لاحظت توفيرها. تصلح `Ce trajet est plus rapide : hier, j’ai gagné dix
+          minutes.`: يتغير الدليل المقاس، وتبقى التجربة حدثًا ماضيًا مكتملًا."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - tex_si2026
+    - threshold_general_notions
+    - texPlaceYTeaching20261007
+    - texCompoundPastTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

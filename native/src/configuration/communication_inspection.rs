@@ -82,7 +82,7 @@ mod tests {
         );
         assert!(
             registry
-                .communication_markdown("spanish", "spanish-spain", "french", "time_events")
+                .communication_markdown("spanish", "spanish-spain", "german", "time_events")
                 .is_err()
         );
     }

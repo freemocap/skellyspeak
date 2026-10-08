@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-portuguese-2026-10-07
+language: portuguese
+skill_id: people_places
+explanation_language: portuguese
+shared_explanation: skills/people-places/people-places-explained-in-portuguese.yaml
+sections:
+  - subskill_id: identification
+    explanation: "Você está apresentando Ana a alguém que não a conhece. `Esta é minha colega Ana` a
+      identifica: `esta` aponta para uma pessoa feminina próxima de quem fala, `é` é o presente de
+      `ser` e `minha` concorda com o substantivo feminino `colega`. `Colega` pode se referir a um
+      homem ou a uma mulher; aqui, as palavras ao redor esclarecem isso. Uma expressão de estado
+      como `Ana está cansada` informa como Ana se sente hoje, em vez de identificá-la."
+    examples:
+      - text: Esta é minha colega Ana.
+        meaning: Apresento Ana, minha colega.
+        note: Apresente Beatriz como sua colega. `Esta é minha colega Beatriz.` é uma apresentação completa;
+          `esta` e `minha` concordam com o referente feminino.
+  - subskill_id: qualities_states
+    explanation: "Você examina plantas que precisam de água. `As plantas estão secas` descreve a
+      condição atual delas: `as plantas` está no feminino plural, `estão` é a forma plural
+      correspondente de `estar` e `secas` é o adjetivo no feminino plural. As terminações importam
+      porque o estado pertence a várias plantas. Aqui, `estar` informa como as plantas estão agora,
+      não sua identidade nem uma classificação inerente."
+    examples:
+      - text: As plantas estão secas.
+        meaning: As plantas estão secas neste momento.
+        note: "Descreva uma planta seca. `A planta está seca.` é a frase completa: o singular `a planta`
+          pede `está` e o singular `seca`."
+  - subskill_id: location_movement
+    explanation: "Um visitante pergunta onde fica a biblioteca. `A biblioteca fica perto da praça` a
+      localiza: `fica` é um uso de localização de `ficar`, `perto de` indica proximidade e `da`
+      combina `de` com o feminino `a` antes de `praça`. Isso diz onde está o prédio, não que ele se
+      tornou uma biblioteca. Uma frase de movimento como `Vou à biblioteca` diria, em vez disso,
+      aonde você está indo."
+    examples:
+      - text: A biblioteca fica perto da praça.
+        meaning: A biblioteca está próxima da praça.
+        note: Localize a biblioteca perto do parque. `A biblioteca fica perto do parque.` é uma frase
+          completa; `do` substitui `da` porque `parque` pede o masculino `o`.
+  - subskill_id: possession_relations
+    explanation: "Você está contando a alguém sobre sua família e um objeto que seu irmão possui. `Meu
+      irmão tem uma bicicleta` apresenta duas relações: `meu irmão` identifica seu irmão e `tem uma
+      bicicleta` diz o que ele possui. `Meu` é masculino porque `irmão` é masculino,
+      independentemente de quem fala; `tem` é a terceira pessoa do presente de `ter` e concorda com
+      o irmão. É uma afirmação de posse, não uma contagem de bicicletas."
+    examples:
+      - text: Meu irmão tem uma bicicleta.
+        meaning: Uma bicicleta pertence ao meu irmão.
+        note: Diga que sua irmã tem uma bicicleta. `Minha irmã tem uma bicicleta.` é a frase completa;
+          `minha` concorda com o feminino `irmã`, enquanto `tem` continua descrevendo o que essa
+          pessoa possui.
+  - subskill_id: quantity_comparison
+    explanation: Você tem três caixas e precisa escolher uma para carregar. `Temos três caixas. Esta
+      caixa é mais leve que as outras` primeiro conta as caixas e depois compara seu peso. `Temos`
+      indica posse pelo grupo, `três` dá a quantidade e `mais leve que` faz a comparação de peso.
+      `Esta` aponta para uma caixa, enquanto `as outras` representa as demais e está no feminino
+      plural. A comparação depende do adjetivo depois de `mais`; `mais pesada` indica peso maior,
+      enquanto `mais leve` indica peso menor.
+    examples:
+      - text: Temos três caixas. Esta caixa é mais leve que as outras.
+        meaning: Há três caixas conosco, e esta pesa menos que as demais.
+        note: Diga que esta caixa é mais pesada que as outras. `Temos três caixas. Esta caixa é mais pesada
+          que as outras.` preserva a quantidade e a estrutura de comparação; `pesada` muda a
+          propriedade comparada e concorda com `caixa`.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; sources support original guidance, not independent validation
+      of this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

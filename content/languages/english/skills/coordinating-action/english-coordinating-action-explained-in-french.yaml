@@ -1,0 +1,128 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-french-2026-10-07
+skill_id: coordinating_action
+language: english
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: Une demande invite une autre personne à agir. Quand vous avez les mains prises, vous pouvez lui
+      demander de tenir brièvement une boîte. La question avec `Could you` est moins directe qu’une consigne
+      comme `Hold this box`.
+    examples:
+      - text: Could you hold this box for a moment?
+        meaning: "`Could you` s’adresse à la personne qui peut aider ; `hold this box` précise l’action. `For a
+          moment` indique que l’aide sera brève. Après `could`, employez la forme simple `hold`, sans `to`."
+        note: >-
+          `Could you hold this box?` demande à l’interlocuteur d’agir. `Could I put this box here?` demande la
+          permission d’agir soi-même. On peut répondre `Sure`, puis prendre la boîte.
+
+
+          **À vous.** Demandez poliment à quelqu’un de fermer une porte. Réponse : `Could you close the door,
+          please?` La personne sollicitée est `you`, et `close` garde sa forme simple.
+  - subskill_id: offers_invitations
+    explanation: Une invitation laisse à quelqu’un le choix de participer. Si votre groupe va déjeuner, `Would you
+      like to` accueille une autre personne sans supposer qu’elle viendra. La même formule peut aussi proposer
+      quelque chose qu’elle pourrait vouloir.
+    examples:
+      - text: Would you like to join us for lunch?
+        meaning: "`Would you like to` introduit l’action proposée. `Join us` signifie participer avec notre groupe ;
+          `for lunch` précise l’occasion. Dans cette tournure, gardez `to` avant `join`."
+        note: >-
+          Comparez `Would you like some tea?` : après `like` vient une chose, sans verbe d’action ni `to`.
+          Pour proposer votre propre aide, dites par exemple `Shall I carry that?` ; cette fois, c’est vous
+          qui agiriez.
+
+
+          **À vous.** Invitez un ami à se promener. Réponse : `Would you like to go for a walk?` Employez `to
+          go`, car la promenade est l’activité proposée. `Yes, thanks` accepte ; `Sorry, I cannot today`
+          refuse.
+  - subskill_id: suggestions
+    explanation: Une suggestion présente une option dans une décision commune. Au moment de choisir un trajet,
+      vous pouvez évoquer un chemin moins bruyant sans l’imposer. `We could` présente une possibilité que le
+      groupe peut examiner.
+    examples:
+      - text: We could take the quieter route.
+        meaning: "`We` inclut la personne qui parle et ses compagnons. `Could take` propose une action possible ; `the
+          quieter route` désigne un trajet moins bruyant qu’un autre. Après `could`, le verbe est `take`, et
+          non `to take`."
+        note: >-
+          `We should take the quieter route` recommande ce choix plus fortement. `We will take it` peut
+          annoncer une décision. Une suggestion laisse encore place à une réponse comme `Good idea` ou `That
+          takes too long`.
+
+
+          **À vous.** Proposez le bus sans annoncer une décision. Réponse : `We could take the bus`. `Could`
+          laisse cette option ouverte à la discussion.
+  - subskill_id: commitments
+    explanation: Un engagement indique à quelqu’un ce qu’il peut attendre de vous. Si un ami a besoin d’une
+      adresse, promettre de la lui envoyer ce soir précise qui s’en chargera. `I will` peut exprimer cette
+      décision ou cette promesse.
+    examples:
+      - text: I will send you the address tonight.
+        meaning: "`I` désigne la personne responsable. Dans cet échange, `Will send` engage à agir ; `you` est le
+          destinataire, `the address` est l’élément envoyé et `tonight` précise le moment. À l’oral courant,
+          on contracte en `I’ll`."
+        note: >-
+          Le contexte distingue engagement et prévision. `It will rain tonight` prévoit la météo ; ce n’est
+          pas une promesse d’agir. Un engagement utile nomme une tâche et un moment que vous pouvez respecter.
+
+
+          **À vous.** Un ami vous demande de l’appeler demain et vous acceptez. Réponse : `I’ll call you
+          tomorrow`. Après `Will`, `call` reste à la forme simple, et `tomorrow` précise le moment.
+  - subskill_id: accepting_declining
+    explanation: Une réponse claire permet à l’autre personne de savoir si elle doit vous inclure dans son projet.
+      Si l’on vous invite à dîner, vous pouvez remercier votre hôte puis dire que vous ne pouvez pas rester.
+      Une brève raison suffit ; une longue excuse n’est pas nécessaire.
+    examples:
+      - text: Thanks, but I cannot stay for dinner.
+        meaning: "`Thanks` remercie pour l’invitation. `But` introduit la limite ; `cannot stay` dit que vous ne
+          pouvez pas rester et `for dinner` précise l’invitation refusée. Dans la langue courante, `can’t` est
+          fréquent."
+        note: >-
+          `Thanks, I’d love to` accepte une invitation. `Maybe` laisse la réponse en suspens : évitez-le si
+          vous savez déjà que vous ne pouvez pas venir. Vous pouvez proposer une autre possibilité : `Could we
+          have lunch tomorrow?`
+
+
+          **À vous.** Refusez une invitation à rester prendre un café. Une réponse possible : `Thanks, but I
+          can’t stay for coffee`. Elle conserve le remerciement et exprime directement le refus.
+  - subskill_id: negotiating_plans
+    explanation: Négocier un projet consiste à trouver une solution qui convient aux deux personnes. Si cinq
+      heures est trop tôt, proposez six heures en conservant le rendez-vous. Une solution précise est plus
+      facile à discuter qu’un simple refus du projet.
+    examples:
+      - text: Could we meet at six instead of five?
+        meaning: "`Could we meet` invite le groupe à envisager un changement. `At six` propose la nouvelle heure ;
+          `instead of five` indique celle qu’elle remplacerait. Après `could`, `meet` reste à la forme
+          simple."
+        note: >-
+          `At six or five?` présente un choix sans proposer clairement un remplacement. `Instead of` rend le
+          changement voulu explicite. Votre partenaire peut accepter ou répondre `Six is too late. How about
+          half past five?`
+
+
+          **À vous.** Gardez l’activité, mais déplacez-la du lundi au mercredi. Réponse : `Could we meet on
+          Wednesday instead of Monday?` On emploie `on` avec les jours, mais `at` avec les heures.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

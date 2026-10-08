@@ -1,0 +1,183 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: feelings_viewpoints
+explanation_language: spanish
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-spanish.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Querer aprender una habilidad nueva comunica lo que te interesa. Puede iniciar una
+      conversación sobre clases sin afirmar que ya te hayas inscrito.
+    examples:
+      - text: أُرِيدُ أَنْ أَتَعَلَّمَ السِّبَاحَةَ.
+        meaning: "**El ejemplo.** Quiero aprender a nadar. `أُرِيدُ` significa quiero. `أَنْ أَتَعَلَّمَ`
+          nombra la acción deseada, aprender; `السِّبَاحَةَ` significa natación. Los dos verbos se
+          refieren a yo, sin necesidad de un pronombre personal separado. `أَنْ` introduce la acción
+          que se desea."
+        note: "Después de `أَنْ`, la acción plenamente vocalizada termina aquí en una a breve. **Practica:**
+          di que nosotros queremos aprender a nadar. Respuesta: `نُرِيدُ أَنْ نَتَعَلَّمَ
+          السِّبَاحَةَ`. Ambos verbos pasan a nosotros y `أَنْ` sigue uniendo el deseo con el
+          aprendizaje."
+  - subskill_id: preferences
+    explanation: Al elegir una bebida, una preferencia compara las opciones en vez de limitarse a decir
+      que una es agradable. Aquí el té es la primera elección frente al café.
+    examples:
+      - text: أُفَضِّلُ الشَّايَ عَلَى الْقَهْوَةِ.
+        meaning: "**El ejemplo.** Prefiero el té al café. `أُفَضِّلُ` significa prefiero. `الشَّايَ` es la
+          bebida preferida, el té. `عَلَى الْقَهْوَةِ` introduce la otra opción, el café. El orden
+          importa: la bebida después del verbo es la favorecida."
+        note: "La bebida preferida sigue a `أُفَضِّلُ`; la alternativa sigue a `عَلَى`. **Practica:**
+          invierte la preferencia. Respuesta: `أُفَضِّلُ الْقَهْوَةَ عَلَى الشَّايِ`. Al cambiar los
+          nombres de posición cambian también sus finales vocalizados según la función gramatical."
+  - subskill_id: emotions
+    explanation: Una buena noticia puede cambiar cómo te sientes. Esta oración permite a una mujer decir
+      que la noticia la alegra, en vez de describir la propia noticia como feliz.
+    examples:
+      - text: أَنَا سَعِيدَةٌ بِهٰذَا الْخَبَرِ.
+        meaning: "**El ejemplo.** Me alegra esta noticia. `أَنَا` significa yo y `سَعِيدَةٌ` es feliz en
+          femenino. `بِهٰذَا الْخَبَرِ` significa por esta noticia: `بِـ` conecta el sentimiento con
+          su causa. En presente no hay una palabra separada equivalente a soy o estoy."
+        note: "Un hombre usa `أَنَا سَعِيدٌ بِهٰذَا الْخَبَرِ`. El adjetivo de emoción concuerda con quien
+          habla, no con la palabra noticia. **Practica:** ¿qué cambia si lo dice un hombre?
+          Respuesta: `سَعِيدَةٌ` pasa a `سَعِيدٌ`; la expresión de la noticia permanece igual."
+  - subskill_id: opinions
+    explanation: Se están considerando varias soluciones. Puedes presentar tu juicio como un punto de
+      vista y dejar espacio para que otra persona prefiera una solución distinta.
+    examples:
+      - text: فِي رَأْيِي، هٰذَا الْحَلُّ أَفْضَلُ.
+        meaning: "**El ejemplo.** En mi opinión, esta solución es mejor. `فِي رَأْيِي` significa en mi
+          opinión; el sufijo final expresa mi. `هٰذَا الْحَلُّ` es esta solución y `أَفْضَلُ`
+          significa mejor. La otra solución se entiende por la conversación y no hace falta
+          repetirla."
+        note: "La introducción presenta el juicio, pero no aporta pruebas. Si no queda clara la alternativa,
+          nombra con qué comparas. **Practica:** ¿qué parte dice de quién es el juicio? Respuesta:
+          `فِي رَأْيِي`, especialmente su sufijo de mi."
+  - subskill_id: agreement_disagreement
+    explanation: Hay una propuesta sobre la mesa y te opones a ella. Nombrarla aclara tu desacuerdo sin
+      convertirlo en un juicio sobre quien la planteó.
+    examples:
+      - text: لَا أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ.
+        meaning: "**El ejemplo.** No estoy de acuerdo con esta propuesta. `لَا` niega `أُوَافِقُ`, estoy de
+          acuerdo. `عَلَى هٰذَا الِاقْتِرَاحِ` significa con esta propuesta. El verbo de primera
+          persona es igual para un hablante y una hablante; este ejemplo no usa un adjetivo de
+          concordancia."
+        note: "Al quitar `لَا` se expresa acuerdo: `أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ`. Tener dudas no
+          equivale a expresar desacuerdo. **Practica:** ¿qué palabra invierte la postura? Respuesta:
+          `لَا`; la propuesta sigue siendo la misma."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: wants_intentions
+      explanation: Querer aprender una habilidad nueva comunica lo que te interesa. Puede iniciar una
+        conversación sobre clases sin afirmar que ya te hayas inscrito.
+      examples:
+        - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
+          meaning: "**El ejemplo.** Quiero aprender a nadar. `بِدِّي` significa quiero; su terminación
+            identifica a quien habla. `أَتْعَلَّمْ` significa aprendo en esta posición dependiente y
+            `السِّبَاحَة` es natación. Después de `بِدِّي`, la acción aparece sin su prefijo b
+            habitual."
+          note: "La acción después de la expresión de deseo no lleva el prefijo b habitual. **Practica:** di
+            que nosotros queremos aprender a nadar. Respuesta: `بِدْنَا نِتْعَلَّمْ السِّبَاحَة`.
+            Tanto el sufijo del deseo como el verbo de aprender pasan a nosotros; nadar sigue siendo
+            la habilidad deseada."
+    - subskill_id: preferences
+      explanation: Al elegir una bebida, una preferencia compara las opciones en vez de limitarse a decir
+        que una es agradable. Aquí el té es la primera elección frente al café.
+      examples:
+        - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
+          meaning: "**El ejemplo.** Prefiero el té al café. `بَحِبّ` significa me gusta y `الشَّايْ` es té.
+            `أَكْتَرْ مِنْ` significa más que y `الْقَهْوِة` es café. Esta preferencia se forma
+            comparando cuánto te gustan las bebidas, sin usar un verbo independiente para preferir."
+          note: "Conserva `أَكْتَرْ مِنْ` para comparar las dos bebidas. **Practica:** di que prefieres el
+            café al té. Respuesta: `بَحِبّ الْقَهْوِة أَكْتَرْ مِنْ الشَّايْ`. Intercambiar las
+            bebidas invierte la preferencia; sin comparación solo dirías que te gusta el café."
+    - subskill_id: emotions
+      explanation: Una buena noticia puede cambiar cómo te sientes. Esta oración permite a una mujer decir
+        que la noticia la alegra, en vez de describir la propia noticia como feliz.
+      examples:
+        - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
+          meaning: "**El ejemplo.** Me alegra esta noticia. `أَنَا` es yo y `مَبْسُوطَة` significa feliz o
+            contenta en femenino. `بِهَادْ الْخَبَرْ` significa por esta noticia. La preposición
+            inicial unida al término conecta el sentimiento con su causa; no hace falta una palabra
+            separada para el presente de estoy."
+          note: "Un hombre usa `مَبْسُوطْ` en lugar de `مَبْسُوطَة`. El adjetivo describe a quien siente la
+            emoción. **Practica:** ¿describe la terminación femenina a la noticia? Respuesta: no;
+            describe a la mujer que habla, mientras `الْخَبَرْ` nombra el motivo de su alegría."
+    - subskill_id: opinions
+      explanation: Se están considerando varias soluciones. Puedes presentar tu juicio como un punto de
+        vista y dejar espacio para que otra persona prefiera una solución distinta.
+      examples:
+        - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
+          meaning: "**El ejemplo.** En mi opinión, esta solución es mejor. `بِرَأْيِي` significa en mi
+            opinión. `هَادْ الْحَلّ` nombra esta solución y `أَحْسَنْ` significa mejor. No hay un
+            presente separado de es; la solución se enlaza directamente con el juicio."
+          note: "Usa la introducción con otro juicio y conserva su sufijo de primera persona. Mejor requiere
+            una alternativa conocida; no significa que todos los aspectos sean perfectos.
+            **Practica:** quita `بِرَأْيِي`. ¿Qué cambia? Respuesta: la comparación permanece, pero
+            desaparece el marco de opinión personal explícita."
+    - subskill_id: agreement_disagreement
+      explanation: Hay una propuesta sobre la mesa y te opones a ella. Nombrarla aclara tu desacuerdo sin
+        convertirlo en un juicio sobre quien la planteó.
+      examples:
+        - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
+          meaning: "**El ejemplo.** No estoy de acuerdo con esta propuesta. `أَنَا` significa yo, `مِشْ` es no
+            y `مُوَافِقْ` expresa estar de acuerdo con forma masculina. `عَ هَادْ الِاقْتِرَاحْ`
+            señala esta propuesta. Es una expresión con adjetivo, no la negación de un presente
+            verbal habitual."
+          note: "Una mujer usa `مُوَافِقَة`. La negación puede variar según la región; esta lección practica
+            `مِشْ`. **Practica:** cambia la hablante a una mujer. Respuesta: `أَنَا مِشْ مُوَافِقَة
+            عَ هَادْ الِاقْتِرَاحْ`; cambia el adjetivo, mientras se conservan el desacuerdo y la
+            propuesta."

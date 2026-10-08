@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: coordinating_action
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 请求是请别人做一件事。想象门开着，冷风吹进来：你希望有人关门，并加一句礼貌表达来缓和语气。
+    examples:
+      - text: أَغْلِقِ الْبَابَ، مِنْ فَضْلِكَ.
+        meaning: "**例句。** 请关门。`أَغْلِقِ` 是对一名男子说的“关上”；`الْبَابَ` 是门。`مِنْ فَضْلِكَ`
+          是对这名男子说的“请”。在仔细连读时，命令式末尾的短元音有助于连接下一个词。"
+        note: 称呼一名女子时，用 `أَغْلِقِي` 和礼貌形式 `مِنْ فَضْلِكِ`。试一试：请一名女子关门。答案：`أَغْلِقِي الْبَابَ، مِنْ
+          فَضْلِكِ`。命令式末尾增加长元音，礼貌短语的词尾也随听话人改变。
+  - subskill_id: offers_invitations
+    explanation: 别人做一件事很吃力时，你可以主动帮对方，而不是请求对方帮你。简短问句让对方有接受或拒绝的余地。
+    examples:
+      - text: هَلْ أُسَاعِدُكَ؟
+        meaning: "**例句。** 要我帮你吗？`هَلْ` 引出是非问句。`أُسَاعِدُ` 意为我帮助，附着的 `كَ` 指“你”，这里称呼一名男子。第一人称形式说明潜在帮忙的人是说话人，词尾指出接受帮助的人。"
+        note: 对一名女子说时，用 `هَلْ أُسَاعِدُكِ؟`。比较对一名男子说的 `هَلْ
+          تُسَاعِدُنِي؟`，意为你能帮我吗：现在帮忙的人变成你，接受帮助的人是我。试一试：向女子提出帮忙。答案：`هَلْ أُسَاعِدُكِ؟`；保留第一人称形式，改变听话人的词尾。
+  - subskill_id: suggestions
+    explanation: 大家需要找个地方坐。用“为什么不”的问句，可以把这里作为共同考虑的选项，而不是命令任何人选这里。
+    examples:
+      - text: لِمَاذَا لَا نَجْلِسُ هُنَا؟
+        meaning: "**例句。** 我们为什么不坐在这里？`لِمَاذَا` 意为为什么，`لَا` 否定后面的动作。`نَجْلِسُ` 表示我们坐，`هُنَا`
+          是这里。在这种情境中，整个问句是在建议坐这里，并非真正要求详细解释反对原因。"
+        note: 若要建议坐在那里，可改用 `هُنَاكَ`，保留包含说话人的“我们”形式。换一种语境或语气，同样的“为什么不”也可以真正在问有什么障碍。试一试：建议坐在那里。答案：`لِمَاذَا لَا
+          نَجْلِسُ هُنَاكَ؟`；只改变地点。
+  - subskill_id: commitments
+    explanation: 有人得把钥匙带来。你接下这项责任时，说出未来会做的事，就让其他人知道可以指望你。
+    examples:
+      - text: سَأُحْضِرُ الْمَفَاتِيحَ غَدًا.
+        meaning: "**例句。** 我明天会带钥匙。`سَأُحْضِرُ` 中附着的 `سَـ` 标记未来；`أُحْضِرُ` 意为我带来。`الْمَفَاتِيحَ` 指钥匙，`غَدًا`
+          是明天。在接下任务的语境里，这个将来陈述具有承诺的作用。"
+        note: 若安排改到今天，用 `الْيَوْمَ`。将来时动词本身也可能只是预测，并不自动构成承诺。试一试：把承诺改到今天。答案：`سَأُحْضِرُ الْمَفَاتِيحَ الْيَوْمَ`
+          保留动作，只改变时间。
+  - subskill_id: accepting_declining
+    explanation: 有人邀请你今天参加活动，但你来不了。先感谢邀请者，再说明阻碍，能清楚而礼貌地婉拒。
+    examples:
+      - text: شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ الْيَوْمَ.
+        meaning: "**例句。** 谢谢，但我今天无法出席。`شُكْرًا` 表示感谢。`لٰكِنَّنِي` 意为但是我；`لَا أَسْتَطِيعُ` 意为我不能。`الْحُضُورَ`
+          指出席，`الْيَوْمَ` 把拒绝限于今天。这里能力动词后接一个表示活动的名词。"
+        note: 若邀请在明天，把 `الْيَوْمَ` 换成 `غَدًا`。保留 `لَا`，拒绝才不变。试一试：婉拒明天的邀请。答案：`شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ
+          الْحُضُورَ غَدًا`。感谢和无法出席不变，只改日期。
+  - subskill_id: negotiating_plans
+    explanation: 原本约好今天见面，但明天更合适。协商是在保留共同计划的前提下，提出改变其中一个部分。
+    examples:
+      - text: هَلْ يُمْكِنُ أَنْ نَلْتَقِيَ غَدًا بَدَلًا مِنَ الْيَوْمِ؟
+        meaning: "**例句。** 能改成明天见，而不是今天吗？`هَلْ يُمْكِنُ` 问是否可能。`أَنْ نَلْتَقِيَ` 说出双方共同的行动，即我们见面。`غَدًا`
+          是新提议的日子；`بَدَلًا مِنَ الْيَوْمِ` 意为取代今天，指出要改掉什么。"
+        note: 把新日期放在“取代”短语前，两种选择才清楚。这是在征求同意，并未宣布改期已定。试一试：被替换的是哪一天？答案：今天，在 `بَدَلًا مِنَ` 后指出；明天是新提议。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: requests
+      explanation: 请求是请别人做一件事。想象门开着，冷风吹进来：你希望有人关门，并加一句礼貌表达来缓和语气。
+      examples:
+        - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
+          meaning: "**例句。** 请关门。`سَكِّرْ` 是对一名男子说的“关上”命令；`الْبَابْ` 是门。`لَوْ سَمَحْتْ`
+            是惯用的“请”，字面上意为“如果你允许”。应把它作为礼貌短语来学，而不是等待后续内容的真实条件。"
+          note: 对一名女子说时，用 `سَكِّرِي` 和 `لَوْ سَمَحْتِي`。试一试：向女子提出完整请求。答案：`سَكِّرِي الْبَابْ، لَوْ
+            سَمَحْتِي`。两个词尾都变化，门和所请求的动作不变。
+    - subskill_id: offers_invitations
+      explanation: 别人做一件事很吃力时，你可以主动帮对方，而不是请求对方帮你。简短问句让对方有接受或拒绝的余地。
+      examples:
+        - text: أَسَاعْدَكْ؟
+          meaning: "**例句。** 要我帮你吗？`أَسَاعْدَكْ` 把“我帮忙”与表示“你”的词尾结合，这里称呼一名男子。疑问语调使可能的行动成为帮忙提议。在这种提议句式里，动词没有通常的 b- 前缀。"
+          note: 向女子提出帮忙时，在这个口语范例中用 `أَسَاعْدِكْ؟`。比较 `تْسَاعْدْنِي؟`，意为你能帮我吗，所请求的是听话人帮助。试一试：如果是你主动帮忙，应选哪一句？答案：对男子说
+            `أَسَاعْدَكْ؟`；开头的第一人称形式保留你作为帮忙者。
+    - subskill_id: suggestions
+      explanation: 大家需要找个地方坐。用“为什么不”的问句，可以把这里作为共同考虑的选项，而不是命令任何人选这里。
+      examples:
+        - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
+          meaning: "**例句。** 我们为什么不坐在这里？`لَيْشْ` 是为什么，`مَا` 是否定，`نِقْعُدْ` 是我们坐，`هُونْ`
+            意为这里。它们合起来建议共同采取行动。“我们”形式包括说话人，并非只命令听话人坐下。"
+          note: 把 `هُونْ` 换成
+            `هُنِيكْ`，即可建议坐在那里。把整个建议当作口语句式来学；在另一种场合，同样的“为什么不”也可能真正在问障碍。试一试：哪个词把说话人纳入计划？答案：`نِقْعُدْ`，即“我们”形式。
+    - subskill_id: commitments
+      explanation: 有人得把钥匙带来。你接下这项责任时，说出未来会做的事，就让其他人知道可以指望你。
+      examples:
+        - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
+          meaning: "**例句。** 我明天会带钥匙。`رَحْ` 指向未来，`أَجِيبْ` 意为我带来，`الْمَفَاتِيحْ` 是钥匙，`بُكْرَا` 是明天。`رَحْ` 后这个动词不带平时的 b-
+            前缀。由于你已经接下任务，这句话是在承诺行动。"
+          note: "`رَحْ` 后的动作不带普通的 b- 前缀。试一试：改为承诺今天带钥匙。答案：`رَحْ أَجِيبْ الْمَفَاتِيحْ الْيَوْمْ`。把 `بُكْرَا` 换成
+            `الْيَوْمْ` 改变日期，同一任务仍由你负责。"
+    - subskill_id: accepting_declining
+      explanation: 有人邀请你今天参加活动，但你来不了。先感谢邀请者，再说明阻碍，能清楚而礼貌地婉拒。
+      examples:
+        - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
+          meaning: "**例句。** 谢谢，但我今天不能来。`شُكْرًا` 感谢邀请者，`بَسّ` 引出但是。`مَا بَقْدَرْ` 意为我不能；后续动作 `أَجِي` 意为来，不带 b-
+            前缀。`الْيَوْمْ` 是今天。无法前来是婉拒的原因。"
+          note: 若邀请在明天，用 `بُكْرَا`，而 `مَا` 仍放在能力动词前。试一试：婉拒明天的邀请。答案：`شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي بُكْرَا`。后续动作“来”仍不带
+            b- 前缀，变的只有日期。
+    - subskill_id: negotiating_plans
+      explanation: 原本约好今天见面，但明天更合适。协商是在保留共同计划的前提下，提出改变其中一个部分。
+      examples:
+        - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
+          meaning: "**例句。** 能改成明天见，而不是今天吗？`مُمْكِنْ` 引出可能性问句，`نِلْتَقِي` 意为我们见面。`بُكْرَا` 是明天；`بَدَلْ الْيَوْمْ`
+            意为取代今天。“我们”形式包括双方，两个时间短语限定了所请求的改变。"
+          note: 在这个提议里，`مُمْكِنْ` 后面的动作不带通常的 b- 前缀。把两个日期对调，就会把改期方向反过来。试一试：你是要彻底取消见面吗？答案：不是；`نِلْتَقِي` 仍是计划，正在重新商量的只有日期。

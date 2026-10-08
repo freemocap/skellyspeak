@@ -325,7 +325,8 @@ export type SavedGlossQuery = { scope: ReadingScope,
  * Exact surfaces from the shared reading segmenter, including the passage.
  */
 surfaces: Array<string>, };
-export type SavedGlossSource = { sourceId: string, operationId: string | null, attemptId: string | null, scope: ReadingScope, text: string, segments: Array<GlossSegment>, };
+export type SavedGlossSource = { sourceId: string, dictionary?: boolean, provenance?: SavedGlossProvenance, operationId: string | null, attemptId: string | null, scope: ReadingScope, text: string, segments: Array<GlossSegment>, };
+export type SavedGlossProvenance = { packageId: string, version: string, sense: string, sources: Array<string>, review: string, };
 export type CacheSettings = { capacityBytes: number, usedBytes: number, resultCount: number, };
 export type AppError = { diagnostics?: unknown, code: ErrorCode, message: string, refusal: Refusal | null, };
 export const PERSONA_LIMITS = { nameMax: 80, ageMin: 18, ageMax: 100, locationMax: 120, occupationMax: 120, backgroundMax: 2000, currentSituationMax: 600, mannerMax: 600, itemMax: 120, interestsMax: 12, opinionsMax: 12, factsMax: 12, booksMax: 8, moviesMax: 8, quirksMax: 8, vibeMin: 2, vibeMax: 4, briefMax: 200 } as const

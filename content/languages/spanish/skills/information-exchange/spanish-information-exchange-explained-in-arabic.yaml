@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: information_exchange
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/information-exchange/information-exchange-explained-in-arabic.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: يوضح السؤال المعلوماتي ما تريد معرفته. تستعمل الإسبانية `dónde` للمكان، و`cuándo`
+      للوقت، و`qué` للشيء أو التفسير. في المثال، المعلومة الناقصة هي مكان المحطة. تستعمل الأسئلة عن
+      موقع شخص أو غرض صيغةً من `estar`.
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: "**كيف تعمل الصيغة.** يتكوّن سؤال «أين المحطة؟» من ثلاثة أجزاء: تسأل `dónde` عن المكان،
+          و`está` فعل مفرد، وتحدد `la estación` المكان المطلوب. احتفظ بعلامتي النبرة في `dónde`
+          و`está`، وكذلك علامتي الاستفهام الافتتاحية والختامية."
+        note: >-
+          **غيّر العدد.** تسأل `¿Dónde están las llaves?` عن مكان المفاتيح. كل من `están` و`las
+          llaves` جمع. ويمكن أن يذكر الجواب المكان فقط: `En la mesa`، أي على الطاولة.
+
+
+          **جرّب.** اسأل أين الحمّام باستعمال `el baño`. الإجابة: `¿Dónde está el baño?` استعمل
+          `está` المفردة لأنك تسأل عن حمّام واحد.
+  - subskill_id: answering_information
+    explanation: عندما يسألك شخص أين أنت، قد تقدّم عبارة مكان قصيرة كل ما يحتاج إلى معرفته. يحدد السؤال
+      الشخص والفعل، فيكفي أن يسمّي الرد المكان. هذا استعمال طبيعي في المحادثة، وليس جوابًا ناقصًا.
+    examples:
+      - text: En casa.
+        meaning: «في المنزل.» تقدّم `En` المكان، وتعني `casa` المنزل هنا. بعد سؤال `¿Dónde estás?` تجيب
+          العبارة عن مكان من يرد. لا تأخذ `En casa` أداة تعريف في هذا التعبير اليومي.
+        note: >-
+          **قارن.** تسمّي `En la casa de Ana` بيتًا بعينه، هو بيت آنا. ولا يجيب جواب المكان عن
+          `¿Cuándo llegas?` لأنه يسأل عن موعد الوصول.
+
+
+          **جرّب.** أجب عن `¿Dónde estás?` بذكر الحديقة `el parque`. الإجابة: `En el parque`. احتفظ
+          بأداة التعريف في هذه العبارة الاسمية.
+  - subskill_id: checking_facts
+    explanation: إذا ظننت أن زائرًا سيصل في الثامنة، يمكنك التحقق من هذا التفصيل بدل طرح سؤال مفتوح
+      تمامًا. يمكن للإسبانية تحويل الجملة الخبرية المعتادة إلى سؤال نعم/لا بنبرة الاستفهام وعلامتيه
+      في الكتابة.
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: «هل تصل في الثامنة؟» تعني `Llegas` «تصل»، وتحدد `a las ocho` الوقت. يشير المضارع هنا إلى
+          وصول مرتب له. لا يوجد فعل سؤال إضافي يقابل «do» الإنجليزية.
+        note: >-
+          **قارن.** تسأل `¿A qué hora llegas?` عن الوقت من غير اقتراح الثامنة. ويمكن التصحيح بقول
+          `No, a las nueve`. وللساعة الواحدة تأتي العبارة `a la una` بأداة مفردة.
+
+
+          **جرّب.** تحقق هل الوصول في التاسعة. الإجابة: `¿Llegas a las nueve?`. غيّر الوقت وحده.
+  - subskill_id: useful_detail
+    explanation: عند إعطاء الاتجاهات، قد يترك معلم واحد شخصًا مترددًا بشأن المكان المقصود. ويمكن لمعلم
+      ثانٍ أن يحدد الموقع أكثر. تجمع الإسبانية عبارات المكان لوصف الموضع نفسه من نقطتي مرجع مفيدتين.
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: «يقع بجوار المصرف، قبالة الحديقة.» تشير `Está` إلى المكان الجاري الحديث عنه. تعني `Al lado
+          del banco` بجوار المصرف؛ وتعني `frente al parque` قبالة الحديقة. تجمع `Del` بين `de`
+          و`el`، وتجمع `al` بين `a` و`el`.
+        note: >-
+          **عدّلها.** تغيّر `Está al lado de la farmacia` المعلم إلى الصيدلية. تبقى `De la` منفصلة،
+          لأن الانقباض إلى `del` يحدث فقط لـ`de el`. اختر معالم يستطيع المستمع العثور عليها.
+
+
+          **جرّب.** قل إنه قبالة المصرف. الإجابة: `Está frente al banco`. يستعمل التعبير `a` التي
+          تتحد مع `el`.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

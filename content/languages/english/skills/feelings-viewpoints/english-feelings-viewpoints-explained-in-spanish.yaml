@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: feelings_viewpoints
+language: english
+explanation_language: spanish
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-spanish.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Un deseo y un plan cumplen funciones distintas. Quizá quieras estudiar sin haber
+      reservado tiempo; decir que piensas estudiar comunica a una amistad tu actividad prevista,
+      aunque tampoco garantiza que la harás.
+    examples:
+      - text: I plan to study tonight.
+        meaning: "`I plan` expresa la intención, `to study` nombra la acción prevista y `tonight` indica
+          cuándo. Después de `plan`, se une la acción siguiente mediante `to` y el verbo simple. Al
+          cambiar de persona se obtiene `She plans to study tonight`."
+        note: >-
+          Compara `I want to study tonight`: expresa un deseo que quizá aún no es un plan. `I am
+          studying tonight` puede presentar la actividad como un acuerdo ya hecho.
+
+
+          **Practica.** Di que tienes intención de cocinar mañana. Respuesta: `I plan to cook
+          tomorrow`. Conserva `to` antes de `cook`: une el plan con la acción prevista.
+  - subskill_id: preferences
+    explanation: Una preferencia indica cuál de dos opciones te gusta más. Si te ofrecen dos bebidas,
+      puedes escoger el té sin decir que te disgusta el café. `Prefer` hace explícita la
+      comparación.
+    examples:
+      - text: I prefer tea to coffee.
+        meaning: "`I prefer` introduce tu elección. `Tea` es la opción preferida; `to coffee` indica la
+          alternativa. Aquí `to` conecta dos cosas, no introduce una acción. Invertirlas cambia la
+          preferencia: `I prefer coffee to tea`."
+        note: >-
+          Aquí se usa `to` en vez de `than`: `I prefer tea to coffee`. `I like tea` por sí solo no
+          compara las bebidas. También puedes comparar actividades: `I prefer walking to driving`.
+
+
+          **Practica.** Prefieres las mañanas a las tardes. Respuesta: `I prefer mornings to
+          evenings`. Pon primero la opción preferida y después de `to` la alternativa.
+  - subskill_id: emotions
+    explanation: Nombrar un sentimiento ayuda a otra persona a entender tu reacción. Antes de una
+      entrevista, quizá te inquiete lo que sucederá. `Feel` seguido de una palabra descriptiva
+      expresa la emoción; `about` puede introducir aquello que la provoca.
+    examples:
+      - text: I feel nervous about the interview.
+        meaning: "`I feel` comunica la experiencia de quien habla. `Nervous` describe el sentimiento y
+          `about the interview` identifica su objeto. El adjetivo no cambia con otra persona: `She
+          feels nervous`."
+        note: >-
+          `I am nervous` también describe el estado. `Nervous` describe el sentimiento de una
+          persona; `nerve-racking` puede describir una experiencia que lo provoca: `The interview
+          was nerve-racking`. No son intercambiables.
+
+
+          **Practica.** Expresa entusiasmo por un viaje. Respuesta: `I feel excited about the trip`.
+          `Excited` nombra tu sentimiento y `about the trip` indica con qué se relaciona.
+  - subskill_id: opinions
+    explanation: Una opinión te permite aportar tu juicio a una conversación. Si un grupo elige un plan,
+      quizá creas que su coste es un problema. `I think` presenta la afirmación siguiente como tu
+      punto de vista y deja espacio para responder.
+    examples:
+      - text: I think this plan is too expensive.
+        meaning: "`I think` introduce el juicio. `This plan is too expensive` lo expresa: `too` indica que
+          el coste supera lo conveniente, no solo que es alto. Puedes añadir un motivo, como `It
+          uses our whole budget`."
+        note: >-
+          Compara `very expensive`, que describe un precio alto sin decir necesariamente que sea
+          excesivo. `I don’t think this plan is affordable` es una manera habitual de expresar una
+          opinión negativa.
+
+
+          **Practica.** Opina que una habitación es demasiado pequeña. Respuesta: `I think this room
+          is too small`. `Too` comunica que el tamaño supone un problema.
+  - subskill_id: agreement_disagreement
+    explanation: Estar de acuerdo es responder a la opinión de otra persona. Si alguien del equipo dice
+      que el trabajo necesita un día más, puedes aceptar explícitamente esa idea. Nombrar aquello
+      con lo que concuerdas evita confusiones cuando hay varias propuestas.
+    examples:
+      - text: I agree that we need more time.
+        meaning: "`I agree` expresa que compartes la opinión. `That we need more time` precisa la idea
+          aceptada; `that` vincula el acuerdo con una proposición completa. Con una persona se usa
+          `with`: `I agree with you`."
+        note: >-
+          Para disentir sin atacar a la persona, puedes decir `I see your point, but I think we have
+          enough time`. Comprender un argumento no implica aceptarlo. Evita la forma incorrecta `I
+          am agree`: `agree` ya es el verbo principal.
+
+
+          **Practica.** Coincide en que la habitación es demasiado pequeña. Respuesta: `I agree that
+          the room is too small`. Lo que sigue a `that` identifica el juicio compartido.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored Spanish localization of current english guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original english constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

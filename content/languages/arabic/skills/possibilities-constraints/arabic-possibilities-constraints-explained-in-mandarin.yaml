@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: possibilities_constraints
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 描述能力时，你在说某个人能做什么。在现代标准阿拉伯语中，`أَسْتَطِيعُ` 意为我能够。它后面可以接 `أَنْ` 和表示具体动作的动词。例句描述说话人的游泳能力。
+    examples:
+      - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
+        meaning: "**例句。** “我会游泳。” `أَسْتَطِيعُ` 意为我能够；`أَنْ` 引出动作；在这个结构里，`أَسْبَحَ` 表示我游泳。两个动词都指同一个第一人称主语，所以无需另加表示我的
+          `أَنَا`。"
+        note: |-
+          **留意形式。** 带完整元音标记时，`أَنْ` 后这个动词以短 a 元音结尾：`أَسْبَحَ`。它仍标明第一人称，并不是完全不变的词典形式。
+
+          **练一练。** 哪个词把能力与动作连起来？答案：`أَنْ`。
+  - subskill_id: permission
+    explanation: 使用别人的空间或物品前，你可能需要问是否获准行动。在现代标准阿拉伯语中，`هَلْ يُمْكِنُنِي` 是询问“我可以……吗”的一种方式。例句中，说话人希望得到允许，坐在某个位置。
+    examples:
+      - text: هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَا؟
+        meaning: "**例句。** “我可以坐在这里吗？” `هَلْ` 开始是非问句。`يُمْكِنُنِي` 中的词尾 `نِي` 指我。`أَنْ أَجْلِسَ` 给出坐下这个动作，`هُنَا`
+          意为这里。"
+        note: |-
+          **改变地点。** 把 `هُنَا` 换成 `هُنَاكَ`，表示那里。请求许可的句式不变。
+
+          **练一练。** 请求坐在那里。答案：`هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَاكَ؟`。动作动词前保留 `أَنْ`。
+  - subskill_id: obligation
+    explanation: 期限或约定可能使某个行动成为必须。在现代标准阿拉伯语中，`يَجِبُ أَنْ` 后接动词表达要求。后面的动词指出谁必须行动。这里归还钥匙是说话人的责任。
+    examples:
+      - text: يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ الْيَوْمَ.
+        meaning: "**例句。** “我今天必须还钥匙。” `يَجِبُ` 说出必要性。`أَنْ أُعِيدَ` 给出我的行动：归还。`الْمِفْتَاحَ` 是要还的钥匙，`الْيَوْمَ`
+          是今天。第一人称标记在 `أُعِيدَ` 上，不在 `يَجِبُ` 上。"
+        note: |-
+          **改变期限。** 明天用 `غَدًا`。
+
+          **练一练。** 把期限改为明天。答案：`يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ غَدًا`。归还行动不变，只替换时间短语。
+  - subskill_id: possibility
+    explanation: 结果不确定时，你可以提及它，却不把它当成事实。`رُبَّمَا` 意为也许，可以引出这种可能。例句说火车可能晚点，同时也保留准点到达的可能。
+    examples:
+      - text: رُبَّمَا يَتَأَخَّرُ الْقِطَارُ.
+        meaning: "**例句。** “火车可能晚点。” `رُبَّمَا` 意为也许。`يَتَأَخَّرُ` 表示晚点，`الْقِطَارُ` 是火车。这个例子把动词放在主语前。`رُبَّمَا`
+          限定整个陈述，没有断言火车一定会晚。"
+        note: |-
+          **比较。** 没有 `رُبَّمَا` 时，`يَتَأَخَّرُ الْقِطَارُ` 直接陈述火车晚点或会延误，具体时间由语境决定。
+
+          **练一练。** 原句哪个词使说法不确定？答案：`رُبَّمَا`。
+  - subskill_id: certainty
+    explanation: 你可以告诉别人自己还不能确认某个说法。`لَسْتُ مُتَأَكِّدًا` 或 `لَسْتُ مُتَأَكِّدَةً`
+      意为我不确定。形容词与说话人一致；例句使用阴性一致形式。它表达没有把握，不是表达反对。
+    examples:
+      - text: لَسْتُ مُتَأَكِّدَةً مِنْ ذٰلِكَ.
+        meaning: "**例句。** `لَسْتُ` 意为我不是。`مُتَأَكِّدَةً` 是这里所需的阴性形式，表示确信；`مِنْ ذٰلِكَ` 意为对那件事。带完整元音标记的标准阿拉伯语中，这个形容词在
+          `لَسْتُ` 后有宾格词尾。"
+        note: |-
+          **改变说话人。** 阳性一致形式是 `لَسْتُ مُتَأَكِّدًا مِنْ ذٰلِكَ`。表示我的 `لَسْتُ` 不变。
+
+          **练一练。** 哪部分指回先前的说法？答案：`مِنْ ذٰلِكَ`。不确定不等于断言对方所说为假。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahNegationTeaching20261007
+    - madinahMoodsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: ability
+      explanation: 谈能力时，可以说明自己能做什么，无论是已学会的技能，还是当前条件下可做到的事。黎凡特阿拉伯语中，表示我能的常见表达是 `بَقْدَرْ`，后接说明活动的动词。这里说话人表示自己会游泳。
+      examples:
+        - text: بَقْدَرْ أَسْبَحْ.
+          meaning: "**例句。** “我会游泳。” `بَقْدَرْ` 意为我能。`أَسْبَحْ` 给出动作，不带普通现在时的 b- 前缀。两个动词直接相连，指同一人。"
+          note: |-
+            **把句式连起来学。** `بَقْدَرْ` 上的前缀，不表示后一个动词也要照样加上。不同地区还有其他说法，包括北部用于“我能”的 `فِينِي`。
+
+            **练一练。** 哪部分指出活动？答案：`أَسْبَحْ`。只说能力表达，听话人还不知道你能做什么。
+    - subskill_id: permission
+      explanation: 行动前想征求别人同意时，可以用 `مُمْكِنْ` 开始请求许可的问句。谈到一个空位时，`مُمْكِنْ أَقْعُدْ هُونْ؟` 问我能否坐在这里。所问的人应有权决定这个座位能否使用。
+      examples:
+        - text: مُمْكِنْ أَقْعُدْ هُونْ؟
+          meaning: "**例句。** “我可以坐在这里吗？” `مُمْكِنْ` 引出许可问题；`أَقْعُدْ` 指我的动作——坐下；`هُونْ` 意为这里。疑问语调，以及等待听话人回答，使这句话成为请求。"
+          note: |-
+            **留意第二个动词。** 在这个句式里，`مُمْكِنْ` 后的动作不带普通的 b- 前缀。动词指出要做的事，地点词告诉对方在哪里。
+
+            **练一练。** 哪个词说明座位位置？答案：`هُونْ`。
+    - subskill_id: obligation
+      explanation: 借来的东西可能必须在约定时间归还。黎凡特阿拉伯语用 `لَازِمْ` 后接动词，表示一项行动是必要的。动词指出谁必须做。例句里，说话人今天要还钥匙。
+      examples:
+        - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
+          meaning: "**例句。** “我今天必须还钥匙。” `لَازِمْ` 表示要求。`أَرَجِّعْ` 在这里意为我归还，后接表示钥匙的 `الْمِفْتَاحْ` 和表示今天的
+            `الْيَوْمْ`。`أَرَجِّعْ` 中间的双辅音属于这个动词形式。"
+          note: |-
+            **保留结构。** 这里 `لَازِمْ` 后的动词没有普通 b- 前缀，但它仍指出行动者。要求表达直接连到动作。
+
+            **练一练。** 去掉期限。答案：`لَازِمْ أَرَجِّعْ الْمِفْتَاحْ`。义务仍在，但句子不再说何时归还。
+    - subskill_id: possibility
+      explanation: 延误还未证实时，你可能先听到它有可能发生。在这种情境里，`يُمْكِنْ` 意为也许，让你提到延误而不声称它一定发生。例句是在陈述火车可能会怎样。
+      examples:
+        - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
+          meaning: "**例句。** “火车可能晚点。” `يُمْكِنْ` 在这里意为也许。`الْقِطَارْ` 在表示动作的 `يِتْأَخَّرْ` 前。整句表达事件的可能性，不是在谈火车是否有能力做某事。"
+          note: |-
+            **结合语境。** 讨论尚未确认的延误时，这样说有用。它本身不是向任何人请求许可的问句。
+
+            **练一练。** 有人把这句话当作已经确认的延误，你该指出哪个词？答案：`يُمْكِنْ`；说话人并未排除其他结果。
+    - subskill_id: certainty
+      explanation: 无法确认别人说的话时，可以用 `أَنَا مِشْ مُتْأَكِّدِة` 描述不确定。这表示我不确定，形容词与女性说话人一致。它让问题继续开放，而不是宣布对方错了。
+      examples:
+        - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
+          meaning: "**例句。** `أَنَا` 是我，`مِشْ` 否定形容词，`مُتْأَكِّدِة` 以阴性一致形式描述说话人确信。`مِنْ هَادْ` 指回那件事。这个现在时句式没有独立对应英语 am
+            的词。"
+          note: |-
+            **否定。** `مِشْ` 否定形容词。去掉它，说话人就表示自己确信。
+
+            **练一练。** 要表达确定，应删掉哪个词？答案：`مِشْ`。

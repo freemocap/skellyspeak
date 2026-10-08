@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: people_places
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 介绍一位邻居，是在告诉听话人这个人是谁、你们有什么关系。`这是` 开始指出身份；`我的邻居` 说明关系，并不是描述某种品质。
+    examples:
+      - text: 这是我的邻居。
+        meaning: "**例句。** 这是我的邻居。`这` 指眼前这个人，`是` 把这个人与表明身份的短语连起来，`邻居` 指住在附近的人。`我的` 表示与我有关：相关的人放在 `的` 前面，名词跟在后面。"
+        note: 试着介绍对方的邻居。答案：`这是你的邻居。` 在 `的` 前把 `我` 换成 `你`。`这是我姐姐` 也介绍一种关系；`姐姐` 这样的近亲称谓通常可以不用 `的`。
+  - subskill_id: qualities_states
+    explanation: 搬运大件物品时选择路线，道路宽窄很重要。`窄` 直接描述道路狭窄。普通陈述里，`很` 使形容词谓语自然，并不一定是在强调“非常窄”。
+    examples:
+      - text: 这条路很窄。
+        meaning: "**例句。** 这条路很窄。`这条路` 指这条道路：`这` 指向它，`条` 是量词，`路` 是道路。`很窄` 给出性质。在这种中性的形容词描述里，道路与性质之间不用 `是`。"
+        note: 试着说这条路很宽。答案：`这条路很宽。` 把 `窄` 换成 `宽`。如果要说不窄，可说 `这条路不窄`；`不` 放在形容词前，而不保留 `很`。
+  - subskill_id: location_movement
+    explanation: 有人找不到钥匙时，说清它的位置可以帮对方找到。`在` 把钥匙与位置联系起来。参照物放在方位词前面，所以先说桌子，再说在上面。
+    examples:
+      - text: 钥匙在桌子上。
+        meaning: "**例句。** 钥匙在桌子上。`钥匙` 是要找的东西，`桌子` 是参照物，`上` 表示上方；`桌子上` 合起来就是桌面上。`在桌子上` 说明钥匙在哪里，不表示朝桌子移动。"
+        note: 试着说钥匙在桌子下面。答案：`钥匙在桌子下。` 把 `上` 换成 `下`。`把钥匙放在桌子上` 中的 `放` 增加了放置动作；原句只描述位置。
+  - subskill_id: possession_relations
+    explanation: 安排座位前，说出自己有多少把椅子，可以让可用物品一目了然。`有` 表示拥有，数字和量词放在要数的东西前面。
+    examples:
+      - text: 我有两把折叠椅。
+        meaning: "**例句。** 我有两把折叠椅。`我有` 表示我拥有，`两` 是这个数量短语里的二，`把` 是这里计量椅子的量词，`折叠椅` 是可以折起来的椅子。名词不必另加复数词尾。"
+        note: 试着说你有三把折叠椅。答案：`我有三把折叠椅。` 把 `两` 换成 `三`，保留量词 `把`。这里 `把` 计量椅子；在 `把椅子搬到门口` 里，它却是引出要搬的对象。
+  - subskill_id: quantity_comparison
+    explanation: 如果一个箱子更容易搬，比较重量有助于分配任务。`比` 在所比较的性质前引出另一个箱子；性质后面的 `一点` 表明差异不大。
+    examples:
+      - text: 这个箱子比那个轻一点。
+        meaning: "**例句。** 这个箱子比那个轻一点。`这个箱子` 指这一只，`比那个` 表示拿另一个来比较，`轻` 是重量较小，`一点` 表示程度差距小。因为前面已在谈箱子，`那个` 可以代指另一个箱子。"
+        note: 试着说这个箱子稍微重一点。答案：`这个箱子比那个重一点。` 把 `轻` 换成 `重`，保留比较关系和小幅差异。若一样重，`这个箱子和那个一样重` 表达重量相同，而不是有差异。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: coordinating_action
+explanation_language: arabic
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-arabic.yaml
+sections:
+  - subskill_id: requests
+    explanation: تسلّم كتبًا إلى زميل وتحتاج إلى أن يعيدها إلى مكانها. تستخدم `Você pode guardar estes
+      livros, por favor?` كلمة `você` للمخاطَب، و`pode` بمعنى «يمكن»، والمصدر `guardar` للفعل
+      المطلوب. تحدد `Estes livros` الكتب القريبة من المتكلم. يؤدي السؤال هنا وظيفة طلب مهذب، مع أن
+      `poder` قد يصف القدرة أيضًا. ويطلب الإطار نفسه مع مصدر آخر، `Você pode fechar a porta, por
+      favor?`، إغلاق الباب.
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: هل يمكنك إعادة هذه الكتب إلى مكانها من فضلك؟
+        note: اطلب من الزميل إعادة هذه الصناديق إلى مكانها بدلًا من الكتب. الإجابة الكاملة هي `Você pode
+          guardar estas caixas, por favor?`. تحل `Estas caixas` محل `estes livros`؛ ويتحول اسم
+          الإشارة إلى صيغة جمع مؤنث ليوافق `caixas`.
+  - subskill_id: offers_invitations
+    explanation: لديك خبز طازج ويمكنك تقديم قطعة منه لشخص. تعني `Quer uma fatia de pão?` «هل تود شريحة
+      خبز؟». `Quer` صيغة المضارع من `querer` للمخاطَب؛ وتعني `uma fatia` شريحة واحدة، وتبيّن `de
+      pão` ممّ تتكون. وبوجود الخبز، يسأل الكلام هل يقبل الشخص العرض. ومن دون هذا السياق، قد يسأل
+      اللفظ نفسه عن تفضيل فحسب. ويعيد `Quer um pouco de água?` استخدام العرض للماء.
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: هل تود شريحة خبز؟
+        note: "قدّم كأس ماء بدلًا من ذلك. الإجابة: `Quer um copo de água?` وهي عرض كامل إذا كان بإمكانك
+          تقديمه؛ وتحدد `um copo de` الكمية وما يحتويه الكأس."
+  - subskill_id: suggestions
+    explanation: "تختار المجموعة يومًا لتبادل الكتب. تقترح `Vamos organizar a troca de livros no
+      sábado?` تنفيذ الأمر معًا: تعني `vamos` «هيا بنا» أو «نذهب»، ويبقى `organizar` في المصدر،
+      وتعني `no sábado` يوم السبت، وهي تركيب `em` مع `o`. يدعو السؤال الآخرون إلى النظر في الخطة.
+      وقد تصف `Vamos organizar ...` أيضًا فعلًا مقصودًا، لذلك يحدد حديث التخطيط أنها اقتراح. وتقترح
+      `Vamos organizar a troca no domingo?` يومًا مختلفًا."
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: هل ننظم تبادل الكتب يوم السبت؟
+        note: "اقترح الأحد بدلًا من ذلك. الإجابة: `Vamos organizar a troca de livros no domingo?` فهي تبقي
+          إطار الفعل المشترك وتغيّر `no sábado` إلى `no domingo`."
+  - subskill_id: commitments
+    explanation: "تحتاج المجموعة إلى شخص يحضر الصناديق. بقولك `Eu levo as caixas amanhã` تتولى هذه
+      المهمة: تحدد `eu` صراحةً الشخص المسؤول، و`levo` صيغة المضارع من `levar`، وتضع `amanhã` الفعل
+      في الغد. قد تستخدم البرتغالية صيغة المضارع لترتيب مستقبلي محسوم. وخارج خطة مشتركة قد تخبر
+      الكلمات نفسها بجدولك فقط؛ أما هنا فتجيب عمن سيقوم بالمهمة."
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: سأحضر الصناديق غدًا.
+        note: "التزم بإحضار الكتب غدًا. الإجابة: `Eu levo os livros amanhã.` تتولى `eu levo` المهمة وتحدد
+          `amanhã` وقتها اللاحق."
+  - subskill_id: accepting_declining
+    explanation: "يدعوك شخص للمساعدة في التبادل اليوم، لكنك لا تستطيع الحضور. تقدّم `Não posso ir hoje`
+      رفضًا ذا صلة: تسبق `não` الفعل المصرف `posso`، و`ir` هو فعل الذهاب الذي لا يمكنك القيام به،
+      وتقصر `hoje` ذلك على اليوم. تحدد الدعوة الوجهة، فلا حاجة إلى تكرارها. ويمكن أن تقبل مهمةً
+      معروفة برد قصير مثل `Posso, sim`."
+    examples:
+      - text: Não posso ir hoje.
+        meaning: لا أستطيع الذهاب اليوم.
+        note: "ارفض الحضور غدًا بدلًا من اليوم. الإجابة: `Não posso ir amanhã.` وهي تامة ردًا على الدعوة؛
+          فتغيير `hoje` إلى `amanhã` يغير يوم تعذر حضورك."
+  - subskill_id: negotiating_plans
+    explanation: يقترح صديق الجمعة، لكنها لا تناسبك. تذكر `Na sexta não posso. Podemos combinar no
+      sábado?` العائق أولًا، ثم تعرض بديلًا. تعني `Na sexta` يوم الجمعة، وهي تركيب `em` مع `a`؛
+      وتترك `não posso` اللقاء المطروح مفهومًا. وتعني `Podemos` «هل نستطيع نحن»، ويسأل `combinar` عن
+      ترتيب اللقاء؛ وتقترح `no sábado` السبت. هذا تفاوض لأنه يرد على خطة قائمة. ويتغير البديل إلى
+      الأحد في `Podemos combinar no domingo?`.
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: لا أستطيع يوم الجمعة. هل يمكننا ترتيب الموعد يوم السبت؟
+        note: "أبقِ الجمعة يوم التعذر واقترح الأحد. الإجابة الكاملة: `Na sexta não posso. Podemos combinar
+          no domingo?` ترفض الجملة الأولى الوقت المقترح، وتعرض الثانية بديلًا مناسبًا."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

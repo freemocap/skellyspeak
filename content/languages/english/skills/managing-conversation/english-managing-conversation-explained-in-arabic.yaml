@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: managing_conversation
+language: english
+explanation_language: arabic
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-arabic.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: تساعد الخاتمة الطرفين على إدراك أن المحادثة تنتهي. بعد حديث مع شخص تتوقع رؤيته مجددًا،
+      يمكنك قول تعليق ودي ثم وداعه، فتغادر دون قطع الحديث فجأة.
+    examples:
+      - text: It was good to talk. See you tomorrow.
+        meaning: تنظر `It was good to talk` إلى المحادثة بإيجابية. و`See you tomorrow` عبارة وداع قصيرة تذكر
+          اللقاء المقبل. تُفهم الكلمات المحذوفة من السياق؛ فلا حاجة إلى جملة كاملة في كل مرة.
+        note: >-
+          ابدأ بتحية مثل `Hello, how are you?`، واختم بوداع. تلائم `See you tomorrow` لقاءً متوقعًا
+          غدًا. إذا لم يُعرف الوقت، تكون `See you later` أقل تحديدًا.
+
+
+          **جرّب.** اختم محادثة عندما يكون لقاؤكما القادم يوم الجمعة. الإجابة: `It was good to talk.
+          See you on Friday`. تحدد `On Friday` اليوم الفعلي، بينما تعني `tomorrow` اليوم التالي.
+  - subskill_id: acknowledging
+    explanation: يُظهر الإقرارُ للمتحدث أن رسالته وصلتك. بعد أن يشرح لك شخص مكان استلام طرد، يمكن لرد
+      قصير أن يبيّن أنك فهمت الإرشادات وأنه يستطيع المتابعة أو إنهاء الحديث.
+    examples:
+      - text: Right, I understand.
+        meaning: تدل `Right` هنا على تلقّي الشرح. وتقول `I understand` إن معناه واضح لك. وتقر العبارتان بما
+          قيل للتو من غير تكرار الشرح كله.
+        note: >-
+          يختلف الفهم عن الموافقة. يمكنك قول `I understand, but I disagree` عندما يكون المعنى واضحًا
+          لكنك لا تشاطر الرأي. وإذا بقي لديك شك، فاطرح سؤالًا محددًا بدل التظاهر بالفهم.
+
+
+          **جرّب.** يشرح لك شخص أن طردك في مكتب الاستقبال. أكّد التفصيل: `Right, I understand. I’ll
+          collect it at reception`. يتيح تكرار المكان المهم له تصحيحك إن لزم.
+  - subskill_id: clarification
+    explanation: يساعد طلب التوضيح على سد فجوة في الفهم أثناء المحادثة. قد تحتاج إلى تكرار ما فاتك، أو
+      شرح كلمة غير مألوفة، أو التعبير عن الفكرة نفسها بطريقة أخرى. تحدد صياغة سؤالك نوع المساعدة
+      التي تحتاج إليها.
+    examples:
+      - text: What do you mean by the second option?
+        meaning: "**كيف تعمل الصيغة.** تسأل `Mean by` عن معنى تعبير في استعمال المتحدث الآخر. وتعيد `The
+          second option` الجزء غير الواضح. قد يكون الرد المفيد `I mean taking the train instead of
+          the bus`، وهو يقدّم التفصيل الناقص."
+        note: >-
+          **اختر المساعدة التي تحتاجها.** إذا لم تسمع الكلمات، فاسأل `Could you repeat the last
+          part?` وإذا كان لديك تفسير محتمل، فتحقق منه: `Do you mean taking the train?` يتيح ذلك
+          للطرف الآخر تأكيد فهمك أو تصحيحه.
+
+
+          **جرّب.** يقول شخص `Use the usual entrance`، لكنك لا تعرف أي مدخل يقصد. إجابة ممكنة: `What
+          do you mean by the usual entrance?` إن تكرار العبارة غير الواضحة يجعل السؤال محددًا.
+  - subskill_id: rephrasing
+    explanation: تفيد إعادة الصياغة عندما يصعب متابعة شرحك الأول. افترض أنك شرحت جدولًا زمنيًا، لكن
+      صديقك لم يفهم بعد ماذا يعني ذلك لموعد مغادرتكما. أعد ذكر النقطة العملية بكلمات أبسط.
+    examples:
+      - text: In other words, we need to leave before lunch.
+        meaning: تشير `In other words` إلى طريقة أخرى للتعبير عن الفكرة نفسها. وتذكر `We need to leave` ما
+          ينبغي فعله، وتحدد `before lunch` موعده. تجعل الجملة الجديدة الشرح السابق أسهل استعمالًا.
+        note: >-
+          أعد صياغة المعنى، لا كلمة صعبة واحدة فقط. إذا غيّرت الخطة فعلًا، فقل ذلك: `Actually, let’s
+          leave after lunch`. فهذا قرار جديد وليس صياغة أخرى للقرار القديم.
+
+
+          **جرّب.** وضّح لزائر العبارة `The last entry is at four`. إجابة ممكنة: `In other words, we
+          need to arrive by four`. تحدد `By four` آخر موعد للوصول.
+  - subskill_id: correcting_misunderstanding
+    explanation: يستبدل التصحيحُ تفصيلًا خاطئًا بالتفصيل الذي قصدته. إذا كرر صديقك الخميس بعدما قلت
+      الثلاثاء، فاذكر اليومين كي يظهر الفرق. غالبًا ما يكون التصحيح القصير أنفع من إعادة المحادثة
+      كلها.
+    examples:
+      - text: I meant Tuesday, not Thursday.
+        meaning: تشير `I meant` إلى المعنى الذي قصدته؛ و`meant` صيغة الماضي من `mean`. تذكر `Tuesday` اليوم
+          الصحيح، وتستبعد `not Thursday` اليوم الذي فهمه صديقك.
+        note: >-
+          تصلح `I meant Tuesday` الرسالة. أما `I’ve changed it to Tuesday` فتقول إن الخطة نفسها
+          تغيّرت. إذا سببتَ الالتباس، يمكنك إضافة `Sorry, I meant Tuesday` من غير إخفاء التصحيح.
+
+
+          **جرّب.** سمع صديقك الرقم خمسة عشر، لكنك قلت خمسين. الإجابة: `I meant fifty, not fifteen`.
+          اذكر الرقم المقصود أولًا، ثم ارفض الرقم الخاطئ صراحةً.
+  - subskill_id: turns_topics
+    explanation: قد تنتقل المحادثة إلى موضوع آخر قبل أن تسأل عما تحتاج إلى معرفته. في اجتماع، يمكنك
+      الإشارة إلى أنك تريد دورًا قصيرًا في الموضوع الحالي. يساعد ذلك المجموعة على فهم سبب مقاطعتك.
+    examples:
+      - text: Before we move on, can I ask about the price?
+        meaning: تشير `Before we move on` إلى الانتقال عن الموضوع الحالي. وتطلب `Can I ask` مساحةً للكلام،
+          وتحدد `about the price` موضوع السؤال. تعني `Move on` هنا متابعة النقاش، لا الانتقال
+          الجسدي.
+        note: >-
+          للانتقال إلى موضوع جديد، تشير `By the way, how was your trip?` إلى التغيير. وللبقاء في
+          الموضوع الحالي، سمّ النقطة غير المحسومة. انتظر توقفًا مناسبًا إن أمكن؛ فالعبارة وحدها لا
+          تجعل كل مقاطعة مرحبًا بها.
+
+
+          **جرّب.** اطلب مناقشة التوصيل قبل أن تغيّر المجموعة الموضوع. الإجابة: `Before we move on,
+          can I ask about delivery?` تبيّن تسمية التوصيل سبب طلبك للدور.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - dingemanse2015_communication_repair
+        - bcCheckingUnderstandingTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

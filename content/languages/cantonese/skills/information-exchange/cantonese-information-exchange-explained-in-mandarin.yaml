@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: information_exchange
+explanation_language: mandarin
+shared_explanation: skills/information-exchange/information-exchange-explained-in-mandarin.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 去商店前，你需要知道它几点关门。`幾點` 放在时间短语的位置，询问缺少的钟点；商店仍放在句首。
+    examples:
+      - text: 間舖頭幾點閂門？
+        meaning: 商店几点关门？`間舖頭` 指那家商店；量词 `間` 可以指明正在谈的营业场所。`幾點` 问具体时刻，`閂門` 在这里表示关门或结束营业。问句没有先提出某个关门时间。
+        note: 试一试：问商店几点开门。答案：`間舖頭幾點開門？` 把 `閂門` 换成 `開門`。可能的回答是 `六點` 或 `六點開門`；时间填入问句中 `幾點` 的位置，不必改用另一套问句语序。
+  - subskill_id: answering_information
+    explanation: 对方刚问商店什么时候关门。既然商店和关门动作已由问句说明，单说钟点就是完整的对话回答。
+    examples:
+      - text: 六點。
+        meaning: 六点。`六` 是数字六，`點` 表示钟点。更完整的回答是 `間舖頭六點閂門`。若不说上午或下午，听话人须根据对话判断指哪个六点。
+        note: 试一试：回答关门时间是六点半。答案：`六點半。` `半` 在六点后加半小时。要更准确，可说 `下晝六點半`，指下午六点半。`六個鐘` 是六个小时的时长，不能回答要求具体钟点的问题。
+  - subskill_id: checking_facts
+    explanation: 你记得商店六点关门，想请人确认。前面的陈述给出你认为的时间，后面的 `係咪呀` 邀请对方确认或纠正。
+    examples:
+      - text: 間舖頭六點閂門，係咪呀？
+        meaning: 商店六点关门，对吧？`間舖頭六點閂門` 把已知商店放在拟定的时间和动作前。`係咪` 是 `係唔係` 的常见缩略说法，意为是不是；句末的 `呀` 使问句符合日常对话语气。
+        note: 试一试：核实七点关门。答案：`間舖頭七點閂門，係咪呀？` 只改变待确认的时刻。纠正时可以说 `唔係，六點閂門。`，既否定原先的猜测，也说出正确时间，不让听话人继续猜。
+  - subskill_id: useful_detail
+    explanation: 有好几张桌子可用，因此说出窗边那张，指示才足够明确。位置描述放在选定具体桌子的短语之前。
+    examples:
+      - text: 用窗口旁邊嗰張枱。
+        meaning: 用窗边那张桌子。`用` 指使用，`窗口旁邊` 表示窗户旁边，`嗰張枱` 指那张桌子。`張` 是这里计量桌子的量词。位置和指示词合起来，把它与其他桌子区分开。
+        note: 试一试：改选门口旁边的桌子。答案：`用門口旁邊嗰張枱。` 把地标换成 `門口`。`嗰張枱` 选出一张桌子；`嗰啲枱` 则指那几张桌子，复数一组用 `啲`。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

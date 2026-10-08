@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: feelings_viewpoints
+language: spanish
+explanation_language: french
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-french.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Après une journée chargée, vous pouvez souhaiter du repos plutôt qu’une autre activité. `Querer`
+      suivi d’un infinitif exprime ce que vous voulez faire vous-même. Cela nomme un désir ; la phrase seule
+      ne promet pas que vous passerez à l’action.
+    examples:
+      - text: Quiero descansar.
+        meaning: « Je veux me reposer. » `Quiero` indique le désir de la personne qui parle, et `descansar` nomme
+          l’activité. Seul le premier verbe change selon la personne ; l’activité reste à l’infinitif.
+        note: >-
+          **Adaptez.** `Ella quiere descansar` décrit le souhait d’une autre personne. `Voy a descansar`
+          présente plutôt le repos comme un projet. Ne conjuguez pas les deux verbes comme dans `quiero
+          descanso`.
+
+
+          **À vous.** Dites que vous voulez manger avec `comer`. Réponse : `Quiero comer`. Gardez `quiero`
+          pour « je » et remplacez l’infinitif.
+  - subskill_id: preferences
+    explanation: Parler des livres que vous aimez aide l’autre personne à connaître vos goûts. Avec `gustar`,
+      l’espagnol organise la phrase autour de la chose qui plaît ; un pronom indique la personne à qui elle
+      plaît. Le verbe s’accorde avec la chose aimée.
+    examples:
+      - text: Me gustan estos libros.
+        meaning: « J’aime ces livres. » `Me` désigne la personne à qui ils plaisent. `Gustan` est au pluriel parce que
+          `estos libros`, ces livres, est pluriel. Les livres sont le sujet grammatical, même si la traduction
+          française commence par « je ».
+        note: >-
+          **Adaptez.** `Me gusta este libro` désigne un livre, donc le verbe est au singulier. `Me gusta leer`
+          signifie que vous aimez lire ; une activité à l’infinitif prend aussi le singulier `gusta`.
+
+
+          **À vous.** Dites que vous aimez ces films avec `estas películas`. Réponse : `Me gustan estas
+          películas`. Accordez `gustan` avec les films au pluriel, pas avec `me`.
+  - subskill_id: emotions
+    explanation: Si un ami vous demande comment vous vous sentez, un adjectif avec `estar` peut nommer votre état
+      émotionnel. L’adjectif s’accorde avec la personne qui ressent l’émotion. Ici, la personne qui parle est
+      contente.
+    examples:
+      - text: Estoy contenta.
+        meaning: « Je suis contente. » `Estoy` renvoie à l’état de la personne qui parle. `Contenta` est l’adjectif
+          féminin singulier ; pour l’accord masculin, on dit `contento`. La terminaison décrit la personne, et
+          non la cause de sa joie.
+        note: >-
+          **Comparez.** `Estoy triste` exprime la tristesse ; `triste` a la même forme pour l’accord masculin
+          et féminin. `Soy una persona alegre` décrit un tempérament joyeux au lieu de rapporter simplement un
+          sentiment actuel.
+
+
+          **À vous.** Utilisez l’accord masculin pour dire que vous êtes content. Réponse : `Estoy contento`.
+          Changez la terminaison de l’adjectif en gardant `estoy`.
+  - subskill_id: opinions
+    explanation: Quand vous discutez d’un projet, vous pouvez donner votre jugement sans le présenter comme l’avis
+      de tout le monde. `Creo que` introduit ce que vous pensez. La proposition qui suit contient l’opinion
+      elle-même, par exemple si l’idée proposée est bonne.
+    examples:
+      - text: Creo que es una buena idea.
+        meaning: « Je pense que c’est une bonne idée. » `Creo` signifie « je pense », `que` le relie à l’opinion, et
+          `es una buena idea` évalue la proposition. `Buena` s’accorde avec le nom féminin `idea`.
+        note: >-
+          **Adaptez.** `Creo que es una mala idea` change l’évaluation. Pour exprimer le doute plutôt que la
+          conviction, dites `No creo que sea una buena idea`. Dans cette expression du doute, employez le
+          subjonctif `sea` plutôt que `es`.
+
+
+          **À vous.** Dites que vous pensez que c’est utile avec `útil`. Réponse : `Creo que es útil`. Gardez
+          `que` pour relier la proposition d’opinion.
+  - subskill_id: agreement_disagreement
+    explanation: Deux personnes peuvent comprendre une proposition et néanmoins avoir des opinions différentes.
+      `Estar de acuerdo` exprime l’accord ; placer `no` avant le verbe exprime le désaccord. Cette formule
+      répond au point de vue discuté.
+    examples:
+      - text: No estoy de acuerdo.
+        meaning: « Je ne suis pas d’accord. » `No` nie `estoy`, qui renvoie à la personne qui parle. `De acuerdo` est
+          la formule de l’accord. La phrase indique que votre position diffère sans en donner à elle seule la
+          raison.
+        note: >-
+          **Adaptez.** `Estoy de acuerdo contigo` signifie que vous êtes d’accord avec votre interlocuteur.
+          `No estoy de acuerdo con el plan` nomme le projet que vous rejetez. Gardez `de` dans la formule et
+          utilisez `con` pour introduire la personne ou la proposition.
+
+
+          **À vous.** Dites que vous êtes d’accord avec le projet en utilisant `el plan`. Réponse : `Estoy de
+          acuerdo con el plan`. Enlevez `no` et ajoutez ce avec quoi vous êtes d’accord.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

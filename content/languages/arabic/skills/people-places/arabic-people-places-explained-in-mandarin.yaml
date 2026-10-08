@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: people_places
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 介绍一位邻居，是把眼前这个人与你们的关系连起来。表达“这是我的邻居”时，不需要独立的现在时“是”。
+    examples:
+      - text: هٰذِهِ جَارَتِي.
+        meaning: "**例句。** 这是我的女邻居。`هٰذِهِ` 是指阴性对象的“这”。`جَارَتِي` 意为我的女邻居：名词表明她与你的关系，附着的词尾意为“我的”。指示词与名词合起来就是完整介绍。"
+        note: 若是男邻居，指示词和名词都要变化。试一试：介绍你的男邻居。答案：`هٰذَا جَارِي`。`هٰذَا` 指向他，`جَارِي` 给出关系；附着的“我的”词尾仍保留。
+  - subskill_id: qualities_states
+    explanation: 别人问一条路好不好通行时，描述宽窄就是有用的信息。这个句子说明道路的性质，而不只是给道路命名。
+    examples:
+      - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
+        meaning: "**例句。** 这条路很窄。`هٰذَا الطَّرِيقُ` 意为这条路。`ضَيِّقٌ` 意为狭窄，提供描述。现在时不另加“是”。在带完整元音标记的写法中，路及其谓语在这里都带主格词尾。"
+        note: 比较 `الطَّرِيقُ الضَّيِّقُ`，意为那条窄路：给形容词加定冠词，会组成名词短语，而不是这里完整的描述。试一试：哪个词使句子成为性质描述？答案：`ضَيِّقٌ`，说出路是什么样的。
+  - subskill_id: location_movement
+    explanation: 有人在找钥匙。说明位置能告诉对方它现在在哪里，并不是请对方把钥匙送往某处。
+    examples:
+      - text: الْمِفْتَاحُ فِي الْبَيْتِ.
+        meaning: "**例句。** 钥匙在屋里。`الْمِفْتَاحُ` 是钥匙。`فِي` 意为在里面，`الْبَيْتِ`
+          是房子。地点短语不用独立的现在时“是”，就能说出钥匙的位置。带完整元音标记时，`فِي` 后名词用属格词尾。"
+        note: 把地点换成意为在办公室的 `فِي الْمَكْتَبِ`，即可调整答案。位置与目的地不同：这里没有去或搬运的动作。试一试：说钥匙在办公室。答案：`الْمِفْتَاحُ فِي
+          الْمَكْتَبِ`，保留物品，改变地点。
+  - subskill_id: possession_relations
+    explanation: 你在确认自己能提供几把椅子。阿拉伯语可通过说东西“在你这里”来表达拥有；椅子名词本身也能标出数量为二。
+    examples:
+      - text: عِنْدِي كُرْسِيَّانِ.
+        meaning: "**例句。** 我有两把椅子。`عِنْدِي` 意为我有，字面上是“在我这里”；这个表达里的词尾指我。`كُرْسِيَّانِ` 意为两把椅子，使用双数词尾。这里不需要另说一个“二”。"
+        note: 这里的双数是主格，以 `ـانِ` 结尾。别的语法位置用不同双数词尾，不能到处都加这一种。试一试：数字二在哪里表达？答案：在 `كُرْسِيَّانِ` 里面；`عِنْدِي` 指出谁拥有它们。
+  - subskill_id: quantity_comparison
+    explanation: 选搬哪个箱子时，重量可能是关键。比较会说出被评价的箱子，以及作为参照的另一只。
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
+        meaning: "**例句。** 这个箱子比那个轻。`هٰذَا الصُّنْدُوقُ` 指这个箱子。`أَخَفُّ` 意为更轻；`مِنْ ذٰلِكَ`
+          意为比那个。第二个指示词代指眼前或前面提到的箱子，所以不必重复名词。"
+        note: 在参照对象前保留 `مِنْ`。试一试：反过来说那个箱子比这个轻。答案：`ذٰلِكَ الصُّنْدُوقُ أَخَفُّ مِنْ هٰذَا`。第一个箱子是被判断为较轻的，`مِنْ`
+          后的指示词说出参照对象。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahDualTeaching20261007
+    - madinahDemonstrativesTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: identification
+      explanation: 介绍一位邻居，是把眼前这个人与你们的关系连起来。表达“这是我的邻居”时，不需要独立的现在时“是”。
+      examples:
+        - text: هَايْ جَارْتِي.
+          meaning: "**例句。** 这是我的女邻居。`هَايْ` 指附近的阴性对象；`جَارْتِي` 意为我的女邻居。物主词尾仍附在名词上。句子是在介绍这个人，而不是描述她在做什么。"
+          note: 这些指示词是南部形式，也有地方变体。试一试：按这个范例介绍男邻居。答案：`هَادْ جَارِي`。把 `هَايْ` 换成 `هَادْ`，女邻居名词改为阳性形式，保留“我的”词尾。
+    - subskill_id: qualities_states
+      explanation: 别人问一条路好不好通行时，描述宽窄就是有用的信息。这个句子说明道路的性质，而不只是给道路命名。
+      examples:
+        - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+          meaning: "**例句。** 这条路很窄。`هَادْ` 意为这，`الطَّرِيقْ` 是路，`ضَيِّقْ` 是窄。把道路与形容词直接连起来，就形成现在时描述。新信息是形容词，不是道路名称的一部分。"
+          note: "`الطَّرِيقْ الضَّيِّقْ` 意为那条窄路：名词和形容词都带定冠词。例句中的描述形容词没有冠词。试一试：例句是在叫你移动吗？答案：不是；它描述宽度，没有移动动词。"
+    - subskill_id: location_movement
+      explanation: 有人在找钥匙。说明位置能告诉对方它现在在哪里，并不是请对方把钥匙送往某处。
+      examples:
+        - text: الْمِفْتَاحْ بِالْبَيْتْ.
+          meaning: "**例句。** 钥匙在屋里。`الْمِفْتَاحْ` 指钥匙。`بِالْبَيْتْ` 把附着介词 `بِـ` 与房子结合，这里表示在屋里。无需独立的现在时“是”；地点就补足了陈述。"
+          note: 办公室里用 `بِالْمَكْتَبْ`。换地点时保留附着介词。试一试：要换一个位置，应替换哪部分？答案：`بِالْبَيْتْ`；钥匙仍是被定位的东西。
+    - subskill_id: possession_relations
+      explanation: 你在确认自己能提供几把椅子。阿拉伯语可通过说东西“在你这里”来表达拥有；椅子名词本身也能标出数量为二。
+      examples:
+        - text: عِنْدِي كُرْسِيَّيْنْ.
+          meaning: "**例句。** 我有两把椅子。`عِنْدِي` 意为我有。`كُرْسِيَّيْنْ` 是两把椅子，带口语双数词尾。数量体现在椅子上；`عِنْدِي` 的词尾指出持有者。"
+          note: 一把椅子可说 `عِنْدِي كُرْسِي`。数量改为一时，不能仍保留双数词尾。试一试：把两把椅子改为一把。答案：用 `كُرْسِي` 取代 `كُرْسِيَّيْنْ`；拥有表达不变。
+    - subskill_id: quantity_comparison
+      explanation: 选搬哪个箱子时，重量可能是关键。比较会说出被评价的箱子，以及作为参照的另一只。
+      examples:
+        - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+          meaning: "**例句。** 这个箱子比那个轻。`هَادْ الصُّنْدُوقْ` 指这个箱子。`أَخَفّ` 意为更轻，`مِنْ هَدَاكْ`
+            意为比那个。近处的“这”和较远的“那”让人不必重复箱子一词，就能比较两个东西。"
+          note: 在参照对象前保留 `مِنْ`。试一试：说那个箱子比这个轻。答案：`هَدَاكْ الصُّنْدُوقْ أَخَفّ مِنْ هَادْ`。对换指示词就反转比较，形容词和关系词不变。

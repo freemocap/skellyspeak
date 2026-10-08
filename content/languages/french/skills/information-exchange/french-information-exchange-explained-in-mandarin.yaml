@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: information_exchange
+language: french
+explanation_language: mandarin
+shared_explanation: skills/information-exchange/information-exchange-explained-in-mandarin.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 出门去商店前，你需要知道它几点关门。`À quelle heure` 询问时刻；`est-ce que` 标出问句，`le magasin ferme` 意为商店关门。`est-ce que`
+      后面，主语仍在动词前。`À quelle heure est-ce que le train arrive ?` 用同一句式询问另一件事。`Est-ce que le magasin ferme à six
+      heures ?` 则先提出六点，要求确认，而不是开放地询问时间。
+    examples:
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: 商店几点关门？
+        note: 问商店几点开门。`À quelle heure est-ce que le magasin ouvre ?` 可用：`ouvre` 把关门改成开门，问句仍在询问具体时刻。
+  - subskill_id: answering_information
+    explanation: 商店关门时间已是话题，因此一个时间短语就能回答，无需重复整个问句。`À dix-huit heures` 表示十八点，也就是下午六点。`À` 引出时刻，`heures`
+      用复数，因为数字是十八。完整回答可以是 `Le magasin ferme à dix-huit heures.`。时间表或准确约定中，二十四小时制可避免早晚混淆。这里的 `Dix-huit heures`
+      指一天中的时刻，不是持续十八小时。
+    examples:
+      - text: À dix-huit heures.
+        meaning: 晚上六点。
+        note: 改答晚上七点。双方都知道在问关门时间时，`À dix-neuf heures.` 就够了。`Dix-neuf` 在二十四小时制中是十九点。
+  - subskill_id: checking_facts
+    explanation: 你以为约会在星期四，写进日历前想核实。`Le rendez-vous` 指这次约会，`bien jeudi` 把星期四作为待确认的信息。这里 `bien`
+      加强拟定事实，并不是“好”的意思。`C’est ça ?` 问是否正确。不同于开放式问句 `Quel jour est le rendez-vous
+      ?`，这个句式明确说出你目前相信的日期，对方可以确认或纠正。
+    examples:
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: 约会是星期四，对吗？
+        note: 核实约会是否在星期二。`Le rendez-vous est bien mardi, c’est ça ?` 可用，因为待确认的日期换成星期二，确认句式不变。
+  - subskill_id: useful_detail
+    explanation: 访客在找一家特定的咖啡馆，两个地标可以帮对方找到。`Le café que tu cherches` 意为你在找的咖啡馆：`que` 代指咖啡馆，是 `cherches` 的宾语，寻找的人是
+      `tu`。`Au deuxième étage` 给出二楼，`près de l’escalier` 补充在楼梯附近。`Au` 由 `à` 和 `le` 合成。若是咖啡馆自身提供餐食，可以说 `le café
+      qui sert des repas`：`qui` 是动作的执行者，`que` 则是承受动作的对象。
+    examples:
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: 你找的咖啡馆在二楼，楼梯附近。
+        note: 改说在三楼。`Le café que tu cherches est au troisième étage, près de l’escalier.` 可用：`troisième` 改变楼层，`que tu
+          cherches` 仍明确指出哪家咖啡馆。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - texRelativeTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oqlf_questions2026
+        - texQuestionsTeaching20261007
+        - texRelativeTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oqlf_questions2026
+        - texQuestionsTeaching20261007
+        - texRelativeTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.

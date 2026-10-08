@@ -17,7 +17,7 @@ import { useNavigationStore } from '../../state/navigation/navigation'
 import { ConversationStart } from './session/ConversationStart'
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
 import { DifficultySelect } from '../../components/controls/DifficultySelect'
-import { ConversationHeader } from './session/ConversationHeader'
+import { ConversationHeader, type DifficultyPlace } from './session/ConversationHeader'
 import { ConversationSettings } from './session/ConversationSettings'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { NewPersonaDialog } from './partners/NewPersonaDialog'
@@ -152,6 +152,7 @@ export default function ConversationPage({
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [difficultyPlace, setDifficultyPlace] = useState<DifficultyPlace>('header')
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
 
@@ -803,8 +804,9 @@ export default function ConversationPage({
       </section>
   )
 
-  // The difficulty select sits beside the partner while the header has room for
-  // it. A narrow header is one row, so there it leads the settings sheet instead.
+  // The difficulty select sits beside the partner whenever the header has room
+  // for it. The header measures its own room and says when the select has to
+  // lead the settings sheet instead; it is never wrapped onto a second row.
   const difficultyControl = details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />
 
   return (
@@ -831,11 +833,11 @@ export default function ConversationPage({
             aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}><ToolbarIcon name="menu" size={17} /></button>}
           persona={<PersonaPicker choices={contactChoices} currentId={activeContactId} open={partnerMenuOpen} onOpenChange={setPartnerMenuOpen}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}
-          difficulty={isMobile ? undefined : difficultyControl}>
+          difficulty={difficultyControl} onDifficultyPlace={setDifficultyPlace}>
           <div className="chat-heading-actions">
           <XpChip chatId={currentChatId} onOpen={openProgress} />
           <ConversationSettings summary={settings?.auto_speak ? tr("Reading aloud") : undefined} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
-            nativePicker={nativePicker} difficulty={isMobile ? difficultyControl : undefined} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
+            nativePicker={nativePicker} difficulty={difficultyPlace === 'settings' ? difficultyControl : undefined} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
             promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />} />
           <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /></button>
           </div>

@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: possibilities_constraints
+explanation_language: mandarin
+title: 可能性与限制
+introduction: 谈论人们能做什么、哪些事被允许或必须做，以及事情是否可能或尚未确定。
+sections:
+  - subskill_id: ability
+    title: 能力
+    concept: 谈论某人能够做什么。
+  - subskill_id: permission
+    title: 许可
+    concept: 询问或说明某个行动是否被允许。
+  - subskill_id: obligation
+    title: 义务与必要性
+    concept: 说明某人需要做什么，或必须做什么。
+  - subskill_id: possibility
+    title: 可能性
+    concept: 说明某事有可能发生，但不声称它一定会发生。
+  - subskill_id: certainty
+    title: 确定与不确定
+    concept: 清楚表达自己对某件事有多大把握。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English learner-facing concepts. Skill
+    identities and assessment criteria are unchanged; independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: Learner-facing Mandarin title, introduction and section concepts; copied source keys support the
+      original concepts and do not certify the translation.

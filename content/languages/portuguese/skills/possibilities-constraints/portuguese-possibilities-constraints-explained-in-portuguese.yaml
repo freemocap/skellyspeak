@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-portuguese-2026-10-07
+language: portuguese
+skill_id: possibilities_constraints
+explanation_language: portuguese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: ability
+    explanation: "Um vizinho pergunta se você sabe reparar uma bicicleta. `Sei consertar uma bicicleta`
+      diz que você tem esse conhecimento prático: `sei` é a primeira pessoa do presente de `saber`,
+      e o infinitivo `consertar` nomeia a ação aprendida. `Uma bicicleta` é o objeto do conserto. Em
+      contraste, `Sei onde está a bicicleta` indicaria que você conhece um fato sobre sua
+      localização."
+    examples:
+      - text: Sei consertar uma bicicleta.
+        meaning: Tenho o conhecimento necessário para consertar uma bicicleta.
+        note: Diga que sabe consertar um rádio. `Sei consertar um rádio.` expressa a capacidade de forma
+          completa; o infinitivo depois de `sei` nomeia o que você sabe fazer.
+  - subskill_id: permission
+    explanation: Você está em um espaço de trabalho compartilhado e pergunta à pessoa responsável sobre
+      uma mesa. `Posso usar esta mesa?` usa `posso`, primeira pessoa do presente de `poder`, mais o
+      infinitivo `usar` para pedir autorização. `Esta mesa` aponta para a mesa em questão. Aqui, a
+      outra pessoa pode conceder ou negar o acesso, então a pergunta pede permissão. Em outra
+      situação, o mesmo verbo modal poderia perguntar por uma possibilidade prática.
+    examples:
+      - text: Posso usar esta mesa?
+        meaning: Tenho permissão para usar esta mesa?
+        note: Peça permissão para usar esta cadeira. `Posso usar esta cadeira?` é uma pergunta completa
+          dirigida a quem pode autorizar o uso; `cadeira` substitui `mesa`, e `esta` continua
+          concordando com um substantivo feminino.
+  - subskill_id: obligation
+    explanation: "O prazo para devolver os livros da biblioteca termina hoje. `Tenho que devolver os
+      livros hoje` apresenta uma obrigação: `tenho` concorda com quem fala, `que` o liga ao
+      infinitivo `devolver` e `hoje` informa o prazo. Isso não quer dizer que os livros já tenham
+      sido devolvidos. `Não preciso devolver hoje` diz que não há necessidade hoje; não proíbe a
+      devolução. O elemento de ligação `que` faz parte dessa construção com `ter que`."
+    examples:
+      - text: Tenho que devolver os livros hoje.
+        meaning: É necessário que eu devolva os livros hoje.
+        note: Diga que deve devolver os livros amanhã. `Tenho que devolver os livros amanhã.` é uma
+          obrigação completa; `amanhã` muda o prazo, enquanto `tenho que devolver` permanece junto.
+  - subskill_id: possibility
+    explanation: Você está fazendo um plano ao ar livre, e a chuva é incerta. `É possível que chova
+      amanhã` apresenta a chuva de amanhã como uma possibilidade. `É possível que` introduz o
+      acontecimento incerto, e `chova` é o presente do subjuntivo de `chover` nessa construção;
+      `amanhã` indica o tempo futuro. `Está chovendo` informaria chuva em andamento agora, não uma
+      possibilidade.
+    examples:
+      - text: É possível que chova amanhã.
+        meaning: Talvez chova amanhã.
+        note: Diga que a biblioteca pode fechar amanhã. `É possível que a biblioteca feche amanhã.` é uma
+          afirmação completa de possibilidade; `feche` é usado depois de `é possível que` para o
+          fechamento incerto.
+  - subskill_id: certainty
+    explanation: "Antes de sair, você não sabe se a biblioteca está aberta. `Não sei se a biblioteca
+      está aberta` expressa esse limite de conhecimento: `não sei` indica desconhecimento, `se`
+      introduz uma pergunta indireta de sim ou não e `está aberta` descreve o estado de abertura. A
+      questão continua sem resposta, então quem fala não afirma que a biblioteca esteja fechada.
+      Esse `se` difere de uma condição futura como `Se chover, fico em casa`."
+    examples:
+      - text: Não sei se a biblioteca está aberta.
+        meaning: Não sei dizer se a biblioteca está aberta.
+        note: Diga que não sabe se a biblioteca está fechada. `Não sei se a biblioteca está fechada.`
+          expressa a incerteza de forma completa; `fechada` muda o estado sobre o qual há dúvida.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; sources support original guidance, not independent validation
+      of this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

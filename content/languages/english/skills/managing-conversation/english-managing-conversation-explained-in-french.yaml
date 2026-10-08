@@ -1,0 +1,135 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-french-2026-10-07
+skill_id: managing_conversation
+language: english
+explanation_language: french
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-french.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Une formule de clôture aide les deux personnes à comprendre que la conversation se termine. Après
+      avoir parlé avec quelqu’un que vous comptez revoir, un commentaire aimable suivi d’un au revoir permet
+      de partir sans interrompre brusquement l’échange.
+    examples:
+      - text: It was good to talk. See you tomorrow.
+        meaning: "`It was good to talk` évoque positivement la conversation passée. `See you tomorrow` est une brève
+          formule de départ qui mentionne la prochaine rencontre. Les mots omis se comprennent dans le
+          contexte : il n’est pas toujours nécessaire de former une phrase complète."
+        note: >-
+          Pour commencer, utilisez une salutation comme `Hello, how are you?` ; pour finir, une formule de
+          départ. `See you tomorrow` convient si vous prévoyez de vous revoir demain. Si le moment reste
+          inconnu, `See you later` est moins précis.
+
+
+          **À vous.** Terminez une conversation si votre prochaine rencontre est vendredi. Réponse : `It was
+          good to talk. See you on Friday`. `On Friday` donne le véritable jour, tandis que `tomorrow`
+          désignerait le lendemain.
+  - subskill_id: acknowledging
+    explanation: Accuser réception montre à l’autre personne que son message vous est parvenu. Après des
+      explications sur l’endroit où retirer un colis, une réponse brève peut montrer que vous avez suivi les
+      indications et qu’elle peut poursuivre ou conclure.
+    examples:
+      - text: Right, I understand.
+        meaning: Dans cette situation, `Right` marque que vous avez reçu l’explication. `I understand` dit que son
+          sens vous est clair. Ensemble, ces expressions reconnaissent ce qui vient d’être dit sans répéter
+          toute l’explication.
+        note: >-
+          Comprendre et approuver sont deux choses différentes. Vous pouvez dire `I understand, but I
+          disagree` si le sens est clair, mais que vous ne partagez pas l’avis. Si vous avez encore un doute,
+          posez une question précise au lieu de prétendre avoir compris.
+
+
+          **À vous.** On vous explique que votre colis est à l’accueil. Confirmez le détail : `Right, I
+          understand. I’ll collect it at reception`. Répéter le lieu essentiel permet à l’autre personne de
+          vous corriger si nécessaire.
+  - subskill_id: clarification
+    explanation: Une demande de clarification répare un manque de compréhension pendant une conversation. Vous
+      pouvez demander de répéter ce que vous avez manqué, d’expliquer un mot inconnu ou de reformuler une
+      idée. La formulation de votre question indique le type d’aide nécessaire.
+    examples:
+      - text: What do you mean by the second option?
+        meaning: "**Fonctionnement.** `Mean by` demande dans quel sens l’autre personne emploie une expression. `The
+          second option` reprend la partie obscure. Une réponse utile pourrait être `I mean taking the train
+          instead of the bus` : elle fournit le détail manquant."
+        note: >-
+          **Choisissez l’aide nécessaire.** Si vous n’avez pas bien entendu, demandez `Could you repeat the
+          last part?` Si vous avez une interprétation possible, vérifiez-la avec `Do you mean taking the
+          train?` Votre partenaire pourra ainsi confirmer ou corriger votre compréhension.
+
+
+          **À vous.** On vous dit `Use the usual entrance`, mais vous ignorez de quelle entrée il s’agit. Une
+          réponse possible : `What do you mean by the usual entrance?` Reprendre l’expression obscure rend la
+          question précise.
+  - subskill_id: rephrasing
+    explanation: La reformulation aide lorsque votre première explication était difficile à suivre. Supposons que
+      vous ayez expliqué un horaire, mais que votre ami ne voie toujours pas ce qu’il implique pour votre
+      départ. Exprimez la conséquence pratique avec des mots plus simples.
+    examples:
+      - text: In other words, we need to leave before lunch.
+        meaning: "`In other words` annonce une autre façon de dire la même chose. `We need to leave` énonce la
+          nécessité, et `before lunch` en précise le moment. La nouvelle phrase rend l’explication précédente
+          plus facile à utiliser."
+        note: >-
+          Reformulez le sens, et pas seulement un mot difficile. Si vous changez réellement de projet,
+          dites-le : `Actually, let’s leave after lunch`. Cette phrase annonce une nouvelle décision, et non
+          une autre version de l’ancienne.
+
+
+          **À vous.** Rendez `The last entry is at four` plus clair pour un visiteur. Une réponse possible :
+          `In other words, we need to arrive by four`. `By four` indique l’heure limite d’arrivée.
+  - subskill_id: correcting_misunderstanding
+    explanation: Une correction remplace un détail mal compris par celui que vous vouliez exprimer. Si votre ami
+      répète jeudi alors que vous avez dit mardi, nommez les deux jours pour rendre la différence claire. Une
+      correction brève est souvent plus utile que de reprendre toute la conversation.
+    examples:
+      - text: I meant Tuesday, not Thursday.
+        meaning: "`I meant` renvoie à ce que vous vouliez dire ; `meant` est le passé de `mean`. `Tuesday` donne le
+          bon jour, et `not Thursday` écarte celui que votre ami avait compris."
+        note: >-
+          `I meant Tuesday` corrige le message. `I’ve changed it to Tuesday` signifie que le projet lui-même a
+          changé. Si vous êtes à l’origine de la confusion, vous pouvez ajouter `Sorry, I meant Tuesday` sans
+          masquer la correction.
+
+
+          **À vous.** Votre ami a entendu quinze alors que vous avez dit cinquante. Réponse : `I meant fifty,
+          not fifteen`. Donnez d’abord le nombre voulu, puis rejetez explicitement le nombre mal compris.
+  - subskill_id: turns_topics
+    explanation: Une conversation avance parfois avant que vous ayez posé votre question. En réunion, vous pouvez
+      signaler que vous souhaitez intervenir brièvement sur le sujet en cours. Le groupe comprend ainsi
+      pourquoi vous prenez la parole à ce moment.
+    examples:
+      - text: Before we move on, can I ask about the price?
+        meaning: "`Before we move on` évoque le passage à un autre sujet. `Can I ask` demande la parole, et `about the
+          price` précise le sujet de la question. Ici, `Move on` signifie poursuivre la discussion, et non se
+          déplacer physiquement."
+        note: >-
+          Pour ouvrir un nouveau sujet, `By the way, how was your trip?` signale un changement. Pour rester
+          sur le sujet actuel, nommez le point non résolu. Attendez si possible une pause appropriée : la
+          formule seule ne rend pas toute interruption bienvenue.
+
+
+          **À vous.** Demandez à parler de la livraison avant que le groupe change de sujet. Réponse : `Before
+          we move on, can I ask about delivery?` Nommer la livraison explique l’intervention souhaitée.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - dingemanse2015_communication_repair
+        - bcCheckingUnderstandingTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

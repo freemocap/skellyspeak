@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: time_events
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 有人问你的朋友此刻在做什么。动作后面的 `緊` 表示活动正在进行，很适合描述你现在看到的阅读。
+    examples:
+      - text: 佢睇緊書。
+        meaning: 那个人正在读书。`佢` 指一个人，`睇` 可指阅读或看，`書` 指书，未特别说明数量。`緊` 放在 `睇` 与 `書` 中间。它描述动作的进行，不是动词因做事的人而发生变化。
+        note: 试一试：说朋友现在正在吃饭。答案：`佢食緊飯。` 把 `睇書` 换成 `食飯`，仍把 `緊` 放在动作后。`佢噚日呢個時候睇緊書` 描述昨天这个时候正在读书；过去的时间短语也能与同一体标记并用。
+  - subskill_id: past_events
+    explanation: 购物后，你报告昨天买了一本书。时间词把事件放在过去；`咗` 把购买呈现为已发生的事。
+    examples:
+      - text: 我噚日買咗本書。
+        meaning: 我昨天买了一本书。`我噚日` 给出人物和昨天。`買咗` 在这里表示买了，`咗` 跟在 `買` 后；`本書` 用量词 `本` 表示一本书。动作后不带数字的量词短语也可以引入一件物品。
+        note: 试一试：报告昨天买了两本书。答案：`我噚日買咗兩本書。` 把 `兩` 放在 `本` 前。若要说购买没有发生，`我噚日冇買書` 用 `冇` 并去掉已完成的 `咗`；只加普通否定词 `唔`
+          并不是通常的过去事件否定。
+  - subskill_id: future_events
+    explanation: 你已安排明天去图书馆。说出未来的日期，就能把计划表达清楚；移动动词不用变化，也不必强制加将来标记。
+    examples:
+      - text: 我聽日去圖書館。
+        meaning: 我明天去图书馆。`我` 是说话人，`聽日` 是明天，`去圖書館` 表示前往图书馆。日期放在 `去` 前。目的地跟在移动词后，不需要另加相当于英语 to 的词。
+        note: 试一试：把探访改到星期六。答案：`我星期六去圖書館。` 只改变日期。`我聽日會去圖書館` 也可以用 `會` 表示未来；这种说法可用，但并非只因探访在明天就必须加上。
+  - subskill_id: duration_frequency
+    explanation: 朋友问你多久去一次图书馆。在动作前给出固定时间间隔，动作后给出次数，就能说明频率；前文已谈到的图书馆可以不重复。
+    examples:
+      - text: 我每個星期去兩次。
+        meaning: 我每周去两次。`每個星期` 表示每星期，`每` 放在星期短语前。`去兩次` 表示去两回：`次` 计量发生次数，`兩` 给出二。这句话没有说每次停留多久。
+        note: 试一试：每周去三次。答案：`我每個星期去三次。` 把 `兩` 换成 `三`。若要回答每次停留时长，可以说 `我每次去兩個鐘`，意为每次去两个小时：`每次` 指每回探访，`兩個鐘` 衡量时长。
+  - subskill_id: event_sequence
+    explanation: 出门前，大家计划先吃完饭。这个结构把完成一项活动与之后做下一项连起来；即使不重复做事的人，先后仍很清楚。
+    examples:
+      - text: 食完飯先出門。
+        meaning: 吃完饭再出门。`食完飯` 表示把一顿饭吃完：`完` 跟在动作 `食` 后，标明完成。`先出門` 是那之后才出门。这里 `先` 放在第二个动作前，让出门等到第一件事完成。
+        note: 试一试：喝完茶再出门。答案：`飲完茶先出門。` 把 `食飯` 换成 `飲茶`，`完` 仍跟在第一项动作后。`我哋先食飯，跟住出門` 也表示先吃后走；在这个双分句说法里，`先` 的位置不同。
+  - subskill_id: event_phase
+    explanation: 有人问你是否吃过饭。`仲未` 表示到现在为止，预期中的吃饭仍未发生，但以后仍可能发生。
+    examples:
+      - text: 我仲未食飯。
+        meaning: 我还没吃饭。`我` 指人；`仲` 表示仍然，`未` 表示尚未。两者一起放在 `食飯` 前，后者意为吃一顿饭。这说的是目前所处的阶段，并非拒绝吃饭，也不是否定平日吃饭的习惯。
+        note: 试一试：说整个小组都还没吃饭。答案：`我哋仲未食飯。` 替换人物，活动不变。`我已經食咗飯` 给出已完成的对应情况：它使用 `已經` 和表示完成的 `咗`，而不是把 `咗` 加到“尚未”的分句里。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

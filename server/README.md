@@ -638,6 +638,14 @@ including pending/failed attempts. Neither measures human interaction or proves
 successful completion; missing request history is unknown. Settlement timestamps
 are not activity timestamps. Reports use one UTC date captured at generation for
 all daily and 90-day reads, while retaining the sequential-read disclosure.
+The account table distinguishes the current UTC allowance day (reset at 00:00 UTC)
+from rolling past-24-hour and past-seven-day usage. Rolling totals use reservation
+creation timestamps through report generation, with settled amounts or outstanding
+holds; settlement does not move usage to a later window. Reads cover at most 10,000
+recent reservations per account; a window with additional matching records or
+missing amounts displays Unknown instead of a partial total. The existing 90-day
+column still covers the current and preceding 89 UTC dates. Two-line column
+headings keep periods and USD units visible.
 
 Accounts, request events, allowance intervals, daily account history, reservations
 and change history offer sortable headers and column controls. Account and event

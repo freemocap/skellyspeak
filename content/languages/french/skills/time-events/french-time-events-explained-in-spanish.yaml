@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: time_events
+language: french
+explanation_language: spanish
+shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Alguien pregunta qué haces mientras preparas la cena. `Je prépare` es un presente que
+      puede significar preparo o estoy preparando; `le dîner` nombra la cena. `En ce moment`
+      significa ahora mismo y deja clara la actividad actual. El francés puede usar este presente
+      sin una forma progresiva separada. `Je prépare le dîner tous les soirs` expresa, en cambio,
+      una costumbre por la expresión cada noche. La forma verbal puede ser la misma; la expresión
+      temporal cambia cómo se entiende.
+    examples:
+      - text: Je prépare le dîner en ce moment.
+        meaning: Estoy preparando la cena ahora mismo.
+        note: "Di que tu grupo prepara la cena ahora. `Nous préparons le dîner en ce moment.` funciona:
+          `préparons` concuerda con `nous` y la expresión temporal sigue indicando esta ocasión."
+  - subskill_id: past_events
+    explanation: Recuerdas que saliste de casa cuando ya llovía. `Hier` significa ayer. `Il pleuvait`
+      describe la lluvia en curso mediante el imperfecto; `quand nous avons quitté la maison`
+      presenta la salida como suceso terminado sobre ese fondo. `Avons quitté` combina el auxiliar
+      `avons` con el participio `quitté`. `Hier` por sí solo no decide cuál de los dos tiempos
+      pasados usar. `Il a plu toute la journée` puede presentar la lluvia del día entero como un
+      hecho delimitado, en vez de fondo de una salida.
+    examples:
+      - text: Hier, il pleuvait quand nous avons quitté la maison.
+        meaning: Ayer llovía cuando salimos de casa.
+        note: "Mantén la lluvia de fondo, pero haz que salga una sola persona. `Hier, il pleuvait quand j’ai
+          quitté la maison.` funciona: el tiempo meteorológico queda en imperfecto y la salida pasa
+          a `j’ai quitté` para yo."
+  - subskill_id: future_events
+    explanation: "El grupo planea visitar un jardín mañana. `Nous allons` es el presente de `aller` para
+      nosotros; seguido de `visiter` forma una construcción de futuro: vamos a visitar. `Le jardin`
+      nombra el lugar y `demain` sitúa la visita mañana. Solo `aller` cambia con el sujeto;
+      `visiter` sigue en infinitivo. `Nous allons au jardin` usa, en cambio, `aller` como
+      desplazamiento hacia un destino, sin segundo verbo. La construcción expresa un plan sin exigir
+      que la visita sea inmediata."
+    examples:
+      - text: Nous allons visiter le jardin demain.
+        meaning: Vamos a visitar el jardín mañana.
+        note: "Expresa el plan solo para ti. `Je vais visiter le jardin demain.` funciona: `vais` concuerda
+          con `je`, mientras `visiter` y el día permanecen iguales."
+  - subskill_id: duration_frequency
+    explanation: "Empezaste a trabajar aquí hace tres meses y aún lo haces. `Je travaille ici` describe
+      la situación que continúa; `depuis trois mois` mide el tiempo desde su inicio hasta ahora. Con
+      una fecha inicial, `depuis janvier` significa desde enero. Un período ya terminado puede
+      expresarse con `J’ai travaillé ici pendant trois mois.` La frecuencia responde cada cuánto:
+      `Je travaille ici trois jours par semaine` significa tres días por semana. Duración y
+      frecuencia dan datos distintos aunque ambas incluyan números."
+    examples:
+      - text: Je travaille ici depuis trois mois.
+        meaning: Trabajo aquí desde hace tres meses.
+        note: "Di que el trabajo actual empezó en enero. `Je travaille ici depuis janvier.` funciona:
+          `depuis` introduce ahora un punto de partida, no una duración medida."
+  - subskill_id: event_sequence
+    explanation: "Describes el orden en que el grupo organizó un viaje. `D’abord` significa primero y
+      `puis`, después. `Nous avons acheté les billets` indica la compra de billetes; `nous avons
+      choisi nos places`, la elección de los asientos. Ambas expresiones usan `avons` más
+      participio: `acheté` viene de `acheter` y `choisi` de `choisir`. `Nos` concuerda con el plural
+      `places`. Los conectores establecen orden sin afirmar que una acción causara la otra. `Donc`
+      introduciría una consecuencia."
+    examples:
+      - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+        meaning: Primero compramos los billetes y después elegimos los asientos.
+        note: Invierte el orden de los dos sucesos. `D’abord, nous avons choisi nos places, puis nous avons
+          acheté les billets.` funciona porque las cláusulas cambian de lugar y cada una conserva su
+          forma pasada.
+  - subskill_id: event_phase
+    explanation: La cocina ya está ordenada y dices que acabaste la tarea hace un momento. `Je viens de`
+      expresa pasado reciente; `finir de` significa terminar de y `ranger la cuisine` nombra la
+      acción de ordenar. Las dos apariciones de `de` pertenecen a construcciones distintas, así que
+      se conservan. `Finir` y `ranger` van en infinitivo tras sus respectivas estructuras. `Je suis
+      en train de ranger la cuisine` indica, en cambio, que la tarea sigue en curso; `Je commence à
+      ranger`, que empieza.
+    examples:
+      - text: Je viens de finir de ranger la cuisine.
+        meaning: Acabo de terminar de ordenar la cocina.
+        note: "Di que acabas de terminar de limpiar la mesa. `Je viens de finir de nettoyer la table.`
+          funciona: ambas construcciones con `de` permanecen y solo cambia la actividad final."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of current french guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_past_aspect2026
+    - tex_depuis2026
+    - texNearFutureTeaching20261007
+    - texCompoundPastTeaching20261007
+    - texRecentPastTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original french constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: present_events
+      explanation: Alguien pregunta qué haces mientras preparas la comida del mediodía. `Je prépare` es un
+        presente que puede significar preparo o estoy preparando; en esta variedad, `le dîner`
+        nombra el almuerzo. `En ce moment` significa ahora mismo y deja clara la actividad actual.
+        El francés puede usar este presente sin una forma progresiva separada. `Je prépare le dîner
+        tous les jours` expresa, en cambio, una costumbre por la expresión cada día. La forma verbal
+        puede ser la misma; la expresión temporal cambia cómo se entiende.
+      examples:
+        - text: Je prépare le dîner en ce moment.
+          meaning: Estoy preparando el almuerzo ahora mismo.
+          note: "Di que tu grupo prepara el almuerzo ahora. `Nous préparons le dîner en ce moment.` funciona:
+            `préparons` concuerda con `nous` y la expresión temporal sigue indicando esta ocasión."
+    - subskill_id: past_events
+      explanation: Recuerdas que saliste de casa cuando ya llovía. `Hier` significa ayer. `Il pleuvait`
+        describe la lluvia en curso mediante el imperfecto; `quand nous avons quitté la maison`
+        presenta la salida como suceso terminado sobre ese fondo. `Avons quitté` combina el auxiliar
+        `avons` con el participio `quitté`. `Hier` por sí solo no decide cuál de los dos tiempos
+        pasados usar. `Il a plu toute la journée` puede presentar la lluvia del día entero como un
+        hecho delimitado, en vez de fondo de una salida.
+      examples:
+        - text: Hier, il pleuvait quand nous avons quitté la maison.
+          meaning: Ayer llovía cuando salimos de casa.
+          note: "Mantén la lluvia de fondo, pero haz que salga una sola persona. `Hier, il pleuvait quand j’ai
+            quitté la maison.` funciona: el tiempo meteorológico queda en imperfecto y la salida
+            pasa a `j’ai quitté` para yo."
+    - subskill_id: future_events
+      explanation: "El grupo planea visitar un jardín mañana. `Nous allons` es el presente de `aller` para
+        nosotros; seguido de `visiter` forma una construcción de futuro: vamos a visitar. `Le
+        jardin` nombra el lugar y `demain` sitúa la visita mañana. Solo `aller` cambia con el
+        sujeto; `visiter` sigue en infinitivo. `Nous allons au jardin` usa, en cambio, `aller` como
+        desplazamiento hacia un destino, sin segundo verbo. La construcción expresa un plan sin
+        exigir que la visita sea inmediata."
+      examples:
+        - text: Nous allons visiter le jardin demain.
+          meaning: Vamos a visitar el jardín mañana.
+          note: "Expresa el plan solo para ti. `Je vais visiter le jardin demain.` funciona: `vais` concuerda
+            con `je`, mientras `visiter` y el día permanecen iguales."
+    - subskill_id: duration_frequency
+      explanation: "Empezaste a trabajar aquí hace tres meses y aún lo haces. `Je travaille ici` describe
+        la situación que continúa; `depuis trois mois` mide el tiempo desde su inicio hasta ahora.
+        Con una fecha inicial, `depuis janvier` significa desde enero. Un período ya terminado puede
+        expresarse con `J’ai travaillé ici pendant trois mois.` La frecuencia responde cada cuánto:
+        `Je travaille ici trois jours par semaine` significa tres días por semana. Duración y
+        frecuencia dan datos distintos aunque ambas incluyan números."
+      examples:
+        - text: Je travaille ici depuis trois mois.
+          meaning: Trabajo aquí desde hace tres meses.
+          note: "Di que el trabajo actual empezó en enero. `Je travaille ici depuis janvier.` funciona:
+            `depuis` introduce ahora un punto de partida, no una duración medida."
+    - subskill_id: event_sequence
+      explanation: "Describes el orden en que el grupo organizó un viaje. `D’abord` significa primero y
+        `puis`, después. `Nous avons acheté les billets` indica la compra de billetes; `nous avons
+        choisi nos places`, la elección de los asientos. Ambas expresiones usan `avons` más
+        participio: `acheté` viene de `acheter` y `choisi` de `choisir`. `Nos` concuerda con el
+        plural `places`. Los conectores establecen orden sin afirmar que una acción causara la otra.
+        `Donc` introduciría una consecuencia."
+      examples:
+        - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          meaning: Primero compramos los billetes y después elegimos los asientos.
+          note: Invierte el orden de los dos sucesos. `D’abord, nous avons choisi nos places, puis nous avons
+            acheté les billets.` funciona porque las cláusulas cambian de lugar y cada una conserva
+            su forma pasada.
+    - subskill_id: event_phase
+      explanation: La cocina ya está ordenada y dices que acabaste la tarea hace un momento. `Je viens de`
+        expresa pasado reciente; `finir de` significa terminar de y `ranger la cuisine` nombra la
+        acción de ordenar. Las dos apariciones de `de` pertenecen a construcciones distintas, así
+        que se conservan. `Finir` y `ranger` van en infinitivo tras sus respectivas estructuras. `Je
+        suis en train de ranger la cuisine` indica, en cambio, que la tarea sigue en curso; `Je
+        commence à ranger`, que empieza.
+      examples:
+        - text: Je viens de finir de ranger la cuisine.
+          meaning: Acabo de terminar de ordenar la cocina.
+          note: "Di que acabas de terminar de limpiar la mesa. `Je viens de finir de nettoyer la table.`
+            funciona: ambas construcciones con `de` permanecen y solo cambia la actividad final."

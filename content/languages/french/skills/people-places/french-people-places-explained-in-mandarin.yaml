@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: people_places
+language: french
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 你介绍一位邻居，再告诉别人他的职业。`C’est mon voisin` 辨认他：`c’est` 表示这是，`mon voisin` 是我的男邻居。`Il est vétérinaire`
+      描述他的职业。未经修饰的职业名词在 `il est` 后通常不加冠词；`C’est un vétérinaire` 则以兽医身份辨认一个人，并带 `un`。若是女性，`C’est ma voisine.
+      Elle est vétérinaire.` 会改变关系名词和代词；这里 `vétérinaire` 本身不变。
+    examples:
+      - text: C’est mon voisin. Il est vétérinaire.
+        meaning: 那是我的邻居。他是兽医。
+        note: 介绍一位从事兽医工作的女邻居。`C’est ma voisine. Elle est vétérinaire.` 可用：`ma voisine` 和 `elle` 指出她，职业名词在 `elle est`
+          后仍不加冠词。
+  - subskill_id: qualities_states
+    explanation: 你在描述公寓里的厨房，包括它的大小和采光。`La petite cuisine` 意为小厨房；`est lumineuse` 表示它明亮。`petite` 与 `lumineuse`
+      都与阴性单数名词 `cuisine` 一致。常见的大小形容词 `petite` 在这里放名词前，采光描述则放在 `est` 后。换成阳性的 `salon`，形式为 `Le petit salon est
+      lumineux.`。法语形容词的位置并不全都相同，需要结合名词和惯用短语来学。
+    examples:
+      - text: La petite cuisine est lumineuse.
+        meaning: 这个小厨房很明亮。
+        note: 描述一个小而明亮的客厅。`Le petit salon est lumineux.` 可用，因为冠词和两个形容词都采用与 `salon` 一致的阳性单数形式。
+  - subskill_id: location_movement
+    explanation: 一群人正前往博物馆，车站帮助辨认是哪一家。`Nous allons` 意为我们正去；`au musée` 给出目的地，`près de la gare` 表示靠近车站。`Au` 由 `à` 和
+      `le` 合成；在阴性名词前，两个词分开，例如 `à la gare`。这句话描述朝某处移动。`Nous sommes au musée`
+      则说大家已经在哪里。相同的地点短语可以跟不同动词搭配，差别由动词承担。
+    examples:
+      - text: Nous allons au musée près de la gare.
+        meaning: 我们要去车站附近的博物馆。
+        note: 说你们已经在博物馆。`Nous sommes au musée près de la gare.` 可用：`sommes` 描述所在位置，而不是前往那里的行程。
+  - subskill_id: possession_relations
+    explanation: 你通过一个人与同事的关系介绍她。`C’est la sœur` 意为这是那位姐妹，`de mon collègue` 说明她是谁的姐妹。法语用 `de` 连接两个名词，不像英语加所有格词尾。这里
+      `Mon` 与阳性单数的 `collègue` 一致；若同事为女性，可以说 `de ma collègue`。物主词与其引出的名词一致：`sa sœur` 可以指他的姐妹，也可以指她的姐妹，因为 `sœur`
+      是阴性，与相关人的性别无关。
+    examples:
+      - text: C’est la sœur de mon collègue.
+        meaning: 那是我同事的姐妹。
+        note: 介绍你同事的兄弟。`C’est le frère de mon collègue.` 可用：亲属关系改成阳性的 `le frère`，`de` 短语仍指出是哪位同事。
+  - subskill_id: quantity_comparison
+    explanation: 搬运行李前，你比较两件行李。`Cette valise` 指这个手提箱；`plus légère que mon sac` 表示比我的包轻。`Plus` 构成比较，`que`
+      引出另一件物品。`Légère` 与阴性 `valise` 一致；`Ce sac est plus léger que ma valise` 则描述阳性的 `sac`。若重量相等，`aussi légère
+      que` 表示一样轻。`deux valises` 这样的数字短语只给出数量，本身不比较重量。
+    examples:
+      - text: Cette valise est plus légère que mon sac.
+        meaning: 这个手提箱比我的包轻。
+        note: 说你的包比手提箱轻。`Mon sac est plus léger que ma valise.` 可用：`léger` 与被描述的包一致，而不是与 `que` 后的物品一致。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+    - texAdjectivesTeaching20261007
+    - texComparativesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_identity2026
+        - tex_possessives2026
+        - texAdjectivesTeaching20261007
+        - texComparativesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_identity2026
+        - tex_possessives2026
+        - texAdjectivesTeaching20261007
+        - texComparativesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.

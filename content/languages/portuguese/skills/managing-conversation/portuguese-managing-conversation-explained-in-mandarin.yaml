@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: managing_conversation
+explanation_language: mandarin
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-mandarin.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 晚上的谈话结束了，你预计明天再见。`Até amanhã! Boa noite!` 用来结束这次交谈：`até` 指向下次见面，`amanhã` 意为明天，`boa noite`
+      祝对方晚安。这些词在会面结束时有实际的交际作用，不只是日期和夜晚的描述。如果下周才见，`Até a semana que vem!` 就改了下次相见的时间。在会面开始时说的问候，则是开启交谈。
+    examples:
+      - text: Até amanhã! Boa noite!
+        meaning: 明天见！晚安！
+        note: 预计星期六再见时，结束会面。`Até sábado! Boa noite!` 给出下次见面的日子和晚间道别；`sábado` 取代 `amanhã`。
+  - subskill_id: acknowledging
+    explanation: 有人解释借来的书该怎么还。`Entendi` 是即时的简短回应，意为我明白了。它是 `entender`
+      的第一人称已完成形式，但这里表示刚才的说明已经听懂，而不是在叙述昨天发生的另一件事。主语“我”已经包含在动词形式里。听懂解释不等于赞同其中的意见；`concordo` 才明确表示赞同。
+    examples:
+      - text: Entendi.
+        meaning: 我明白了。
+        note: 表示听懂指示，并向说话人道谢。男性说话人可以说 `Entendi, obrigado.`，女性说话人可以说 `Entendi, obrigada.`。两种情况都由 `Entendi` 承担表示听懂的作用。
+  - subskill_id: clarification
+    explanation: 对方说开门时间表是暂定的，但你不明白那个词的意思。`O que você quer dizer com provisório?` 请求澄清：`o que` 询问什么，`você quer
+      dizer` 意为你想表达，`com provisório` 指向引起疑惑的说法。它是在修复对措辞的理解，不是在核实某个开门时间是否真实。
+    examples:
+      - text: O que você quer dizer com provisório?
+        meaning: 你说的“暂定”是什么意思？
+        note: 改为询问 temporário 这个词。对方使用该词之后，`O que você quer dizer com temporário?` 就是完整问句；`com` 引出需要解释的表达。
+  - subskill_id: rephrasing
+    explanation: 借书人没有听懂你说的借期星期五到期。`Em outras palavras, você pode ficar com o livro até sexta` 用另一种说法重申相同的实际限制。`Em
+      outras palavras` 表明要换一种表述，`você pode ficar com o livro` 表示对方可以留着这本书，`até sexta`
+      给出截止日。改述有用，因为它把抽象的到期规则换成借书人可以做什么。
+    examples:
+      - text: Em outras palavras, você pode ficar com o livro até sexta.
+        meaning: 换句话说，这本书你可以留到星期五。
+        note: 把原来星期一到期的规则说得更简单。如果前面的规则也在星期一结束，`Em outras palavras, você pode ficar com o livro até segunda.`
+          就是完整改述；`até segunda` 把截止日说清楚。
+  - subskill_id: correcting_misunderstanding
+    explanation: 同伴重复了星期五，但你原意是星期六交换。`Eu quis dizer sábado, não sexta` 修正误会：`eu quis dizer` 意为我本来想说，`sábado`
+      是原定的日子，`não sexta` 明确排除听错的星期五。在这个表达中，`Quis` 是 `querer` 的第一人称过去式。熟人之间只说 `sábado` 也许够用，但完整句式能把纠正说得更明白。
+    examples:
+      - text: Eu quis dizer sábado, não sexta.
+        meaning: 我说的是星期六，不是星期五。
+        note: 纠正把星期六听成星期四的同伴。`Eu quis dizer sábado, não quinta.` 同时说出原意和要排除的误解。
+  - subskill_id: turns_topics
+    explanation: 小组已经选好书，接着要谈安排。`Posso falar dos horários agora?` 请求轮到自己谈时间安排：`posso` 意为我可以吗，`falar de` 意为谈论，`dos`
+      是 `de` 和复数冠词 `os` 的合成，`agora` 是现在。在这段对话里，你是在请求发言并转换话题，不是在问自己是否有说话的生理能力。周围的交谈决定了它的作用。
+    examples:
+      - text: Posso falar dos horários agora?
+        meaning: 我现在可以谈谈时间安排吗？
+        note: 改为请求接着讨论价格。`Posso falar dos preços agora?` 是完整的发言和换题请求；`dos preços` 取代 `dos horários`。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_contractions2026
+        - ut_pt_ficar2026
+        - ninin_pt_reformulation2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

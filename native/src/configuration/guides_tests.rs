@@ -11,7 +11,19 @@ fn inspector_composes_the_same_authored_sections_as_the_readable_report() {
         .iter()
         .map(|item| item.guide.explanation_language.as_str())
         .collect();
-    assert_eq!(editions, ["cantonese", "english", "spanish"].into());
+    assert_eq!(
+        editions,
+        [
+            "arabic",
+            "cantonese",
+            "english",
+            "french",
+            "mandarin",
+            "portuguese",
+            "spanish"
+        ]
+        .into()
+    );
     assert_eq!(
         inspection.guides.len(),
         r.shared_skills().skills.len() * editions.len()

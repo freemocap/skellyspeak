@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: managing_conversation
+language: english
+explanation_language: mandarin
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-mandarin.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 结束语让双方知道谈话要结束。与预计还会再见的人聊完后，先友好地评价这次交谈，再道别，就能自然离开，不会突然中断。
+    examples:
+      - text: It was good to talk. See you tomorrow.
+        meaning: "`It was good to talk` 回顾这次交谈，表达积极感受。`See you tomorrow` 是提到下次见面的简短道别语。省略的词可从情境中理解；不必每次都说完整句子。"
+        note: >-
+          开头用问候语，例如 `Hello, how are you?`；结束用道别语。预计明天再见时，`See you tomorrow` 很合适。若时间还不知道，`See you later`
+          则不那么具体。
+
+
+          **练一练。** 下次星期五见面时，结束交谈。答案：`It was good to talk. See you on Friday`。`On Friday` 给出实际的星期，而 `tomorrow`
+          指次日。
+  - subskill_id: acknowledging
+    explanation: 表示已收到信息，能让说话人知道话已经传达。别人解释包裹在哪里领取后，简短回应可以表明你听懂了路线，对方也可以继续或结束。
+    examples:
+      - text: Right, I understand.
+        meaning: "`Right` 在这种情境里表示已接收解释。`I understand` 表示你明白意思。两者一起回应刚才的话，不必重复整段解释。"
+        note: |-
+          理解不等于赞同。意思听清、观点却不同意时，可以说 `I understand, but I disagree`。如果仍有疑惑，应提出具体问题，而不是假装明白。
+
+          **练一练。** 别人说你的包裹在接待处。确认这个细节：`Right, I understand. I’ll collect it at reception`。重复关键地点，便于对方发现并纠正误解。
+  - subskill_id: clarification
+    explanation: 澄清能修复交谈中的理解缺口。你可能需要对方重复没听清的话、解释生词，或用另一种说法表达同一意思。问句的措辞能告诉对方你具体需要哪种帮助。
+    examples:
+      - text: What do you mean by the second option?
+        meaning: "**句子怎么组成。** `Mean by` 问对方怎样使用某个表达。`The second option` 重复不清楚的部分。有用的回答可能是 `I mean taking the train
+          instead of the bus`，补出缺少的细节。"
+        note: >-
+          **选择所需的帮助。** 没听清声音时问 `Could you repeat the last part?`。如果已有一种可能的理解，可以核实：`Do you mean taking the
+          train?` 这样同伴可以确认或纠正。
+
+
+          **练一练。** 别人说 `Use the usual entrance`，但你不知道指哪个入口。一种问法：`What do you mean by the usual entrance?`
+          重复含糊的短语，使问题具体。
+  - subskill_id: rephrasing
+    explanation: 第一次解释难以理解时，可以换一种说法。假设你解释了时间表，但朋友仍不知道这对出发时间意味着什么，就把实际要点用简单语言重说。
+    examples:
+      - text: In other words, we need to leave before lunch.
+        meaning: "`In other words` 标明要用另一种方式表达同一意思。`We need to leave` 说出必要行动，`before lunch` 说明时间。新句让先前的解释更容易用于行动。"
+        note: >-
+          改述应重述意思，而不只是替换一个难词。如果确实改了计划，就要明说：`Actually, let’s leave after lunch`。这是新决定，不是旧决定的另一种说法。
+
+
+          **练一练。** 把 `The last entry is at four` 讲给访客听得更清楚。一种答案：`In other words, we need to arrive by
+          four`。`By four` 指最迟四点到。
+  - subskill_id: correcting_misunderstanding
+    explanation: 纠正是把别人听错的细节替换为你的原意。如果你说星期二，朋友却重复星期四，就把两个日期都说出，差别才清楚。简短纠正通常比重讲整个对话更有效。
+    examples:
+      - text: I meant Tuesday, not Thursday.
+        meaning: "`I meant` 指原本想表达的意思；`meant` 是 `mean` 的过去式。`Tuesday` 是正确日期，`not Thursday` 排除朋友理解的那一天。"
+        note: >-
+          `I meant Tuesday` 修复信息。`I’ve changed it to Tuesday` 则表示计划本身被改了。若误会由你引起，可以加 `Sorry, I meant
+          Tuesday`，同时仍明确纠正。
+
+
+          **练一练。** 朋友听成十五，而你说的是五十。答案：`I meant fifty, not fifteen`。先给原定数字，再明确否定误听的数字。
+  - subskill_id: turns_topics
+    explanation: 有时谈话快进入下一话题，你却还没问到想知道的事。在会议上，可以提示大家你想就当前话题简短发言，让小组明白为什么你要插话。
+    examples:
+      - text: Before we move on, can I ask about the price?
+        meaning: "`Before we move on` 指离开当前话题之前。`Can I ask` 请求发言空间，`about the price` 指问题涉及价格。这里 `Move on`
+          是讨论继续推进，不是人身体移动。"
+        note: |-
+          若要换新话题，`By the way, how was your trip?` 可以提示转换。若仍谈当前话题，则要点明尚未讨论完的问题。有机会时等合适的停顿；单靠这句话不能让任何打断都受欢迎。
+
+          **练一练。** 小组换话题前，请求讨论配送。答案：`Before we move on, can I ask about delivery?` 点出配送，说明你需要发言讨论什么。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - dingemanse2015_communication_repair
+        - bcCheckingUnderstandingTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - dingemanse2015_communication_repair
+        - bcCheckingUnderstandingTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - dingemanse2015_communication_repair
+    - bcCheckingUnderstandingTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - bcAgreementTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.

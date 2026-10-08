@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: people_places
+language: french
+explanation_language: arabic
+shared_explanation: skills/people-places/people-places-explained-in-arabic.yaml
+sections:
+  - subskill_id: identification
+    explanation: "تعرّف بجار ثم تخبر شخصًا بمهنته. تحدد `C’est mon voisin` هويته: تعني `c’est` «هذا هو»،
+      وتعني `mon voisin` «جاري». تصف `Il est vétérinaire` مهنته. المهنة غير الموصوفة بعد `il est` لا
+      تأخذ أداة تعريف عادةً؛ أما `C’est un vétérinaire` فتعرّف بشخص بوصفه طبيبًا بيطريًا وتتضمن
+      `un`. وللمرأة تغيّر `C’est ma voisine. Elle est vétérinaire.` العلاقة والضمير؛ وتبقى
+      `vétérinaire` نفسها هنا."
+    examples:
+      - text: C’est mon voisin. Il est vétérinaire.
+        meaning: هذا جاري. إنه طبيب بيطري.
+        note: "عرّف بجارة تعمل طبيبةً بيطرية. تصلح `C’est ma voisine. Elle est vétérinaire.`: تحدد `ma
+          voisine` و`elle` هويتها، وتبقى المهنة من دون أداة بعد `elle est`."
+  - subskill_id: qualities_states
+    explanation: تصف مطبخ شقة، بما في ذلك حجمه وما يصله من ضوء. تعني `La petite cuisine` المطبخ الصغير؛
+      وتقول `est lumineuse` إنه مشرق. تطابق كل من `petite` و`lumineuse` الاسم المؤنث المفرد
+      `cuisine`. تأتي صفة الحجم الشائعة `petite` هنا قبل الاسم، بينما يأتي وصف الإضاءة بعد `est`.
+      ومع `salon` المذكر تصبح الصيغ `Le petit salon est lumineux.` لا تقع كل الصفات الفرنسية في
+      الموضع نفسه، لذا يهم الاسم والتعبير المألوف.
+    examples:
+      - text: La petite cuisine est lumineuse.
+        meaning: المطبخ الصغير مشرق.
+        note: صف غرفة معيشة صغيرة ومشرقة. تصلح `Le petit salon est lumineux.` لأن أداة التعريف والصفتين تأتي
+          بصيغة المذكر المفرد مع `salon`.
+  - subskill_id: location_movement
+    explanation: تتجه مجموعة إلى متحف، وتساعد محطة على تحديد أي متحف تقصد. تعني `Nous allons` «نذهب»؛
+      وتحدد `au musée` الوجهة، وتعني `près de la gare` قرب المحطة. تجمع `Au` بين `à` و`le`؛ وقبل
+      الاسم المؤنث تبقى الكلمتان منفصلتين كما في `à la gare`. تصف الجملة الحركة نحو مكان. أما `Nous
+      sommes au musée` فتذكر مكان المجموعة بالفعل. يمكن لعبارة المكان نفسها أن تأتي مع فعلين
+      مختلفين؛ ويحمل الفعل هذا الفرق.
+    examples:
+      - text: Nous allons au musée près de la gare.
+        meaning: نذهب إلى المتحف القريب من المحطة.
+        note: "قل إنكم في المتحف بالفعل. تصلح `Nous sommes au musée près de la gare.`: تصف `sommes` الموقع
+          بدل الرحلة إليه."
+  - subskill_id: possession_relations
+    explanation: "تعرّف بشخص من خلال صلته بزميل. تعني `C’est la sœur` «هذه الأخت»، وتحدد `de mon
+      collègue` أخت من هي. تستعمل الفرنسية `de` لوصل الاسمين بدل إضافة علامة الملكية الإنجليزية.
+      تطابق `Mon` هنا الاسم المذكر المفرد `collègue`؛ ومع زميلة يمكن قول `de ma collègue`. تطابق
+      كلمات الملكية الاسم الذي تقدّمه: قد تعني `sa sœur` أخته أو أختها لأن `sœur` مؤنث، بغض النظر عن
+      جنس صاحب العلاقة."
+    examples:
+      - text: C’est la sœur de mon collègue.
+        meaning: هذه أخت زميلي.
+        note: "عرّف بأخ زميلك. تصلح `C’est le frère de mon collègue.`: تصبح العلاقة مذكرة في `le frère`،
+          وتبقى عبارة `de` محددةً للزميل."
+  - subskill_id: quantity_comparison
+    explanation: تقارن قطعتَي أمتعة قبل حملهما. تعني `Cette valise` هذه الحقيبة؛ وتعني `plus légère que
+      mon sac` أخف من حقيبتي الأخرى. تصنع `Plus` المقارنة، وتقدّم `que` الغرض الآخر. تطابق `Légère`
+      الاسم المؤنث `valise`؛ أما `Ce sac est plus léger que ma valise` فتصف `sac` المذكر. وللوزن
+      المتساوي تعني `aussi légère que` «خفيفة بقدر». يعطي عدد مثل `deux valises` كميةً، لكنه لا
+      يقارن وزنهما بذاته.
+    examples:
+      - text: Cette valise est plus légère que mon sac.
+        meaning: هذه الحقيبة أخف من حقيبتي الأخرى.
+        note: "قل إن حقيبتك أخف من حقيبة السفر. تصلح `Mon sac est plus léger que ma valise.`: تطابق `léger`
+          الحقيبة الموصوفة لا الغرض الذي يأتي بعد `que`."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+    - texAdjectivesTeaching20261007
+    - texComparativesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

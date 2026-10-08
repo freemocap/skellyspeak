@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: coordinating_action
+language: french
+explanation_language: arabic
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-arabic.yaml
+sections:
+  - subskill_id: requests
+    explanation: "كرسي كبير يسد المدخل، فيطلب زائر من شخص أن ينقله. تعني `Pourriez-vous` «هل يمكنكم»
+      وتلطّف الطلب؛ وتسمّي `déplacer cette chaise` فعل نقل هذا الكرسي. تصل الشرطة بين الفعل و`vous`
+      في السؤال. تضيف `S’il vous plaît` معنى «من فضلك». يبقى فعل العمل في المصدر بعد
+      `pourriez-vous`: تطلب `Pourriez-vous fermer la porte ?` فعلًا مختلفًا. مع شخص مقرّب، تكون `Tu
+      peux déplacer cette chaise ?` طلبًا يوميًا أكثر مباشرة؛ وتخاطب `vous` عدة أشخاص أيضًا."
+    examples:
+      - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+        meaning: هل يمكنكم نقل هذا الكرسي، من فضلكم؟
+        note: جرّب أن تطلب بأدب من شخص فتح النافذة. إجابة ممكنة هي `Pourriez-vous ouvrir la fenêtre, s’il
+          vous plaît ?`. أبقِ `pourriez-vous` واستبدل الفعل بـ`ouvrir la fenêtre`؛ وتبقى `ouvrir` في
+          المصدر.
+  - subskill_id: offers_invitations
+    explanation: تخطط أنت ومجموعتك للذهاب إلى السوق يوم السبت وتدعو صديقًا إلى مرافقتكم. تسأل `Tu veux` هل تريد، وتعني
+      `venir` المجيء؛ وتشمل `avec nous` مجموعة المتحدث. تحدد `Samedi` الموعد. في الحديث العفوي، قد
+      تجعل النبرة الصاعدة الجملةَ التي تبدو خبرية سؤالًا. تبقي `Tu veux venir au cinéma avec nous ?`
+      الدعوة وتغيّر الوجهة. تتيح الصيغة خيارًا؛ فهي ألطف وأقل أمرًا من `Viens avec nous !`.
+    examples:
+      - text: Tu veux venir au marché avec nous samedi ?
+        meaning: هل تود المجيء إلى السوق معنا يوم السبت؟
+        note: "ادعُ صديقًا مقرّبًا إلى المجيء معكم يوم الأحد بدلًا من ذلك. تصلح `Tu veux venir au marché
+          avec nous dimanche ?`: يتغير اليوم وحده. ومع شخص تخاطبه بـ`vous` تصبح البداية `Vous voulez
+          venir`."
+  - subskill_id: suggestions
+    explanation: أثناء تحديد مكان الغداء، يقترح شخص مكانًا قرب المحطة. تعني `On` هنا «نحن»، وتعرض
+      `pourrait` خيارًا لا خطة محسومة. تعني `Déjeuner` تناول الغداء؛ وتحدد `près de la gare` المكان
+      قرب المحطة. يبقى الفعل بعد `pourrait` في المصدر، كما في `On pourrait manger dehors.` وعلى
+      النقيض، تعلن `On va déjeuner près de la gare.` ما ستفعله المجموعة. تترك الصيغة الشرطية مجالًا
+      للنقاش.
+    examples:
+      - text: On pourrait déjeuner près de la gare.
+        meaning: يمكننا تناول الغداء قرب المحطة.
+        note: "اقترح الأكل في الخارج بدلًا من ذلك. تجيب `On pourrait manger dehors.`: تحل `manger dehors`
+          محل النشاط المقترح من غير تحويله إلى التزام."
+  - subskill_id: commitments
+    explanation: توزّع المجموعة المهام لوجبة، ويتولى شخص إحضار الأطباق. تقبل `D’accord` الترتيب. وتعني
+      `J’apporterai` «سأحضر»؛ وتسمّي `les assiettes` الأطباق. تعود علامة المستقبل في `apporterai`
+      إلى `je` التي تُختصر إلى `j’` قبل حرف علة. تغيّر `Nous apporterons` الالتزام إلى «سنحضر». في
+      هذا السياق يعبّر المستقبل عن تعهد؛ أما `Je pourrais apporter les assiettes.` فتعرض مساهمة
+      محتملة فقط.
+    examples:
+      - text: D’accord, j’apporterai les assiettes.
+        meaning: حسنًا، سأحضر الأطباق.
+        note: تعهّد بإحضار الأكواب. تصلح `D’accord, j’apporterai les verres.` لأن الفعل المستقبلي يحافظ على
+          تعهدك، وتغيّر `les verres` الغرض.
+  - subskill_id: accepting_declining
+    explanation: "تستحق الدعوة ردًا واضحًا حتى عندما لا تستطيع الحضور. تعبّر `Merci pour l’invitation`
+      عن الشكر على الدعوة؛ وتقدّم `mais` الرفض. تعني `Je ne pourrai pas venir` «لن أستطيع المجيء»: تحيط `ne` و`pas`
+      بصيغة المستقبل `pourrai`، بينما تبقى `venir` في المصدر. تجعل عدم القدرة سببًا. أما `Je ne veux
+      pas venir` فتقول إنك لا تريد المجيء وقد تبدو أقل لباقة بكثير. ويمكن القبول ببساطة بقول `Merci,
+      je viendrai avec plaisir.`"
+    examples:
+      - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+        meaning: شكرًا على الدعوة، لكنني لن أستطيع الحضور.
+        note: ارفض لأنك لا تستطيع البقاء. تحافظ `Merci, mais je ne pourrai pas rester.` على عدم الاستطاعة في
+          المستقبل وتستبدل `venir` بـ`rester`، أي البقاء.
+  - subskill_id: negotiating_plans
+    explanation: "لا يناسب يوم الجمعة جدولك، فتطرح السبت للنقاش. تعني `Ne me convient pas` «لا يناسبني»:
+      تحدد `me` صاحب الجدول المتأثر. تسأل `Est-ce que samedi vous irait ?` هل يناسب السبت الشخص
+      الآخر. `irait` هنا صيغة شرطية من `aller` للتعبير عن الملاءمة، لا السفر الحرفي. تقابل `vous`
+      المهذبة `te` في `Est-ce que samedi t’irait ?` مع شخص مقرّب. وبديل مفيد هو `Samedi vous
+      convient ?`."
+    examples:
+      - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+        meaning: الجمعة لا تناسبني. هل يناسبك السبت؟
+        note: "اعرض الأحد بدلًا من ذلك مع الإبقاء على المخاطبة المهذبة. تصلح `Est-ce que dimanche vous irait
+          ?`: يتغير اليوم المقترح، وتظل `vous irait` تسأل عن ملاءمة الوقت للمخاطَب."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+    - texQuestionsTeaching20261007
+    - tex_modals2026
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: requests
+      explanation: "كرسي كبير يسد المدخل، فيطلب زائر من شخص أن ينقله. تعني `Pourriez-vous` «هل يمكنكم»
+        وتلطّف الطلب؛ وتسمّي `déplacer cette chaise` فعل نقل هذا الكرسي. تصل الشرطة بين الفعل
+        و`vous` في السؤال. تضيف `S’il vous plaît` معنى «من فضلك». يبقى فعل العمل في المصدر بعد
+        `pourriez-vous`: تطلب `Pourriez-vous fermer la porte ?` فعلًا مختلفًا. مع شخص مقرّب، تكون
+        `Tu peux déplacer cette chaise ?` طلبًا يوميًا أكثر مباشرة؛ وتخاطب `vous` عدة أشخاص أيضًا."
+      examples:
+        - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+          meaning: هل يمكنكم نقل هذا الكرسي، من فضلكم؟
+          note: جرّب أن تطلب بأدب من شخص فتح النافذة. إجابة ممكنة هي `Pourriez-vous ouvrir la fenêtre, s’il
+            vous plaît ?`. أبقِ `pourriez-vous` واستبدل الفعل بـ`ouvrir la fenêtre`؛ وتبقى `ouvrir`
+            في المصدر.
+    - subskill_id: offers_invitations
+      explanation: تخطط أنت ومجموعتك للذهاب إلى السوق يوم السبت وتدعو صديقًا إلى مرافقتكم. تسأل `Tu veux` هل تريد، وتعني
+        `venir` المجيء؛ وتشمل `avec nous` مجموعة المتحدث. تحدد `Samedi` الموعد. في الحديث العفوي، قد
+        تجعل النبرة الصاعدة الجملةَ التي تبدو خبرية سؤالًا. تبقي `Tu veux venir au cinéma avec nous
+        ?` الدعوة وتغيّر الوجهة. تتيح الصيغة خيارًا؛ فهي ألطف وأقل أمرًا من `Viens avec nous !`.
+      examples:
+        - text: Tu veux venir au marché avec nous samedi ?
+          meaning: هل تود المجيء إلى السوق معنا يوم السبت؟
+          note: "ادعُ صديقًا مقرّبًا إلى المجيء معكم يوم الأحد بدلًا من ذلك. تصلح `Tu veux venir au marché
+            avec nous dimanche ?`: يتغير اليوم وحده. ومع شخص تخاطبه بـ`vous` تصبح البداية `Vous
+            voulez venir`."
+    - subskill_id: suggestions
+      explanation: أثناء تحديد مكان الإفطار، يقترح شخص مكانًا قرب المحطة. تعني `On` هنا «نحن»، وتعرض
+        `pourrait` خيارًا لا خطة محسومة. تعني `Déjeuner` تناول الإفطار؛ وتحدد `près de la gare`
+        المكان قرب المحطة. يبقى الفعل بعد `pourrait` في المصدر، كما في `On pourrait manger dehors.`
+        وعلى النقيض، تعلن `On va déjeuner près de la gare.` ما ستفعله المجموعة. تترك الصيغة الشرطية
+        مجالًا للنقاش.
+      examples:
+        - text: On pourrait déjeuner près de la gare.
+          meaning: يمكننا تناول الإفطار قرب المحطة.
+          note: "اقترح الأكل في الخارج بدلًا من ذلك. تجيب `On pourrait manger dehors.`: تحل `manger dehors`
+            محل النشاط المقترح من غير تحويله إلى التزام."
+    - subskill_id: commitments
+      explanation: توزّع المجموعة المهام لوجبة، ويتولى شخص إحضار الأطباق. تقبل `D’accord` الترتيب. وتعني
+        `J’apporterai` «سأحضر»؛ وتسمّي `les assiettes` الأطباق. تعود علامة المستقبل في `apporterai`
+        إلى `je` التي تُختصر إلى `j’` قبل حرف علة. تغيّر `Nous apporterons` الالتزام إلى «سنحضر». في
+        هذا السياق يعبّر المستقبل عن تعهد؛ أما `Je pourrais apporter les assiettes.` فتعرض مساهمة
+        محتملة فقط.
+      examples:
+        - text: D’accord, j’apporterai les assiettes.
+          meaning: حسنًا، سأحضر الأطباق.
+          note: تعهّد بإحضار الأكواب. تصلح `D’accord, j’apporterai les verres.` لأن الفعل المستقبلي يحافظ على
+            تعهدك، وتغيّر `les verres` الغرض.
+    - subskill_id: accepting_declining
+      explanation: "تستحق الدعوة ردًا واضحًا حتى عندما لا تستطيع الحضور. تعبّر `Merci pour l’invitation`
+        عن الشكر على الدعوة؛ وتقدّم `mais` الرفض. تعني `Je ne pourrai pas venir` «لن أستطيع المجيء»: تحيط `ne`
+        و`pas` بصيغة المستقبل `pourrai`، بينما تبقى `venir` في المصدر. تجعل عدم القدرة سببًا. أما
+        `Je ne veux pas venir` فتقول إنك لا تريد المجيء وقد تبدو أقل لباقة بكثير. ويمكن القبول
+        ببساطة بقول `Merci, je viendrai avec plaisir.`"
+      examples:
+        - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+          meaning: شكرًا على الدعوة، لكنني لن أستطيع الحضور.
+          note: ارفض لأنك لا تستطيع البقاء. تحافظ `Merci, mais je ne pourrai pas rester.` على عدم الاستطاعة في
+            المستقبل وتستبدل `venir` بـ`rester`، أي البقاء.
+    - subskill_id: negotiating_plans
+      explanation: "لا يناسب يوم الجمعة جدولك، فتطرح السبت للنقاش. تعني `Ne me convient pas` «لا يناسبني»:
+        تحدد `me` صاحب الجدول المتأثر. تسأل `Est-ce que samedi vous irait ?` هل يناسب السبت الشخص
+        الآخر. `irait` هنا صيغة شرطية من `aller` للتعبير عن الملاءمة، لا السفر الحرفي. تقابل `vous`
+        المهذبة `te` في `Est-ce que samedi t’irait ?` مع شخص مقرّب. وبديل مفيد هو `Samedi vous
+        convient ?`."
+      examples:
+        - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+          meaning: الجمعة لا تناسبني. هل يناسبك السبت؟
+          note: "اعرض الأحد بدلًا من ذلك مع الإبقاء على المخاطبة المهذبة. تصلح `Est-ce que dimanche vous irait
+            ?`: يتغير اليوم المقترح، وتظل `vous irait` تسأل عن ملاءمة الوقت للمخاطَب."

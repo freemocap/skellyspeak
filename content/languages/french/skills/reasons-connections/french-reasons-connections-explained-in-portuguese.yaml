@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-portuguese-2026-10-07
+skill_id: reasons_connections
+language: french
+explanation_language: portuguese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-portuguese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "Uma estrada fechada explica por que seu grupo espera. `Nous attendons` apresenta a
+      situação; `parce que` introduz a razão, `la route est fermée`. Depois dele vem uma oração
+      completa, com sujeito e verbo. `Fermée` tem terminação feminina por descrever `route`. Uma
+      razão nominal curta pode usar `à cause de`, como em `Nous attendons à cause de la neige.` As
+      estruturas pedem complementos diferentes: oração depois de `parce que`, expressão nominal
+      depois de `à cause de`."
+    examples:
+      - text: Nous attendons parce que la route est fermée.
+        meaning: Esperamos porque a estrada está fechada.
+        note: "Explique que esperam porque a loja está fechada. `Nous attendons parce que le magasin est
+          fermé.` funciona: a razão é uma oração, e `fermé` concorda com `magasin` masculino."
+  - subskill_id: consequences
+    explanation: O último ônibus saiu, então o grupo decide voltar a pé. `Le dernier bus est parti`
+      apresenta o evento concluído. `Donc` liga-o à decisão resultante, `nous allons rentrer à
+      pied`. `Allons rentrer` significa vamos voltar, e `à pied` significa a pé. `Parti` vem com
+      `est` porque esse passado composto de `partir` usa `être`; o plano futuro usa o presente de
+      `aller` mais infinitivo. `Puis` apenas ordenaria eventos; `donc` marca consequência.
+    examples:
+      - text: Le dernier bus est parti, donc nous allons rentrer à pied.
+        meaning: O último ônibus saiu, então vamos voltar para casa a pé.
+        note: "Troque o plano resultante por esperar aqui. `Le dernier bus est parti, donc nous allons
+          attendre ici.` funciona: `donc` conserva a relação de consequência, e `attendre ici`
+          fornece o novo plano."
+  - subskill_id: conditions
+    explanation: "Vocês trabalharão na biblioteca somente se ela estiver aberta. `Si la bibliothèque est
+      ouverte` dá a condição; `nous y travaillerons` apresenta o resultado. `Y` substitui «na
+      biblioteca», evita repetição e vem antes de `travaillerons`. Uma possibilidade futura real
+      pode usar presente depois de `si` e futuro no resultado: a referência futura não exige futuro
+      imediatamente depois do `si` condicional. `Quand la bibliothèque sera ouverte` significa
+      quando estiver aberta e trata a abertura como momento esperado."
+    examples:
+      - text: Si la bibliothèque est ouverte, nous y travaillerons.
+        meaning: Se a biblioteca estiver aberta, trabalharemos lá.
+        note: "Faça o resultado ser estudar lá. `Si la bibliothèque est ouverte, nous y étudierons.`
+          funciona: a condição continua no presente, o resultado no futuro, e `y` ainda retoma a
+          biblioteca."
+  - subskill_id: contrast
+    explanation: Uma bolsa pequena surpreendentemente comporta tudo que você precisa. `Le sac est petit`
+      cria expectativa de pouca capacidade; `mais` apresenta o fato contrastante, `il contient tout
+      mon matériel`. `Il` retoma `sac` masculino; `tout mon matériel` significa todo o meu
+      equipamento. `Matériel` é aqui substantivo coletivo singular, então `tout` é masculino
+      singular. `Et` apenas acrescentaria informação; `mais` marca a surpresa do segundo fato diante
+      do primeiro.
+    examples:
+      - text: Le sac est petit, mais il contient tout mon matériel.
+        meaning: A bolsa é pequena, mas contém todo o meu equipamento.
+        note: "Descreva uma caixa pequena que comporte todo o seu equipamento. `La boîte est petite, mais
+          elle contient tout mon matériel.` funciona: a caixa recebe `petite` e `elle` femininos; a
+          expressão de equipamento permanece masculina singular."
+  - subskill_id: supporting_claims
+    explanation: Você recomenda uma rota e dá uma observação recente para justificar o julgamento. `Ce
+      trajet est plus rapide` afirma que o caminho é mais rápido. Depois dos dois-pontos, `hier,
+      j’ai gagné vingt minutes` diz que ontem você economizou vinte minutos. `Ai gagné` apresenta a
+      experiência concluída, e o tempo medido torna o apoio concreto. A observação sustenta a
+      comparação nessa situação, mas não prova que a rota sempre será mais rápida. `C’est mieux`
+      apenas avalia sem detalhe verificável.
+    examples:
+      - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
+        meaning: Este caminho é mais rápido; ontem economizei vinte minutos.
+        note: "Dê dez minutos como economia observada. `Ce trajet est plus rapide : hier, j’ai gagné dix
+          minutes.` funciona: muda a medida da evidência, enquanto a experiência continua um evento
+          passado concluído."
+provenance: &a1
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - tex_si2026
+    - threshold_general_notions
+    - texPlaceYTeaching20261007
+    - texCompoundPastTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

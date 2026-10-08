@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: managing_conversation
+language: french
+explanation_language: arabic
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-arabic.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "عليك مغادرة المحادثة وتتوقع رؤية الشخص غدًا. تقدّم `Je dois partir` سبب إنهاء التبادل:
+      عليّ الذهاب. وتختتمه `À demain !` بمعنى «إلى اللقاء غدًا». `Dois` صيغة `devoir` مع `je`، وتبقى
+      `partir` في المصدر. إذا لم يُحدّد اللقاء التالي، تعني `À bientôt !` «إلى اللقاء قريبًا» من غير
+      وعد بالغد. تبدأ تحية مثل `Bonjour !` اللقاء، ولا تؤدي وظيفة الختام نفسها."
+    examples:
+      - text: Je dois partir. À demain !
+        meaning: عليّ الذهاب. إلى اللقاء غدًا!
+        note: "اختم بقول «إلى اللقاء يوم الاثنين». تصلح `Je dois partir. À lundi !`: تحدد `à` متبوعةً باليوم
+          اللقاءَ المقبل المتوقع."
+  - subskill_id: acknowledging
+    explanation: يشرح شخص فكرته، فتبيّن أنك فهمتها الآن. تشير `Ah` إلى لحظة الإدراك. وتعني `Je vois`
+      حرفيًا «أرى»، لكنها تعني هنا أيضًا «أفهم»؛ وتعني `ce que tu veux dire` ما تقصده. يقر ذلك
+      بالشرح من غير أن يعني بالضرورة موافقتك عليه. تعبّر `Je suis d’accord` عن الموافقة أيضًا. تحافظ
+      `Je vois ce que vous voulez dire` على الرد نفسه في المخاطبة المهذبة أو مع عدة مستمعين.
+    examples:
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: آه، فهمت ما تقصد.
+        note: "أقرّ بفهمك لشخص تخاطبه بـ`vous`. تصلح `Ah, je vois ce que vous voulez dire.`: يغيّر الانتقال
+          من `tu veux` إلى `vous voulez` المخاطبة لا موقفك من الاتفاق."
+  - subskill_id: clarification
+    explanation: سمعت كلمة «مؤقت»، لكنك لا تعرف ما يقصده المتحدث بها. تسأل `Qu’est-ce que` «ماذا»؛ وتعني
+      `tu veux dire` «تقصد»، وتخصّص `par « provisoire »` الكلمة التي تحتاج إلى تفسير. تبيّن علامتا
+      الاقتباس أنك تناقش كلمة ولا تصف شيئًا بنفسك. تستهدف `Qu’est-ce que tu veux dire par « urgent »
+      ?` مصطلحًا آخر غير واضح. ويختلف ذلك عن `Tu peux répéter ?` التي تطلب التكرار وقد تترك المعنى
+      غامضًا.
+    examples:
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: ماذا تقصد بكلمة «مؤقت»؟
+        note: اسأل عما يقصده المتحدث بكلمة «مهم». تصلح `Qu’est-ce que tu veux dire par « important » ?` لأن
+          الكلمة المقتبسة تحدد موضع الشك بدقة.
+  - subskill_id: rephrasing
+    explanation: شُرحت قاعدة الحجز بالتفصيل، وأنت تعيد ذكر معناها العملي. تشير `Autrement dit` إلى
+      «بعبارة أخرى». تعني `Nous devons réserver` أنه علينا الحجز؛ وتعني `avant de payer` قبل الدفع.
+      عندما يقوم الأشخاص أنفسهم بالفعلين، يمكن لـ`avant de` تقديم المصدر `payer`. تحدد `Avant de`
+      الترتيب ولا تذكر بذاتها سبب اشتراط الحجز. تعرض البداية إعادة صياغة مكافئة، فينبغي أن تحتفظ
+      بالقاعدة الأصلية بدل إضافة شرط جديد خفيةً.
+    examples:
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: بعبارة أخرى، علينا الحجز قبل الدفع.
+        note: "أعد صياغة قاعدة تقضي بأن الحجز يسبق المغادرة. تصلح `Autrement dit, nous devons réserver avant
+          de partir.`: يتغير الفعل الثاني فقط، وتبقى `partir` في المصدر."
+  - subskill_id: correcting_misunderstanding
+    explanation: كتب المستمع الخميس، لكنك قصدت الثلاثاء. تعني `Je voulais dire` «كنت أقصد»؛ وتشير صيغة
+      الماضي الناقص `voulais` إلى المعنى الذي أردته سابقًا. تستبدل `Mardi, pas jeudi` اليوم الخاطئ
+      بالصحيح. يبقى التصحيح منصبًا على رسالتك من غير لوم المستمع. يمكن لـ`Je veux dire mardi` أن
+      تصحح كلامك أثناء التلفظ؛ أما `je voulais dire` فتعود بصورة أنسب إلى ما قيل بالفعل.
+    examples:
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: كنت أقصد الثلاثاء، لا الخميس.
+        note: صحّح الجمعة إلى السبت. تصلح `Je voulais dire samedi, pas vendredi.` لأن اليوم المقصود يأتي
+          أولًا، ويليه اليوم المستبعد بعد `pas`.
+  - subskill_id: turns_topics
+    explanation: يوشك النقاش على الانتقال، لكنك لا تزال تحتاج إلى تفصيل عن السعر. تعني `Avant de changer
+      de sujet` «قبل تغيير الموضوع». `Puis-je` سؤال رسمي مهذب بمعنى «هل لي»؛ ويليه المصدر `poser`.
+      وتعني `Poser une question sur le prix` طرح سؤال عن السعر. في الحديث اليومي، تشكل `Est-ce que
+      je peux poser une question ?` بديلًا أقل رسمية. توضح البداية سبب إبقائك النقاش في الموضوع
+      قليلًا بدل مقاطعته بموضوع غير مرتبط.
+    examples:
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: قبل تغيير الموضوع، هل لي أن أسأل عن السعر؟
+        note: "أبقِ الموضوع قليلًا لتسأل عن التاريخ. تصلح `Avant de changer de sujet, puis-je poser une
+          question sur la date ?`: تسمّي `sur la date` النقطة المتبقية."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - dingemanse2015_communication_repair
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

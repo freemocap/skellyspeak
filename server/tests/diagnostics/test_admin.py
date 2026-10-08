@@ -218,3 +218,41 @@ def test_overview_pins_all_daily_reads_to_report_start_at_midnight(database, mon
     assert report['global_admission']['account_requests'] == 407191
     assert report['global_usage'][0]['day'] == '2026-10-05'
     assert report['global_usage'][0]['micros'] == 407191
+
+
+def test_rolling_usage_crosses_midnight_and_uses_request_time(database):
+    now = datetime(2026, 10, 7, 0, 1, tzinfo=timezone.utc)
+    ref = database.collection('users').document('google:test01')
+    rows = [
+        (timedelta(minutes=2), 'settled', 100, 40),
+        (timedelta(hours=24), 'pending', 200, None),
+        (timedelta(hours=24, microseconds=1), 'unknown', 300, 300),
+        (timedelta(days=7), 'settled', 500, 80),
+        (timedelta(days=7, microseconds=1), 'settled', 900, 900),
+        (timedelta(seconds=-1), 'pending', 9000, None),
+        (timedelta(), 'settled', 100, 0),
+    ]
+    for index, (age, status, reserved, actual) in enumerate(rows):
+        ref.collection('reservations').document(str(index)).set({
+            'created_at': now - age, 'updated_at': now, 'status': status,
+            'reserved_micros': reserved, 'actual_micros': actual})
+    assert admin_reports.rolling_usage(ref, now) == {
+        'usage_24_hours_micros': 240, 'usage_7_days_micros': 620}
+    assert admin_reports.rolling_usage(ref, now + timedelta(minutes=1)) == {
+        'usage_24_hours_micros': 9040, 'usage_7_days_micros': 9540}
+
+
+def test_rolling_usage_does_not_present_incomplete_totals(database, monkeypatch):
+    now = datetime(2026, 10, 7, tzinfo=timezone.utc)
+    ref = database.collection('users').document('google:test01')
+    monkeypatch.setattr(admin_reports, 'ROLLING_RESERVATION_LIMIT', 2)
+    assert admin_reports.rolling_usage(ref, now) == {
+        'usage_24_hours_micros': 0, 'usage_7_days_micros': 0}
+    for index, hours in enumerate([1, 25, 26]):
+        ref.collection('reservations').document(str(index)).set({
+            'created_at': now - timedelta(hours=hours), 'status': 'pending', 'reserved_micros': 100})
+    assert admin_reports.rolling_usage(ref, now) == {
+        'usage_24_hours_micros': 100, 'usage_7_days_micros': None}
+    ref.collection('reservations').document('0').set({'reserved_micros': None}, merge=True)
+    assert admin_reports.rolling_usage(ref, now) == {
+        'usage_24_hours_micros': None, 'usage_7_days_micros': None}

@@ -1,0 +1,130 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: people_places
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/people-places/people-places-explained-in-portuguese.yaml
+sections:
+  - subskill_id: identification
+    explanation: Ao conhecer alguém, uma apresentação curta diz quem você é. O espanhol usa `ser` para
+      identidade; `soy` significa sou. O verbo já identifica quem fala, então você pode se
+      apresentar sem acrescentar `yo`.
+    examples:
+      - text: Soy Ana.
+        meaning: “Sou Ana.” `Soy` apresenta quem fala, e `Ana` informa o nome. Não há artigo antes do nome
+          nessa apresentação.
+        note: "**Adapte.** `Soy Luis` apresenta Luís; `Ella es Ana` identifica outra pessoa. Troque `soy`
+          por `es` quando o sujeito é ela. `Estoy Ana` não expressa essa identidade. **Pratique.**
+          Apresente-se como Marta. Resposta: `Soy Marta`. Mantenha `soy` e troque o nome."
+  - subskill_id: qualities_states
+    explanation: Antes de entrar numa sala, pode ser importante dizer se a porta está aberta. `Estar`
+      descreve o estado em que você a encontra. `Ser` e `estar` produzem descrições diferentes;
+      perguntar apenas se algo é permanente não é critério confiável para escolher entre eles.
+    examples:
+      - text: La puerta está abierta.
+        meaning: “A porta está aberta.” `La puerta` nomeia a porta, `está` descreve seu estado, e `abierta`
+          significa aberta. A terminação de `abierta` concorda com o substantivo feminino singular
+          `puerta`.
+        note: "**Adapte.** `Las puertas están abiertas` descreve várias portas: verbo e adjetivo mudam. `La
+          puerta es grande` descreve uma qualidade da porta, seu tamanho. **Pratique.** Diga que a
+          porta está fechada usando `cerrada`. Resposta: `La puerta está cerrada`. O estado muda;
+          sujeito e verbo ficam iguais."
+  - subskill_id: location_movement
+    explanation: Se alguém procura um livro, informar sua localização ajuda a encontrá-lo. `Estar`
+      localiza pessoa ou objeto, e uma expressão de lugar torna a resposta útil. Aqui o livro está
+      sobre uma mesa.
+    examples:
+      - text: El libro está en la mesa.
+        meaning: “O livro está sobre a mesa.” `El libro` é o livro, `está` indica sua localização, e `en la
+          mesa` dá o lugar. `En` pode significar dentro ou sobre; a relação entre os objetos
+          determina a interpretação.
+        note: "**Compare.** `Voy a la mesa` descreve movimento em direção à mesa, não localização. Em `El
+          libro está aquí`, `aquí` substitui toda a expressão de lugar. **Pratique.** Localize o
+          livro numa mochila usando `la mochila`. Resposta: `El libro está en la mochila`. Use `en`
+          para a localização, não `a` de movimento."
+  - subskill_id: possession_relations
+    explanation: "Quando duas pessoas têm livros parecidos, indicar o dono os distingue. O espanhol pode
+      usar `de` depois do objeto e então nomear seu dono. Um possessivo como `mi` também identifica
+      uma relação: aqui informa de quem é a irmã."
+    examples:
+      - text: Es el libro de mi hermana.
+        meaning: “É o livro da minha irmã.” `Es` identifica o livro em discussão; `el libro` nomeia o
+          objeto. `De mi hermana` indica que pertence à minha irmã. `Mi` relaciona a irmã a quem
+          fala, em vez de descrever o livro.
+        note: "**Adapte.** `Es mi libro` diz que o livro é meu. `Son mis libros` descreve vários livros:
+          `mis` concorda com os livros, não com o número de donos. O espanhol não usa aqui o
+          apóstrofo possessivo do inglês. **Pratique.** Diga que é o livro do seu irmão usando `mi
+          hermano`. Resposta: `Es el libro de mi hermano`. Mantenha `de` antes do dono."
+  - subskill_id: quantity_comparison
+    explanation: Escolher uma caixa é mais fácil ao compará-la com outra. O espanhol põe `más` antes de
+      uma qualidade e `que` antes do objeto de comparação. Esta frase compara tamanho, não conta
+      caixas.
+    examples:
+      - text: Esta caja es más grande que esa.
+        meaning: “Esta caixa é maior que aquela.” `Esta caja` identifica a caixa próxima; `es más grande`
+          indica que ela é maior. `Que esa` aponta para a outra caixa sem repetir `caja`. `Esta` e
+          `esa` concordam com o substantivo feminino.
+        note: "**Adapte.** `Esta caja es menos grande que esa` inverte a comparação. `Tengo más cajas` fala
+          de um número maior de caixas. Mantenha `que` ao indicar o outro item comparado.
+          **Pratique.** Compare dois livros com `este libro` e `ese`. Resposta: `Este libro es más
+          grande que ese`. Os demonstrativos passam ao masculino porque `libro` é masculino."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: reasons_connections
+explanation_language: spanish
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-spanish.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Una bicicleta averiada puede explicar por qué hoy eliges el autobús. Primero aparece la
+      decisión y después `因为` introduce su motivo. El mandarín también permite colocar la razón al
+      principio si encaja mejor en la conversación.
+    examples:
+      - text: 我坐公交车，因为自行车坏了。
+        meaning: "**El ejemplo.** Voy en autobús porque mi bicicleta está averiada. `坐公交车` significa ir en
+          autobús. `因为` significa porque y `自行车坏了` dice que la bicicleta se ha estropeado: `坏`
+          describe el estado de avería y el `了` final señala el cambio de situación."
+        note: "Prueba a poner la razón al principio. Respuesta: `因为自行车坏了，所以我坐公交车。` `所以` introduce el
+          resultado después de la razón. Los dos conectores pueden aparecer juntos de forma natural;
+          `了` por sí solo no indica si la avería ocurrió hoy o antes."
+  - subskill_id: consequences
+    explanation: El cierre de un puente obliga a cambiar de ruta. `所以` conecta ese problema con lo que
+      hizo el grupo como resultado, aclarando la relación más que una simple lista de dos sucesos.
+    examples:
+      - text: 桥封了，所以我们换了一条路。
+        meaning: "**El ejemplo.** Cerraron el puente, así que tomamos otra ruta. `桥封了` indica que el puente
+          pasó a estar cerrado. `我们换了一条路` informa de un cambio a otra ruta: `换` significa cambiar,
+          el `了` que le sigue marca el suceso y `一条路` cuenta una ruta con `条`."
+        note: "Prueba a decir que el grupo cambió de ruta porque estaba cerrado el camino. Respuesta:
+          `路封了，所以我们换了一条路。` Sustituye `桥` por `路` en la primera oración. `然后` significa después y
+          puede ordenar sucesos sin expresar la relación causal que aporta `所以`."
+  - subskill_id: conditions
+    explanation: La salida de mañana puede depender del tiempo. `如果` introduce un suceso que no está
+      confirmado y `就` vincula esa condición con la respuesta del grupo si ocurre.
+    examples:
+      - text: 如果明天下雨，我们就改天去。
+        meaning: "**El ejemplo.** Si llueve mañana, iremos otro día. `明天下雨` significa llover mañana.
+          `我们就改天去` significa entonces iremos otro día: `改天` indica otro día y `去` significa ir. El
+          plan solo cambia bajo la condición de que llueva."
+        note: "Prueba a usar el frío como condición. Respuesta: `如果明天很冷，我们就改天去。` Sustituye `下雨` por `很冷`,
+          hacer frío. `因为明天下雨` presenta la lluvia como una razón; `如果` la deja como condición, sin
+          afirmar que vaya a ocurrir."
+  - subskill_id: contrast
+    explanation: Una ruta corta puede ser difícil de recorrer por una pendiente pronunciada. `虽然`
+      introduce el punto favorable y `但是` destaca el inconveniente que limita su utilidad.
+    examples:
+      - text: 虽然路很短，但是坡很陡。
+        meaning: "**El ejemplo.** Aunque la ruta es corta, la pendiente es pronunciada. `路很短` significa que
+          la ruta es corta y `坡很陡`, que la pendiente es pronunciada. Cada cualidad se describe
+          directamente con `很`; `虽然` y `但是` unen las dos ideas como concesión y contraste."
+        note: "Prueba a decir que la ruta es larga, pero la pendiente es suave. Respuesta: `虽然路很长，但是坡很缓。`
+          Sustituye `短` por `长` y `陡` por `缓`. Combinar `虽然` y `但是` es normal en mandarín; no hay
+          que trasladar mecánicamente las restricciones de otro idioma sobre aunque y pero."
+  - subskill_id: supporting_claims
+    explanation: Que una luz siga encendida puede sugerir que hay alguien dentro. Exponer la observación
+      después de `因为` muestra por qué lo piensas, mientras que `我觉得` presenta la conclusión como tu
+      juicio, no como conocimiento seguro.
+    examples:
+      - text: 我觉得里面还有人，因为灯还亮着。
+        meaning: "**El ejemplo.** Creo que todavía hay alguien dentro porque la luz sigue encendida. `里面`
+          significa dentro y `还有人` dice que todavía hay alguien: `有` expresa presencia. `灯还亮着`
+          significa que la luz sigue encendida, con `还` indicando todavía y `着` manteniendo en
+          primer plano ese estado."
+        note: "Prueba a apoyar la misma inferencia en que se siguen oyendo voces. Respuesta:
+          `我觉得里面还有人，因为里面还有说话声。` `说话声` significa el sonido de personas hablando. La observación
+          respalda la creencia; no causa que las personas estén dentro. Ninguna de las dos pistas
+          hace segura la conclusión."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

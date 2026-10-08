@@ -1,0 +1,173 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: information_exchange
+explanation_language: spanish
+shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Si sabes que un suceso ocurre pero desconoces cuándo, necesitas preguntar por ese dato.
+      `فِي أَيِّ سَاعَةٍ` significa a qué hora. El ejemplo pregunta por el cierre de una tienda, así
+      que una respuesta útil indica una hora, no solo sí o no.
+    examples:
+      - text: فِي أَيِّ سَاعَةٍ يُغْلِقُ الْمَحَلُّ؟
+        meaning: "**El ejemplo.** ¿A qué hora cierra la tienda? `فِي أَيِّ سَاعَةٍ` pregunta en qué hora.
+          `يُغْلِقُ` significa cierra y `الْمَحَلُّ`, la tienda. La preposición `فِي` inicia la
+          expresión temporal; en este ejemplo el verbo precede a la tienda."
+        note: >-
+          **Construye una respuesta.** `فِي السَّاعَةِ الْخَامِسَةِ` significa a las cinco. Basta
+          con esa expresión de tiempo porque la pregunta ya identifica la tienda y la acción.
+
+
+          **Practica.** ¿Qué expresión debe sustituir la respuesta? Respuesta: `فِي أَيِّ سَاعَةٍ`.
+  - subskill_id: answering_information
+    explanation: Si alguien pregunta a qué hora cierra una tienda, falta la hora. Una expresión de
+      tiempo puede responder por completo en la conversación porque la pregunta ya nombra la tienda
+      y el cierre.
+    examples:
+      - text: فِي السَّاعَةِ الْخَامِسَةِ.
+        meaning: "**El ejemplo.** A las cinco. Aquí `فِي` significa a. `السَّاعَةِ` es la hora y
+          `الْخَامِسَةِ`, quinta; juntos indican las cinco. La expresión horaria usa un ordinal que
+          concuerda con la palabra femenina para hora."
+        note: "Para las seis, usa `فِي السَّاعَةِ السَّادِسَةِ`. No confundas la hora cinco con una duración
+          de cinco horas. **Practica:** contesta que la tienda cierra a las seis. Respuesta: `فِي
+          السَّاعَةِ السَّادِسَةِ`; cambia el ordinal y se conserva la estructura horaria."
+  - subskill_id: checking_facts
+    explanation: Crees que la tienda está cerrada hoy, pero quieres confirmarlo antes de hacer planes.
+      Enuncia lo que crees y añade una pregunta breve para que la otra persona lo confirme o
+      corrija.
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
+        meaning: "**El ejemplo.** La tienda está cerrada hoy, ¿verdad? `الْمَحَلُّ مُغْلَقٌ` indica que la
+          tienda está cerrada; `الْيَوْمَ` es hoy. `أَلَيْسَ كَذٰلِكَ؟` significa ¿no es así? La
+          afirmación plantea el dato y la pregunta final lo comprueba."
+        note: "Cambiar `الْيَوْمَ` por `غَدًا` comprueba si estará cerrada mañana. No es una pregunta
+          abierta sobre la hora de cierre; propone un hecho específico. **Practica:** ¿a qué debe
+          referirse una corrección útil? Respuesta: a si la tienda está cerrada hoy, no a una hora
+          de apertura sin relación."
+  - subskill_id: useful_detail
+    explanation: Alguien intenta encontrar una entrada. Nombrar un punto de referencia cercano permite
+      distinguirla de otros lugares; el detalle sirve directamente a su próxima acción.
+    examples:
+      - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
+        meaning: "**El ejemplo.** La entrada está junto a la panadería. `الْمَدْخَلُ` es la entrada.
+          `بِجَانِبِ` significa junto a y `الْمَخْبَزِ`, la panadería. La expresión sitúa la entrada
+          respecto de una referencia, sin un verbo presente separado equivalente a está."
+        note: "Puedes usar `الْمَكْتَبِ`, la oficina, como nueva referencia: `الْمَدْخَلُ بِجَانِبِ
+          الْمَكْتَبِ`. Junto a no significa dentro. **Practica:** ¿dónde debe buscarse la entrada?
+          Respuesta: al lado de la panadería, no dentro; la expresión de relación marca esa
+          diferencia."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: asking_information
+      explanation: "Una pregunta sobre la hora ayuda a planear una acción, como llegar a una tienda antes
+        del cierre. `أَيّ سَاعَة` pregunta a qué hora. El resto identifica el suceso que necesitas
+        tener en cuenta: aquí, el cierre de la tienda."
+      examples:
+        - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
+          meaning: "**El ejemplo.** ¿A qué hora cierra la tienda? `أَيّ سَاعَة` pregunta qué hora;
+            `بِيْسَكِّرْ` significa cierra en este patrón hablado y `الْمَحَلّ` nombra la tienda.
+            Observa el prefijo b de este presente habitual."
+          note: >-
+            **Construye una respuesta.** `عَ السَّاعَة خَمْسِة` significa a las cinco en este modelo
+            hablado. La expresión horaria basta para contestar.
+
+
+            **Practica.** ¿Responder solo sí resolvería la pregunta? No: hay que dar la hora de
+            cierre. Las palabras interrogativas indican el dato faltante.
+    - subskill_id: answering_information
+      explanation: Si alguien pregunta a qué hora cierra una tienda, falta la hora. Una expresión de
+        tiempo puede responder por completo en la conversación porque la pregunta ya nombra la
+        tienda y el cierre.
+      examples:
+        - text: عَ السَّاعَة خَمْسِة.
+          meaning: "**El ejemplo.** A las cinco. `عَ` introduce la hora; `السَّاعَة` significa la hora y
+            `خَمْسِة`, cinco. Juntas forman la hora del reloj. Este patrón hablado usa aquí el
+            número, sin repetir el verbo cerrar."
+          note: "Para las seis, usa `عَ السَّاعَة سِتِّة`. Añade contexto de mañana o tarde si la hora puede
+            confundirse. **Practica:** ¿dice la frase que la tienda permanece abierta cinco horas?
+            Respuesta: no; da una hora del reloj, no una duración."
+    - subskill_id: checking_facts
+      explanation: Crees que la tienda está cerrada hoy, pero quieres confirmarlo antes de hacer planes.
+        Enuncia lo que crees y añade una pregunta breve para que la otra persona lo confirme o
+        corrija.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
+          meaning: "**El ejemplo.** La tienda está cerrada hoy, ¿verdad? `الْمَحَلّ مْسَكَّرْ` significa que
+            está cerrada; `الْيَوْمْ` es hoy. El `صَحّ؟` final equivale a ¿verdad? e invita a
+            confirmar la afirmación anterior."
+          note: "Sin `صَحّ؟`, las palabras pueden simplemente anunciar el cierre. La entonación interrogativa
+            permite corregir el dato. **Practica:** sustituye hoy por mañana. Respuesta: `الْمَحَلّ
+            مْسَكَّرْ بُكْرَا، صَحّ؟`; cambia el día y se mantiene la petición de confirmación."
+    - subskill_id: useful_detail
+      explanation: Alguien intenta encontrar una entrada. Nombrar un punto de referencia cercano permite
+        distinguirla de otros lugares; el detalle sirve directamente a su próxima acción.
+      examples:
+        - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
+          meaning: "**El ejemplo.** La entrada está junto a la panadería. `الْمَدْخَلْ` es la entrada,
+            `جَنْبْ` significa al lado de y `الْمَخْبَزْ`, la panadería. La referencia sigue a la
+            palabra de ubicación. La frase entera indica dónde mirar, no solo enumera dos lugares."
+          note: "Para usar una oficina de referencia, di `الْمَدْخَلْ جَنْبْ الْمَكْتَبْ`. Conserva la palabra
+            de relación para que el nuevo punto sea útil. **Practica:** ¿qué se pierde si solo
+            nombras la panadería? Respuesta: la relación entre ella y la entrada; `جَنْبْ` la
+            especifica."

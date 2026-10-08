@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: time_events
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 有人问你此刻在做什么。说出动作并加上“现在”，就能明确你描述的是正在进行的活动。
+    examples:
+      - text: أَكْتُبُ رِسَالَةً الْآنَ.
+        meaning: "**例句。** 我现在正在写一封信。`أَكْتُبُ` 意为我写；`رِسَالَةً` 是一封信；`الْآنَ`
+          是现在。第一人称形式指出写信的人。阿拉伯语借这个动词形式和时间语境表达“正在写”，无需另加一个“是”。"
+        note: 换一个语境，相同动词也能描述习惯。试一试：把对象从信改为书，同时保留现在正在进行的意思。答案：`أَكْتُبُ كِتَابًا الْآنَ`。宾语改成
+          `كِتَابًا`；第一人称形式和“现在”都保留。
+  - subskill_id: past_events
+    explanation: 告诉别人昨天完成了什么时，用过去动作加时间短语。这里说话人报告写了一封信，不是说眼下正在写。
+    examples:
+      - text: كَتَبْتُ رِسَالَةً أَمْسِ.
+        meaning: "**例句。** 昨天我写了一封信。`كَتَبْتُ` 意为我写了；词尾标明第一人称。`رِسَالَةً` 是一封信，`أَمْسِ` 是昨天。动词本身已经表示过去，昨天则给出具体日期。"
+        note: 比较对一名男子说的 `كَتَبْتَ`（你写了）与第一人称 `كَتَبْتُ`。试一试：报告昨天我们写了一封信。答案：`كَتَبْنَا رِسَالَةً أَمْسِ`。过去式词尾换成
+          `نَا`；信和日期不变。
+  - subskill_id: future_events
+    explanation: 你告诉别人明天的探访计划。未来表达把行动放在现在之后；朋友与日期使计划具体。
+    examples:
+      - text: سَأَزُورُ صَدِيقِي غَدًا.
+        meaning: "**例句。** 我明天会探望朋友。`سَأَزُورُ` 把将来标记 `سَـ` 与“我探访”连起来。`صَدِيقِي` 指我的男性朋友，附着词尾表示“我的”。`غَدًا`
+          是明天。这句陈述计划；只有在合适的对话里，它才可能成为承诺。"
+        note: 没有将来标记 `سَـ` 时，动词可依语境描述当前或经常的探访。试一试：把探访改到今天。答案：`سَأَزُورُ صَدِيقِي الْيَوْمَ`。将来标记仍表示现在之后才探访；今天限定日期。
+  - subskill_id: duration_frequency
+    explanation: 询问日常活动时，常需要频率，例如每周几次。这个例子数的是游泳的次数，不是每次游多久。
+    examples:
+      - text: أَسْبَحُ مَرَّتَيْنِ فِي الْأُسْبُوعِ.
+        meaning: "**例句。** 我每周游泳两次。`أَسْبَحُ` 意为我游泳。`مَرَّتَيْنِ` 用“次”的双数形式表示两次；`فِي الْأُسْبُوعِ`
+          在这里表示每周。间隔和次数一起说明活动有多频繁。"
+        note: 若每周一次，用 `مَرَّةً فِي الْأُسْبُوعِ`。两次不是两小时；时长需要时间单位短语。试一试：改成每周一次。答案：`أَسْبَحُ مَرَّةً فِي
+          الْأُسْبُوعِ`；间隔仍是一周。
+  - subskill_id: event_sequence
+    explanation: 大家在安排晚上的活动时，“先”和“然后”说明遵循什么顺序。先后不等于前一件事导致后一件。
+    examples:
+      - text: أَوَّلًا نَأْكُلُ، ثُمَّ نَخْرُجُ.
+        meaning: "**例句。** 我们先吃饭，然后出门。`أَوَّلًا` 意为首先；`نَأْكُلُ` 是我们吃。`ثُمَّ` 是然后，`نَخْرُجُ`
+          是我们出去。两个动词都用“我们”形式，因此说的是一组人共同的顺序，不是只叫一名听话人行动。"
+        note: 试一试：改说先出门，再吃饭。答案：`أَوَّلًا نَخْرُجُ، ثُمَّ نَأْكُلُ`。把两个完整动作放到新位置。`ثُمَّ` 标明顺序；若要表达结果，需要像
+          `لِذٰلِكَ`（因此）这样的词。
+  - subskill_id: event_phase
+    explanation: 有人想知道你是否还在读一本书。说已经读完，明确指出达到了终点，比只说早些时候读过更具体。
+    examples:
+      - text: أَنْهَيْتُ قِرَاءَةَ الْكِتَابِ.
+        meaning: "**例句。** 我读完这本书了。`أَنْهَيْتُ` 意为我完成了。`قِرَاءَةَ` 是阅读，`الْكِتَابِ` 指被读的书。表示阅读的活动名词跟在完成动词后；过去式第一人称词尾在
+          `أَنْهَيْتُ` 上。"
+        note: 只说过去读过，不足以证明已经读完。需要表达整项活动已到终点，就要保留完成动词。试一试：哪一部分说明阅读已完成？答案：`أَنْهَيْتُ`；书的短语只指出读的是什么。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahDualTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: present_events
+      explanation: 有人问你此刻在做什么。说出动作并加上“现在”，就能明确你描述的是正在进行的活动。
+      examples:
+        - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
+          meaning: "**例句。** 我现在正在写一封信。`هَلَّقْ` 意为现在。`عَمْ` 标明活动进行中；`بَكْتُبْ` 是我写，`رِسَالِة`
+            是一封信。进行标记告诉听话人写信尚在进行，而不是报告信已写完。"
+          note: 比较 `بَكْتُبْ رِسَالِة`，意为我写信；没有进行框架时，语境可能使它读作习惯。试一试：改成我现在正在写一本书。答案：`هَلَّقْ عَمْ بَكْتُبْ
+            كِتَابْ`；替换宾语，保留进行中表达。
+    - subskill_id: past_events
+      explanation: 告诉别人昨天完成了什么时，用过去动作加时间短语。这里说话人报告写了一封信，不是说眼下正在写。
+      examples:
+        - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
+          meaning: "**例句。** 昨天我写了一封信。`كَتَبْتْ` 在这里意为我写了；`رِسَالِة` 是一封信，`مْبَارِحْ`
+            是昨天。词尾标记过去形式。在这个口语范例中，书写形式也可能用于称呼一名男子，因此需要语境帮助辨认人称。"
+          note: 加 `أَنَا` 可以明确“我”的读法。试一试：说昨天我们写了一封信。答案：`كَتَبْنَا رِسَالِة مْبَارِحْ`。表示“我们”的词尾 `نَا` 指出小组；时间和宾语不变。
+    - subskill_id: future_events
+      explanation: 你告诉别人明天的探访计划。未来表达把行动放在现在之后；朋友与日期使计划具体。
+      examples:
+        - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
+          meaning: "**例句。** 我明天会探望朋友。`رَحْ` 标记未来，后面的 `أَزُورْ` 是依附形式的我探访。`صَاحْبِي` 指我的男性朋友，`بُكْرَا` 是明天。`رَحْ`
+            后的动作没有普通 b- 前缀。"
+          note: 把 `رَحْ` 保留在从属动作前。试一试：把探访改到今天。答案：`رَحْ أَزُورْ صَاحْبِي الْيَوْمْ`。换掉 `بُكْرَا` 改变日期，但不改变未来结构或探访的人。
+    - subskill_id: duration_frequency
+      explanation: 询问日常活动时，常需要频率，例如每周几次。这个例子数的是游泳的次数，不是每次游多久。
+      examples:
+        - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
+          meaning: "**例句。** 我每周游泳两次。`بَسْبَحْ` 是报告常规习惯时的“我游泳”。`مَرَّتَيْنْ` 意为两次，`بِالْأُسْبُوعْ` 意为每周。b-
+            前缀适合报告习惯，数字说明发生几回。"
+          note: 每周一次说 `بَسْبَحْ مَرَّة بِالْأُسْبُوعْ`。双数计量发生次数，不是游泳的人数。试一试：原句说明每次游多久吗？答案：没有；它说的是频率，时长需要另一短语。
+    - subskill_id: event_sequence
+      explanation: 大家在安排晚上的活动时，“先”和“然后”说明遵循什么顺序。先后不等于前一件事导致后一件。
+      examples:
+        - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
+          meaning: "**例句。** 我们先吃饭，然后出门。`أَوَّلْ شِي` 意为首先；`بِنَاكُلْ` 在这个口语范例中是我们吃。`بَعْدَيْنْ` 是然后，`بِنِطْلَعْ`
+            是我们出去。普通的带 b- 前缀形式描述大家已安排的顺序。"
+          note: 表示先后的短语可以保留，同时交换两个活动。试一试：说先出门，然后吃饭。答案：`أَوَّلْ شِي بِنِطْلَعْ، بَعْدَيْنْ
+            بِنَاكُلْ`。两个动词交换位置，顺序随之反转，参与的人不变。
+    - subskill_id: event_phase
+      explanation: 有人想知道你是否还在读一本书。说已经读完，明确指出达到了终点，比只说早些时候读过更具体。
+      examples:
+        - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
+          meaning: "**例句。** 我读完这本书了。`خَلَّصْتْ` 在这里意为我完成了。`قِرَايِة` 是阅读，`الْكِتَابْ` 是这本书。活动名词说出完成的是什么；“完成”的过去式形式标明终点。"
+          note: 若语境不清，可加 `أَنَا` 明确说话人。读过一部分不等于读完。试一试：原句能自然回答“你还在读吗”？答案：能；它说阅读已经结束，而不只是过去曾读过。

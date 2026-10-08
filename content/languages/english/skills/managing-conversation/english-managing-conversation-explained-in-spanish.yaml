@@ -1,0 +1,135 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: managing_conversation
+language: english
+explanation_language: spanish
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Una despedida permite reconocer que la conversación está terminando. Después de hablar
+      con alguien a quien esperas volver a ver, un comentario amable seguido de una despedida te
+      permite irte sin cortar bruscamente el intercambio.
+    examples:
+      - text: It was good to talk. See you tomorrow.
+        meaning: "`It was good to talk` valora positivamente la conversación. `See you tomorrow` es una
+          despedida breve que menciona el próximo encuentro. Se sobreentienden las palabras
+          omitidas; no siempre hace falta una oración completa."
+        note: >-
+          Para empezar, usa un saludo como `Hello, how are you?`; para terminar, una despedida. `See
+          you tomorrow` conviene cuando esperas ver a la persona mañana. Si no sabes cuándo, `See
+          you later` es menos específico.
+
+
+          **Practica.** Despídete si volveréis a veros el viernes. Respuesta: `It was good to talk.
+          See you on Friday`. `On Friday` nombra el día real; `tomorrow` significaría el día
+          siguiente.
+  - subskill_id: acknowledging
+    explanation: Una señal de recepción muestra a quien habla que has recibido su mensaje. Después de
+      que te expliquen dónde recoger un paquete, una respuesta breve puede mostrar que has entendido
+      las indicaciones y que pueden continuar o terminar.
+    examples:
+      - text: Right, I understand.
+        meaning: En este contexto, `Right` indica que has recibido la explicación. `I understand` dice que
+          su significado está claro. Juntas, estas expresiones reconocen lo dicho sin repetirlo
+          entero.
+        note: >-
+          Comprender no es lo mismo que estar de acuerdo. Puedes decir `I understand, but I
+          disagree` si entiendes la idea pero no la compartes. Si aún tienes dudas, pregunta por el
+          punto concreto en vez de fingir que lo has entendido.
+
+
+          **Practica.** Te explican que tu paquete está en recepción. Confirma el detalle: `Right, I
+          understand. I’ll collect it at reception`. Repetir el lugar clave permite que te corrijan
+          si hace falta.
+  - subskill_id: clarification
+    explanation: Pedir una aclaración ayuda a reparar una falta de comprensión durante una conversación.
+      Quizá necesites que repitan algo que no oíste, expliquen una palabra desconocida o expresen la
+      misma idea de otra forma. La pregunta puede precisar qué ayuda necesitas.
+    examples:
+      - text: What do you mean by the second option?
+        meaning: "**Cómo funciona.** `Mean by` pregunta cómo usa la otra persona una expresión. `The second
+          option` repite la parte poco clara. Una respuesta útil podría ser `I mean taking the train
+          instead of the bus`, que aporta el dato faltante."
+        note: >-
+          **Elige la ayuda necesaria.** Si no oíste bien, pregunta `Could you repeat the last part?`
+          Si tienes una interpretación posible, compruébala: `Do you mean taking the train?` Así la
+          otra persona podrá confirmarla o corregirla.
+
+
+          **Practica.** Alguien dice `Use the usual entrance`, pero no sabes cuál es. Una respuesta:
+          `What do you mean by the usual entrance?` Repetir la expresión dudosa hace que la pregunta
+          sea precisa.
+  - subskill_id: rephrasing
+    explanation: Reformular ayuda cuando tu primera explicación fue difícil de seguir. Supón que has
+      explicado un horario, pero tu amistad aún no comprende qué implica para la salida. Expresa de
+      nuevo el punto práctico con palabras más sencillas.
+    examples:
+      - text: In other words, we need to leave before lunch.
+        meaning: "`In other words` anuncia otra manera de expresar la misma idea. `We need to leave`
+          comunica la necesidad y `before lunch` fija el momento. La nueva oración facilita usar la
+          explicación anterior."
+        note: >-
+          Reformula el sentido, no solo una palabra difícil. Si en realidad cambias el plan,
+          indícalo: `Actually, let’s leave after lunch`. Eso introduce una decisión nueva, no otra
+          versión de la anterior.
+
+
+          **Practica.** Aclara a una visita `The last entry is at four`. Una respuesta: `In other
+          words, we need to arrive by four`. `By four` indica la hora límite de llegada.
+  - subskill_id: correcting_misunderstanding
+    explanation: Una corrección sustituye un dato entendido erróneamente por el que querías comunicar.
+      Si tu amistad repite jueves cuando dijiste martes, nombra ambos días para dejar clara la
+      diferencia. Una corrección breve suele servir mejor que repetir toda la conversación.
+    examples:
+      - text: I meant Tuesday, not Thursday.
+        meaning: "`I meant` remite a lo que querías decir; `meant` es el pasado de `mean`. `Tuesday` aporta
+          el día correcto y `not Thursday` descarta el que la otra persona entendió."
+        note: >-
+          `I meant Tuesday` repara el mensaje. `I’ve changed it to Tuesday` comunica que ha cambiado
+          el propio plan. Si causaste la confusión, puedes añadir `Sorry, I meant Tuesday` sin
+          perder la corrección.
+
+
+          **Practica.** Tu amistad oyó quince, pero dijiste cincuenta. Respuesta: `I meant fifty,
+          not fifteen`. Da primero el número correcto y rechaza expresamente el equivocado.
+  - subskill_id: turns_topics
+    explanation: A veces una conversación avanza antes de que hayas preguntado lo necesario. En una
+      reunión, puedes señalar que necesitas un turno breve sobre el tema actual. Así el grupo
+      entiende por qué intervienes.
+    examples:
+      - text: Before we move on, can I ask about the price?
+        meaning: "`Before we move on` se refiere a dejar el asunto actual. `Can I ask` pide espacio para
+          hablar y `about the price` precisa el tema de la pregunta. Aquí `Move on` significa seguir
+          con la conversación, no desplazarse físicamente."
+        note: >-
+          Para cambiar de asunto, `By the way, how was your trip?` señala la transición. Para
+          continuar con el tema actual, nombra el punto pendiente. Si puedes, espera una pausa
+          adecuada; la frase por sí sola no hace bienvenida cualquier interrupción.
+
+
+          **Practica.** Pide hablar de la entrega antes de cambiar de asunto. Respuesta: `Before we
+          move on, can I ask about delivery?` Nombrar la entrega explica qué turno necesitas.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored Spanish localization of current english guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - dingemanse2015_communication_repair
+        - bcCheckingUnderstandingTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcAgreementTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original english constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

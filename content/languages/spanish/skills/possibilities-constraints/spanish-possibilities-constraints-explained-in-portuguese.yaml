@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: possibilities_constraints
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: ability
+    explanation: O espanhol distingue saber fazer algo de poder fazê-lo numa situação específica. Para
+      uma habilidade aprendida, como nadar ou cozinhar, `saber` seguido de infinitivo significa
+      saber como. O infinitivo é a forma de dicionário do verbo, como `nadar`. O exemplo descreve
+      uma habilidade aprendida por quem fala.
+    examples:
+      - text: Sé nadar.
+        meaning: "**Como funciona.** Significa “sei nadar”. `Sé` já identifica quem fala, então `yo` é
+          opcional. `Nadar` permanece no infinitivo. Preserve o acento escrito em `sé`; `se` sem
+          acento é outra palavra."
+        note: "**Compare.** `Puedo nadar hoy` significa que as circunstâncias permitem nadar hoje. É
+          possível saber nadar e não poder nadar hoje. Para negar, ponha `no` antes do primeiro
+          verbo: `No sé nadar`. **Pratique.** Diga que ela sabe cozinhar usando `cocinar`. Resposta:
+          `Ella sabe cocinar`. Mude o primeiro verbo e mantenha a atividade no infinitivo."
+  - subskill_id: permission
+    explanation: Quando uma ação depende do consentimento de alguém, uma pergunta com `poder` pode pedir
+      permissão. `¿Puedo…?` pergunta se eu posso fazer algo; serve ao chegar a uma porta, num espaço
+      compartilhado ou antes de pegar um objeto emprestado. A ação vem no infinitivo, como `entrar`,
+      entrar.
+    examples:
+      - text: ¿Puedo entrar?
+        meaning: "**Como funciona.** “Posso entrar?” combina `puedo`, que pergunta se eu posso, com
+          `entrar`, entrar. À porta, a outra pessoa pode permitir ou recusar. Não se acrescenta um
+          verbo auxiliar equivalente ao “do” inglês."
+        note: "**Mude a pessoa.** `¿Puedes entrar?` pergunta se você pode entrar; já não pede permissão para
+          mim. `¿Podría entrar?` é uma maneira mais cautelosa de pedir para mim. Tom e relação
+          também importam. **Pratique.** Peça permissão para usar uma cadeira com `usar esta silla`.
+          Resposta: `¿Puedo usar esta silla?` Uma resposta possível é `Sí, claro`: sim, claro."
+  - subskill_id: obligation
+    explanation: Uma exigência é algo que alguém precisa ou deve fazer. O espanhol costuma expressá-la
+      com `tener que` seguido de infinitivo. No exemplo, quem fala precisa sair. A frase indica essa
+      necessidade; a conversa pode fornecer o motivo, como um compromisso ou horário de fechamento.
+    examples:
+      - text: Tengo que salir.
+        meaning: "**Como funciona.** “Tenho que sair” usa `tengo` para eu. Para outra pessoa, mude essa
+          forma: `Ella tiene que salir`. Mantenha `que salir` inalterado. A frase apresenta a
+          obrigação; a conversa explica por que é necessário sair."
+        note: "**Compare.** `Hay que salir` diz que é preciso sair sem identificar alguém. `No tengo que
+          salir` normalmente significa que não sou obrigado a sair, não que sair é proibido.
+          **Pratique.** Diga que precisa devolver a chave usando `devolver la llave`. Resposta:
+          `Tengo que devolver la llave`. Não retire `que` entre os verbos."
+  - subskill_id: possibility
+    explanation: Às vezes você quer mencionar um resultado sem garantir que acontecerá. O espanhol usa
+      `puede que` para essa possibilidade. O verbo seguinte fica no subjuntivo, forma exigida por
+      essa construção. Numa previsão do tempo, admite-se chuva sem afirmá-la como certa.
+    examples:
+      - text: Puede que llueva.
+        meaning: "**Como funciona.** “Pode chover” usa `llueva`, de `llover`, chover. Compare `Llueve`, está
+          chovendo, com `Puede que llueva`, pode chover. O espanhol dispensa um sujeito separado
+          equivalente ao “it” meteorológico inglês."
+        note: "**Mude a possibilidade.** Ponha `no` depois de `que` para admitir que não chova: `Puede que
+          no llueva`. O resultado continua incerto. Acrescente `mañana` para amanhã: `Puede que
+          llueva mañana`. **Pratique.** Diga que talvez não chova amanhã. Resposta: `Puede que no
+          llueva mañana`. Mantenha `llueva` nesse padrão; não use `llueve`."
+  - subskill_id: certainty
+    explanation: Você pode ter alguma informação sem estar pronto para confirmá-la. `No estoy seguro` ou
+      `No estoy segura` expressa falta de certeza. Descreve seu grau de confiança sem dizer que a
+      afirmação é falsa. A terminação de `seguro` ou `segura` concorda com quem fala.
+    examples:
+      - text: No estoy seguro.
+        meaning: "**Como funciona.** “Não tenho certeza” usa a forma masculina. Quem emprega concordância
+          feminina diz `No estoy segura`. O adjetivo descreve quem fala, não o gênero gramatical do
+          assunto. Nenhuma das duas formas afirma que a outra pessoa está errada."
+        note: "**Dê um assunto à dúvida.** `No estoy seguro de la hora` significa não tenho certeza sobre a
+          hora. `No sé` diz que não sei; pode ser uma resposta direta quando falta a informação.
+          **Pratique.** Uma mulher não consegue confirmar a hora. Uma resposta: `No estoy segura de
+          la hora`. Mantenha `estoy` para eu e mude a terminação do adjetivo."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesSaberTeaching20261007
+    - raePoderTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

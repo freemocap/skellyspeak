@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: feelings_viewpoints
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-arabic.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: بعد يوم حافل، قد ترغب في الراحة بدل نشاط آخر. تعبّر `Querer` متبوعةً بالمصدر عما تريد
+      فعله أنت. تسمّي رغبةً؛ ولا تَعِد الجملة وحدها بأنك ستحققها.
+    examples:
+      - text: Quiero descansar.
+        meaning: «أريد أن أستريح.» تحدد `Quiero` رغبة المتحدث، وتسمّي `descansar` النشاط. يتغير الفعل الأول
+          وحده بحسب الشخص؛ ويبقى فعل النشاط في صيغة المصدر.
+        note: >-
+          **عدّلها.** تصف `Ella quiere descansar` رغبتها. وتعرض `Voy a descansar` الراحة خطةً بدلًا
+          من ذلك. لا تصرّف الفعلين معًا على هيئة `quiero descanso`.
+
+
+          **جرّب.** قل إنك تريد الأكل مستعملًا `comer`. الإجابة: `Quiero comer`. أبقِ `quiero`
+          للمتكلم وبدّل المصدر.
+  - subskill_id: preferences
+    explanation: الحديث عن الكتب التي تستمتع بها يساعد شخصًا على فهم ذوقك. مع `gustar` تنظّم الإسبانية
+      الجملة حول الشيء الذي يُعجب، ويحدد ضميرٌ الشخصَ الذي يعجبه. يطابق الفعل الشيءَ المحبوب.
+    examples:
+      - text: Me gustan estos libros.
+        meaning: «تعجبني هذه الكتب.» تحدد `Me` أنني الشخص الذي تعجبه. وتأتي `Gustan` بصيغة الجمع لأن `estos
+          libros`، أي هذه الكتب، جمع. الكتب هي الفاعل النحوي، مع أن الترجمة الإنجليزية تبدأ بكلمة
+          «أنا».
+        note: >-
+          **عدّلها.** تسمّي `Me gusta este libro` كتابًا واحدًا، فيأتي الفعل مفردًا. وتعني `Me gusta
+          leer` أنك تحب القراءة؛ ويأخذ النشاط المعبّر عنه بمصدر `gusta` المفردة أيضًا.
+
+
+          **جرّب.** قل إن هذه الأفلام تعجبك باستعمال `estas películas`. الإجابة: `Me gustan estas
+          películas`. طابق `gustan` مع الأفلام المجموعة، لا مع `me`.
+  - subskill_id: emotions
+    explanation: إذا سألك صديق كيف تشعر، فيمكن لصفة مع `estar` أن تسمّي حالتك العاطفية. تطابق الصفة
+      الشخص الذي تصف شعوره. المتحدثة هنا مسرورة أو سعيدة.
+    examples:
+      - text: Estoy contenta.
+        meaning: «أنا سعيدة.» تشير `Estoy` إلى حالة المتحدثة. و`Contenta` صفة مؤنثة مفردة؛ ويقول من يستعمل
+          التذكير `contento`. تصف النهايةُ المتحدثَ لا سبب سعادته.
+        note: >-
+          **قارن.** تسمّي `Estoy triste` الحزن؛ ولـ`triste` الصيغة نفسها في المذكر والمؤنث. وتصف
+          `Soy una persona alegre` طبعًا مرحًا بدل الإخبار عن شعور حاضر فحسب.
+
+
+          **جرّب.** استعمل صيغة التذكير لتقول إنك سعيد. الإجابة: `Estoy contento`. غيّر نهاية الصفة
+          وأبقِ `estoy`.
+  - subskill_id: opinions
+    explanation: عند مناقشة خطة، يمكنك إبداء حكمك من غير عرضه رأيًا للجميع. تقدّم `Creo que` ما تظنه.
+      وتحتوي الجملة التالية الرأي نفسه، مثل الحكم على جودة الفكرة المقترحة.
+    examples:
+      - text: Creo que es una buena idea.
+        meaning: «أظن أنها فكرة جيدة.» تعني `Creo` «أظن»، وتصل `que` الفعلَ بالرأي، وتقيّم `es una buena
+          idea` الاقتراح. تطابق `Buena` الاسم المؤنث `idea`.
+        note: >-
+          **عدّلها.** تغيّر `Creo que es una mala idea` التقييم. وللتعبير عن الشك بدل الاعتقاد، قل
+          `No creo que sea una buena idea`. في هذا التعبير عن الشك، استعمل صيغة subjuntivo الإسبانية
+          `sea` بدل `es`.
+
+
+          **جرّب.** قل إنك تظنه مفيدًا باستعمال `útil`. الإجابة: `Creo que es útil`. أبقِ `que` لوصل
+          جملة الرأي.
+  - subskill_id: agreement_disagreement
+    explanation: قد يفهم شخصان اقتراحًا ويظلان مختلفين في الرأي. تعبّر `Estar de acuerdo` عن الموافقة؛
+      ووضع `no` قبل الفعل يعبّر عن عدم الموافقة. ترد العبارة على الرأي المطروح.
+    examples:
+      - text: No estoy de acuerdo.
+        meaning: «لا أوافق.» تنفي `No` الفعل `estoy` الذي يحدد المتحدث. و`De acuerdo` جزء من تعبير الموافقة.
+          تبيّن العبارة اختلاف موقفك من غير أن تذكر سببًا بذاتها.
+        note: >-
+          **عدّلها.** تعني `Estoy de acuerdo contigo` أنني أتفق معك. وتسمّي `No estoy de acuerdo con
+          el plan` الاقتراح الذي ترفضه. أبقِ `de` داخل التعبير، واستعمل `con` لتقديم الشخص أو
+          الاقتراح.
+
+
+          **جرّب.** وافق على الخطة باستعمال `el plan`. الإجابة: `Estoy de acuerdo con el plan`. احذف
+          `no` وأضف ما توافق عليه.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

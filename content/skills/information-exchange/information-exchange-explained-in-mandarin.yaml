@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: information_exchange
+explanation_language: mandarin
+title: 交换信息
+introduction: 提出问题、回答问题，并核对信息是否清楚准确。
+sections:
+  - subskill_id: asking_information
+    title: 询问信息
+    concept: 询问自己尚不知道的信息。
+  - subskill_id: answering_information
+    title: 切题回答
+    concept: 提供对方正在询问的信息。
+  - subskill_id: checking_facts
+    title: 核实事实
+    concept: 核对某个细节或听到的说法是否正确。
+  - subskill_id: useful_detail
+    title: 提供有用细节
+    concept: 给出足够的细节，使信息能派上用场。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English learner-facing concepts. Skill
+    identities and assessment criteria are unchanged; independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: Learner-facing Mandarin title, introduction and section concepts; copied source keys support the
+      original concepts and do not certify the translation.

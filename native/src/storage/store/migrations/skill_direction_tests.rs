@@ -34,7 +34,7 @@ fn skill_direction_contract_upgrades_every_supported_format_without_rewriting_hi
 fn skill_direction_step_preserves_populated_records_and_rolls_back_on_failure() {
     let dir = tempfile::tempdir().unwrap();
     let mut db = super::assessment::populated(&dir.path().join("workspace"));
-    run_chain(&mut db, 47, 50, &STEPS[..5], validate_current_schema).unwrap();
+    run_chain(&mut db, 47, 50, &STEPS[..5], v50_coaching::validate).unwrap();
     let settings = serde_json::json!({"difficulty":"beginner","direction":{"topic":{"kind":"custom","text":"A family meal"},"timeReference":"past","usePersonaDetails":true},"explanationLanguage":"english","varietyId":"spanish-spain","explanationVarietyId":"english-united-states","composingHelp":"balanced","coachProactivity":"on_request","translation":true,"pronunciation":false,"romanization":false,"autoSend":true,"readAloud":false,"speechVoice":"alloy"});
     db.execute(
         "INSERT INTO conversation_settings VALUES('chat',3,?1)",
@@ -59,8 +59,8 @@ fn skill_direction_step_preserves_populated_records_and_rolls_back_on_failure() 
         .is_err()
     );
     assert_eq!(version(&db), 50);
-    run_chain(&mut db, 50, 51, &STEPS[..6], validate_current_schema).unwrap();
-    run_chain(&mut db, 51, 51, &STEPS[..6], validate_current_schema).unwrap();
+    run_chain(&mut db, 50, 51, &STEPS[..6], v51_skill_direction::validate).unwrap();
+    run_chain(&mut db, 51, 51, &STEPS[..6], v51_skill_direction::validate).unwrap();
     for (table, expected) in tables.iter().zip(before) {
         assert_eq!(rows(&db, table), expected, "{table}");
     }

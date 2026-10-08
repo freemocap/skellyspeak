@@ -333,6 +333,7 @@
        --chat-voice-height dragged recording panel features/conversation/ConversationPage.tsx
        --reply-help-height  dragged reply help     features/conversation/ConversationPage.tsx
        --ai-tray-height     dragged AI tray        features/activity/AiViewPanel.tsx
+       --lamp-level      microphone level 0–1     components/media/MicrophoneLamp.tsx
        --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx
                          (the plot rows are grid track sizes: the reference shares
                          the stage at full width and has its own height stacked) */
@@ -350,6 +351,7 @@
   --chat-voice-height: auto;
   --reply-help-height: min(320px, 38dvh);
   --ai-tray-height: min(260px, 34dvh);
+  --lamp-level: 0;
   --drill-dock-height: auto;
   --drill-reference-row: 1fr;
   --drill-attempt-row: minmax(8rem, 18dvh);
@@ -820,3 +822,6 @@
 #admin-console .report-table td { max-width: 500px; white-space: nowrap; }
 #admin-console .report-table th { min-width: 110px; }
 #admin-console .metadata-details { white-space: normal; }
+
+/* Explicit two-line account headings keep period and unit together. */
+#admin-console .column-heading-line { display: block; white-space: nowrap; }

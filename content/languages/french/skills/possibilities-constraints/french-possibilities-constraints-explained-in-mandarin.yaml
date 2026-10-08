@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: possibilities_constraints
+language: french
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 一辆自行车需要修理，而你已经学会所需技能。`Je sais` 意为我知道怎样做，`réparer une roue de vélo` 是修自行车轮。`Savoir`
+      后接不定式表示学会的技能；这里动作动词前不加 `de`。`Je peux réparer la roue` 则可能说当前条件允许，例如工具和时间齐备。`Nous savons réparer`
+      改变掌握技能的人，不定式仍不变。
+    examples:
+      - text: Je sais réparer une roue de vélo.
+        meaning: 我会修自行车轮。
+        note: 说你们这组人会修自行车。`Nous savons réparer un vélo.` 可用：`savons` 与 `nous` 一致，`réparer` 仍说的是已学会的技能。
+  - subskill_id: permission
+    explanation: 房间很暖，但打开窗户会影响别人，所以你先请求允许。`Est-ce que` 引出问句；`je peux` 意为我可以吗，`ouvrir la fenêtre`
+      说出拟做的动作。语境使它成为许可问题，而不是测试身体能力。`Vous pouvez ouvrir la fenêtre` 可以表示准许。否定回答 `Vous ne pouvez pas ouvrir la
+      fenêtre` 则不允许；`ne` 和 `pas` 夹住变位动词。
+    examples:
+      - text: Est-ce que je peux ouvrir la fenêtre ?
+        meaning: 我可以开窗吗？
+        note: 请求允许关门。`Est-ce que je peux fermer la porte ?` 可用：请求许可的句式不变，不定式短语提供新动作。
+  - subskill_id: obligation
+    explanation: 你们要离开租用的房间，必须在中午前归还钥匙。`Nous devons` 意为我们必须；`rendre les clés` 是还钥匙，`avant midi` 设定期限。`Devons` 与
+      `nous` 一致，`rendre` 仍用不定式。`Nous ne devons pas garder les clés` 表示不得保留钥匙，不等于不必保留；没有必要可用 `Nous n’avons pas
+      besoin de garder les clés.` 表达。
+    examples:
+      - text: Nous devons rendre les clés avant midi.
+        meaning: 我们必须在中午前还钥匙。
+        note: 把义务交给称为 `vous` 的人。`Vous devez rendre les clés avant midi.` 可用：只改变主语和对应的 `devoir` 形式。
+  - subskill_id: possibility
+    explanation: 天气预报不确定，所以你说今晚可能下雪。`Il va neiger` 意为要下雪；天气主语 `il` 不指人。`Peut-être` 表示也许，让预测保留不确定性。`Cette nuit`
+      给出今晚。它也可以放句首，写作 `Peut-être qu’il va neiger cette nuit.`。没有 `peut-être` 的 `Il va neiger cette nuit`
+      听起来是较确定的预报。这个表示不确定性的词带连字符，不是另外两个意为“能够是”的独立词。
+    examples:
+      - text: Il va peut-être neiger cette nuit.
+        meaning: 今晚可能下雪。
+        note: 改成同样不确定的降雨预报。`Il va peut-être pleuvoir cette nuit.` 可用：`pleuvoir` 取代天气事件，在 `va` 后仍用不定式。
+  - subskill_id: certainty
+    explanation: 你刚查过服务柜台，因此有把握地说它已关门。`Je suis certaine que` 意为我确信；`le guichet est fermé` 给出事实。`Je viens de
+      vérifier` 表示我刚核实过，提供把握的根据。`Certaine` 是描述说话人的阴性形式，阳性为 `certain`。`Fermé` 与阳性名词 `guichet` 一致，而不是与说话人一致。`Je
+      pense que` 则不会同样明确地表示确信。
+    examples:
+      - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
+        meaning: 我确信柜台关了；我刚核实过。
+        note: "让男性说话人表达同一已核实的事实。`Je suis certain que le guichet est fermé : je viens de vérifier.` 可用：只改变
+          `certain`，柜台状态和核实行动都不变。"
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_modals2026
+    - tex_conditional2026
+    - texRecentPastTeaching20261007
+    - texNearFutureTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_modals2026
+        - tex_conditional2026
+        - texRecentPastTeaching20261007
+        - texNearFutureTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_modals2026
+        - tex_conditional2026
+        - texRecentPastTeaching20261007
+        - texNearFutureTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.

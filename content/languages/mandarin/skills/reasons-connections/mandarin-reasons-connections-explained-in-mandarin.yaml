@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: reasons_connections
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 自行车坏了，可以解释为什么今天改坐公交车。先说自己的决定，再用 `因为` 引出原因。若对话需要先交代缘由，普通话也可以把原因放在前面。
+    examples:
+      - text: 我坐公交车，因为自行车坏了。
+        meaning: "**例句。** 我坐公交车，因为自行车坏了。`坐公交车` 表示搭乘公交。`因为` 引出原因，`自行车坏了` 说明车出现故障：`坏` 描述损坏状态，句末的 `了` 标出情况发生了变化。"
+        note: 试着把原因放在前面。答案：`因为自行车坏了，所以我坐公交车。` `所以` 在原因后引出结果。两个连接词一起使用很自然；单靠 `了` 无法判断车是今天坏的还是更早坏的。
+  - subskill_id: consequences
+    explanation: 桥封闭了，大家不得不改走别的路。`所以` 把这个问题与大家随后采取的行动连起来，比只列出两件事更清楚地表示因果关系。
+    examples:
+      - text: 桥封了，所以我们换了一条路。
+        meaning: "**例句。** 桥封了，所以我们换了一条路。`桥封了` 表示桥进入封闭状态。`我们换了一条路` 报告改走另一条路线：`换` 是更换，后面的 `了` 标明这件事发生了，`一条路` 用量词 `条`
+          计数。"
+        note: 试着改说是因为道路封闭才换路。答案：`路封了，所以我们换了一条路。` 把第一分句中的 `桥` 换成 `路`。`然后` 只表示随后，可以排列事件先后；`所以` 则明确表示因果。
+  - subskill_id: conditions
+    explanation: 明天是否出游可能取决于天气。`如果` 引出尚未确定的情况，`就` 把该条件与发生时大家的应对办法连起来。
+    examples:
+      - text: 如果明天下雨，我们就改天去。
+        meaning: "**例句。** 如果明天下雨，我们就改天去。`明天下雨` 指明天降雨。`我们就改天去` 表示那就另选一天再去：`改天` 是另一天，`去` 是前往。只有在下雨的条件下，计划才改变。"
+        note: 试着把条件换成天气冷。答案：`如果明天很冷，我们就改天去。` 把 `下雨` 换成 `很冷`。`因为明天下雨` 把下雨当作原因；`如果` 则把它保留为条件，并未断言一定会发生。
+  - subskill_id: contrast
+    explanation: 路线虽短，坡度很陡时仍可能不好走。`虽然` 引出有利的一点，`但是` 说出限制这一优点的不利情况。
+    examples:
+      - text: 虽然路很短，但是坡很陡。
+        meaning: "**例句。** 虽然路很短，但是坡很陡。`路很短` 说路线短，`坡很陡` 说坡度陡；两个性质都直接用 `很` 描述。`虽然` 和 `但是` 把两点连接成让步和对比。"
+        note: 试着改说路很长，但坡很缓。答案：`虽然路很长，但是坡很缓。` 把 `短` 换成 `长`，把 `陡` 换成 `缓`。普通话中 `虽然` 和 `但是` 搭配很自然，不必照搬英语 although 与 but
+          的搭配规则。
+  - subskill_id: supporting_claims
+    explanation: 灯还亮着，可能让人推测里面还有人。在 `因为` 后说出观察到的现象，就表明为什么会这样想；`我觉得` 同时说明这只是判断，并非确定的事实。
+    examples:
+      - text: 我觉得里面还有人，因为灯还亮着。
+        meaning: "**例句。** 我觉得里面还有人，因为灯还亮着。`里面` 表示内部，`还有人` 表示仍有人在场，其中 `有` 表示存在。`灯还亮着` 表示灯仍在亮，`还` 是仍然，`着` 突出持续的亮灯状态。"
+        note: 试着改用里面还有说话声作为同一推断的依据。答案：`我觉得里面还有人，因为里面还有说话声。` `说话声`
+          指人在说话的声音。这个观察支持你的判断，但不是导致里面有人的原因。无论哪一条线索，都不能使结论变得绝对确定。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

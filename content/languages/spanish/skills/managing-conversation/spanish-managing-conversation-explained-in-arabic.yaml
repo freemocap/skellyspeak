@@ -1,0 +1,161 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: managing_conversation
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-arabic.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: في نهاية محادثة ودية، تجعل عبارة الوداع انتهاءها واضحًا. `Hasta luego` طريقة شائعة
+      للوداع. توحي برؤية الشخص لاحقًا، لكن استعمالها المعتاد لا يتطلب تحديد موعد اللقاء.
+    examples:
+      - text: Hasta luego.
+        meaning: «إلى اللقاء لاحقًا.» تعني `Hasta` «حتى» وتعني `luego` «لاحقًا». تشكلان معًا عبارة وداع
+          مألوفة؛ وترجمة كل كلمة وحدها لا تبيّن دور العبارة في إنهاء الحديث.
+        note: >-
+          **عدّلها.** تعني `Hasta mañana` «إلى اللقاء غدًا» عندما يكون الغد ذا صلة. أما `Hola` فتبدأ
+          المحادثة. لا يرتب الوداع وحده اللقاء القادم.
+
+
+          **جرّب.** اختم محادثة قبل لقاء جديد غدًا. الإجابة: `Hasta mañana`. استبدل `luego` باليوم
+          المقصود.
+  - subskill_id: acknowledging
+    explanation: إذا نبّهك شخص إلى تغيير في الخطة، يُظهر شكرُك أنك تلقيت الرسالة وقدّرتها. يمكن للإسبانية
+      استعمال `gracias por` لشكر شخص على فعل محدد. يأتي الفعل بعد `por` هنا في صيغة المصدر.
+    examples:
+      - text: Gracias por avisarme.
+        meaning: "«شكرًا لإخباري.» تعبّر `Gracias` عن الشكر؛ وتحدد `por avisarme` سببه. يعني `Avisar`
+          الإبلاغ، وتحدد `me` المتصلة به من تلقى الإبلاغ: المتحدث."
+        note: >-
+          **عدّلها.** تشكر `Gracias por ayudarme` شخصًا على مساعدتك. وتقر `Entendido` فقط بأنك فهمت
+          من غير شكر. لا تجعل الفعل الذي يأتي مباشرة بعد `por` مصرفًا.
+
+
+          **جرّب.** اشكر شخصًا على الاتصال بك باستعمال `llamarme`. الإجابة: `Gracias por llamarme`.
+          تحدد `me` المتصلة متلقي الاتصال.
+  - subskill_id: clarification
+    explanation: قد تسمع كل الكلمات ومع ذلك لا تفهم المقصود. يطلب سؤال التوضيح من المتحدث شرح المعنى
+      الذي أراده. ويساعد على إصلاح المحادثة قبل أن ترد بناءً على افتراض خاطئ.
+    examples:
+      - text: ¿Qué quieres decir?
+        meaning: «ماذا تقصد؟» تسأل `Qué` «ماذا»، وتشير `quieres` إلى المخاطَب، وتعني `decir` «يقول». يسأل
+          التعبير الكامل `querer decir` عن المعنى هنا، لا عن مجرد الرغبة في الكلام.
+        note: >-
+          **قارن.** تطلب `¿Puedes repetirlo?` التكرار؛ وقد يفيد إذا لم تسمع. وتسأل `¿Qué significa
+          esta palabra?` عن معنى كلمة. أبقِ علامة النبرة في أداة السؤال `qué`.
+
+
+          **جرّب.** سمعت جملة لكنك لا تفهم الرسالة المقصودة. اسأل `¿Qué quieres decir?`. يطلب هذا
+          تفسيرًا لا مجرد تكرار الكلمات نفسها.
+  - subskill_id: rephrasing
+    explanation: إذا كان شرحك الأول غير واضح، يمكنك قول الرسالة المقصودة بعبارة أبسط. تقدّم `Quiero
+      decir que` ما تعنيه. ينبغي للجملة التالية أن تزيل اللبس بذكر التفصيل المهم.
+    examples:
+      - text: Quiero decir que llego después de las ocho.
+        meaning: «أعني أنني أصل بعد الثامنة.» تقدّم `Quiero decir que` التفسير؛ وتقول `llego` إنني أصل. تضع
+          `Después de las ocho` الوصول بعد الثامنة لا عندها بالضبط.
+        note: >-
+          **قارن.** تحدد `Llego a las ocho` الوصول في الثامنة. وتعني `Llego antes de las ocho` قبل
+          الثامنة. بعد `después` أبقِ `de` قبل وقت الساعة.
+
+
+          **جرّب.** وضّح أنك تصل قبل التاسعة. الإجابة: `Quiero decir que llego antes de las nueve`.
+          غيّر عبارة الوقت مع الحفاظ على إطار التوضيح.
+  - subskill_id: correcting_misunderstanding
+    explanation: إذا خلط شخص بين يومين، يسمّي التصحيح المفيد اليوم المقصود واليوم الخاطئ. تقدّم `Me
+      refiero a` ما تعنيه. يجعل ذلك الإصلاح دقيقًا بدل أن يترك المستمع يخمّن بعد قول «لا» وحدها.
+    examples:
+      - text: No, me refiero al martes, no al jueves.
+        meaning: «لا، أقصد الثلاثاء لا الخميس.» ترفض `No` التفسير الخاطئ. وتحدد `Me refiero al martes`
+          الثلاثاء يومًا مقصودًا؛ وتستبعد `no al jueves` الخميس. تجمع `Al` بين `a` و`el`.
+        note: >-
+          **عدّلها.** تصحح `Me refiero a Ana, no a Luis` هوية شخص. تبقى حرف الجر `a`، لكن هذين
+          الاسمين لا يأخذان أداة التعريف المستعملة مع اليومين.
+
+
+          **جرّب.** صحّح الخميس إلى الجمعة. الإجابة: `No, me refiero al viernes, no al jueves`. اذكر
+          اليوم المقصود أولًا والخاطئ ثانيًا.
+  - subskill_id: turns_topics
+    explanation: قد تنتقل المحادثة إلى فكرة مرتبطة خطرت لك للتو. تشير `Por cierto` إلى هذا الانتقال كي
+      يتابعه المستمع. هنا ينتقل المتحدث من الموضوع السابق إلى السؤال عن أخت المخاطَب.
+    examples:
+      - text: Por cierto, ¿cómo está tu hermana?
+        meaning: «بالمناسبة، كيف حال أختك؟» تقدّم `Por cierto` الموضوع الجانبي؛ وتسأل `cómo está` عن حالها.
+          تسمّي `Tu hermana` الشخص. تحمل `Cómo` علامة نبرة السؤال، بينما لا تحملها `tu` الدالة على
+          الملكية.
+        note: >-
+          **قارن.** تسأل `¿Dónde está tu hermana?` أين توجد، لا كيف حالها. تشير `Por cierto` إلى
+          نقطة جديدة؛ وليست كلمة لسبب وقوع شيء.
+
+
+          **جرّب.** اذكر أخا المخاطَب باستعمال `tu hermano`. الإجابة: `Por cierto, ¿cómo está tu
+          hermano?`. غيّر الشخص مع الإبقاء على إشارة الموضوع والسؤال.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

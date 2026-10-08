@@ -1,0 +1,81 @@
+{
+  "records": 8790,
+  "packages": [
+    {
+      "file": "arabic.json",
+      "records": 1527,
+      "review": "editorially_reviewed"
+    },
+    {
+      "file": "english.json",
+      "records": 2550,
+      "review": "editorially_reviewed"
+    },
+    {
+      "file": "french.json",
+      "records": 2469,
+      "review": "editorially_reviewed"
+    },
+    {
+      "file": "preload-pilot.json",
+      "records": 96,
+      "review": "source_checked"
+    },
+    {
+      "file": "spanish.json",
+      "records": 2148,
+      "review": "editorially_reviewed"
+    }
+  ],
+  "varieties": [
+    {
+      "language": "english",
+      "variety": "english-united-states",
+      "sampleForms": 392,
+      "covered": 392
+    },
+    {
+      "language": "english",
+      "variety": "english-united-kingdom",
+      "sampleForms": 392,
+      "covered": 392
+    },
+    {
+      "language": "spanish",
+      "variety": "spanish-spain",
+      "sampleForms": 301,
+      "covered": 301
+    },
+    {
+      "language": "spanish",
+      "variety": "spanish-mexico",
+      "sampleForms": 301,
+      "covered": 301
+    },
+    {
+      "language": "arabic",
+      "variety": "arabic-levantine",
+      "sampleForms": 148,
+      "covered": 148
+    },
+    {
+      "language": "arabic",
+      "variety": "arabic-modern-standard",
+      "sampleForms": 161,
+      "covered": 161
+    },
+    {
+      "language": "french",
+      "variety": "french-france",
+      "sampleForms": 345,
+      "covered": 345
+    },
+    {
+      "language": "french",
+      "variety": "french-canada",
+      "sampleForms": 344,
+      "covered": 344
+    }
+  ],
+  "missing": []
+}

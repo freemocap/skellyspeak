@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-french-2026-10-07
+language: arabic
+skill_id: people_places
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: Présenter une voisine relie la personne devant vous à sa relation avec vous. On peut dire « voici
+      ma voisine » sans mot distinct pour « est » au présent.
+    examples:
+      - text: هٰذِهِ جَارَتِي.
+        meaning: "**L’exemple.** Voici ma voisine. `هٰذِهِ` désigne un référent féminin proche. `جَارَتِي` signifie «
+          ma voisine » : le nom donne la relation et sa terminaison attachée signifie « ma ». Le démonstratif
+          et le nom forment ensemble une présentation complète."
+        note: "Pour un voisin, changez le démonstratif et le nom. Essayez : présentez votre voisin. Réponse : `هٰذَا
+          جَارِي`. `هٰذَا` le désigne et `جَارِي` nomme la relation ; le suffixe « mon » reste attaché."
+  - subskill_id: qualities_states
+    explanation: Quand quelqu’un demande si une route est facile à emprunter, en décrire la largeur apporte une
+      information utile. Cette phrase dit une propriété de la route au lieu de simplement la nommer.
+    examples:
+      - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
+        meaning: "**L’exemple.** Cette route est étroite. `هٰذَا الطَّرِيقُ` désigne cette route. `ضَيِّقٌ` signifie
+          étroite et fournit la description. Il n’y a pas de verbe « être » distinct au présent. Dans
+          l’écriture entièrement vocalisée, la route et son prédicat ont ici des terminaisons au nominatif."
+        note: "Comparez `الطَّرِيقُ الضَّيِّقُ`, « la route étroite » : ajouter l’article défini à l’adjectif forme un
+          groupe nominal plutôt que cette description complète. Essayez : quel mot fait de la phrase une
+          description ? Réponse : `ضَيِّقٌ`, qui dit comment est la route."
+  - subskill_id: location_movement
+    explanation: Quelqu’un cherche une clé. Une indication de lieu dit où elle se trouve maintenant ; elle ne
+      demande pas de l’emporter ailleurs.
+    examples:
+      - text: الْمِفْتَاحُ فِي الْبَيْتِ.
+        meaning: "**L’exemple.** La clé est dans la maison. `الْمِفْتَاحُ` désigne la clé. `فِي` signifie « dans » et
+          `الْبَيْتِ` la maison. L’expression de lieu situe la clé sans verbe « être » distinct au présent.
+          Dans l’écriture entièrement vocalisée, le nom après `فِي` porte une terminaison au génitif."
+        note: "Remplacez le lieu par `فِي الْمَكْتَبِ`, « dans le bureau », pour adapter la réponse. La position
+          diffère de la destination : la phrase ne contient aucune action de déplacement ou de transport.
+          Essayez : situez la clé dans le bureau. Réponse : `الْمِفْتَاحُ فِي الْمَكْتَبِ` garde l’objet et
+          change sa position."
+  - subskill_id: possession_relations
+    explanation: Vous vérifiez combien de chaises vous pouvez fournir. L’arabe peut exprimer la possession en
+      disant qu’une chose est « auprès de vous » ; le nom de la chaise peut lui-même indiquer qu’il y en a
+      deux.
+    examples:
+      - text: عِنْدِي كُرْسِيَّانِ.
+        meaning: "**L’exemple.** J’ai deux chaises. `عِنْدِي` exprime « j’ai » ; son suffixe renvoie à « moi ».
+          `كُرْسِيَّانِ` signifie deux chaises grâce à sa terminaison du duel. Dans cet exemple, aucun mot
+          distinct pour « deux » n’est nécessaire."
+        note: "Ici, le duel est au nominatif avec la terminaison `ـانِ`. D’autres positions grammaticales ont une
+          autre terminaison du duel : ne l’ajoutez pas partout. Essayez : où le nombre deux est-il exprimé ?
+          Réponse : dans `كُرْسِيَّانِ` ; `عِنْدِي` désigne la personne qui possède les chaises."
+  - subskill_id: quantity_comparison
+    explanation: Pour choisir quelle boîte porter, le poids peut compter. Une comparaison nomme la boîte évaluée
+      et l’autre boîte qui sert de référence.
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
+        meaning: "**L’exemple.** Cette boîte est plus légère que celle-là. `هٰذَا الصُّنْدُوقُ` désigne cette boîte.
+          `أَخَفُّ` signifie plus légère ; `مِنْ ذٰلِكَ` signifie « que celle-là ». Le second démonstratif
+          remplace la boîte déjà visible ou évoquée, sans répéter le nom."
+        note: "Gardez `مِنْ` avant l’élément de référence. Essayez : dites plutôt que l’autre boîte est plus légère
+          que celle-ci. Réponse : `ذٰلِكَ الصُّنْدُوقُ أَخَفُّ مِنْ هٰذَا`. La première boîte est celle que
+          l’on juge plus légère ; le démonstratif après `مِنْ` donne la référence."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahDualTeaching20261007
+    - madinahDemonstrativesTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: identification
+      explanation: Présenter une voisine relie la personne devant vous à sa relation avec vous. On peut dire « voici
+        ma voisine » sans mot distinct pour « est » au présent.
+      examples:
+        - text: هَايْ جَارْتِي.
+          meaning: "**L’exemple.** Voici ma voisine. `هَايْ` désigne un référent féminin proche ; `جَارْتِي` signifie «
+            ma voisine ». Le suffixe possessif reste attaché au nom. La phrase identifie la personne plutôt
+            que de dire ce qu’elle fait."
+          note: "Ces démonstratifs correspondent à des usages méridionaux ; il existe des variantes locales. Essayez :
+            présentez votre voisin avec ce modèle. Réponse : `هَادْ جَارِي`. Remplacez `هَايْ` par `هَادْ` et
+            le nom féminin par le masculin, en conservant le suffixe « mon »."
+    - subskill_id: qualities_states
+      explanation: Quand quelqu’un demande si une route est facile à emprunter, en décrire la largeur apporte une
+        information utile. Cette phrase dit une propriété de la route au lieu de simplement la nommer.
+      examples:
+        - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+          meaning: "**L’exemple.** Cette route est étroite. `هَادْ` signifie « ce », `الطَّرِيقْ` désigne la route et
+            `ضَيِّقْ` signifie étroite. Le lien direct entre la route et l’adjectif donne une description au
+            présent. L’adjectif apporte l’information nouvelle ; il ne fait pas partie du nom de la route."
+          note: "`الطَّرِيقْ الضَّيِّقْ` signifie « la route étroite » : le nom et l’adjectif sont tous deux définis.
+            Dans l’énoncé étudié, l’adjectif descriptif n’a pas l’article. Essayez : la phrase demande-t-elle
+            de se déplacer ? Réponse : non ; elle décrit la largeur sans verbe de mouvement."
+    - subskill_id: location_movement
+      explanation: Quelqu’un cherche une clé. Une indication de lieu dit où elle se trouve maintenant ; elle ne
+        demande pas de l’emporter ailleurs.
+      examples:
+        - text: الْمِفْتَاحْ بِالْبَيْتْ.
+          meaning: "**L’exemple.** La clé est dans la maison. `الْمِفْتَاحْ` désigne la clé. `بِالْبَيْتْ` réunit la
+            préposition attachée `بِـ` et le nom de la maison ; ici, l’ensemble signifie « dans la maison ».
+            Il n’y a pas de verbe « être » distinct au présent ; le lieu complète la phrase."
+          note: "Employez `بِالْمَكْتَبْ` pour « dans le bureau ». Gardez la préposition attachée quand vous changez de
+            lieu. Essayez : quelle partie remplacer pour donner un autre endroit ? Réponse : `بِالْبَيْتْ` ;
+            la clé reste l’objet situé."
+    - subskill_id: possession_relations
+      explanation: Vous vérifiez combien de chaises vous pouvez fournir. L’arabe peut exprimer la possession en
+        disant qu’une chose est « auprès de vous » ; le nom de la chaise peut lui-même indiquer qu’il y en a
+        deux.
+      examples:
+        - text: عِنْدِي كُرْسِيَّيْنْ.
+          meaning: "**L’exemple.** J’ai deux chaises. `عِنْدِي` exprime « j’ai ». `كُرْسِيَّيْنْ` désigne deux chaises
+            avec une terminaison orale du duel. Le nombre est porté par le nom des chaises ; le suffixe de
+            `عِنْدِي` indique qui les possède."
+          note: "Pour une seule chaise, dites `عِنْدِي كُرْسِي`. Ne gardez pas la terminaison du duel lorsque le nombre
+            devient un. Essayez : passez de deux chaises à une. Réponse : remplacez `كُرْسِيَّيْنْ` par
+            `كُرْسِي` ; l’expression de possession ne change pas."
+    - subskill_id: quantity_comparison
+      explanation: Pour choisir quelle boîte porter, le poids peut compter. Une comparaison nomme la boîte évaluée
+        et l’autre boîte qui sert de référence.
+      examples:
+        - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+          meaning: "**L’exemple.** Cette boîte est plus légère que celle-là. `هَادْ الصُّنْدُوقْ` désigne cette boîte.
+            `أَخَفّ` signifie plus légère et `مِنْ هَدَاكْ` « que celle-là ». Les démonstratifs proche et
+            éloigné permettent de comparer deux objets sans répéter le nom « boîte »."
+          note: "Gardez `مِنْ` avant l’objet de référence. Essayez : dites que l’autre boîte est plus légère que
+            celle-ci. Réponse : `هَدَاكْ الصُّنْدُوقْ أَخَفّ مِنْ هَادْ`. Inverser les démonstratifs inverse
+            la comparaison, mais l’adjectif et le mot de relation restent."

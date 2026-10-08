@@ -11,6 +11,7 @@ Editable application behavior and authored language material. Native code owns p
 | `language-foundations/` | Shared writing systems, language families and capabilities |
 | `conversation-topics/` | Conversation subjects and translated labels |
 | `speech/` | Speech models and routing |
+| `reading/` | Reviewed dictionary gloss packages imported into workspace storage; see [READING_README.md](reading/READING_README.md) |
 | `rust-schemas/` | Generated authoring contracts |
 
 Read each folder’s named README before editing. Directories prefixed `__` contain authoring templates and are excluded from runtime content. Missing required authored material is an authoring error, never an implicit language fallback.

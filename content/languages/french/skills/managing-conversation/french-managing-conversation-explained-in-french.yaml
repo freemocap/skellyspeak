@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: managing_conversation
+language: french
+explanation_language: french
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-french.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "Vous devez quitter la conversation et pensez revoir cette personne demain. `Je dois partir`
+      donne la raison de clore l’échange. `À demain !` le termine en annonçant la prochaine rencontre. `Dois`
+      est la forme de `devoir` employée avec `je`, et `partir` reste à l’infinitif. Si la prochaine rencontre
+      n’est pas fixée, `À bientôt !` promet moins précisément de se revoir. Une salutation comme `Bonjour !`
+      ouvre une rencontre : elle ne joue pas le même rôle de clôture."
+    examples:
+      - text: Je dois partir. À demain !
+        meaning: Je dois partir. À demain !
+        note: "Terminez par une formule annonçant une rencontre lundi. `Je dois partir. À lundi !` convient : `à`
+          suivi du jour indique le rendez-vous attendu."
+  - subskill_id: acknowledging
+    explanation: Quelqu’un explique son idée, et vous indiquez que vous la comprenez maintenant. `Ah` marque le
+      moment de compréhension. `Je vois` peut signifier comprendre ; `ce que tu veux dire` précise le sens
+      saisi. Cette réponse reconnaît l’explication sans nécessairement l’approuver. `Je suis d’accord`
+      exprimerait aussi l’accord. `Je vois ce que vous voulez dire` garde le même message en vouvoyant une
+      personne ou en s’adressant à plusieurs.
+    examples:
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: Ah, je vois ce que tu veux dire.
+        note: "Montrez que vous comprenez une personne à qui vous dites `vous`. `Ah, je vois ce que vous voulez dire.`
+          convient : passer de `tu veux` à `vous voulez` change la manière de s’adresser à elle, pas votre
+          degré d’accord."
+  - subskill_id: clarification
+    explanation: Vous avez entendu le mot « provisoire », mais vous ignorez le sens que votre interlocuteur lui
+      donne. `Qu’est-ce que` demande quoi ; `tu veux dire` demande le sens voulu, et `par « provisoire »`
+      isole le mot à expliquer. Les guillemets montrent que vous parlez du mot plutôt que de qualifier
+      vous-même une chose. `Qu’est-ce que tu veux dire par « urgent » ?` vise un autre terme obscur. À la
+      différence de `Tu peux répéter ?`, cette question demande une explication du sens.
+    examples:
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: Qu’est-ce que tu veux dire par « provisoire » ?
+        note: "Demandez ce que la personne entend par « important ». `Qu’est-ce que tu veux dire par « important » ?`
+          convient : le mot cité précise exactement votre doute."
+  - subskill_id: rephrasing
+    explanation: Une règle de réservation vient d’être expliquée en détail ; vous en reformulez la conséquence
+      pratique. `Autrement dit` annonce une autre formulation. `Nous devons réserver` exprime la nécessité de
+      réserver ; `avant de payer` place cette action avant le paiement. Quand les mêmes personnes
+      accomplissent les deux actions, `avant de` peut introduire l’infinitif `payer`. `Avant de` indique
+      l’ordre, pas la raison de la réservation. Une reformulation équivalente doit conserver la règle initiale
+      sans ajouter discrètement une condition.
+    examples:
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: Autrement dit, nous devons réserver avant de payer.
+        note: "Reformulez une règle selon laquelle il faut réserver avant de partir. `Autrement dit, nous devons
+          réserver avant de partir.` convient : seule la seconde action change et `partir` reste à
+          l’infinitif."
+  - subskill_id: correcting_misunderstanding
+    explanation: L’autre personne a noté jeudi, mais vous vouliez dire mardi. `Je voulais dire` revient sur votre
+      intention antérieure ; l’imparfait `voulais` renvoie à ce que vous aviez en tête. `Mardi, pas jeudi`
+      remplace le jour erroné par le bon. La correction porte sur votre message plutôt que de blâmer l’autre.
+      `Je veux dire mardi` peut corriger une phrase au moment même où vous la prononcez ; `je voulais dire`
+      revient plus naturellement sur une parole déjà donnée.
+    examples:
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: Je voulais dire mardi, pas jeudi.
+        note: "Corrigez vendredi en samedi. `Je voulais dire samedi, pas vendredi.` convient : le jour voulu vient en
+          premier, puis le jour refusé après `pas`."
+  - subskill_id: turns_topics
+    explanation: La discussion va passer à un autre sujet, mais il vous manque encore un détail sur le prix.
+      `Avant de changer de sujet` situe votre intervention avant la transition. `Puis-je` est une question de
+      permission polie et soutenue ; elle est suivie de l’infinitif `poser`. `Poser une question sur le prix`
+      précise votre demande. Dans une conversation quotidienne, `Est-ce que je peux poser une question ?` est
+      moins formel. L’introduction explique pourquoi vous retenez brièvement le sujet, au lieu d’interrompre
+      avec une question sans rapport.
+    examples:
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        note: "Restez brièvement sur le sujet pour demander la date. `Avant de changer de sujet, puis-je poser une
+          question sur la date ?` convient : `sur la date` désigne le point encore à éclaircir."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - dingemanse2015_communication_repair
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

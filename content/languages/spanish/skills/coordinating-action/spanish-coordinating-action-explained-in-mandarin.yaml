@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: coordinating_action
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 房间冷的时候，你可能会请别人关门。用 `poder` 构成问句，是提出行动请求的常见方式。在这个情境里，你希望对方做一件事，不是在测试对方身体上能不能做到。
+    examples:
+      - text: ¿Puedes cerrar la puerta, por favor?
+        meaning: “可以请你关门吗？” `Puedes` 用非正式口吻称呼一个人，`cerrar` 说出要做的动作，`la puerta` 指动作对象。`Por favor` 加上“请”。`puedes`
+          后面的动作保持不定式。
+        note: >-
+          **变换用法。** `¿Puede cerrar la puerta, por favor?` 用 `usted` 称呼一个人。`¿Puedes abrir la puerta?`
+          请求相反的动作。是否礼貌还取决于语气和场合。
+
+
+          **练一练。** 用 `abrir la ventana` 非正式地请别人开窗。答案：`¿Puedes abrir la ventana, por favor?`。动作保持不定式形式。
+  - subskill_id: offers_invitations
+    explanation: 邀请别人共进晚餐，是给对方一个加入的机会。用 `querer` 构成问句，询问对方是否愿意参加。具体情境让关于意愿的问题成为邀请，也允许对方接受或拒绝。
+    examples:
+      - text: ¿Quieres venir a cenar?
+        meaning: “你想来吃晚饭吗？” `Quieres` 询问对方愿不愿意，`venir` 意为来，`a cenar` 说明来做什么：吃晚饭。这句邀请用非正式口吻称呼一个人。
+        note: |-
+          **变换用法。** `¿Quieres venir a comer?` 用 `comer` 邀请别人来吃一顿饭。`¿Quieres cenar?` 只问对方想不想吃晚饭，没有明确邀请对方来某个地方。
+
+          **练一练。** 用 `pasear` 邀请别人来散步。答案：`¿Quieres venir a pasear?`。保留 `venir a`，替换活动。
+  - subskill_id: suggestions
+    explanation: 计划出游时，你可能想提出一个选项供大家考虑。`Podemos` 后面接活动，可以建议一起做某事。它提出可能的计划，而不是下指令或宣布已经达成的约定。
+    examples:
+      - text: Podemos ir mañana.
+        meaning: “我们可以明天去。” `Podemos` 的“我们”包括说话人；`ir` 意为去，`mañana` 指明天。在商量计划的对话里，这种说法把明天作为一个选项。
+        note: |-
+          **比较。** `Tenemos que ir mañana` 表示明天必须去，因此增加了义务。`Podemos ir hoy` 保留建议的作用，但把日期改为今天。
+
+          **练一练。** 用 `comer aquí` 建议在这里吃。答案：`Podemos comer aquí`。替换 `podemos` 后的活动，仍用不定式。
+  - subskill_id: commitments
+    explanation: 别人需要依靠你时，明确承诺能让你的责任清楚。只说未来会发生什么，也可能只是描述计划；`prometo` 则告诉听话人你承担了这件事。
+    examples:
+      - text: Te prometo que voy a llamarte.
+        meaning: “我保证会打电话给你。” `Te` 指接受承诺的听话人。`Prometo que` 引出承诺的内容；`voy a llamarte` 表示我打算给你打电话。`llamarte` 末尾的 `te`
+          指被打电话的人。
+        note: |-
+          **变换用法。** `Voy a llamarte` 只陈述计划，没有明确说出承诺。同一通电话也可以说成 `Te voy a llamar`：宾语代词可以放在变位动词前。
+
+          **练一练。** 承诺明天打电话。答案：`Te prometo que voy a llamarte mañana`。加上时间，不改变谁作出承诺、谁接受承诺。
+  - subskill_id: accepting_declining
+    explanation: 接受邀请不必长篇回答。如果你不能参加，简短致歉后拒绝，就能说清自己的决定，不用交代私人细节。邀请本身已经说明活动，所以答话可以省略它。
+    examples:
+      - text: Lo siento, no puedo.
+        meaning: “抱歉，我不能。” `Lo siento` 是惯用的道歉表达；`no puedo` 表示无法参加所提议的活动。若先前是晚餐邀请，听话人就知道你说的是不能出席晚餐。
+        note: |-
+          **比较。** `Sí, gracias` 接受邀请。`No quiero` 表示不想去，与不能去是不同原因。也可以用 `No puedo ir` 把拒绝说得更明确。
+
+          **练一练。** 拒绝邀请，并说明今天不能去。答案：`Lo siento, hoy no puedo ir`。`Hoy` 说出时间，`ir` 补出原本省略的行动。
+  - subskill_id: negotiating_plans
+    explanation: 拟定的时间不合适时，提出另一个时间有助于继续商量。先说出障碍，再给出可行的替代选择；两个部分一起说明需要改动什么。
+    examples:
+      - text: A las seis no puedo; ¿quedamos a las siete?
+        meaning: “六点我不行；我们七点见，好吗？” `A las seis` 指不方便的时间，`no puedo` 说明障碍。`¿Quedamos a las siete?` 提议七点见面；`quedamos`
+          包括双方。
+        note: |-
+          **变换用法。** `¿Nos vemos a las siete?` 也提议七点见。单说 `No puedo` 拒绝了时间，却没有提出替代选择。在对方同意之前，问句仍只是提议。
+
+          **练一练。** 你七点不方便，改提八点。答案：`A las siete no puedo; ¿quedamos a las ocho?`。先说被否定的时间，再在问句中说新时间。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

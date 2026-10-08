@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: coordinating_action
+language: french
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: "Une chaise encombrante bloque le passage ; un visiteur demande à quelqu’un de la déplacer.
+      `Pourriez-vous` signifie « pourriez-vous » et adoucit la demande ; `déplacer cette chaise` nomme
+      l’action et son objet. Le trait d’union relie le verbe à `vous` dans cette question. `S’il vous plaît`
+      ajoute une formule de politesse. Après `pourriez-vous`, le verbe d’action reste à l’infinitif :
+      `Pourriez-vous fermer la porte ?` demande une autre action. Avec une personne familière, `Tu peux
+      déplacer cette chaise ?` est une demande quotidienne plus directe ; `vous` peut aussi s’adresser à
+      plusieurs personnes."
+    examples:
+      - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+        meaning: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+        note: Demandez poliment à quelqu’un d’ouvrir la fenêtre. Une réponse possible est `Pourriez-vous ouvrir la
+          fenêtre, s’il vous plaît ?` Gardez `pourriez-vous` et remplacez l’action par `ouvrir la fenêtre` ;
+          `ouvrir` reste à l’infinitif.
+  - subskill_id: offers_invitations
+    explanation: Un ami prévoit d’aller au marché samedi et vous invite à l’accompagner. `Tu veux` demande si la
+      personne en a envie, et `venir` signifie venir ; `avec nous` inclut le groupe de la personne qui parle.
+      `Samedi` précise l’occasion. À l’oral familier, une intonation montante peut transformer cette phrase
+      déclarative en question. `Tu veux venir au cinéma avec nous ?` garde l’invitation en changeant de
+      destination. Cette formulation laisse le choix et commande moins que `Viens avec nous !`.
+    examples:
+      - text: Tu veux venir au marché avec nous samedi ?
+        meaning: Veux-tu venir au marché avec nous samedi ?
+        note: "Invitez un ami que vous tutoyez à vous accompagner dimanche. `Tu veux venir au marché avec nous
+          dimanche ?` convient : seul le jour change. Avec une personne à qui vous dites `vous`, le début
+          devient `Vous voulez venir`."
+  - subskill_id: suggestions
+    explanation: Pendant que le groupe choisit où déjeuner, une personne propose un lieu près de la gare. Ici,
+      `On` signifie « nous », et `pourrait` présente une possibilité, pas un projet décidé. `Déjeuner`
+      signifie prendre le repas de midi ; `près de la gare` situe l’endroit. Après `pourrait`, le verbe reste
+      à l’infinitif, comme dans `On pourrait manger dehors.` À l’inverse, `On va déjeuner près de la gare.`
+      annonce ce que le groupe va faire. Le conditionnel laisse place à la discussion.
+    examples:
+      - text: On pourrait déjeuner près de la gare.
+        meaning: Nous pourrions déjeuner près de la gare.
+        note: "Proposez plutôt de manger dehors. `On pourrait manger dehors.` est une réponse possible : `manger
+          dehors` remplace l’activité proposée sans en faire un engagement."
+  - subskill_id: commitments
+    explanation: Le groupe répartit les tâches d’un repas, et une personne se charge des assiettes. `D’accord`
+      accepte l’arrangement. `J’apporterai` signifie « je vais apporter » ; `les assiettes` nomme les objets.
+      La terminaison du futur de `apporterai` correspond à `je`, réduit à `j’` devant une voyelle. `Nous
+      apporterons` fait porter l’engagement sur « nous ». Dans ce contexte, le futur exprime une prise en
+      charge ; `Je pourrais apporter les assiettes.` ne propose qu’une contribution possible.
+    examples:
+      - text: D’accord, j’apporterai les assiettes.
+        meaning: D’accord, j’apporterai les assiettes.
+        note: "Engagez-vous à apporter les verres. `D’accord, j’apporterai les verres.` convient : le verbe au futur
+          garde votre engagement et `les verres` change l’objet."
+  - subskill_id: accepting_declining
+    explanation: "Une invitation mérite une réponse claire, même si vous ne pouvez pas venir. `Merci pour
+      l’invitation` la reconnaît et `mais` introduit le refus. `Je ne pourrai pas venir` exprime
+      l’impossibilité future : `ne` et `pas` entourent la forme future `pourrai`, tandis que `venir` reste à
+      l’infinitif. L’impossibilité sert de raison. `Je ne veux pas venir` exprimerait plutôt un manque d’envie
+      et pourrait sembler beaucoup moins délicat. Une acceptation peut se limiter à `Merci, je viendrai avec
+      plaisir.`"
+    examples:
+      - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+        meaning: Merci pour l’invitation, mais je ne pourrai pas venir.
+        note: Refusez parce que vous ne pouvez pas rester. `Merci, mais je ne pourrai pas rester.` garde
+          l’impossibilité future et remplace `venir` par `rester`, qui signifie demeurer sur place.
+  - subskill_id: negotiating_plans
+    explanation: "Vendredi ne convient pas à votre emploi du temps ; vous proposez donc samedi à la discussion.
+      `Ne me convient pas` indique que la date ne vous arrange pas : `me` désigne la personne concernée.
+      `Est-ce que samedi vous irait ?` demande si samedi conviendrait à l’autre personne. Ici, `irait` est un
+      conditionnel de `aller` exprimant la convenance, pas un déplacement. Le `vous` poli s’oppose à `te` dans
+      `Est-ce que samedi t’irait ?` avec une personne familière. On pourrait aussi dire `Samedi vous convient
+      ?`"
+    examples:
+      - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+        meaning: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+        note: "Proposez dimanche à la place, en gardant le vouvoiement. `Est-ce que dimanche vous irait ?` convient :
+          seul le jour proposé change, et `vous irait` continue à demander si l’autre personne est
+          disponible."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+    - texQuestionsTeaching20261007
+    - tex_modals2026
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: requests
+      explanation: "Une chaise encombrante bloque le passage ; un visiteur demande à quelqu’un de la déplacer.
+        `Pourriez-vous` signifie « pourriez-vous » et adoucit la demande ; `déplacer cette chaise` nomme
+        l’action et son objet. Le trait d’union relie le verbe à `vous` dans cette question. `S’il vous plaît`
+        ajoute une formule de politesse. Après `pourriez-vous`, le verbe d’action reste à l’infinitif :
+        `Pourriez-vous fermer la porte ?` demande une autre action. Avec une personne familière, `Tu peux
+        déplacer cette chaise ?` est une demande quotidienne plus directe ; `vous` peut aussi s’adresser à
+        plusieurs personnes."
+      examples:
+        - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+          meaning: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+          note: Demandez poliment à quelqu’un d’ouvrir la fenêtre. Une réponse possible est `Pourriez-vous ouvrir la
+            fenêtre, s’il vous plaît ?` Gardez `pourriez-vous` et remplacez l’action par `ouvrir la fenêtre` ;
+            `ouvrir` reste à l’infinitif.
+    - subskill_id: offers_invitations
+      explanation: Un ami prévoit d’aller au marché samedi et vous invite à l’accompagner. `Tu veux` demande si la
+        personne en a envie, et `venir` signifie venir ; `avec nous` inclut le groupe de la personne qui
+        parle. `Samedi` précise l’occasion. À l’oral familier, une intonation montante peut transformer cette
+        phrase déclarative en question. `Tu veux venir au cinéma avec nous ?` garde l’invitation en changeant
+        de destination. Cette formulation laisse le choix et commande moins que `Viens avec nous !`.
+      examples:
+        - text: Tu veux venir au marché avec nous samedi ?
+          meaning: Veux-tu venir au marché avec nous samedi ?
+          note: "Invitez un ami que vous tutoyez à vous accompagner dimanche. `Tu veux venir au marché avec nous
+            dimanche ?` convient : seul le jour change. Avec une personne à qui vous dites `vous`, le début
+            devient `Vous voulez venir`."
+    - subskill_id: suggestions
+      explanation: Pendant que le groupe choisit où déjeuner le matin, une personne propose un lieu près de la gare.
+        Ici, `On` signifie « nous », et `pourrait` présente une possibilité, pas un projet décidé. Dans cet
+        usage canadien, `Déjeuner` signifie prendre le repas du matin ; `près de la gare` situe l’endroit.
+        Après `pourrait`, le verbe reste à l’infinitif, comme dans `On pourrait manger dehors.` À l’inverse,
+        `On va déjeuner près de la gare.` annonce ce que le groupe va faire. Le conditionnel laisse place à la
+        discussion.
+      examples:
+        - text: On pourrait déjeuner près de la gare.
+          meaning: Nous pourrions prendre le petit-déjeuner près de la gare.
+          note: "Proposez plutôt de manger dehors. `On pourrait manger dehors.` est une réponse possible : `manger
+            dehors` remplace l’activité proposée sans en faire un engagement."
+    - subskill_id: commitments
+      explanation: Le groupe répartit les tâches d’un repas, et une personne se charge des assiettes. `D’accord`
+        accepte l’arrangement. `J’apporterai` signifie « je vais apporter » ; `les assiettes` nomme les
+        objets. La terminaison du futur de `apporterai` correspond à `je`, réduit à `j’` devant une voyelle.
+        `Nous apporterons` fait porter l’engagement sur « nous ». Dans ce contexte, le futur exprime une prise
+        en charge ; `Je pourrais apporter les assiettes.` ne propose qu’une contribution possible.
+      examples:
+        - text: D’accord, j’apporterai les assiettes.
+          meaning: D’accord, j’apporterai les assiettes.
+          note: "Engagez-vous à apporter les verres. `D’accord, j’apporterai les verres.` convient : le verbe au futur
+            garde votre engagement et `les verres` change l’objet."
+    - subskill_id: accepting_declining
+      explanation: "Une invitation mérite une réponse claire, même si vous ne pouvez pas venir. `Merci pour
+        l’invitation` la reconnaît et `mais` introduit le refus. `Je ne pourrai pas venir` exprime
+        l’impossibilité future : `ne` et `pas` entourent la forme future `pourrai`, tandis que `venir` reste à
+        l’infinitif. L’impossibilité sert de raison. `Je ne veux pas venir` exprimerait plutôt un manque
+        d’envie et pourrait sembler beaucoup moins délicat. Une acceptation peut se limiter à `Merci, je
+        viendrai avec plaisir.`"
+      examples:
+        - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+          meaning: Merci pour l’invitation, mais je ne pourrai pas venir.
+          note: Refusez parce que vous ne pouvez pas rester. `Merci, mais je ne pourrai pas rester.` garde
+            l’impossibilité future et remplace `venir` par `rester`, qui signifie demeurer sur place.
+    - subskill_id: negotiating_plans
+      explanation: "Vendredi ne convient pas à votre emploi du temps ; vous proposez donc samedi à la discussion.
+        `Ne me convient pas` indique que la date ne vous arrange pas : `me` désigne la personne concernée.
+        `Est-ce que samedi vous irait ?` demande si samedi conviendrait à l’autre personne. Ici, `irait` est
+        un conditionnel de `aller` exprimant la convenance, pas un déplacement. Le `vous` poli s’oppose à `te`
+        dans `Est-ce que samedi t’irait ?` avec une personne familière. On pourrait aussi dire `Samedi vous
+        convient ?`"
+      examples:
+        - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+          meaning: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+          note: "Proposez dimanche à la place, en gardant le vouvoiement. `Est-ce que dimanche vous irait ?` convient :
+            seul le jour proposé change, et `vous irait` continue à demander si l’autre personne est
+            disponible."

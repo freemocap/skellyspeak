@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: managing_conversation
+explanation_language: french
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-french.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "La conversation du soir est terminée et vous pensez vous revoir demain. `Até amanhã! Boa noite!`
+      clôt l’échange : `até` renvoie à la prochaine rencontre, `amanhã` signifie « demain » et `boa noite`
+      souhaite une bonne nuit. Ces mots accomplissent un au revoir, au-delà d’une simple date et d’une
+      description du soir. Pour la semaine suivante, `Até a semana que vem!` change le prochain rendez-vous ;
+      une salutation initiale ouvrirait au contraire la conversation."
+    examples:
+      - text: Até amanhã! Boa noite!
+        meaning: À demain ! Bonne nuit !
+        note: Terminez l’échange si vous pensez revoir la personne samedi. `Até sábado! Boa noite!` donne le jour du
+          prochain rendez-vous et un au revoir du soir ; `sábado` remplace `amanhã`.
+  - subskill_id: acknowledging
+    explanation: Quelqu’un explique comment rendre les livres empruntés. `Entendi` est une réponse immédiate
+      signifiant « j’ai compris ». C’est une forme accomplie à la première personne de `entender`, mais ici
+      elle signale que l’explication vient d’être comprise, sans raconter un événement distinct hier. Le sujet
+      « je » est dans le verbe. Comprendre une explication ne veut pas forcément dire partager l’opinion
+      qu’elle contient ; `concordo` exprimerait explicitement l’accord.
+    examples:
+      - text: Entendi.
+        meaning: J’ai compris.
+        note: Confirmez la compréhension et remerciez. `Entendi, obrigado.` convient à un homme qui parle ; `Entendi,
+          obrigada.` à une femme. `Entendi` porte la confirmation dans les deux cas.
+  - subskill_id: clarification
+    explanation: "L’autre personne qualifie l’horaire d’ouverture de provisoire, mais vous ignorez ce qu’elle
+      entend par ce mot. `O que você quer dizer com provisório?` demande une précision : `o que` signifie «
+      quoi », `você quer dizer` « vous voulez dire » et `com provisório` désigne l’expression difficile. La
+      question répare la compréhension des mots, sans vérifier si une heure d’ouverture proposée est exacte."
+    examples:
+      - text: O que você quer dizer com provisório?
+        meaning: Que voulez-vous dire par « provisoire » ?
+        note: Demandez plutôt le sens de temporário. `O que você quer dizer com temporário?` est complet après
+          l’emploi de ce mot ; `com` introduit l’expression à expliquer.
+  - subskill_id: rephrasing
+    explanation: Un emprunteur n’a pas compris que son prêt expire vendredi. `Em outras palavras, você pode ficar
+      com o livro até sexta` reformule cette même limite pratique. `Em outras palavras` annonce une autre
+      formulation, `você pode ficar com o livro` signifie qu’il peut garder le livre et `até sexta` donne le
+      terme. La reformulation transforme une règle abstraite d’expiration en action permise.
+    examples:
+      - text: Em outras palavras, você pode ficar com o livro até sexta.
+        meaning: Autrement dit, vous pouvez garder le livre jusqu’à vendredi.
+        note: Reformulez une échéance initiale fixée à lundi. `Em outras palavras, você pode ficar com o livro até
+          segunda.` est une reformulation complète si la règle précédente se terminait aussi lundi ; `até
+          segunda` rend le terme concret.
+  - subskill_id: correcting_misunderstanding
+    explanation: "Votre partenaire répète vendredi, mais vous vouliez dire samedi pour l’échange. `Eu quis dizer
+      sábado, não sexta` corrige le malentendu : `eu quis dizer` signifie « je voulais dire », `sábado` donne
+      le jour voulu et `não sexta` écarte explicitement le jour erroné. `Quis` est ici une forme passée de
+      `querer` à la première personne. Un simple `sábado` pourrait suffire entre proches, mais la phrase
+      complète précise la correction."
+    examples:
+      - text: Eu quis dizer sábado, não sexta.
+        meaning: Je voulais dire samedi, pas vendredi.
+        note: Corrigez une personne qui a compris jeudi au lieu de samedi. `Eu quis dizer sábado, não quinta.` nomme
+          le jour voulu et l’interprétation rejetée.
+  - subskill_id: turns_topics
+    explanation: "Le groupe a fini de choisir les livres et passe à l’organisation. `Posso falar dos horários
+      agora?` demande la parole pour parler des horaires : `posso` signifie « puis-je », `falar de` « parler
+      de », `dos` combine `de` et l’article pluriel `os`, et `agora` signifie « maintenant ». Dans cet
+      échange, vous demandez un tour de parole et un changement de sujet, pas si vous avez physiquement la
+      capacité de parler."
+    examples:
+      - text: Posso falar dos horários agora?
+        meaning: Puis-je parler des horaires maintenant ?
+        note: Demandez à aborder ensuite les prix. `Posso falar dos preços agora?` demande un tour de parole complet
+          sur ce sujet ; `dos preços` remplace `dos horários`.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

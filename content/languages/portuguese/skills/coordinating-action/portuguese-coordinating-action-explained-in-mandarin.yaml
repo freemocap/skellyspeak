@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: coordinating_action
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 你正把书交给同事，需要对方把书收好。`Você pode guardar estes livros, por favor?` 用 `você` 称呼对方，用 `pode` 表示“能”，再用不定式
+      `guardar` 指出请求的动作。`Estes livros` 指说话人身边的这些书。在这个情境中，问句是礼貌的请求，虽然 `poder` 也能表示能力。把不定式换成另一个动作，`Você pode
+      fechar a porta, por favor?` 就是在请对方关门。
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: 可以请你把这些书收好吗？
+        note: 改为请同事把这些箱子收好。`Você pode guardar estas caixas, por favor?` 是完整的请求。`Estas caixas` 取代 `estes
+          livros`；指示词要变成阴性复数，与 `caixas` 一致。
+  - subskill_id: offers_invitations
+    explanation: 你有新鲜面包，可以分一片给别人。`Quer uma fatia de pão?` 是在问对方要不要一片面包。`Quer` 是动词 `querer` 对应受话人的现在时形式；`uma fatia`
+      是一片，`de pão` 说明那片是什么。在面包就在手边的情境下，这是邀请对方接受；脱离情境，同样的话也可能只是在问偏好。`Quer um pouco de água?` 则用相同方式提供水。
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: 要来一片面包吗？
+        note: 改为提供一杯水。如果你能马上倒水，`Quer um copo de água?` 就是完整的提议；`um copo de` 说明数量和所装的东西。
+  - subskill_id: suggestions
+    explanation: 大家正在决定哪天交换图书。`Vamos organizar a troca de livros no sábado?` 提议一起组织活动：`vamos`
+      可理解为“我们走”或“我们来”，`organizar` 保持不定式，`no sábado` 是星期六，其中这个合成形式由 `em` 和 `o` 构成。问句请其他人考虑这个计划。`Vamos organizar
+      ...` 也能陈述打算，因此正在商量计划的语境表明它是建议。`Vamos organizar a troca no domingo?` 提议改到另一天。
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: 我们星期六组织图书交换，好吗？
+        note: 改为建议星期日。`Vamos organizar a troca de livros no domingo?` 保留共同采取行动的句式，把 `no sábado` 改为 `no domingo`。
+  - subskill_id: commitments
+    explanation: 小组需要有人带箱子。说 `Eu levo as caixas amanhã`，就是由你承担这项任务：`eu` 明确指出负责的人，`levo` 是 `levar` 的现在时形式，`amanhã`
+      把行动放在明天。葡语可以用现在时表达已经定下的未来安排。离开共同计划的语境，这句话也可能只是报告日程；这里它回答了谁来做。
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: 明天我来带箱子。
+        note: 承诺明天带书。`Eu levo os livros amanhã.` 合适，因为 `eu levo` 表示自己接下任务，`amanhã` 确定稍后的时间。
+  - subskill_id: accepting_declining
+    explanation: 有人邀请你今天去图书交换活动帮忙，但你去不了。`Não posso ir hoje` 是切题的婉拒：`não` 放在变位动词 `posso` 前，`ir` 指你做不到的“去”，`hoje`
+      把限制缩到今天。邀请已经交代目的地，所以不用重复。面对已知的任务，简短的 `Posso, sim` 则可以表示接受。
+    examples:
+      - text: Não posso ir hoje.
+        meaning: 我今天不能去。
+        note: 改为婉拒明天，而不是今天。回复邀请时，`Não posso ir amanhã.` 已经是完整回答；把 `hoje` 换成 `amanhã`，就改变了无法参加的时间。
+  - subskill_id: negotiating_plans
+    explanation: 朋友提议星期五，但你那天不方便。`Na sexta não posso. Podemos combinar no sábado?` 先说明限制，再提出另一个选择。`Na sexta`
+      是星期五，由 `em` 和 `a` 合成；`não posso` 省略了对话里已知的见面活动。`Podemos` 表示“我们能吗”，`combinar` 是商量约定，`no sábado`
+      提议星期六。因为这两句回应已有计划，所以是在协商。`Podemos combinar no domingo?` 则把替代日期改成星期日。
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: 星期五我不行。我们能改约星期六吗？
+        note: 保留星期五不方便的情况，改提星期日。`Na sexta não posso. Podemos combinar no domingo?` 是完整回答：第一句拒绝原定时间，第二句提出可行的替代时间。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_negation2026
+        - ut_pt_future_subj2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-portuguese-2026-10-07
+skill_id: feelings_viewpoints
+language: english
+explanation_language: portuguese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Um desejo e um plano cumprem funções diferentes. Você pode querer estudar sem reservar
+      tempo; dizer que planeja estudar informa a um amigo qual é a atividade pretendida. Isso ainda
+      não garante que ela acontecerá.
+    examples:
+      - text: I plan to study tonight.
+        meaning: "`I plan` declara a intenção, `to study` indica a ação pretendida e `tonight` informa
+          quando. Depois de `plan`, ligue a próxima ação com `to` e a forma básica do verbo. Ao
+          mudar a pessoa, obtém-se `She plans to study tonight`."
+        note: "Compare `I want to study tonight`: expressa um desejo que talvez ainda não seja um plano. `I
+          am studying tonight` pode apresentar a atividade como um compromisso marcado.
+          **Pratique.** Diga que pretende cozinhar amanhã. Resposta: `I plan to cook tomorrow`.
+          Mantenha `to` antes de `cook` para ligar o planejamento à ação pretendida."
+  - subskill_id: preferences
+    explanation: Uma preferência informa qual opção você aprecia mais. Quando um anfitrião oferece duas
+      bebidas, você pode indicar o chá como primeira escolha sem dizer que não gosta de café.
+      `Prefer` torna a comparação explícita.
+    examples:
+      - text: I prefer tea to coffee.
+        meaning: "`I prefer` apresenta a escolha. `Tea` é a opção preferida; `to coffee` indica a
+          alternativa. Nessa comparação, `to` liga duas coisas, em vez de introduzir uma ação.
+          Inverter as opções muda a preferência: `I prefer coffee to tea`."
+        note: "Use `to` aqui, não `than`: `I prefer tea to coffee`. Dizer apenas `I like tea` não compara as
+          bebidas. Também é possível comparar atividades: `I prefer walking to driving`.
+          **Pratique.** Você gosta mais das manhãs que das noites. Resposta: `I prefer mornings to
+          evenings`. Coloque a escolha preferida primeiro e a alternativa depois de `to`."
+  - subskill_id: emotions
+    explanation: Nomear um sentimento ajuda outra pessoa a entender sua reação. Antes de uma entrevista,
+      você pode estar preocupado com o que acontecerá. `Feel` seguido de uma palavra descritiva
+      apresenta o sentimento; `about` pode introduzir aquilo a que ele se refere.
+    examples:
+      - text: I feel nervous about the interview.
+        meaning: "`I feel` relata a experiência de quem fala. `Nervous` descreve o sentimento, e `about the
+          interview` identifica seu foco. A palavra descritiva não muda conforme a pessoa: `She
+          feels nervous`."
+        note: "`I am nervous` também descreve o estado. `Nervous` descreve o sentimento da pessoa;
+          `nerve-racking` pode descrever a experiência que o provoca: `The interview was
+          nerve-racking`. Não use as duas palavras como equivalentes. **Pratique.** Descreva sua
+          animação com uma viagem. Resposta: `I feel excited about the trip`. `Excited` nomeia o
+          sentimento; `about the trip` diz a que ele se refere."
+  - subskill_id: opinions
+    explanation: Uma opinião permite participar de uma discussão com seu julgamento. Se um grupo está
+      escolhendo um plano, você pode considerar seu custo problemático. `I think` apresenta a
+      afirmação seguinte como sua visão e abre espaço para outras respostas.
+    examples:
+      - text: I think this plan is too expensive.
+        meaning: "`I think` introduz o julgamento. `This plan is too expensive` o apresenta: `too` indica
+          que o custo supera o aceitável, não apenas que é alto. Você pode acrescentar um motivo,
+          como `It uses our whole budget`."
+        note: "Compare com `very expensive`, que descreve um preço alto sem dizer, por si só, que é
+          excessivo. `I don’t think this plan is affordable` é uma maneira comum de expressar uma
+          opinião negativa. **Pratique.** Diga que, na sua opinião, uma sala é pequena demais.
+          Resposta: `I think this room is too small`. `Too` indica um problema com o tamanho."
+  - subskill_id: agreement_disagreement
+    explanation: Concordar é responder à opinião de outra pessoa. Se um colega diz que o trabalho
+      precisa de mais um dia, você pode aceitar esse ponto explicitamente. Identificar aquilo com
+      que concorda ajuda quando há várias propostas na discussão.
+    examples:
+      - text: I agree that we need more time.
+        meaning: "`I agree` diz que você compartilha a opinião. `That we need more time` explicita o ponto
+          aceito; `that` liga a concordância a uma afirmação completa. Para concordar com uma
+          pessoa, use `with`: `I agree with you`."
+        note: "Para discordar sem atacar a pessoa, experimente `I see your point, but I think we have enough
+          time`. Entender um argumento não significa aceitá-lo. Evite a forma incorreta `I am
+          agree`; `agree` já é o verbo principal. **Pratique.** Concorde que a sala é pequena
+          demais. Resposta: `I agree that the room is too small`. As palavras depois de `that`
+          identificam o julgamento compartilhado."
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

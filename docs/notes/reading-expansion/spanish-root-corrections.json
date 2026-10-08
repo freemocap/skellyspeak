@@ -1,0 +1,137 @@
+{
+  "es": [
+    "is",
+    "بيكون",
+    "est"
+  ],
+  "está": [
+    "is / is located",
+    "بيكون / موجود",
+    "est / se trouve"
+  ],
+  "soy": [
+    "I am",
+    "بكون",
+    "je suis"
+  ],
+  "estoy": [
+    "I am",
+    "بكون",
+    "je suis"
+  ],
+  "estamos": [
+    "we are",
+    "منكون",
+    "nous sommes"
+  ],
+  "están": [
+    "they are / you are",
+    "بيكونوا / بتكونوا",
+    "ils sont / elles sont / vous êtes"
+  ],
+  "son": [
+    "they are / you are",
+    "بيكونوا / بتكونوا",
+    "ils sont / elles sont / vous êtes"
+  ],
+  "estás": [
+    "you are",
+    "بتكون",
+    "tu es"
+  ],
+  "iba": [
+    "I was going / was going",
+    "كنت روح / كان يروح",
+    "j’allais / il allait / elle allait"
+  ],
+  "podría": [
+    "I could / could",
+    "ممكن أقدر / ممكن يقدر",
+    "je pourrais / pourrait"
+  ],
+  "no": [
+    "no / not",
+    "لا / ما / مش",
+    "non / ne…pas"
+  ],
+  "gusta": [
+    "pleases",
+    "بيعجب",
+    "plaît"
+  ],
+  "gustan": [
+    "please",
+    "بيعجبوا",
+    "plaisent"
+  ],
+  "salimos": [
+    "we go out / we went out",
+    "منطلع / طلعنا",
+    "nous sortons / nous sommes sortis"
+  ],
+  "puede": [
+    "can",
+    "بيقدر / بتقدر",
+    "peut / pouvez"
+  ],
+  "frente": [
+    "front / forehead",
+    "قدّام / جبهة",
+    "devant / front"
+  ],
+  "su": [
+    "his / her / your / their",
+    "ـه / ـها / ـك / ـهم",
+    "son / sa / ses / votre / leur"
+  ],
+  "que": [
+    "that / which / than",
+    "إنّه / اللي / من",
+    "que"
+  ],
+  "claro": [
+    "clear / of course",
+    "واضح / أكيد",
+    "clair / bien sûr"
+  ],
+  "al": [
+    "to the / at the",
+    "للـ / بالـ",
+    "au"
+  ],
+  "favor": [
+    "favor",
+    "معروف",
+    "faveur"
+  ],
+  "descanso": [
+    "rest / I rest",
+    "راحة / برتاح",
+    "repos / je me repose"
+  ],
+  "quiere": [
+    "wants / you want",
+    "بدّه / بدها / بدّك",
+    "veut / vous voulez"
+  ],
+  "sabe": [
+    "knows / you know",
+    "بيعرف / بتعرف",
+    "sait / vous savez"
+  ],
+  "va": [
+    "goes / you go",
+    "بيروح / بتروح",
+    "va / vous allez"
+  ],
+  "cual": [
+    "which",
+    "اللي",
+    "lequel"
+  ],
+  "café": [
+    "coffee / café",
+    "قهوة / كافيه",
+    "café"
+  ]
+}

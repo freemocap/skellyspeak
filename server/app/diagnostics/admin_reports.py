@@ -42,6 +42,38 @@ def email_label(value):
     return mask(local) + '@' + mask(domain)
 
 
+ROLLING_RESERVATION_LIMIT = 10000
+
+
+def rolling_usage(ref, now):
+    """Exact request-start windows, bounded without presenting partial sums as totals."""
+    starts = {'usage_24_hours_micros': now - timedelta(hours=24),
+              'usage_7_days_micros': now - timedelta(days=7)}
+    totals = dict.fromkeys(starts, 0)
+    records = ref.collection('reservations').order_by(
+        'created_at', direction=firestore.Query.DESCENDING).limit(ROLLING_RESERVATION_LIMIT + 1)
+    for index, doc in enumerate(records.stream()):
+        data = doc.to_dict()
+        created = data['created_at']
+        if created < starts['usage_7_days_micros']:
+            break
+        if index == ROLLING_RESERVATION_LIMIT:
+            for key, start in starts.items():
+                if created >= start:
+                    totals[key] = None
+            break
+        if created > now:
+            continue
+        amount = data.get('actual_micros') if data.get('status') == 'settled' else data.get('reserved_micros')
+        for key, start in starts.items():
+            if created >= start:
+                if amount is None:
+                    totals[key] = None
+                elif totals[key] is not None:
+                    totals[key] += int(amount)
+    return totals
+
+
 def overview(db, cfg, *, days=30, after=''):
     # One UTC reporting date even when sequential reads cross midnight.
     generated_at = datetime.now(timezone.utc)
@@ -63,6 +95,7 @@ def overview(db, cfg, *, days=30, after=''):
         # or count expired history as lifetime usage.
         history = db.get_all([ref.collection(quota.USAGE).document(key) for key in window(90, today=today)])
         row['usage_90_days_micros'] = sum(int((doc.to_dict() or {}).get('micros', 0)) for doc in history)
+        row.update(rolling_usage(ref, generated_at))
         # Creation records an admitted inference attempt, not its later settlement.
         latest = list(ref.collection('reservations').order_by('created_at', direction=firestore.Query.DESCENDING).limit(1).stream())
         row['last_inference_at'] = (latest[0].to_dict() or {}).get('created_at') if latest else None

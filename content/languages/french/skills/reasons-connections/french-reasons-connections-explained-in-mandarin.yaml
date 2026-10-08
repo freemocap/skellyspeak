@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: reasons_connections
+language: french
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 道路封闭解释了为什么大家在等候。`Nous attendons` 说出正在发生的事；`parce que` 引出原因 `la route est
+      fermée`。后面的词构成有自己主语和动词的完整分句。`Fermée` 用阴性词尾，因为描述的是 `route`。简短的名词原因可以用 `à cause de`，例如 `Nous attendons à
+      cause de la neige.`。两种结构后面接不同内容：`parce que` 后是完整解释，`à cause de` 后是名词短语。
+    examples:
+      - text: Nous attendons parce que la route est fermée.
+        meaning: 我们在等，因为道路封闭了。
+        note: 解释说大家因商店关门而等候。`Nous attendons parce que le magasin est fermé.` 可用：原因是一个分句，`fermé` 与阳性 `magasin` 一致。
+  - subskill_id: consequences
+    explanation: 末班车已经走了，于是大家决定步行回家。`Le dernier bus est parti` 给出已完成的事件。`Donc` 把它与随后决定的 `nous allons rentrer à
+      pied` 连起来。`Allons rentrer` 意为我们打算回家，`à pied` 表示步行。`Parti` 搭配 `est`，因为 `partir` 的这个复合过去时使用
+      `être`；未来计划则用现在时 `aller` 加不定式。`Puis` 只表示先后，`donc` 则把第二句标成结果。
+    examples:
+      - text: Le dernier bus est parti, donc nous allons rentrer à pied.
+        meaning: 末班车走了，所以我们打算步行回家。
+        note: 改为决定在这里等。`Le dernier bus est parti, donc nous allons attendre ici.` 可用：`donc` 保留结果关系，`attendre ici`
+          给出新计划。
+  - subskill_id: conditions
+    explanation: 只有图书馆开门，你们才会在那里工作。`Si la bibliothèque est ouverte` 给出条件；`nous y travaillerons` 说明条件成立后的结果。`Y`
+      代替“在图书馆”，避免重复，放在 `travaillerons` 前。真实的未来可能可以在 `si` 后用现在时，在结果中用将来时：未来时间不要求条件词 `si` 后立即用将来形式。`Quand la
+      bibliothèque sera ouverte` 则意为等图书馆开门时，把开门当成预计会到来的时刻。
+    examples:
+      - text: Si la bibliothèque est ouverte, nous y travaillerons.
+        meaning: 如果图书馆开门，我们会在那里工作。
+        note: 把结果改为在那里学习。`Si la bibliothèque est ouverte, nous y étudierons.` 可用：条件仍用现在时，结果仍用将来时，`y` 仍指图书馆。
+  - subskill_id: contrast
+    explanation: 一个小包出人意料地装得下所需物品。`Le sac est petit` 让人预期容量有限；`mais` 引出相反的事实 `il contient tout mon matériel`。`Il`
+      指回阳性的 `sac`；`tout mon matériel` 意为我的全部装备。这里 `Matériel` 是集合意义的单数名词，因此 `tout` 用阳性单数。`Et` 只增加信息；`mais`
+      突出第二件事为什么出乎第一印象。
+    examples:
+      - text: Le sac est petit, mais il contient tout mon matériel.
+        meaning: 包虽小，却装下我全部装备。
+        note: 描述一个能装下全部装备的小盒子。`La boîte est petite, mais elle contient tout mon matériel.` 可用：盒子搭配阴性 `petite` 和
+          `elle`；装备短语仍是阳性单数。
+  - subskill_id: supporting_claims
+    explanation: 你推荐一条路线，并用近期观察解释判断。`Ce trajet est plus rapide` 声称这条路线更快。冒号后，`hier, j’ai gagné vingt minutes`
+      说昨天节省了二十分钟。`Ai gagné` 把经历呈现为已完成，具体时间数字使依据可核实。这个观察支持当时情境下的比较，但不能证明这条路永远更快。单说 `C’est mieux`
+      只是判断，没有这种可查的细节。
+    examples:
+      - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
+        meaning: 这条路线更快；昨天我省了二十分钟。
+        note: "改说观察到省了十分钟。`Ce trajet est plus rapide : hier, j’ai gagné dix minutes.` 可用：测得的依据改变，经历仍是已完成的过去事件。"
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_si2026
+    - threshold_general_notions
+    - texPlaceYTeaching20261007
+    - texCompoundPastTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_si2026
+        - threshold_general_notions
+        - texPlaceYTeaching20261007
+        - texCompoundPastTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_si2026
+        - threshold_general_notions
+        - texPlaceYTeaching20261007
+        - texCompoundPastTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.

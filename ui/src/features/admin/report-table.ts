@@ -1,7 +1,7 @@
 /** Admin report controls retain presentation choices across live snapshots. */
 export type SortValue = string | number | null | undefined
 export type Column<T> = {
-  key: string; label: string; value?: (row: T) => SortValue
+  key: string; label: string; headerLines?: [string, string]; value?: (row: T) => SortValue
   render: (row: T) => unknown | HTMLElement
   numeric?: boolean; hidden?: boolean; required?: boolean
 }
@@ -110,6 +110,11 @@ export class ReportTable<T> {
         const active = column.key === this.sortKey
         th.setAttribute('aria-sort', active ? this.descending ? 'descending' : 'ascending' : 'none')
         const control = element('button', `${column.label} ${active ? this.descending ? '↓' : '↑' : '↕'}`)
+        if (column.headerLines) {
+          const first = element('span', column.headerLines[0]), second = element('span', `${column.headerLines[1]} ${active ? this.descending ? '↓' : '↑' : '↕'}`)
+          first.className = second.className = 'column-heading-line'
+          control.replaceChildren(first, document.createTextNode(' '), second)
+        }
         control.type = 'button'; control.className = 'sort-button'
         control.dataset.sortKey = column.key
         control.setAttribute('aria-label', `Sort by ${column.label}${active ? this.descending ? ', ascending' : ', descending' : ''}`)

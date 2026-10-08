@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: time_events
+explanation_language: arabic
+title: الوقت والأحداث
+introduction: تحدّث عن وقت وقوع الأشياء ومدتها وترتيب الأحداث وعلاقاتها.
+sections:
+  - subskill_id: present_events
+    title: الأوضاع الحاضرة
+    concept: تحدّث عن الأوضاع والأنشطة والعادات الحالية.
+  - subskill_id: past_events
+    title: الأحداث الماضية
+    concept: تحدّث عمّا حدث في وقت سابق.
+  - subskill_id: future_events
+    title: الأحداث المستقبلية
+    concept: تحدّث عمّا سيحدث أو قد يحدث لاحقًا.
+  - subskill_id: duration_frequency
+    title: المدة والتكرار
+    concept: اذكر مدة استمرار شيء أو عدد مرات حدوثه.
+  - subskill_id: event_sequence
+    title: التسلسل
+    concept: وضّح ما يحدث أولًا ثم بعد ذلك وأخيرًا.
+  - subskill_id: event_phase
+    title: الأحداث الجارية والمكتملة
+    concept: اذكر ما إذا كان شيء ما يبدأ أو يستمر أو اكتمل.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

@@ -1,0 +1,123 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: information_exchange
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-portuguese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Uma pergunta informativa esclarece o que se quer descobrir. O espanhol usa `dónde` para
+      lugar, `cuándo` para tempo e `qué` para coisa ou explicação. Aqui falta a localização da
+      estação; perguntas sobre onde alguém ou algo está usam uma forma de `estar`.
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: "**Como funciona.** “Onde fica a estação?” tem três partes: `dónde` pede o lugar, `está` é
+          o verbo singular e `la estación` identifica o local. Preserve os acentos em `dónde` e
+          `está`, além dos sinais inicial e final de interrogação."
+        note: "**Número.** `¿Dónde están las llaves?` pergunta onde estão as chaves. `están` e `las llaves`
+          são plurais. Uma resposta pode apenas indicar o lugar: `En la mesa`, sobre a mesa.
+          **Pratique.** Pergunte onde fica o banheiro usando `el baño`. Resposta: `¿Dónde está el
+          baño?` Use `está` singular por se tratar de um banheiro."
+  - subskill_id: answering_information
+    explanation: Ao ser perguntado onde está, uma expressão curta de lugar pode bastar. A pergunta já
+      informa a pessoa e o verbo; a resposta simplesmente nomeia o local. Isso é normal numa
+      conversa, não uma resposta incompleta.
+    examples:
+      - text: En casa.
+        meaning: “Em casa.” `En` introduz o lugar, e `casa` significa casa. Depois de `¿Dónde estás?`, a
+          frase localiza quem responde. `En casa` não usa artigo nessa expressão cotidiana.
+        note: "**Compare.** `En la casa de Ana` identifica a casa específica de Ana. Uma resposta de lugar
+          não responderia a `¿Cuándo llegas?`, que pergunta quando você chega. **Pratique.**
+          Responda a `¿Dónde estás?` com o parque, `el parque`. Resposta: `En el parque`. Mantenha o
+          artigo dessa expressão."
+  - subskill_id: checking_facts
+    explanation: Se você acha que um visitante chega às oito, pode confirmar isso em vez de fazer uma
+      pergunta aberta. Entonação e sinais de interrogação permitem transformar uma afirmação
+      espanhola numa pergunta de sim ou não.
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: “Você chega às oito?” `Llegas` significa você chega; `a las ocho` indica o horário. O
+          presente descreve aqui uma chegada combinada. Não se acrescenta um verbo auxiliar
+          equivalente ao “do” inglês.
+        note: "**Compare.** `¿A qué hora llegas?` pede o horário sem propor oito. Uma resposta corretiva é
+          `No, a las nueve`. Para uma hora, use `a la una` com artigo singular. **Pratique.**
+          Confira a chegada às nove. Resposta: `¿Llegas a las nueve?`. Troque somente o horário."
+  - subskill_id: useful_detail
+    explanation: Ao dar orientações, uma referência pode não bastar. Uma segunda restringe o local.
+      Expressões espanholas de lugar podem descrever o mesmo ponto a partir de duas referências
+      úteis.
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: “Fica ao lado do banco, em frente ao parque.” `Está` retoma o local já discutido. `Al lado
+          del banco` situa o local ao lado do banco; `frente al parque` o situa em frente ao parque. `Del` combina
+          `de` e `el`; `al` combina `a` e `el`.
+        note: "**Adapte.** `Está al lado de la farmacia` muda a referência para a farmácia. `De la`
+          permanece separado, pois só `de el` vira `del`. Escolha referências visíveis.
+          **Pratique.** Diga que fica em frente ao banco. Resposta: `Está frente al banco`. A
+          expressão usa `a` combinada com `el`."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

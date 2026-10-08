@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-portuguese-2026-10-07
+skill_id: information_exchange
+explanation_language: portuguese
+title: Troca de informações
+introduction: Faça perguntas, responda e verifique se as informações estão claras e corretas.
+sections:
+  - subskill_id: asking_information
+    title: Pedir informações
+    concept: Peça informações que você ainda não tem.
+  - subskill_id: answering_information
+    title: Responder ao que foi perguntado
+    concept: Dê a informação que a outra pessoa está pedindo.
+  - subskill_id: checking_facts
+    title: Confirmar informações
+    concept: Verifique se um detalhe ou algo que você ouviu está correto.
+  - subskill_id: useful_detail
+    title: Dar detalhes úteis
+    concept: Dê detalhes suficientes para tornar a informação útil.
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese localization of shared English teaching concepts. Skill
+    identities and assessment criteria unchanged. Source references inherited from the English
+    edition; they do not independently validate this translation.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; independent linguistic review pending.

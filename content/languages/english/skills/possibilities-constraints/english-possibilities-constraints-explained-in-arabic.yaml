@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: possibilities_constraints
+language: english
+explanation_language: arabic
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-arabic.yaml
+sections:
+  - subskill_id: ability
+    explanation: "القدرة هي ما يعرف الشخص كيف يفعله أو ما يستطيع فعله في موقف معين. تعبّر الإنجليزية
+      عنها غالبًا بـ`can` متبوعة بفعل. في المثال، لدى المتحدث قوة تكفي لحمل حقيبتين. بعد `can` يبقى
+      الفعل في صورته الأساسية: `carry`، لا `carries` ولا `to carry`."
+    examples:
+      - text: I can carry both bags.
+        meaning: "**كيف تعمل الصيغة.** تعبّر `Can` هنا عن القدرة؛ وتسمّي `carry` الفعل. وتعني `Both bags`
+          الحقيبتين معًا. غيّر الفعل لتكوين جملة أخرى: `I can lift this box`."
+        note: >-
+          **غيّر الجملة.** استعمل `can't` لنفي القدرة: `I can't carry both bags`. ضع `can` أولًا
+          للسؤال: `Can you carry both bags?` وأبقِ `carry` من دون تغيير.
+
+
+          **السياق مهم.** إذا كان صديق يجد صعوبة في حمل أمتعته، فقد تعرض الجملة الأصلية المساعدة
+          أيضًا. يضيف الموقف هذا الغرض.
+
+
+          **جرّب.** حوّل `She carries this box` إلى جملة عن القدرة. الإجابة: `She can carry this
+          box`. بعد `can` استعمل `carry`، لا `carries`.
+  - subskill_id: permission
+    explanation: الإذن هو موافقة شخص على السماح بفعل. يمكن للأسئلة الإنجليزية التي تبدأ بـ`Can I` أو
+      `Could I` أو `May I` أن تطلب هذه الموافقة قبل أن تتصرف. `Can I` شائعة في الحديث اليومي؛
+      و`Could I` أكثر تحفظًا، و`May I` أكثر رسمية. يتبع كلًا منها الفعل في صورته الأساسية.
+    examples:
+      - text: May I use this chair?
+        meaning: "**كيف تعمل الصيغة.** تطلب `May I` الإذن للمتحدث نفسه. وتحدد `Use this chair` الفعل؛ ولا
+          تسبق `use` كلمة `to`. اسأل شخصًا يستطيع أن يقرر هل الكرسي متاح."
+        note: >-
+          **قارن.** تطلب `Can I use this chair?` الإذن أيضًا في هذا الموقف. أما `Can you move this
+          chair?` فتطلب من الشخص الآخر فعلًا. يغيّر الانتقال من `I` إلى `you` الشخص الذي سيقوم
+          بالفعل.
+
+
+          **جرّب.** اطلب الإذن بفتح نافذة. إجابة ممكنة: `Could I open the window?` يمنح رد مثل `Yes,
+          go ahead` الإذن؛ ويرفضه `Sorry, please keep it closed` ويذكر ما ينبغي فعله بدلًا من ذلك.
+  - subskill_id: obligation
+    explanation: المطلوب هو شيء ينبغي حدوثه، ربما بسبب قاعدة أو ترتيب أو حاجة عملية. كثيرًا ما تستعمل
+      الإنجليزية `have to` لهذا المعنى. في المثال، المغادرة ضرورية وهناك آخر وقت لها. يتبع `Have to`
+      الفعل في صورته الأساسية.
+    examples:
+      - text: We have to leave by eight.
+        meaning: "**كيف تعمل الصيغة.** تجعل `Have to` المغادرةَ مطلوبة. تحدد `By eight` حدًا أقصى: الثامنة
+          آخر موعد للمغادرة، مع إمكان الخروج قبلها. أما `At eight` فتحدد وقت المغادرة نفسه."
+        note: >-
+          **انتبه للنفي.** تعني `We don't have to leave` أن المغادرة اختيارية. وتعني `We mustn't
+          leave` أن المغادرة ممنوعة. هذان توجيهان مختلفان، مع أن `must` و`have to` قد يعبّران عن
+          الإلزام.
+
+
+          **اسأل عنه.** استعمل `Do we have to leave?` للتحقق من ضرورة المغادرة.
+
+
+          **جرّب.** الحضور اختياري. اختر بين `You don't have to come` و`You mustn't come`. الإجابة:
+          `You don't have to come`؛ فلا يزال للشخص أن يختار الحضور.
+  - subskill_id: possibility
+    explanation: قد يقع حدث ممكن، لكن وقوعه غير مؤكد. تستعمل الإنجليزية `might` أو `may` قبل الفعل لتترك
+      مجالًا لنتيجة أخرى. في المثال، قد يصل توصيل اليوم، لكن المتحدث لا يستطيع تأكيد ذلك. يبقى الفعل
+      من دون تغيير بعد `might` أو `may`.
+    examples:
+      - text: The delivery might arrive today.
+        meaning: "**كيف تعمل الصيغة.** تسمّي `The delivery` ما تتحدث عنه. وتترك `Might arrive` وصوله غير
+          مؤكد؛ وتحدد `today` الوقت. يغيّر استبدال `today` بـ`tomorrow` الوقت من غير إزالة الشك."
+        note: >-
+          **قارن.** تعرض `The delivery will arrive today` الوصول بوصفه توقعًا أو تنبؤًا. أما إضافة
+          `might` فتترك احتمال نتيجة أخرى. استعمل `might not` إذا كان عدم الوصول ممكنًا: `The
+          delivery might not arrive today`. ولا يعني ذلك أنه لن يصل قطعًا.
+
+
+          **جرّب.** ليس لديك موعد مؤكد لوصول الطرد. اجعل `The parcel arrives tomorrow` أقل يقينًا.
+          إجابة ممكنة: `The parcel might arrive tomorrow`. لاحظ أن `arrives` تصبح `arrive` بعد
+          `might`.
+  - subskill_id: certainty
+    explanation: اليقين هو درجة ثقتك بصحة شيء. تتيح `I'm not sure whether…` تحديد سؤال لا تستطيع تأكيد
+      جوابه. في المثال، السؤال غير المحسوم هو هل الباب مقفل. يترك عدم اليقين الإجابتين ممكنتين.
+    examples:
+      - text: I am not sure whether the door is locked.
+        meaning: "**كيف تعمل الصيغة.** تصف `Not sure` درجة ثقتك. وتحدد `Whether the door is locked` السؤال
+          الذي لا تستطيع حسمه: هل هو مقفل أم لا. أبقِ ترتيب الجملة الخبرية بعد `whether`: `the door
+          is`، لا ترتيب السؤال المباشر `is the door`."
+        note: >-
+          **قارن.** تعبّر `I'm sure the door is locked` عن ثقة بأن الباب مقفل. وتترك `I'm not sure
+          whether the door is locked` الاحتمالين مفتوحين. عدم اليقين لا يعني أنك تؤمن بالعكس.
+
+
+          **جرّب.** لا تستطيع تأكيد جواب `Is the shop open?`؛ عبّر عن هذا الشك. إجابة ممكنة: `I'm
+          not sure whether the shop is open`. تأتي الكلمات بعد `whether` بترتيب الجملة الخبرية: `the
+          shop is open`.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

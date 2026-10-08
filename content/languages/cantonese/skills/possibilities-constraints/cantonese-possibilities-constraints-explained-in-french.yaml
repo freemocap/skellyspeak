@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: possibilities_constraints
+explanation_language: french
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-french.yaml
+sections:
+  - subskill_id: ability
+    explanation: Pour savoir qui peut préparer du pain pour un repas, vous pouvez dire que vous avez acquis cette
+      compétence. `識` devant l’activité signifie « savoir faire » ; l’autorisation et le temps disponible sont
+      d’autres questions.
+    examples:
+      - text: 我識整麵包。
+        meaning: Je sais faire du pain. `我` désigne la personne qui parle, `識` exprime le savoir-faire et `整麵包`
+          signifie « faire du pain ». L’activité suit directement `識`, sans mot de liaison. Changer le sujet
+          ne modifie ni `識` ni `整`.
+        note: "Essayez : dites que votre ami sait faire du pain. Réponse : `佢識整麵包。` Remplacez le sujet par `佢`.
+          `我唔識整麵包` nie la compétence ; `我今日唔得閒整麵包` indique un manque de temps aujourd’hui sans préciser votre
+          savoir-faire."
+  - subskill_id: permission
+    explanation: Dans un espace de travail partagé, vous demandez à la personne responsable si vous pouvez
+      utiliser une table. `可唔可以` présente les possibilités positive et négative de la permission ; l’action
+      proposée suit.
+    examples:
+      - text: 我可唔可以用呢張枱？
+        meaning: Puis-je utiliser cette table ? `我` désigne la personne qui souhaite agir, `用` signifie « utiliser »
+          et `呢張枱` identifie cette table avec le classificateur `張`. `可唔可以` est une question de type « oui ou
+          non » construite sur `可以`. Le contexte en fait une demande d’autorisation.
+        note: "Essayez : demandez plutôt la permission d’utiliser la chaise. Réponse : `我可唔可以用呢張椅？` Remplacez `枱` par
+          `椅` ; les deux emploient ici `張`. `可以，你用啦。` accorde la permission. La même forme de question peut
+          porter sur la faisabilité ; la personne interrogée et le contexte précisent la fonction."
+  - subskill_id: obligation
+    explanation: Un devoir doit être rendu aujourd’hui ; le déposer est donc nécessaire plutôt que simplement
+      souhaitable. `一定要` renforce l’obligation, et le jour en fixe l’échéance.
+    examples:
+      - text: 我今日一定要交份功課。
+        meaning: Je dois absolument rendre le devoir aujourd’hui. `我今日` donne la personne et le jour ; `一定要交` signifie
+          « devoir absolument remettre ». `份功課` identifie le devoir avec `份`, classificateur adapté à un
+          document ou un travail.
+        note: "Essayez : faites de demain la date limite. Réponse : `我聽日一定要交份功課。` Remplacez `今日` par `聽日`. `我唔使交份功課`
+          retire l’obligation ; `我唔可以交份功課` indique que rendre le devoir est interdit ou impossible. Ces
+          négations ont des fonctions différentes."
+  - subskill_id: possibility
+    explanation: La météo de demain reste incertaine. `可能` marque cette incertitude et `會` présente la pluie comme
+      un événement futur possible.
+    examples:
+      - text: 聽日可能會落雨。
+        meaning: Il pourrait pleuvoir demain. `聽日` vient d’abord pour situer le jour, `可能會` signifie « il se peut que
+          » et `落雨` « pleuvoir ». Le cantonais décrit cet événement météorologique sans ajouter de pronom
+          correspondant au « il » français.
+        note: "Essayez : envisagez de la neige demain. Réponse : `聽日可能會落雪。` Remplacez le phénomène par `落雪`. `聽日會落雨`
+          formule plus directement la prévision ; `聽日可能唔會落雨` laisse ouverte la possibilité qu’il ne pleuve
+          pas."
+  - subskill_id: certainty
+    explanation: Vous êtes sûr qu’une personne est rentrée chez elle. `我肯定` exprime cette certitude ; la
+      proposition qui suit nomme l’événement dont vous êtes sûr.
+    examples:
+      - text: 我肯定佢已經返咗屋企。
+        meaning: Je suis certain que cette personne est déjà rentrée chez elle. `佢` désigne une personne, `已經`
+          signifie « déjà » et `返咗屋企` présente le retour chez soi comme accompli. `返` signifie « rentrer »,
+          `咗` suit l’action et `屋企` donne le domicile.
+        note: "Essayez : exprimez la même certitude à propos de plusieurs personnes. Réponse : `我肯定佢哋已經返咗屋企。`
+          Remplacez `佢` par `佢哋` ; `返咗` ne change pas. `我唔肯定佢係咪返咗屋企` signifie au contraire que vous ne savez
+          pas si la personne est rentrée, avec `係咪` pour l’alternative ouverte."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

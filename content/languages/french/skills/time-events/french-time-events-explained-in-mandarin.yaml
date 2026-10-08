@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: time_events
+language: french
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 你在准备晚餐时，有人问你在做什么。`Je prépare` 是现在时，可表示我准备或我正在准备；`le dîner` 指晚餐。`En ce moment`
+      意为此刻，明确活动正在发生。法语可以直接用这种现在时形式，无需另有进行时。`Je prépare le dîner tous les soirs`
+      则借“每晚”描述习惯。动词形式可以相同，因为时间短语改变了活动的理解方式。
+    examples:
+      - text: Je prépare le dîner en ce moment.
+        meaning: 我现在正在准备晚餐。
+        note: 说你们一组人现在正在备餐。`Nous préparons le dîner en ce moment.` 可用：`préparons` 与 `nous` 一致，时间短语仍标明眼下这一回。
+  - subskill_id: past_events
+    explanation: 你回想起离家时雨已经在下。`Hier` 意为昨天。`Il pleuvait` 用未完成过去式描绘持续的天气；`quand nous avons quitté la maison`
+      把离家作为背景中的已完成事件。`Avons quitté` 由现在时助动词 `avons` 和过去分词 `quitté` 组成。单有 `Hier` 并不能决定该用哪一种过去时。`Il a plu toute
+      la journée` 则可把整天的雨呈现为有边界的整体事件，而不是离家时的背景。
+    examples:
+      - text: Hier, il pleuvait quand nous avons quitté la maison.
+        meaning: 昨天我们离开家时，雨正在下。
+        note: 保留下雨背景，改成一个人离开。`Hier, il pleuvait quand j’ai quitté la maison.` 可用：天气仍用未完成过去式，离家事件则改为对应“我”的 `j’ai
+          quitté`。
+  - subskill_id: future_events
+    explanation: 大家计划明天去参观一座花园。`Nous allons` 是 `aller` 对应“我们”的现在时，但后接 `visiter` 时构成未来结构：我们打算参观。`Le jardin`
+      指地点，`demain` 把参观放在明天。只有 `aller` 随主语变化；`visiter` 保留不定式。`Nous allons au jardin` 则把 `aller`
+      当作朝目的地移动，后面没有第二个动词。这个结构可以表达计划，并不表示必须立刻出发。
+    examples:
+      - text: Nous allons visiter le jardin demain.
+        meaning: 我们打算明天参观花园。
+        note: 把计划改成自己一个人。`Je vais visiter le jardin demain.` 可用：`vais` 与 `je` 一致，`visiter` 和日期不变。
+  - subskill_id: duration_frequency
+    explanation: 你从三个月前开始在这里工作，现在还在继续。`Je travaille ici` 陈述持续到现在的情况；`depuis trois mois` 衡量从开始到现在的时长。若给起始日期，`depuis
+      janvier` 意为从一月起。已经结束的时段则可说 `J’ai travaillé ici pendant trois mois.`。频率回答做得多经常：`Je travaille ici trois
+      jours par semaine` 意为每周三天。时长和频率虽然都可能有数字，却提供不同信息。
+    examples:
+      - text: Je travaille ici depuis trois mois.
+        meaning: 我在这里工作三个月了。
+        note: 说目前仍在继续的工作从一月开始。`Je travaille ici depuis janvier.` 可用：`depuis` 现在引出起点，而非一段时长。
+  - subskill_id: event_sequence
+    explanation: 你描述大家安排行程的顺序。`D’abord` 意为首先，`puis` 意为然后。`Nous avons acheté les billets` 说买票；`nous avons choisi
+      nos places` 说选座位。两者都由 `avons` 加过去分词构成：`acheté` 来自 `acheter`，`choisi` 来自 `choisir`。`Nos` 与复数 `places`
+      一致。这些连接词标明先后，本身不声称前一件导致后一件。`Donc` 才会引出结果。
+    examples:
+      - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+        meaning: 我们先买了票，然后选了座位。
+        note: 颠倒两件事的先后。`D’abord, nous avons choisi nos places, puis nous avons acheté les billets.`
+          可用：两个分句换位，各自仍保留过去式。
+  - subskill_id: event_phase
+    explanation: 厨房现在很整洁，你说自己刚刚做完整理。`Je viens de` 标明近期过去，意为我刚刚；`finir de` 意为完成，`ranger la cuisine` 说出整理厨房的活动。两个
+      `de` 属于不同句式，因此都要保留。`Finir` 与 `ranger` 分别在相应结构后用不定式。`Je suis en train de ranger la cuisine` 则表示还在整理；`Je
+      commence à ranger` 表示刚开始。
+    examples:
+      - text: Je viens de finir de ranger la cuisine.
+        meaning: 我刚整理完厨房。
+        note: 说你刚清理完桌子。`Je viens de finir de nettoyer la table.` 可用：两个含 `de` 的结构都保留，只换掉最后的活动。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_past_aspect2026
+    - tex_depuis2026
+    - texNearFutureTeaching20261007
+    - texCompoundPastTeaching20261007
+    - texRecentPastTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_past_aspect2026
+        - tex_depuis2026
+        - texNearFutureTeaching20261007
+        - texCompoundPastTeaching20261007
+        - texRecentPastTeaching20261007
+        - oqlfMealsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_past_aspect2026
+        - tex_depuis2026
+        - texNearFutureTeaching20261007
+        - texCompoundPastTeaching20261007
+        - texRecentPastTeaching20261007
+        - oqlfMealsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+variety_sections:
+  french-canada:
+    - subskill_id: present_events
+      explanation: 你在准备午餐时，有人问你在做什么。`Je prépare` 是现在时，可表示我准备或我正在准备；`le dîner` 在这里指午餐。`En ce moment`
+        意为此刻，明确活动正在发生。法语可以直接用这种现在时形式，无需另有进行时。`Je prépare le dîner tous les jours`
+        则借“每天”描述习惯。动词形式可以相同，因为时间短语改变了活动的理解方式。
+      examples:
+        - text: Je prépare le dîner en ce moment.
+          meaning: 我现在正在准备午餐。
+          note: 说你们一组人现在正在备餐。`Nous préparons le dîner en ce moment.` 可用：`préparons` 与 `nous` 一致，时间短语仍标明眼下这一回。
+    - subskill_id: past_events
+      explanation: 你回想起离家时雨已经在下。`Hier` 意为昨天。`Il pleuvait` 用未完成过去式描绘持续的天气；`quand nous avons quitté la maison`
+        把离家作为背景中的已完成事件。`Avons quitté` 由现在时助动词 `avons` 和过去分词 `quitté` 组成。单有 `Hier` 并不能决定该用哪一种过去时。`Il a plu
+        toute la journée` 则可把整天的雨呈现为有边界的整体事件，而不是离家时的背景。
+      examples:
+        - text: Hier, il pleuvait quand nous avons quitté la maison.
+          meaning: 昨天我们离开家时，雨正在下。
+          note: 保留下雨背景，改成一个人离开。`Hier, il pleuvait quand j’ai quitté la maison.` 可用：天气仍用未完成过去式，离家事件则改为对应“我”的 `j’ai
+            quitté`。
+    - subskill_id: future_events
+      explanation: 大家计划明天去参观一座花园。`Nous allons` 是 `aller` 对应“我们”的现在时，但后接 `visiter` 时构成未来结构：我们打算参观。`Le jardin`
+        指地点，`demain` 把参观放在明天。只有 `aller` 随主语变化；`visiter` 保留不定式。`Nous allons au jardin` 则把 `aller`
+        当作朝目的地移动，后面没有第二个动词。这个结构可以表达计划，并不表示必须立刻出发。
+      examples:
+        - text: Nous allons visiter le jardin demain.
+          meaning: 我们打算明天参观花园。
+          note: 把计划改成自己一个人。`Je vais visiter le jardin demain.` 可用：`vais` 与 `je` 一致，`visiter` 和日期不变。
+    - subskill_id: duration_frequency
+      explanation: 你从三个月前开始在这里工作，现在还在继续。`Je travaille ici` 陈述持续到现在的情况；`depuis trois mois` 衡量从开始到现在的时长。若给起始日期，`depuis
+        janvier` 意为从一月起。已经结束的时段则可说 `J’ai travaillé ici pendant trois mois.`。频率回答做得多经常：`Je travaille ici trois
+        jours par semaine` 意为每周三天。时长和频率虽然都可能有数字，却提供不同信息。
+      examples:
+        - text: Je travaille ici depuis trois mois.
+          meaning: 我在这里工作三个月了。
+          note: 说目前仍在继续的工作从一月开始。`Je travaille ici depuis janvier.` 可用：`depuis` 现在引出起点，而非一段时长。
+    - subskill_id: event_sequence
+      explanation: 你描述大家安排行程的顺序。`D’abord` 意为首先，`puis` 意为然后。`Nous avons acheté les billets` 说买票；`nous avons choisi
+        nos places` 说选座位。两者都由 `avons` 加过去分词构成：`acheté` 来自 `acheter`，`choisi` 来自 `choisir`。`Nos` 与复数 `places`
+        一致。这些连接词标明先后，本身不声称前一件导致后一件。`Donc` 才会引出结果。
+      examples:
+        - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          meaning: 我们先买了票，然后选了座位。
+          note: 颠倒两件事的先后。`D’abord, nous avons choisi nos places, puis nous avons acheté les billets.`
+            可用：两个分句换位，各自仍保留过去式。
+    - subskill_id: event_phase
+      explanation: 厨房现在很整洁，你说自己刚刚做完整理。`Je viens de` 标明近期过去，意为我刚刚；`finir de` 意为完成，`ranger la cuisine` 说出整理厨房的活动。两个
+        `de` 属于不同句式，因此都要保留。`Finir` 与 `ranger` 分别在相应结构后用不定式。`Je suis en train de ranger la cuisine` 则表示还在整理；`Je
+        commence à ranger` 表示刚开始。
+      examples:
+        - text: Je viens de finir de ranger la cuisine.
+          meaning: 我刚整理完厨房。
+          note: 说你刚清理完桌子。`Je viens de finir de nettoyer la table.` 可用：两个含 `de` 的结构都保留，只换掉最后的活动。

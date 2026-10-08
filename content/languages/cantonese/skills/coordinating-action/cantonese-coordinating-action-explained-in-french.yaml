@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: coordinating_action
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: Vous avez les mains prises et avez besoin que quelqu’un ouvre la porte. `唔該` introduit cette
+      demande polie. La personne sollicitée est implicite ; la phrase nomme directement l’action sans poser
+      une question.
+    examples:
+      - text: 唔該，幫我開門。
+        meaning: Veuillez ouvrir la porte pour moi. `幫我` signifie « m’aider » ou « le faire pour moi », suivi de `開門`,
+          « ouvrir la porte ». `我` désigne la personne aidée, pas celle qui doit ouvrir. L’action suit
+          l’expression d’aide.
+        note: "Essayez : demandez plutôt qu’on ferme la porte. Réponse : `唔該，幫我閂門。` Remplacez `開` par `閂`, « fermer ».
+          `我幫你開門` propose au contraire votre aide : inverser les deux personnes change qui aide qui."
+  - subskill_id: offers_invitations
+    explanation: Un ami réfléchit à la suite de la journée et vous l’invitez à partager un repas. `一齊` signifie «
+      ensemble » ; `好唔好` soumet cette activité à son accord au lieu de la présenter comme déjà décidée.
+    examples:
+      - text: 一齊去食飯，好唔好？
+        meaning: Allons-nous manger ensemble ? `去食飯` signifie « aller prendre un repas » ; `食飯` ne désigne pas
+          uniquement le riz. `好唔好` associe les possibilités positive et négative pour demander si la
+          proposition convient. Les participants se déduisent de l’invitation.
+        note: "Essayez : invitez l’ami à prendre le thé. Réponse : `一齊去飲茶，好唔好？` L’activité devient `飲茶` et
+          l’invitation reste ouverte. `好呀，一齊去。` accepte ; `唔好意思，我唔得閒。` décline poliment."
+  - subskill_id: suggestions
+    explanation: Vous organisez une visite, mais aujourd’hui ne convient peut-être pas à tout le monde. `不如`
+      introduit une autre possibilité à envisager. La destination peut rester implicite puisqu’elle est déjà
+      le sujet.
+    examples:
+      - text: 不如聽日去。
+        meaning: Et si nous y allions demain ? `聽日` signifie « demain » et précède `去`, « aller ». Le verbe n’a pas
+          besoin de changer pour situer l’action dans le futur. La proposition soumet un jour au groupe ; elle
+          ne suppose pas l’accord de tous.
+        note: "Essayez : proposez samedi. Réponse : `不如星期六去。` Changez le jour et gardez la suggestion. `我聽日去` annonce
+          votre propre arrangement, tandis que `不如聽日去` propose une option. Ajouter `先`, comme dans `不如聽日先去`,
+          suggère précisément d’attendre demain."
+  - subskill_id: commitments
+    explanation: Un ami a besoin du livre et vous prenez la responsabilité de l’apporter. `我答應你` fait
+      explicitement une promesse à cette personne ; la proposition suivante précise l’action promise et le
+      moment.
+    examples:
+      - text: 我答應你，聽日會帶本書嚟。
+        meaning: Je te promets d’apporter le livre demain. `聽日` signifie « demain », `會帶` « apporterai » et `本書`
+          identifie le livre dans le contexte, avec le classificateur `本`. Le `嚟` final dirige l’apport vers
+          le lieu de rencontre pertinent ou la position de l’interlocuteur.
+        note: "Essayez : promettez d’apporter le livre vendredi. Réponse : `我答應你，星期五會帶本書嚟。` Ne changez que le jour.
+          `我可能會帶本書嚟` exprime plutôt une possibilité ; `可能` laisse l’action incertaine et ne remplace pas la
+          promesse explicite."
+  - subskill_id: accepting_declining
+    explanation: Vous avez été invité pour demain, mais vous n’êtes pas disponible. Une excuse courte suivie de
+      cette indisponibilité indique que vous ne pouvez pas venir.
+    examples:
+      - text: 唔好意思，我聽日唔得閒。
+        meaning: Désolé, je ne suis pas libre demain. `唔好意思` adoucit le refus. `我聽日` indique qui est concerné par ce
+          jour et `唔得閒` signifie « ne pas être libre ». `唔` nie la disponibilité `得閒` ; la phrase ne dit pas
+          que l’invitation vous déplaît.
+        note: "Essayez : déclinez pour samedi. Réponse : `唔好意思，我星期六唔得閒。` Changez le jour. `好呀，我聽日得閒。` serait une
+          réponse d’acceptation. Dans l’échange d’invitation, la disponibilité concerne la participation ;
+          ailleurs, elle peut simplement décrire l’emploi du temps."
+  - subskill_id: negotiating_plans
+    explanation: Une rencontre à trois heures entre en conflit avec un autre rendez-vous. Vous écartez cette heure
+      et demandez si quatre heures conviendraient, laissant à l’autre une option précise à examiner.
+    examples:
+      - text: 三點唔得，四點得唔得？
+        meaning: Trois heures ne vont pas ; quatre heures conviendraient-elles ? `三點` et `四點` désignent les heures.
+          `唔得` écarte le premier arrangement. `得唔得` répète les formes positive et négative de `得`, « convenir
+          », pour interroger sur le second. Inutile de répéter la rencontre.
+        note: "Essayez : gardez trois heures indisponibles, mais proposez cinq heures. Réponse : `三點唔得，五點得唔得？` Seule
+          la nouvelle heure change. `五點得` affirme que cinq heures conviennent ; `五點得唔得` demande la
+          confirmation de l’autre personne."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

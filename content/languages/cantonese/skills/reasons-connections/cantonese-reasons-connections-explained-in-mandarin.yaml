@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: reasons_connections
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 下雨改变了大家出门的计划。先用 `因為` 给出原因，听话人就明白为什么要留在家里；后面的分句说出决定。
+    examples:
+      - text: 因為落雨，我哋留喺屋企。
+        meaning: 因为下雨，我们留在家里。`因為落雨` 用天气表达 `落雨` 说明原因。`我哋留喺屋企` 表示我们待在家里：`留` 是留下，`喺` 引出位置，`屋企` 是家。
+        note: 试一试：先说决定，再说原因。答案：`我哋留喺屋企，因為落雨。` 调换两个分句，但 `因為` 仍跟着原因。`因為落雨，所以我哋留喺屋企` 可以把原因与结果都明确标出；两个连接语可以一起使用。
+  - subskill_id: consequences
+    explanation: 原本要去的商店关门了，于是大家选另一家。`所以` 把改计划这件事作为关门的结果引出来。
+    examples:
+      - text: 間舖頭閂咗，所以我哋去第二間。
+        meaning: 商店关门了，所以我们去另一家。`間舖頭閂咗` 把关门呈现为已发生的事，`咗` 跟在 `閂` 后。`我哋去第二間` 表示我们去另一家店。在这个情境里，`第二間`
+          可指另一家，不一定是在队列中数到字面上的第二家。
+        note: 试一试：改成关门后大家回家。答案：`間舖頭閂咗，所以我哋返屋企。` 把应对行动改为 `返屋企`。`跟住我哋返屋企` 只是按先后说接着回家；`所以` 则明确把行动和原因连起来。
+  - subskill_id: conditions
+    explanation: 你想一起去，但要看对方有没有空。`如果` 提出尚未确定的条件，`就` 引出条件成立时实行的计划。
+    examples:
+      - text: 如果你得閒，我哋就一齊去。
+        meaning: 如果你有空，我们就一起去。`你得閒` 表示你有空。`我哋就一齊去` 是我们那就一起前往；`一齊` 放在动作前。这句话没有断定听话人确实有空。
+        note: 试一试：把不下雨作为一起去的条件。答案：`如果聽日唔落雨，我哋就一齊去。` 替换条件，结果部分保留 `就`。`因為你得閒，我哋一齊去` 则把有空当作已经成立的原因，不是开放的可能。
+  - subskill_id: contrast
+    explanation: 小食店外表或许不起眼，但食物让人惊喜。`但係` 把规模小与食物好吃这一不同性质作对比。
+    examples:
+      - text: 呢間舖頭細，但係啲嘢幾好食。
+        meaning: 这家店虽小，东西却挺好吃。`呢間舖頭細` 直接描述店的大小，不用 `係`。`啲嘢` 在这里指吃的东西。`幾好食` 意为挺好吃：`好食` 是好吃这个性质，`幾` 标出程度。
+        note: 试一试：对比店小和食物便宜。答案：`呢間舖頭細，但係啲嘢幾平。` 把 `好食` 换成表示便宜的 `平`。两种说法可以同时为真；`但係` 强调尽管第一印象如此，仍有有利的一面，并不是纠正店的大小。
+  - subskill_id: supporting_claims
+    explanation: 有人问为什么这里方便。附近有地铁站是一个具体依据，把出行便利与这个地方的设施联系起来。
+    examples:
+      - text: 我覺得呢度方便，因為附近有地鐵站。
+        meaning: 我觉得这里方便，因为附近有地铁站。`我覺得` 引出个人看法，`呢度方便` 评价这里，`因為附近有地鐵站` 给出原因。`附近` 先圈定周围区域，后面的 `有` 在这个分句中表示存在。
+        note: 试一试：改用附近有巴士站支持便利的判断。答案：`我覺得呢度方便，因為附近有巴士站。` 替换设施，保留 `因為` 与评价的联系。`我覺得呢度好方便` 用 `好` 加强判断，却没有给出那个具体原因。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: managing_conversation
+explanation_language: spanish
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "La conversación de la noche ha terminado y esperas volver a ver a la otra persona
+      mañana. `Até amanhã! Boa noite!` cierra el encuentro: `até` señala la próxima ocasión,
+      `amanhã` significa mañana y `boa noite` desea buenas noches. Estas palabras cumplen una
+      función al despedirse; no son solo una fecha y una descripción de la noche. Si el próximo
+      encuentro es la semana que viene, `Até a semana que vem!` cambia esa referencia. Un saludo al
+      principio, en cambio, abriría el contacto."
+    examples:
+      - text: Até amanhã! Boa noite!
+        meaning: ¡Hasta mañana! ¡Buenas noches!
+        note: Despídete cuando esperas ver a la persona el sábado. `Até sábado! Boa noite!` indica el día
+          del próximo encuentro y añade una despedida nocturna; `sábado` sustituye a `amanhã`.
+  - subskill_id: acknowledging
+    explanation: Alguien explica cómo devolver los libros prestados. `Entendi` es una respuesta breve e
+      inmediata que significa entendí. Es la primera persona de una forma de pasado de `entender`
+      que presenta la comprensión como lograda, pero aquí señala que acabas de entender la
+      explicación, sin narrar un suceso aparte de ayer. El verbo ya identifica a quien habla como
+      sujeto. Entender una explicación no implica estar de acuerdo con una opinión que contenga;
+      `concordo` expresaría el acuerdo de manera explícita.
+    examples:
+      - text: Entendi.
+        meaning: Entendido.
+        note: Confirma que has entendido las instrucciones y da las gracias. `Entendi, obrigado.` sirve para
+          un hablante masculino; `Entendi, obrigada.` sirve para una hablante femenina. `Entendi`
+          expresa la comprensión en ambos casos.
+  - subskill_id: clarification
+    explanation: "La otra persona llama provisional al horario de apertura y no sabes a qué se refiere
+      con esa palabra. `O que você quer dizer com provisório?` pide una aclaración: `o que` pregunta
+      qué, `você quer dizer` significa quieres decir y `com provisório` señala la expresión que
+      plantea la dificultad. La pregunta resuelve una duda sobre las palabras utilizadas, en vez de
+      comprobar si una hora de apertura propuesta es correcta."
+    examples:
+      - text: O que você quer dizer com provisório?
+        meaning: ¿Qué quieres decir con provisional?
+        note: Pregunta por la palabra temporário. `O que você quer dizer com temporário?` es una pregunta
+          completa después de que la persona use esa palabra; `com` introduce la expresión que
+          necesita explicación.
+  - subskill_id: rephrasing
+    explanation: Una persona no ha entendido tu explicación de que el préstamo vence el viernes. `Em
+      outras palavras, você pode ficar com o livro até sexta` reformula el mismo límite práctico.
+      `Em outras palavras` anuncia una nueva formulación, `você pode ficar com o livro` dice que la
+      persona puede quedarse con el libro y `até sexta` indica el límite temporal. La reformulación
+      es útil porque sustituye una regla abstracta de vencimiento por lo que puede hacer quien tiene
+      el libro.
+    examples:
+      - text: Em outras palavras, você pode ficar com o livro até sexta.
+        meaning: En otras palabras, puedes quedarte con el libro hasta el viernes.
+        note: Reformula en palabras más sencillas un plazo que termina el lunes. `Em outras palavras, você
+          pode ficar com o livro até segunda.` es una reformulación completa si la regla anterior
+          también fijaba el lunes como límite; `até segunda` hace concreto ese límite.
+  - subskill_id: correcting_misunderstanding
+    explanation: "Tu interlocutor repite viernes, pero tú querías decir sábado para el intercambio. `Eu
+      quis dizer sábado, não sexta` corrige el malentendido: `eu quis dizer` significa quise decir,
+      `sábado` indica el día que querías expresar y `não sexta` rechaza explícitamente el día
+      entendido por error. `Quis` es una forma de primera persona del pasado de `querer` en esta
+      expresión. Un simple `sábado` podría bastar en un intercambio cercano, pero la estructura
+      completa deja clara la corrección."
+    examples:
+      - text: Eu quis dizer sábado, não sexta.
+        meaning: Quise decir sábado, no viernes.
+        note: Corrige a alguien que entendió jueves en lugar de sábado. `Eu quis dizer sábado, não quinta.`
+          nombra tanto el día que querías expresar como la interpretación que rechazas.
+  - subskill_id: turns_topics
+    explanation: "El grupo ha terminado de elegir libros y pasa a los preparativos. `Posso falar dos
+      horários agora?` pide un turno para hablar del horario: `posso` significa puedo, `falar de`
+      significa hablar de, `dos` combina `de` y el plural `os`, y `agora` significa ahora. En este
+      intercambio estás pidiendo la palabra y un cambio de tema, no preguntando si tienes la
+      capacidad física de hablar. La conversación circundante aclara la función."
+    examples:
+      - text: Posso falar dos horários agora?
+        meaning: ¿Puedo hablar de los horarios ahora?
+        note: Pide hablar de los precios a continuación. `Posso falar dos preços agora?` es una petición
+          completa de turno sobre ese tema; `dos preços` sustituye a `dos horários`.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

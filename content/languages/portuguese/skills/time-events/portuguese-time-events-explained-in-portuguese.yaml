@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-portuguese-2026-10-07
+language: portuguese
+skill_id: time_events
+explanation_language: portuguese
+shared_explanation: skills/time-events/time-events-explained-in-portuguese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: "Alguém pergunta o que você está fazendo na cozinha agora. `Estou preparando a massa do
+      pão` apresenta uma atividade em andamento: `estou` é a primeira pessoa do presente de `estar`,
+      `preparando` é o gerúndio de `preparar` e `a massa do pão` nomeia o que está sendo preparado
+      (`do` combina `de` e `o`). `Preparo pão toda semana` descreveria, em vez disso, um hábito. A
+      construção progressiva destaca o processo atual."
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: Neste momento, estou fazendo o preparo da massa do pão.
+        note: Diga que está assando o pão agora. `Estou assando o pão.` é a frase completa de atividade em
+          andamento; `assando` substitui `preparando` como a ação que está ocorrendo.
+  - subskill_id: past_events
+    explanation: "Um amigo pergunta o que você fez com a bicicleta ontem. `Ontem troquei o pneu da
+      bicicleta` relata uma ação passada e concluída: `ontem` a situa no dia anterior, `troquei`
+      informa a troca e `o pneu da bicicleta` identifica o objeto. `Troquei` é a primeira pessoa do
+      pretérito perfeito de `trocar`; a grafia `qu` mantém o som consonantal antes de `ei`. O
+      português não precisa de um verbo auxiliar para esse acontecimento concluído."
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: Fiz a troca do pneu da bicicleta ontem.
+        note: Relate que trocou a corrente da bicicleta ontem. `Ontem troquei a corrente da bicicleta.`
+          apresenta um acontecimento passado completo; `troquei` permanece como ação concluída, e `a
+          corrente` muda seu objeto.
+  - subskill_id: future_events
+    explanation: "Você está planejando a ida à biblioteca amanhã. `Amanhã vou levar os livros à
+      biblioteca` situa a ação mais tarde com `amanhã` e `vou levar`: `vou` é o presente de `ir`
+      para eu, e `levar` permanece no infinitivo. `À biblioteca` indica o destino; `à` une a
+      preposição direcional `a` ao artigo feminino `a`. `Hoje levo os livros` pode indicar, em vez
+      disso, um plano para o dia atual. Uma intenção futura não é automaticamente uma promessa a
+      outra pessoa."
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: Meu plano é levar os livros à biblioteca amanhã.
+        note: Planeje levar caixas à biblioteca amanhã. `Amanhã vou levar as caixas à biblioteca.` é uma
+          frase completa; `vou levar` marca a ação futura planejada, e `as caixas` nomeia o novo
+          objeto.
+  - subskill_id: duration_frequency
+    explanation: "Alguém pergunta há quanto tempo você trabalha nesse lugar. `Trabalho aqui há seis
+      meses` indica que o trabalho começou seis meses atrás e continua agora: `trabalho` está no
+      presente, `aqui` indica o lugar e `há seis meses` mede a duração transcorrida. A forma
+      composta `tenho trabalhado` costuma sugerir uma atividade recente repetida ou continuada; não
+      equivale automaticamente a toda expressão com tempo composto em outro idioma. Em contraste,
+      `Trabalho aqui toda sexta-feira` informa com que frequência, não há quanto tempo."
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: Comecei a trabalhar aqui seis meses atrás e continuo neste trabalho.
+        note: Diga que trabalha aqui há dois anos. `Trabalho aqui há dois anos.` é uma frase completa; o
+          presente mostra que a situação continua, enquanto `há dois anos` informa sua duração.
+  - subskill_id: event_sequence
+    explanation: "Você está explicando os passos de uma receita. `Primeiro misturo a farinha, depois
+      acrescento a água` deixa clara a ordem: `primeiro` marca a etapa inicial, `misturo` informa
+      essa ação, `depois` introduz a etapa seguinte e `acrescento` indica a adição. Os dois verbos
+      estão no presente para descrever o procedimento. `Depois` diz que uma ação vem após a outra;
+      não explica, por si só, por que elas acontecem."
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: Misturo a farinha antes de acrescentar a água.
+        note: "Explique uma sequência adequada para preparar legumes. `Primeiro lavo os legumes, depois
+          corto os legumes.` é uma resposta completa: `primeiro` coloca a lavagem antes do corte, e
+          `depois` introduz o próximo passo."
+  - subskill_id: event_phase
+    explanation: "Alguém pergunta se você terminou de ler o livro. `Já terminei a leitura do livro` diz
+      que o ponto final foi alcançado: `já` marca isso como realizado, `terminei` informa a
+      conclusão e `a leitura do livro` nomeia a atividade. O português usa aqui uma forma simples do
+      passado, mesmo quando outro idioma pode usar um tempo composto. Para a leitura que continua,
+      `Ainda estou lendo o livro` apresenta a outra fase: `ainda` indica continuidade e `estou
+      lendo` apresenta a atividade em andamento. As duas respostas descrevem fases opostas da mesma
+      tarefa."
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: A leitura do livro já está concluída.
+        note: Diga que já terminou de ler o artigo. `Já terminei a leitura do artigo.` expressa a conclusão
+          de forma completa; `do artigo` substitui `do livro`, enquanto `já terminei` marca o ponto
+          final.
+      - text: Ainda estou lendo o livro.
+        meaning: Continuo lendo o livro; ainda não terminei.
+        note: Diga que ainda está lendo o artigo. `Ainda estou lendo o artigo.` é uma frase completa para
+          uma atividade inacabada; `ainda` e `estou lendo` mostram continuidade, não conclusão.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; sources support original guidance, not independent validation
+      of this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

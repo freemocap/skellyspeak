@@ -1,0 +1,183 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: people_places
+explanation_language: spanish
+shared_explanation: skills/people-places/people-places-explained-in-spanish.yaml
+sections:
+  - subskill_id: identification
+    explanation: Presentar a una vecina consiste en relacionar a la persona ante ti con un vínculo.
+      Puedes decir esta es mi vecina sin una palabra independiente para es en presente.
+    examples:
+      - text: هٰذِهِ جَارَتِي.
+        meaning: "**El ejemplo.** Esta es mi vecina. `هٰذِهِ` significa esta para un referente femenino.
+          `جَارَتِي` significa mi vecina: el nombre indica la relación contigo y la terminación
+          unida expresa mi. Juntos, el demostrativo y el nombre forman una presentación completa."
+        note: "Para un vecino, cambia tanto el demostrativo como el nombre. **Practica:** presenta a tu
+          vecino. Respuesta: `هٰذَا جَارِي`. `هٰذَا` lo señala y `جَارِي` nombra la relación; se
+          conserva el sufijo de mi."
+  - subskill_id: qualities_states
+    explanation: Si alguien pregunta si una carretera es fácil de transitar, describir su anchura aporta
+      información útil. Esta oración dice cómo es la carretera, no solo la nombra.
+    examples:
+      - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
+        meaning: "**El ejemplo.** Este camino es estrecho. `هٰذَا الطَّرِيقُ` significa este camino.
+          `ضَيِّقٌ` significa estrecho y aporta la descripción. No hay un es presente independiente.
+          En la escritura plenamente vocalizada, el nombre y el predicado llevan aquí terminaciones
+          nominativas."
+        note: "Compara `الطَّرِيقُ الضَّيِّقُ`, el camino estrecho: el artículo en el adjetivo forma parte
+          de una expresión nominal, no de esta descripción completa. **Practica:** ¿qué palabra
+          convierte la frase en descripción? Respuesta: `ضَيِّقٌ`, que dice cómo es el camino."
+  - subskill_id: location_movement
+    explanation: Alguien busca una llave. Una oración de lugar indica dónde está ahora; no pide llevarla
+      a otro sitio.
+    examples:
+      - text: الْمِفْتَاحُ فِي الْبَيْتِ.
+        meaning: "**El ejemplo.** La llave está en la casa. `الْمِفْتَاحُ` es la llave. `فِي` significa en y
+          `الْبَيْتِ`, la casa. La expresión de lugar indica su posición sin un está presente
+          separado. Tras `فِي`, el nombre lleva terminación de genitivo en la escritura plenamente
+          vocalizada."
+        note: "Sustituye el lugar por `فِي الْمَكْتَبِ`, en la oficina, para adaptar la respuesta. Ubicación
+          y destino son distintos: aquí no hay ningún verbo de ir o llevar. **Practica:** sitúa la
+          llave en la oficina. Respuesta: `الْمِفْتَاحُ فِي الْمَكْتَبِ`; se conserva el objeto y
+          cambia el lugar."
+  - subskill_id: possession_relations
+    explanation: Compruebas cuántas sillas puedes proporcionar. El árabe puede expresar posesión
+      indicando que algo está contigo; el propio nombre de silla puede marcar una cantidad de dos.
+    examples:
+      - text: عِنْدِي كُرْسِيَّانِ.
+        meaning: "**El ejemplo.** Tengo dos sillas. `عِنْدِي` significa tengo, literalmente junto a mí; su
+          sufijo señala a quien las tiene. `كُرْسِيَّانِ` significa dos sillas gracias a la
+          terminación dual. Aquí no hace falta una palabra independiente para dos."
+        note: "El dual lleva aquí nominativo y termina en `ـانِ`. Otras funciones gramaticales usan otra
+          terminación dual, por lo que no se añade esta en todas partes. **Practica:** ¿dónde se
+          expresa el número dos? Respuesta: dentro de `كُرْسِيَّانِ`; `عِنْدِي` identifica a quien
+          las posee."
+  - subskill_id: quantity_comparison
+    explanation: Elegir qué caja cargar puede depender del peso. Una comparación nombra la caja evaluada
+      y la otra que sirve de referencia.
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
+        meaning: "**El ejemplo.** Esta caja es más ligera que aquella. `هٰذَا الصُّنْدُوقُ` significa esta
+          caja. `أَخَفُّ` es más ligera; `مِنْ ذٰلِكَ` indica que aquella. El segundo demostrativo
+          sustituye a una caja ya visible o mencionada, sin repetir el nombre."
+        note: "Conserva `مِنْ` antes de la referencia de la comparación. **Practica:** di que aquella caja
+          es más ligera que esta. Respuesta: `ذٰلِكَ الصُّنْدُوقُ أَخَفُّ مِنْ هٰذَا`. La primera
+          caja es la evaluada como más ligera y el demostrativo después de `مِنْ` da la referencia."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahDualTeaching20261007
+    - madinahDemonstrativesTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahDualTeaching20261007
+        - madinahDemonstrativesTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: identification
+      explanation: Presentar a una vecina consiste en relacionar a la persona ante ti con un vínculo.
+        Puedes decir esta es mi vecina sin una palabra independiente para es en presente.
+      examples:
+        - text: هَايْ جَارْتِي.
+          meaning: "**El ejemplo.** Esta es mi vecina. `هَايْ` señala a una mujer cercana; `جَارْتِي`
+            significa mi vecina. El sufijo posesivo va unido al nombre. La oración identifica a
+            alguien, sin describir qué está haciendo."
+          note: "Estos demostrativos son formas meridionales y existen alternativas locales. **Practica:**
+            presenta a tu vecino con este modelo. Respuesta: `هَادْ جَارِي`. Cambia `هَايْ` por
+            `هَادْ` y la palabra femenina de vecina por la masculina; conserva el sufijo de mi."
+    - subskill_id: qualities_states
+      explanation: Si alguien pregunta si una carretera es fácil de transitar, describir su anchura aporta
+        información útil. Esta oración dice cómo es la carretera, no solo la nombra.
+      examples:
+        - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+          meaning: "**El ejemplo.** Este camino es estrecho. `هَادْ` significa este, `الطَّرِيقْ` es el camino
+            y `ضَيِّقْ`, estrecho. Unir directamente el camino con el adjetivo da una descripción
+            presente. El adjetivo es la información nueva, no parte del nombre del camino."
+          note: "`الطَّرِيقْ الضَّيِّقْ` significa el camino estrecho: nombre y adjetivo son definidos. En la
+            oración descriptiva, el adjetivo no lleva artículo. **Practica:** ¿indica el ejemplo que
+            te muevas? Respuesta: no; describe la anchura, sin verbo de movimiento."
+    - subskill_id: location_movement
+      explanation: Alguien busca una llave. Una oración de lugar indica dónde está ahora; no pide llevarla
+        a otro sitio.
+      examples:
+        - text: الْمِفْتَاحْ بِالْبَيْتْ.
+          meaning: "**El ejemplo.** La llave está en la casa. `الْمِفْتَاحْ` nombra la llave. `بِالْبَيْتْ`
+            combina la preposición unida `بِـ` con la casa y aquí significa en la casa. No hay un
+            está presente separado: el lugar completa la oración."
+          note: "Usa `بِالْمَكْتَبْ` para en la oficina. Conserva la preposición unida al cambiar el lugar.
+            **Practica:** ¿qué parte debes sustituir para dar otra ubicación? Respuesta:
+            `بِالْبَيْتْ`; la llave sigue siendo el objeto localizado."
+    - subskill_id: possession_relations
+      explanation: Compruebas cuántas sillas puedes proporcionar. El árabe puede expresar posesión
+        indicando que algo está contigo; el propio nombre de silla puede marcar una cantidad de dos.
+      examples:
+        - text: عِنْدِي كُرْسِيَّيْنْ.
+          meaning: "**El ejemplo.** Tengo dos sillas. `عِنْدِي` significa tengo. `كُرْسِيَّيْنْ` son dos
+            sillas, con la terminación dual hablada. La cantidad corresponde a las sillas; el sufijo
+            de `عِنْدِي` identifica a quien las tiene."
+          note: "Para una sola silla, di `عِنْدِي كُرْسِي`. No conserves el dual si cambia la cantidad a una.
+            **Practica:** cambia dos sillas por una. Respuesta: sustituye `كُرْسِيَّيْنْ` por
+            `كُرْسِي`; la expresión posesiva permanece igual."
+    - subskill_id: quantity_comparison
+      explanation: Elegir qué caja cargar puede depender del peso. Una comparación nombra la caja evaluada
+        y la otra que sirve de referencia.
+      examples:
+        - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+          meaning: "**El ejemplo.** Esta caja es más ligera que aquella. `هَادْ الصُّنْدُوقْ` es esta caja.
+            `أَخَفّ` significa más ligera y `مِنْ هَدَاكْ`, que aquella. Este cercano y aquel más
+            lejano permiten comparar dos objetos sin repetir caja."
+          note: "Conserva `مِنْ` antes de la referencia. **Practica:** di que aquella caja es más ligera que
+            esta. Respuesta: `هَدَاكْ الصُّنْدُوقْ أَخَفّ مِنْ هَادْ`. Invertir los demostrativos
+            invierte la comparación; el adjetivo y la palabra de relación no cambian."

@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: time_events
+language: french
+explanation_language: arabic
+shared_explanation: skills/time-events/time-events-explained-in-arabic.yaml
+sections:
+  - subskill_id: present_events
+    explanation: يسألك شخص عما تفعله وأنت تعد وجبة المساء. `Je prépare` صيغة حاضر تعني «أعدّ» أو «أنا
+      أعدّ الآن»؛ وتسمّي `le dîner` العشاء. تعني `En ce moment` «في هذه اللحظة» وتوضح النشاط الجاري.
+      تستطيع الفرنسية استعمال صيغة الحاضر هذه من غير زمن مستمر منفصل. أما `Je prépare le dîner tous
+      les soirs` فتصف عادةً من خلال كل مساء. قد تبقى صيغة الفعل نفسها لأن تعبير الوقت يغير فهم
+      النشاط.
+    examples:
+      - text: Je prépare le dîner en ce moment.
+        meaning: أعدّ العشاء الآن.
+        note: "قل إن مجموعتك تعد الوجبة الآن. تصلح `Nous préparons le dîner en ce moment.`: تطابق
+          `préparons` الضمير `nous`، بينما تبقى عبارة الوقت محددةً لهذه المناسبة الحالية."
+  - subskill_id: past_events
+    explanation: تتذكر مغادرة المنزل بينما كان المطر يهطل بالفعل. تعني `Hier` أمس. تصف `Il pleuvait`
+      الطقس المستمر بصيغة الماضي الناقص؛ وتقدّم `quand nous avons quitté la maison` المغادرة حدثًا
+      مكتملًا على تلك الخلفية. تجمع `Avons quitté` الفعل المساعد الحاضر `avons` واسم المفعول
+      `quitté`. لا تحدد `Hier` وحدها أي هاتين الصيغتين الماضيتين تختار. أما `Il a plu toute la
+      journée` فقد تعرض مطر يوم كامل حدثًا محدودًا لا خلفيةً لمغادرة.
+    examples:
+      - text: Hier, il pleuvait quand nous avons quitté la maison.
+        meaning: أمس كان المطر يهطل عندما غادرنا المنزل.
+        note: "أبقِ المطر خلفيةً واجعل شخصًا واحدًا يغادر. تصلح `Hier, il pleuvait quand j’ai quitté la
+          maison.`: يبقى الطقس في الماضي الناقص، وتتغير المغادرة إلى `j’ai quitté` للمتكلم."
+  - subskill_id: future_events
+    explanation: "لدى المجموعة خطة لزيارة حديقة غدًا. `Nous allons` صيغة الحاضر من `aller` مع «نحن»،
+      لكنها تشكل مع `visiter` تركيبًا مستقبليًا: سنزور. تسمّي `Le jardin` المكان، وتضع `demain`
+      الزيارة غدًا. تتغير `aller` وحدها بحسب الفاعل؛ وتبقى `visiter` في المصدر. أما `Nous allons au
+      jardin` فتستعمل `aller` للحركة نحو وجهة من غير فعل ثانٍ. قد يعبّر التركيب عن خطة من غير أن
+      يعني وجوب وقوع الزيارة فورًا."
+    examples:
+      - text: Nous allons visiter le jardin demain.
+        meaning: سنزور الحديقة غدًا.
+        note: "اذكر الخطة لنفسك وحدك. تصلح `Je vais visiter le jardin demain.`: تطابق `vais` الضمير `je`،
+          بينما تبقى `visiter` وموعد الزيارة كما هما."
+  - subskill_id: duration_frequency
+    explanation: "بدأت العمل هنا قبل ثلاثة أشهر وما زلت تعمل هنا الآن. تذكر `Je travaille ici` الوضع
+      الحالي المستمر؛ وتقيس `depuis trois mois` المدة من بدايته حتى الآن. ومع تاريخ بداية تعني
+      `depuis janvier` «منذ يناير». ويمكن التعبير عن مدة مكتملة بـ`J’ai travaillé ici pendant trois
+      mois.` ويجيب التكرار عن عدد المرات: تعني `Je travaille ici trois jours par semaine` ثلاثة أيام
+      في الأسبوع. تعطي المدة والتكرار معلومات مختلفة حتى عندما تتضمن العبارتان أعدادًا."
+    examples:
+      - text: Je travaille ici depuis trois mois.
+        meaning: أعمل هنا منذ ثلاثة أشهر.
+        note: "قل إن العمل المستمر بدأ في يناير. تصلح `Je travaille ici depuis janvier.`: تقدّم `depuis`
+          الآن نقطة بداية بدل مدة زمنية."
+  - subskill_id: event_sequence
+    explanation: "تصف ترتيب إعداد مجموعتك لرحلة. تعني `D’abord` أولًا، وتعني `puis` ثم. تذكر `Nous avons
+      acheté les billets` شراء التذاكر؛ وتذكر `nous avons choisi nos places` اختيار مقاعدنا. تستعمل
+      العبارتان `avons` مع اسم مفعول: تأتي `acheté` من `acheter`، و`choisi` من `choisir`. تطابق
+      `Nos` الاسم الجمع `places`. تحدد كلمات الربط الترتيب من غير الادعاء بذاتها أن أحد الحدثين سبب
+      الآخر. أما `Donc` فتقدّم نتيجة."
+    examples:
+      - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+        meaning: اشترينا التذاكر أولًا، ثم اخترنا مقاعدنا.
+        note: اعكس ترتيب الحدثين. تصلح `D’abord, nous avons choisi nos places, puis nous avons acheté les
+          billets.` لأن الجملتين تتبادلان الموقع مع احتفاظ كل منهما بصيغة الماضي.
+  - subskill_id: event_phase
+    explanation: المطبخ مرتب الآن، وتقول إنك أنهيت العمل قبل لحظة. تشير `Je viens de` إلى الماضي القريب،
+      أي «لقد فعلت للتو»؛ وتعني `finir de` الإنهاء، وتسمّي `ranger la cuisine` ترتيب المطبخ. تنتمي
+      مرتا `de` إلى تركيبين مختلفين، لذلك تبقيهما معًا. كل من `Finir` و`ranger` في المصدر بعد
+      التركيب الخاص به. أما `Je suis en train de ranger la cuisine` فتقول إن النشاط لا يزال جاريًا؛
+      وتقول `Je commence à ranger` إنه بدأ للتو.
+    examples:
+      - text: Je viens de finir de ranger la cuisine.
+        meaning: انتهيت للتو من ترتيب المطبخ.
+        note: "قل إنك انتهيت للتو من تنظيف الطاولة. تصلح `Je viens de finir de nettoyer la table.`: يبقى
+          تركيبا `de` كلاهما، ويتغير النشاط الأخير وحده."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - tex_past_aspect2026
+    - tex_depuis2026
+    - texNearFutureTeaching20261007
+    - texCompoundPastTeaching20261007
+    - texRecentPastTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: present_events
+      explanation: يسألك شخص عما تفعله وأنت تعد وجبة منتصف النهار. `Je prépare` صيغة حاضر تعني «أعدّ» أو
+        «أنا أعدّ الآن»؛ وتسمّي `le dîner` الغداء. تعني `En ce moment` «في هذه اللحظة» وتوضح النشاط
+        الجاري. تستطيع الفرنسية استعمال صيغة الحاضر هذه من غير زمن مستمر منفصل. أما `Je prépare le
+        dîner tous les jours` فتصف عادةً من خلال كل يوم. قد تبقى صيغة الفعل نفسها لأن تعبير الوقت
+        يغير فهم النشاط.
+      examples:
+        - text: Je prépare le dîner en ce moment.
+          meaning: أعدّ الغداء الآن.
+          note: "قل إن مجموعتك تعد الوجبة الآن. تصلح `Nous préparons le dîner en ce moment.`: تطابق
+            `préparons` الضمير `nous`، بينما تبقى عبارة الوقت محددةً لهذه المناسبة الحالية."
+    - subskill_id: past_events
+      explanation: تتذكر مغادرة المنزل بينما كان المطر يهطل بالفعل. تعني `Hier` أمس. تصف `Il pleuvait`
+        الطقس المستمر بصيغة الماضي الناقص؛ وتقدّم `quand nous avons quitté la maison` المغادرة حدثًا
+        مكتملًا على تلك الخلفية. تجمع `Avons quitté` الفعل المساعد الحاضر `avons` واسم المفعول
+        `quitté`. لا تحدد `Hier` وحدها أي هاتين الصيغتين الماضيتين تختار. أما `Il a plu toute la
+        journée` فقد تعرض مطر يوم كامل حدثًا محدودًا لا خلفيةً لمغادرة.
+      examples:
+        - text: Hier, il pleuvait quand nous avons quitté la maison.
+          meaning: أمس كان المطر يهطل عندما غادرنا المنزل.
+          note: "أبقِ المطر خلفيةً واجعل شخصًا واحدًا يغادر. تصلح `Hier, il pleuvait quand j’ai quitté la
+            maison.`: يبقى الطقس في الماضي الناقص، وتتغير المغادرة إلى `j’ai quitté` للمتكلم."
+    - subskill_id: future_events
+      explanation: "لدى المجموعة خطة لزيارة حديقة غدًا. `Nous allons` صيغة الحاضر من `aller` مع «نحن»،
+        لكنها تشكل مع `visiter` تركيبًا مستقبليًا: سنزور. تسمّي `Le jardin` المكان، وتضع `demain`
+        الزيارة غدًا. تتغير `aller` وحدها بحسب الفاعل؛ وتبقى `visiter` في المصدر. أما `Nous allons
+        au jardin` فتستعمل `aller` للحركة نحو وجهة من غير فعل ثانٍ. قد يعبّر التركيب عن خطة من غير
+        أن يعني وجوب وقوع الزيارة فورًا."
+      examples:
+        - text: Nous allons visiter le jardin demain.
+          meaning: سنزور الحديقة غدًا.
+          note: "اذكر الخطة لنفسك وحدك. تصلح `Je vais visiter le jardin demain.`: تطابق `vais` الضمير `je`،
+            بينما تبقى `visiter` وموعد الزيارة كما هما."
+    - subskill_id: duration_frequency
+      explanation: "بدأت العمل هنا قبل ثلاثة أشهر وما زلت تعمل هنا الآن. تذكر `Je travaille ici` الوضع
+        الحالي المستمر؛ وتقيس `depuis trois mois` المدة من بدايته حتى الآن. ومع تاريخ بداية تعني
+        `depuis janvier` «منذ يناير». ويمكن التعبير عن مدة مكتملة بـ`J’ai travaillé ici pendant
+        trois mois.` ويجيب التكرار عن عدد المرات: تعني `Je travaille ici trois jours par semaine`
+        ثلاثة أيام في الأسبوع. تعطي المدة والتكرار معلومات مختلفة حتى عندما تتضمن العبارتان
+        أعدادًا."
+      examples:
+        - text: Je travaille ici depuis trois mois.
+          meaning: أعمل هنا منذ ثلاثة أشهر.
+          note: "قل إن العمل المستمر بدأ في يناير. تصلح `Je travaille ici depuis janvier.`: تقدّم `depuis`
+            الآن نقطة بداية بدل مدة زمنية."
+    - subskill_id: event_sequence
+      explanation: "تصف ترتيب إعداد مجموعتك لرحلة. تعني `D’abord` أولًا، وتعني `puis` ثم. تذكر `Nous avons
+        acheté les billets` شراء التذاكر؛ وتذكر `nous avons choisi nos places` اختيار مقاعدنا.
+        تستعمل العبارتان `avons` مع اسم مفعول: تأتي `acheté` من `acheter`، و`choisi` من `choisir`.
+        تطابق `Nos` الاسم الجمع `places`. تحدد كلمات الربط الترتيب من غير الادعاء بذاتها أن أحد
+        الحدثين سبب الآخر. أما `Donc` فتقدّم نتيجة."
+      examples:
+        - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          meaning: اشترينا التذاكر أولًا، ثم اخترنا مقاعدنا.
+          note: اعكس ترتيب الحدثين. تصلح `D’abord, nous avons choisi nos places, puis nous avons acheté les
+            billets.` لأن الجملتين تتبادلان الموقع مع احتفاظ كل منهما بصيغة الماضي.
+    - subskill_id: event_phase
+      explanation: المطبخ مرتب الآن، وتقول إنك أنهيت العمل قبل لحظة. تشير `Je viens de` إلى الماضي القريب،
+        أي «لقد فعلت للتو»؛ وتعني `finir de` الإنهاء، وتسمّي `ranger la cuisine` ترتيب المطبخ. تنتمي
+        مرتا `de` إلى تركيبين مختلفين، لذلك تبقيهما معًا. كل من `Finir` و`ranger` في المصدر بعد
+        التركيب الخاص به. أما `Je suis en train de ranger la cuisine` فتقول إن النشاط لا يزال
+        جاريًا؛ وتقول `Je commence à ranger` إنه بدأ للتو.
+      examples:
+        - text: Je viens de finir de ranger la cuisine.
+          meaning: انتهيت للتو من ترتيب المطبخ.
+          note: "قل إنك انتهيت للتو من تنظيف الطاولة. تصلح `Je viens de finir de nettoyer la table.`: يبقى
+            تركيبا `de` كلاهما، ويتغير النشاط الأخير وحده."

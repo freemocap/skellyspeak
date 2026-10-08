@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-portuguese-2026-10-07
+skill_id: people_places
+explanation_language: portuguese
+title: Pessoas, coisas e lugares
+introduction: Apresente pessoas e coisas, descreva-as e explique onde estão e como se relacionam.
+sections:
+  - subskill_id: identification
+    title: Identificação
+    concept: Diga quem é uma pessoa ou o que é uma coisa.
+  - subskill_id: qualities_states
+    title: Características e estados
+    concept: Descreva como alguém ou algo é, ou como está no momento.
+  - subskill_id: location_movement
+    title: Localização e movimento
+    concept: Diga onde alguém ou algo está, ou para onde vai.
+  - subskill_id: possession_relations
+    title: Posse e relações
+    concept: Explique a quem algo pertence ou como pessoas e coisas se relacionam.
+  - subskill_id: quantity_comparison
+    title: Quantidade e comparação
+    concept: Fale sobre quantidades e compare pessoas ou coisas.
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese localization of shared English teaching concepts. Skill
+    identities and assessment criteria unchanged. Source references inherited from the English
+    edition; they do not independently validate this translation.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; independent linguistic review pending.

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: reasons_connections
+explanation_language: french
+title: Raisons et liens
+introduction: Relier des idées en expliquant les raisons, les conséquences, les conditions et les différences.
+sections:
+  - subskill_id: causes_reasons
+    title: Causes et raisons
+    concept: Expliquer pourquoi une chose se produit ou pourquoi une personne agit.
+  - subskill_id: consequences
+    title: Conséquences
+    concept: Expliquer ce qui se produit en conséquence.
+  - subskill_id: conditions
+    title: Conditions
+    concept: Expliquer ce qui doit se produire pour qu’un autre résultat s’ensuive.
+  - subskill_id: contrast
+    title: Contraste
+    concept: Montrer en quoi deux idées diffèrent ou pourquoi un résultat est inattendu.
+  - subskill_id: supporting_claims
+    title: Justifier une affirmation
+    concept: Donner des raisons ou des preuves à l’appui de son point de vue.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

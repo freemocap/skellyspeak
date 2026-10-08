@@ -4,6 +4,8 @@ use super::*;
 mod assessment;
 #[path = "execution_tests.rs"]
 mod execution;
+#[path = "reading_preload_tests.rs"]
+mod reading_preload;
 #[path = "skill_direction_tests.rs"]
 mod skill_direction;
 #[path = "speech_default_tests.rs"]
@@ -409,7 +411,7 @@ fn upgrade_preserves_conversation_graph_and_allows_continued_workspace_use() {
     // their version-45 contracts, while milestone receipts were introduced later.
     store
         .connection
-        .execute_batch("DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
+        .execute_batch("DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
         .unwrap();
     store
         .connection

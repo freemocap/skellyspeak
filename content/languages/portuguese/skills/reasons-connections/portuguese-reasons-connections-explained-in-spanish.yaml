@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: reasons_connections
+explanation_language: spanish
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-spanish.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "Un amigo pregunta por qué no saliste. `Fiquei em casa porque estava chovendo` da la
+      razón: `fiquei em casa` informa de que te quedaste en casa, `porque` significa porque y
+      `estava chovendo` presenta la lluvia en curso en aquel momento pasado. La oración causal
+      explica la decisión; no es simplemente otro suceso sin relación. En una pregunta por la razón,
+      el portugués escribe `por que`; aquí el explicativo `porque` se escribe en una sola palabra."
+    examples:
+      - text: Fiquei em casa porque estava chovendo.
+        meaning: Me quedé en casa porque estaba lloviendo.
+        note: "Da una enfermedad como razón para quedarte en casa. `Fiquei em casa porque estava doente.` es
+          una respuesta completa: `porque` conecta la acción con el motivo y `estava doente` expresa
+          ese motivo."
+  - subskill_id: consequences
+    explanation: "El neumático de tu bicicleta se pinchó durante el trayecto, así que volviste a pie. `O
+      pneu furou, por isso voltei a pé` presenta el resultado: `furou` dice que el neumático se
+      pinchó, `por isso` significa por eso, `voltei` significa volví y `a pé` significa a pie. El
+      conector remite al pinchazo como motivo de la caminata. `O pneu furou, depois voltei a pé`
+      solo ordena los acontecimientos, a menos que la relación causal esté clara por otro medio.
+      `Por isso` hace explícita la consecuencia."
+    examples:
+      - text: O pneu furou, por isso voltei a pé.
+        meaning: Se pinchó el neumático, así que volví a pie.
+        note: "Explica por qué llegaste tarde cuando el autobús se retrasó. `O ônibus atrasou, por isso
+          cheguei tarde.` expresa una consecuencia completa: `por isso` vincula la llegada tardía
+          con el retraso del autobús."
+  - subskill_id: conditions
+    explanation: "Estás organizando un intercambio de libros para mañana y el lugar depende de si
+      llueve. `Se chover amanhã, vamos fazer a troca de livros na biblioteca` contiene una condición
+      y una consecuencia: `se` significa si, `chover` es el futuro de subjuntivo de `chover` y
+      `vamos fazer` indica la acción prevista si llueve. Aquí la forma regular del futuro de
+      subjuntivo coincide con el infinitivo. Con un verbo irregular, la diferencia se ve: `Se
+      tivermos tempo, vamos fazer a troca` significa si tenemos tiempo, haremos el intercambio.
+      Ninguna de las dos oraciones afirma que ya haya llovido o que ya se haya dispuesto de tiempo
+      libre."
+    examples:
+      - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
+        meaning: Si llueve mañana, haremos el intercambio de libros en la biblioteca.
+        note: Usa el tiempo disponible como condición. `Se tivermos tempo, vamos fazer a troca de livros na
+          biblioteca.` es una condición futura completa; `tivermos` es la forma del futuro de
+          subjuntivo de `ter` para nosotros.
+  - subskill_id: contrast
+    explanation: "Quieres ir en bicicleta, pero el neumático está pinchado. `Quero ir de bicicleta, mas
+      o pneu está furado` contrapone una intención y un obstáculo: `quero ir` significa quiero ir,
+      `de bicicleta` indica el medio de transporte, `mas` significa pero y `está furado` describe el
+      estado actual del neumático. La segunda oración importa porque dificulta lo expresado en la
+      primera. Un dato cualquiera después de `mas` no produciría un contraste útil."
+    examples:
+      - text: Quero ir de bicicleta, mas o pneu está furado.
+        meaning: Quiero ir en bicicleta, pero el neumático está pinchado.
+        note: "Contrapón ir caminando y la lluvia. `Quero ir a pé, mas está chovendo.` es un contraste
+          completo: la lluvia hace menos práctico el paseo deseado."
+  - subskill_id: supporting_claims
+    explanation: "Recomiendas un camino en lugar de otro. `Acho que este caminho é melhor: é mais curto`
+      primero expresa una valoración y después aporta su fundamento. `Acho que` marca tu opinión,
+      `este caminho` significa este camino, `é melhor` significa es mejor y `é mais curto` explica
+      que es más corto. La segunda oración aporta una razón pertinente para la valoración, incluso
+      sin `porque`. Una afirmación seguida de un dato sin relación no quedaría justificada."
+    examples:
+      - text: "Acho que este caminho é melhor: é mais curto."
+        meaning: "Creo que este camino es mejor: es más corto."
+        note: "Justifica la misma recomendación por la seguridad. `Acho que este caminho é melhor: é mais
+          seguro.` es una respuesta completa; `é mais seguro` ofrece una razón pertinente para
+          elegir un camino."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

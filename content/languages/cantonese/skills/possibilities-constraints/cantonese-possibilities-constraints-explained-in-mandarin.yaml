@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: possibilities_constraints
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 决定谁能为一顿饭做面包时，说明自己已经学会这项技能很有用。活动前的 `識` 表示知道怎么做；是否获准、有没有时间，则是另外的问题。
+    examples:
+      - text: 我識整麵包。
+        meaning: 我会做面包。`我` 指说话人，`識` 表示掌握做法，`整麵包` 是制作面包。活动直接跟在 `識` 后，不用加连接词。更换主语也不改变 `識` 或 `整`。
+        note: 试一试：说朋友会做面包。答案：`佢識整麵包。` 把主语换成 `佢`。`我唔識整麵包` 否定技能；`我今日唔得閒整麵包` 则是今天没空，没说明会不会做。
+  - subskill_id: permission
+    explanation: 在共用工作场所，你向负责人询问能否使用桌子。`可唔可以` 把许可或不许可两种选择并列，后面跟着想做的事。
+    examples:
+      - text: 我可唔可以用呢張枱？
+        meaning: 我可以用这张桌子吗？`我` 是想行动的人，`用` 意为使用，`呢張枱` 用量词 `張` 指这张桌子。`可唔可以` 是由 `可以` 组成的常见正反问句形式。这里的场景使它成为请求许可。
+        note: 试一试：改问能否用这把椅子。答案：`我可唔可以用呢張椅？` 把 `枱` 换成 `椅`；这里两者都用量词 `張`。`可以，你用啦。` 是允许。相同问句式也可能问实际可行性，所以人物关系和场景决定具体所问。
+  - subskill_id: obligation
+    explanation: 作业今天到期，因此交上去是要求，不只是想做的事。`一定要` 加强这种必须性，日期指出必须完成的时间。
+    examples:
+      - text: 我今日一定要交份功課。
+        meaning: 我今天必须交作业。`我今日` 给出人物和日期；`一定要交` 表示一定得交。`份功課` 用量词 `份` 指这份作业，这个量词适用于文件或一份工作。
+        note: 试一试：把期限改成明天。答案：`我聽日一定要交份功課。` 把 `今日` 换成 `聽日`。`我唔使交份功課` 表示不需要交；`我唔可以交份功課` 则是不能或不准交。这两种否定的作用不同。
+  - subskill_id: possibility
+    explanation: 天气预报没有确定明天会怎样。`可能` 引出这种不确定性，`會` 把下雨呈现为未来可能发生的事。
+    examples:
+      - text: 聽日可能會落雨。
+        meaning: 明天可能会下雨。`聽日` 先给出日期，`可能會` 意为可能会，`落雨` 是下雨。粤语描述这种天气事件时，不必加一个对应英语 it 的代词。
+        note: 试一试：预测明天可能下雪。答案：`聽日可能會落雪。` 把天气事件换成 `落雪`。`聽日會落雨` 更直接地陈述预报；`聽日可能唔會落雨` 则表示也许不会下雨。
+  - subskill_id: certainty
+    explanation: 你确信某人已经回家。`我肯定` 表明这种确信，后面的分句说出你确信的事件。
+    examples:
+      - text: 我肯定佢已經返咗屋企。
+        meaning: 我确信那个人已经回家了。`佢` 指一个人，`已經` 是已经，`返咗屋企` 表示回家这件事已发生。`返` 是返回，`咗` 跟在动作后；`屋企` 是家。
+        note: 试一试：对好几个人表达同样的确信。答案：`我肯定佢哋已經返咗屋企。` 把 `佢` 换成 `佢哋`，`返咗` 不变。`我唔肯定佢係咪返咗屋企` 则是不确定那个人是否回家，并用 `係咪` 提出尚未解决的问题。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

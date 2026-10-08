@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: possibilities_constraints
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 邻居问你会不会修自行车。`Sei consertar uma bicicleta` 说明你掌握这项技能：`sei` 是 `saber` 的第一人称现在时，不定式 `consertar`
+      说出熟练掌握的动作。`Uma bicicleta` 是你会修的东西。`Sei onde está a bicicleta` 则表示你知道自行车在哪里，是知道一项事实。
+    examples:
+      - text: Sei consertar uma bicicleta.
+        meaning: 我会修自行车。
+        note: 表示你会修收音机。`Sei consertar um rádio.` 是完整的能力陈述；`sei` 后的不定式指出你会做什么。
+  - subskill_id: permission
+    explanation: 你在共用工作场所，向负责人询问一张桌子。`Posso usar esta mesa?` 用 `poder` 的第一人称现在时 `posso` 加不定式
+      `usar`，询问自己可不可以使用。`Esta mesa` 指这张桌子。这里受话人有权允许或拒绝，因此问句是在请求许可。换一个场景，同一个情态动词也可能询问实际上能否做到。
+    examples:
+      - text: Posso usar esta mesa?
+        meaning: 我可以用这张桌子吗？
+        note: 请求允许使用这把椅子。对有权决定的人说 `Posso usar esta cadeira?` 就是完整问句；`cadeira` 取代 `mesa`，`esta` 仍与阴性名词一致。
+  - subskill_id: obligation
+    explanation: 图书馆的书今天到期。`Tenho que devolver os livros hoje` 说出必须做的事：`tenho` 是“我有”，`que` 把它与不定式 `devolver`
+      连接起来，`hoje` 给出期限。书不一定已经还了。`Não preciso devolver hoje` 表示今天不必还，并不是禁止今天还。连接用的 `que` 是 `ter que` 句式的一部分。
+    examples:
+      - text: Tenho que devolver os livros hoje.
+        meaning: 我今天必须还书。
+        note: 表示你明天必须还书。`Tenho que devolver os livros amanhã.` 是完整的义务表达；`amanhã` 改变期限，而 `tenho que devolver` 保持在一起。
+  - subskill_id: possibility
+    explanation: 你正在计划户外活动，但还不确定会不会下雨。`É possível que chova amanhã` 表示明天可能下雨。`É possível que`
+      引出不确定的事件，在这个句式中，`chova` 是 `chover` 的现在虚拟式；`amanhã` 给出未来时间。`Está chovendo` 则是在报告现在正在下雨，并不是说可能下雨。
+    examples:
+      - text: É possível que chova amanhã.
+        meaning: 明天可能会下雨。
+        note: 说图书馆明天可能关门。`É possível que a biblioteca feche amanhã.` 是完整的可能性陈述；不确定的关门事件在 `é possível que` 后用 `feche`。
+  - subskill_id: certainty
+    explanation: 出门前，你不知道图书馆是否开门。`Não sei se a biblioteca está aberta` 说明知识上的这个界限：`não sei` 是我不知道，间接的是非问句中的 `se`
+      意为是否，`está aberta` 报告开门状态。问题还没弄清，因此说话人没有断言图书馆关门。这里的 `se` 不同于 `Se chover, fico em casa` 这样的未来条件。
+    examples:
+      - text: Não sei se a biblioteca está aberta.
+        meaning: 我不知道图书馆是否开门。
+        note: 说你不知道图书馆是否关门。`Não sei se a biblioteca está fechada.` 是完整的不确定陈述；`fechada` 改变了待查明的状态。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_future_subj2026
+        - ut_pt_ficar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

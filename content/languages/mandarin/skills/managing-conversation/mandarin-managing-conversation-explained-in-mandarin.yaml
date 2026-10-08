@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: managing_conversation
+explanation_language: mandarin
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-mandarin.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 探访结束离开时，你可以说明自己要走了，也表示期待下次见面。即使还在道别，`我先走了` 也是自然的告别表达。
+    examples:
+      - text: 我先走了，下次见！
+        meaning: "**例句。** 我先走了，下次见！这里的 `先` 表示比其他人先一步，`走` 是离开。句末的 `了` 表示现在要离开的新情况，并不能证明人已经走远。`下次见` 是下次再见。"
+        note: 试着改说“明天见”。答案：`我先走了，明天见！` 把 `下次` 换成 `明天`。`我昨天走了` 因为有 `昨天`，说的是昨天离开；原来的告别是在说现在要走。
+  - subskill_id: acknowledging
+    explanation: 别人解释完一项流程后，你可以表示现在听懂了。`明白了` 标出这种新获得的理解，不要求你赞同解释中的每个观点。
+    examples:
+      - text: 哦，我明白了。
+        meaning: "**例句。** 哦，我明白了。`哦` 表示领会，`我` 指说话人，`明白` 是理解。句末的 `了` 标出由不明白到明白的变化。这个回应直接接续刚听到的说明。"
+        note: 试着说大家现在明白了。答案：`哦，我们明白了。` 把 `我` 改成 `我们`，其余表达不变。`我也这么想` 是赞同前面的观点，而不只是表示解释已经听懂。
+  - subskill_id: clarification
+    explanation: 如果没听清对方刚才说的话，请对方重复一次，就明确指出该如何修复这段对话。`再说一遍` 请求把同一句话完整地再说一次。
+    examples:
+      - text: 不好意思，请再说一遍。
+        meaning: "**例句。** 不好意思，请再说一遍。`不好意思` 为打断对方略表歉意，`请` 礼貌地引出请求。`再` 是再一次，`说` 是说出，`一遍` 计量完整的重复。前面的发言已经说明要重复什么。"
+        note: 试着请对方再读一次。答案：`不好意思，请再读一遍。` 把 `说` 换成 `读`。如果词句听清了却不懂意思，`这是什么意思？` 问的是含义，而不是请求重复。
+  - subskill_id: rephrasing
+    explanation: 如果原先的说明是到场后不能临时安排参观，可以改述为实际要遵守的要求。`换句话说` 表示接下来用另一种方式说同一个意思，再说出大家必须做的事。
+    examples:
+      - text: 换句话说，我们得提前预约。
+        meaning: "**例句。** 换句话说，我们得提前预约。`换句话说` 表示用别的说法重述。`我们得` 意为我们必须，这里的 `得` 读 `děi`。`提前` 是预先，放在 `预约`（事先约定时间）前面。"
+        note: 试着把要求改成只针对自己。答案：`换句话说，我得提前预约。` 把 `我们` 换成 `我`。这里的 `得` 放在动作前表达必要；`说得很清楚` 里轻读的 `得` 跟在动词后面，作用不同。
+  - subskill_id: correcting_misunderstanding
+    explanation: 听话人把你提议的日子理解成星期五，而你说的是星期六。说出原定的日子，再排除听错的日子，就能直接修正误会。
+    examples:
+      - text: 我说的是周六，不是周五。
+        meaning: "**例句。** 我说的是周六，不是周五。`我说的` 指我所说的内容，`是周六` 确认那是星期六。`不是周五` 排除星期五。两个日期分别放在 `是` 和 `不是` 后，形成明确对比。"
+        note: 试着反过来纠正日期。答案：`我说的是周五，不是周六。` 对换两个日子。`我没说周六` 只否认说过星期六，没有补出原来想说的日子。
+  - subskill_id: turns_topics
+    explanation: 讨论中，你可能想转到下周的安排。先说明要转话题，再说出新话题，可以帮助听话人跟上。`可以吗` 询问对方是否愿意这样转换。
+    examples:
+      - text: 我想换个话题，聊聊下周的安排，可以吗？
+        meaning: "**例句。** 我想换个话题，聊聊下周的安排，可以吗？`我想` 表示我希望，`换个话题` 是转换讨论主题，`聊聊` 表示稍微谈一谈。`下周的安排` 指下周的计划，`的` 把时间与安排连接起来。"
+        note: 试着改谈明天的安排。答案：`我想换个话题，聊聊明天的安排，可以吗？` 把 `下周` 换成 `明天`。重复的 `聊` 让提议显得轻松、自然；只说出另一个日期，并没有明确表示要转话题。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

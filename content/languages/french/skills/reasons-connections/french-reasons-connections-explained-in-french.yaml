@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: reasons_connections
+language: french
+explanation_language: french
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-french.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "Une route fermée explique pourquoi votre groupe attend. `Nous attendons` énonce ce qui se passe
+      ; `parce que` introduit la raison, `la route est fermée`. Les mots qui suivent forment une proposition
+      complète avec son propre sujet et son verbe. `Fermée` porte la terminaison féminine parce qu’il qualifie
+      `route`. Pour une raison exprimée par un nom, on peut employer `à cause de`, comme dans `Nous attendons
+      à cause de la neige.` Les deux constructions appellent des compléments différents : une proposition
+      après `parce que`, un groupe nominal après `à cause de`."
+    examples:
+      - text: Nous attendons parce que la route est fermée.
+        meaning: Nous attendons parce que la route est fermée.
+        note: "Expliquez que vous attendez parce que le magasin est fermé. `Nous attendons parce que le magasin est
+          fermé.` convient : la raison forme une proposition, et `fermé` s’accorde avec `magasin` au
+          masculin."
+  - subskill_id: consequences
+    explanation: Le dernier bus est parti ; le groupe décide donc de rentrer à pied. `Le dernier bus est parti`
+      énonce l’événement achevé. `Donc` le relie à la décision qui en découle, `nous allons rentrer à pied`.
+      `Allons rentrer` annonce le retour prochain, et `à pied` précise le moyen. `Parti` accompagne `est`
+      parce que le passé composé de `partir` se construit avec `être` ; le projet futur emploie `aller` au
+      présent suivi d’un infinitif. `Puis` indiquerait seulement l’ordre des faits, tandis que `donc` présente
+      le second comme une conséquence.
+    examples:
+      - text: Le dernier bus est parti, donc nous allons rentrer à pied.
+        meaning: Le dernier bus est parti, donc nous allons rentrer à pied.
+        note: "Changez le projet qui en découle : attendez ici. `Le dernier bus est parti, donc nous allons attendre
+          ici.` convient : `donc` garde le lien de conséquence et `attendre ici` fournit le nouveau projet."
+  - subskill_id: conditions
+    explanation: "Vous travaillerez à la bibliothèque seulement si elle est ouverte. `Si la bibliothèque est
+      ouverte` pose la condition ; `nous y travaillerons` dit ce qui suivra. `Y` remplace « à la bibliothèque
+      » et précède `travaillerons`. Une possibilité réelle dans l’avenir peut employer le présent après `si`
+      et le futur dans le résultat : la référence future n’exige pas un futur immédiatement après `si`
+      conditionnel. `Quand la bibliothèque sera ouverte` signifie au contraire « quand elle sera ouverte » et
+      envisage l’ouverture comme un moment attendu."
+    examples:
+      - text: Si la bibliothèque est ouverte, nous y travaillerons.
+        meaning: Si la bibliothèque est ouverte, nous y travaillerons.
+        note: "Faites du résultat des études sur place. `Si la bibliothèque est ouverte, nous y étudierons.` convient
+          : la condition reste au présent, le résultat reste au futur, et `y` renvoie toujours à la
+          bibliothèque."
+  - subskill_id: contrast
+    explanation: "Un petit sac contient, contre toute attente, tout ce dont vous avez besoin. `Le sac est petit`
+      fait attendre une capacité limitée ; `mais` introduit le fait contraire, `il contient tout mon
+      matériel`. `Il` renvoie au nom masculin `sac` ; `tout mon matériel` désigne l’ensemble de l’équipement.
+      Ici, `Matériel` est un nom collectif singulier : `tout` est donc au masculin singulier. `Et` ajouterait
+      simplement une information, tandis que `mais` montre pourquoi le second fait surprend après le premier."
+    examples:
+      - text: Le sac est petit, mais il contient tout mon matériel.
+        meaning: Le sac est petit, mais il contient tout mon matériel.
+        note: "Décrivez une petite boîte qui contient tout votre matériel. `La boîte est petite, mais elle contient
+          tout mon matériel.` convient : la boîte demande les formes féminines `petite` et `elle` ; le groupe
+          désignant le matériel reste au masculin singulier."
+  - subskill_id: supporting_claims
+    explanation: Vous recommandez un trajet et donnez une observation récente pour expliquer votre jugement. `Ce
+      trajet est plus rapide` affirme que le trajet prend moins de temps. Après les deux-points, `hier, j’ai
+      gagné vingt minutes` rapporte un gain mesuré hier. `Ai gagné` présente cette expérience comme achevée ;
+      la durée chiffrée rend l’argument concret. L’observation appuie la comparaison dans cette situation sans
+      prouver que le trajet est toujours plus rapide. Un simple `C’est mieux` donnerait un jugement sans
+      précision vérifiable.
+    examples:
+      - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
+        meaning: Ce trajet est plus rapide ; hier, j’ai gagné vingt minutes.
+        note: "Donnez dix minutes comme gain constaté. `Ce trajet est plus rapide : hier, j’ai gagné dix minutes.`
+          convient : la mesure change, mais l’expérience reste un événement passé achevé."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - tex_si2026
+    - threshold_general_notions
+    - texPlaceYTeaching20261007
+    - texCompoundPastTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

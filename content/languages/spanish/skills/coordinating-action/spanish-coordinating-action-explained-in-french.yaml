@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: coordinating_action
+language: spanish
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: Si une pièce est froide, vous pouvez demander à une autre personne de fermer la porte. Une
+      question avec `poder` est une façon familière de demander une action. Ici, vous souhaitez qu’elle agisse
+      ; vous ne cherchez pas à vérifier sa capacité physique.
+    examples:
+      - text: ¿Puedes cerrar la puerta, por favor?
+        meaning: « Peux-tu fermer la porte, s’il te plaît ? » `Puedes` s’adresse familièrement à une personne,
+          `cerrar` nomme l’action et `la puerta` son objet. `Por favor` ajoute une marque de politesse. Après
+          `puedes`, le verbe d’action reste à l’infinitif.
+        note: >-
+          **Adaptez.** `¿Puede cerrar la puerta, por favor?` s’adresse à une personne avec `usted`. `¿Puedes
+          abrir la puerta?` demande l’action opposée. La politesse dépend aussi du ton et de la situation.
+
+
+          **À vous.** Demandez familièrement à quelqu’un d’ouvrir la fenêtre avec `abrir la ventana`. Réponse
+          : `¿Puedes abrir la ventana, por favor?`. Gardez l’action à sa forme d’infinitif.
+  - subskill_id: offers_invitations
+    explanation: Inviter quelqu’un à dîner lui donne la possibilité de se joindre à vous. Une question avec
+      `querer` demande si cette personne souhaite participer. Le contexte transforme cette question sur le
+      désir en invitation et permet aussi bien une acceptation qu’un refus.
+    examples:
+      - text: ¿Quieres venir a cenar?
+        meaning: "« Voudrais-tu venir dîner ? » `Quieres` demande si la personne en a envie, `venir` signifie venir et
+          `a cenar` précise le but : dîner. L’invitation s’adresse familièrement à une seule personne."
+        note: >-
+          **Adaptez.** `¿Quieres venir a comer?` invite quelqu’un à un repas avec `comer`. `¿Quieres cenar?`
+          demande si la personne souhaite dîner sans l’inviter explicitement à venir quelque part.
+
+
+          **À vous.** Invitez quelqu’un à venir se promener avec `pasear`. Réponse : `¿Quieres venir a
+          pasear?`. Gardez `venir a` et remplacez l’activité.
+  - subskill_id: suggestions
+    explanation: Lorsque vous préparez une sortie, vous pouvez proposer une option. `Podemos` suivi d’une activité
+      peut suggérer quelque chose à faire ensemble. Cela présente un projet possible, ni une consigne ni un
+      accord déjà conclu.
+    examples:
+      - text: Podemos ir mañana.
+        meaning: « Nous pourrions y aller demain. » `Podemos` inclut la personne qui parle dans le « nous » ; `ir`
+          signifie aller et `mañana` donne le jour. Dans une discussion de projet, cette formulation propose
+          demain comme possibilité.
+        note: >-
+          **Comparez.** `Tenemos que ir mañana` dit qu’il faut y aller demain et ajoute donc une obligation.
+          `Podemos ir hoy` garde la suggestion, mais change le jour.
+
+
+          **À vous.** Proposez de manger ici avec `comer aquí`. Réponse : `Podemos comer aquí`. Changez
+          l’activité après `podemos` en la laissant à l’infinitif.
+  - subskill_id: commitments
+    explanation: Quand quelqu’un doit pouvoir compter sur vous, une promesse explicite précise votre
+      responsabilité. Dire ce qui se produira plus tard peut simplement décrire un projet ; `prometo` indique
+      que vous vous engagez à le faire.
+    examples:
+      - text: Te prometo que voy a llamarte.
+        meaning: « Je te promets que je t’appellerai. » `Te` désigne la personne à qui la promesse est faite. `Prometo
+          que` introduit son contenu ; `voy a llamarte` annonce que je vais t’appeler. Le `te` final de
+          `llamarte` indique la personne appelée.
+        note: >-
+          **Adaptez.** `Voy a llamarte` exprime un projet sans promesse explicite. On peut aussi formuler le
+          même appel avec `Te voy a llamar` : le pronom objet précède alors le verbe conjugué.
+
+
+          **À vous.** Promettez d’appeler demain. Réponse : `Te prometo que voy a llamarte mañana`. Ajoutez le
+          moment sans changer qui promet ni qui reçoit la promesse.
+  - subskill_id: accepting_declining
+    explanation: Une invitation n’exige pas une longue réponse. Si vous ne pouvez pas participer, une brève excuse
+      suivie d’un refus peut suffire, sans révéler de détails personnels. L’invitation indique l’activité que
+      votre réponse laisse implicite.
+    examples:
+      - text: Lo siento, no puedo.
+        meaning: « Désolé, je ne peux pas. » `Lo siento` est une formule d’excuse ; `no puedo` dit que vous ne pouvez
+          pas faire l’activité proposée. Après une invitation à dîner, l’autre personne comprend que c’est au
+          dîner que vous ne pouvez pas participer.
+        note: >-
+          **Comparez.** `Sí, gracias` accepte l’invitation. `No quiero` dit que vous n’en avez pas envie,
+          raison différente d’une impossibilité. Vous pouvez expliciter le refus avec `No puedo ir`.
+
+
+          **À vous.** Refusez une invitation en précisant que vous ne pouvez pas y aller aujourd’hui. Réponse
+          : `Lo siento, hoy no puedo ir`. `Hoy` donne le moment et `ir` nomme l’action sous-entendue.
+  - subskill_id: negotiating_plans
+    explanation: Lorsqu’un horaire proposé ne convient pas, en suggérer un autre aide à avancer vers un accord.
+      Vous pouvez d’abord nommer l’empêchement, puis offrir une possibilité praticable. Les deux parties
+      montrent ce qu’il faut changer.
+    examples:
+      - text: A las seis no puedo; ¿quedamos a las siete?
+        meaning: « Je ne peux pas à six heures ; on se retrouve à sept heures ? » `A las seis` nomme l’horaire
+          impossible et `no puedo` exprime l’empêchement. `¿Quedamos a las siete?` propose une rencontre à
+          sept heures ; `quedamos` inclut les deux personnes.
+        note: >-
+          **Adaptez.** `¿Nos vemos a las siete?` propose aussi de se voir à sept heures. Un simple `No puedo`
+          rejette l’horaire sans donner d’autre possibilité. La question reste une proposition jusqu’à
+          l’accord de l’autre personne.
+
+
+          **À vous.** Vous ne pouvez pas à sept heures ; proposez huit heures. Réponse : `A las siete no
+          puedo; ¿quedamos a las ocho?`. Placez d’abord l’heure refusée, puis la nouvelle heure dans la
+          question.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

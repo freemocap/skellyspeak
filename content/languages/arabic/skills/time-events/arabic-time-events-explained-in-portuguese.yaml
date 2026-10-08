@@ -1,0 +1,195 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-portuguese-2026-10-07
+language: arabic
+skill_id: time_events
+explanation_language: portuguese
+shared_explanation: skills/time-events/time-events-explained-in-portuguese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Alguém pergunta o que você está fazendo agora. Nomear a ação junto de « agora » deixa claro que
+      se trata de uma atividade em andamento.
+    examples:
+      - text: أَكْتُبُ رِسَالَةً الْآنَ.
+        meaning: "**O exemplo.** Estou escrevendo uma carta agora. `أَكْتُبُ` significa eu escrevo; `رِسَالَةً` é uma
+          carta, e `الْآنَ` significa agora. A forma de primeira pessoa identifica quem escreve. Com esse
+          contexto temporal, o árabe transmite uma ação em curso sem um auxiliar separado."
+        note: "O mesmo verbo pode indicar um hábito em outro contexto. Experimente trocar a carta por um livro
+          mantendo a ação atual. Resposta: `أَكْتُبُ كِتَابًا الْآنَ`. O objeto muda para `كِتَابًا`; a forma
+          de primeira pessoa e « agora » ficam."
+  - subskill_id: past_events
+    explanation: Para contar o que você fez ontem, use uma ação passada e uma expressão temporal. Aqui, a pessoa
+      relata a escrita de uma carta, não uma atividade atual.
+    examples:
+      - text: كَتَبْتُ رِسَالَةً أَمْسِ.
+        meaning: "**O exemplo.** Escrevi uma carta ontem. `كَتَبْتُ` significa eu escrevi; a terminação marca « eu ».
+          `رِسَالَةً` significa carta e `أَمْسِ` ontem. O verbo já situa a ação no passado; « ontem »
+          especifica o dia."
+        note: "Compare `كَتَبْتَ`, você escreveu para um homem, com `كَتَبْتُ`, eu escrevi. Experimente dizer que nós
+          escrevemos uma carta ontem. Resposta: `كَتَبْنَا رِسَالَةً أَمْسِ`. A terminação do passado passa a
+          `نَا`; a carta e o dia permanecem."
+  - subskill_id: future_events
+    explanation: Você fala de uma visita planejada para amanhã. Uma expressão futura coloca a ação depois de
+      agora; o amigo e o dia dão concretude ao plano.
+    examples:
+      - text: سَأَزُورُ صَدِيقِي غَدًا.
+        meaning: "**O exemplo.** Visitarei meu amigo amanhã. `سَأَزُورُ` combina futuro `سَـ` com eu visito.
+          `صَدِيقِي` significa meu amigo, homem, com sufixo de « meu » ligado. `غَدًا` significa amanhã. A
+          frase afirma um plano; só se torna promessa em uma conversa apropriada."
+        note: "Sem `سَـ`, o verbo pode descrever uma visita presente ou habitual conforme o contexto. Experimente
+          passar a visita para hoje. Resposta: `سَأَزُورُ صَدِيقِي الْيَوْمَ`. O marcador de futuro ainda
+          coloca a visita depois de agora; hoje indica em que dia."
+  - subskill_id: duration_frequency
+    explanation: Uma pergunta sobre sua rotina costuma pedir frequência, como quantas vezes por semana. Este
+      exemplo conta ocasiões de natação, não a duração de uma sessão.
+    examples:
+      - text: أَسْبَحُ مَرَّتَيْنِ فِي الْأُسْبُوعِ.
+        meaning: "**O exemplo.** Nado duas vezes por semana. `أَسْبَحُ` significa eu nado. `مَرَّتَيْنِ` significa
+          duas vezes, com o dual de « ocasião »; `فِي الْأُسْبُوعِ` significa por semana aqui. O intervalo e a
+          quantidade juntos indicam a frequência."
+        note: "Para uma vez por semana, use `مَرَّةً فِي الْأُسْبُوعِ`. « Duas vezes » não significa duas horas;
+          duração exige uma expressão de unidade temporal. Experimente mudar a rotina para uma vez por semana.
+          Resposta: `أَسْبَحُ مَرَّةً فِي الْأُسْبُوعِ`; o intervalo continua semanal."
+  - subskill_id: event_sequence
+    explanation: Ao organizar uma noite em grupo, « primeiro » e « depois » indicam a ordem. A sequência não
+      significa necessariamente que o primeiro evento causa o segundo.
+    examples:
+      - text: أَوَّلًا نَأْكُلُ، ثُمَّ نَخْرُجُ.
+        meaning: "**O exemplo.** Primeiro comemos, depois saímos. `أَوَّلًا` significa primeiro; `نَأْكُلُ` é nós
+          comemos. `ثُمَّ` significa depois e `نَخْرُجُ` é nós saímos. Ambos os verbos têm forma de « nós » e
+          descrevem uma sequência para o grupo, não só para um ouvinte."
+        note: "Experimente dizer que primeiro saímos e depois comemos. Resposta: `أَوَّلًا نَخْرُجُ، ثُمَّ نَأْكُلُ`.
+          Coloque cada ação completa na nova posição. `ثُمَّ` marca sequência; para um resultado seria
+          necessária outra expressão, como `لِذٰلِكَ`, portanto."
+  - subskill_id: event_phase
+    explanation: Alguém quer saber se você ainda está lendo um livro. Dizer que terminou indica o ponto final da
+      atividade, informação mais específica do que dizer que leu antes.
+    examples:
+      - text: أَنْهَيْتُ قِرَاءَةَ الْكِتَابِ.
+        meaning: "**O exemplo.** Terminei de ler o livro. `أَنْهَيْتُ` significa eu terminei. `قِرَاءَةَ` é leitura, e
+          `الْكِتَابِ` identifica o livro lido. A leitura é um nome de atividade depois do verbo de conclusão;
+          a terminação passada de « eu » está em `أَنْهَيْتُ`."
+        note: "Dizer apenas que leu antes não prova que concluiu. Mantenha o verbo de conclusão quando quiser informar
+          que toda a atividade chegou ao fim. Experimente: que parte prova que a leitura terminou? Resposta:
+          `أَنْهَيْتُ`; a expressão do livro só identifica o objeto lido."
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahDualTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahDualTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: present_events
+      explanation: Alguém pergunta o que você está fazendo agora. O marcador de ação em curso junto de « agora »
+        deixa claro que a atividade está acontecendo neste momento.
+      examples:
+        - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
+          meaning: "**O exemplo.** Estou escrevendo uma carta agora. `هَلَّقْ` significa agora. `عَمْ` marca a atividade
+            em andamento; `بَكْتُبْ` significa eu escrevo, e `رِسَالِة` é uma carta. O marcador progressivo
+            mostra a escrita acontecendo, não uma carta já concluída."
+          note: "Compare `بَكْتُبْ رِسَالِة`, eu escrevo uma carta: sem a construção progressiva, o contexto pode
+            indicar um hábito. Experimente dizer que está escrevendo um livro agora. Resposta: `هَلَّقْ عَمْ
+            بَكْتُبْ كِتَابْ`; troque o objeto e mantenha o quadro de ação em curso."
+    - subskill_id: past_events
+      explanation: Para contar o que você fez ontem, use uma ação passada e uma expressão temporal. Aqui, a pessoa
+        relata ter escrito uma carta, não uma atividade atual.
+      examples:
+        - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
+          meaning: "**O exemplo.** Escrevi uma carta ontem. `كَتَبْتْ` significa eu escrevi neste contexto; `رِسَالِة` é
+            uma carta e `مْبَارِحْ` é ontem. A terminação marca uma forma passada. Neste modelo falado, a
+            grafia também pode ocorrer ao dirigir-se a um homem; o contexto ajuda a identificar a pessoa."
+          note: "Acrescentar `أَنَا` torna explícita a leitura de « eu ». Experimente dizer que nós escrevemos uma carta
+            ontem. Resposta: `كَتَبْنَا رِسَالِة مْبَارِحْ`. A terminação « nós » `نَا` identifica o grupo; o
+            tempo e o objeto ficam iguais."
+    - subskill_id: future_events
+      explanation: Você fala de uma visita planejada para amanhã. O marcador de futuro situa a ação depois de agora;
+        o amigo e o dia especificam o plano.
+      examples:
+        - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
+          meaning: "**O exemplo.** Visitarei meu amigo amanhã. `رَحْ` marca o futuro e `أَزُورْ` é a forma dependente de
+            « eu visito » que o segue. `صَاحْبِي` significa meu amigo, homem, e `بُكْرَا` é amanhã. O verbo
+            depois de `رَحْ` não leva seu prefixo b- comum."
+          note: "Mantenha `رَحْ` antes da ação dependente. Experimente passar a visita para hoje. Resposta: `رَحْ
+            أَزُورْ صَاحْبِي الْيَوْمْ`. Substituir `بُكْرَا` muda o dia, não a construção futura nem quem
+            fará a visita."
+    - subskill_id: duration_frequency
+      explanation: Uma pergunta sobre rotina pode pedir quantas vezes por semana você nada. O exemplo conta
+        ocasiões, não a duração de cada sessão.
+      examples:
+        - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
+          meaning: "**O exemplo.** Nado duas vezes por semana. `بَسْبَحْ` é a forma comum de primeira pessoa do presente
+            habitual. `مَرَّتَيْنْ` significa duas vezes e `بِالْأُسْبُوعْ` significa por semana. O prefixo b-
+            combina com o relato de rotina; o dual conta as ocasiões."
+          note: "Para uma vez por semana, diga `بَسْبَحْ مَرَّة بِالْأُسْبُوعْ`. O dual conta ocasiões, não pessoas
+            nadando. Experimente: a frase original informa quanto dura cada sessão? Resposta: não; dá a
+            frequência. Uma duração exigiria outra expressão."
+    - subskill_id: event_sequence
+      explanation: Ao organizar uma noite em grupo, « primeiro » e « depois » indicam a ordem das atividades sem
+        afirmar que uma causa a outra.
+      examples:
+        - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
+          meaning: "**O exemplo.** Primeiro comemos, depois saímos. `أَوَّلْ شِي` significa primeiro; `بِنَاكُلْ` é nós
+            comemos nesse modelo falado. `بَعْدَيْنْ` significa depois e `بِنِطْلَعْ` nós saímos. As formas
+            comuns com prefixo b- descrevem a sequência planejada para o grupo."
+          note: "As expressões de ordem podem ficar enquanto você troca as atividades. Experimente dizer que primeiro
+            saímos e depois comemos. Resposta: `أَوَّلْ شِي بِنِطْلَعْ، بَعْدَيْنْ بِنَاكُلْ`. Os verbos mudam
+            de posição; a sequência se inverte sem mudar quem participa."
+    - subskill_id: event_phase
+      explanation: Alguém quer saber se você ainda está lendo um livro. Dizer que terminou marca o ponto final, mais
+        específico do que apenas dizer que leu antes.
+      examples:
+        - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
+          meaning: "**O exemplo.** Terminei de ler o livro. `خَلَّصْتْ` significa eu terminei neste contexto. `قِرَايِة`
+            é a leitura e `الْكِتَابْ` o livro. O nome de atividade diz o que foi concluído; a forma passada
+            de terminar indica o ponto final."
+          note: "Quando o contexto não basta, `أَنَا` pode deixar explícita a pessoa que fala. Ler parte do livro não é
+            o mesmo que terminá-lo. Experimente: a frase responde naturalmente a « você ainda está lendo? »
+            Resposta: sim; diz que a leitura acabou, não apenas que aconteceu antes."

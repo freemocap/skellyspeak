@@ -1,0 +1,171 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-portuguese-2026-10-07
+skill_id: coordinating_action
+language: french
+explanation_language: portuguese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-portuguese.yaml
+sections:
+  - subskill_id: requests
+    explanation: "Uma cadeira grande bloqueia a porta; um visitante pede que alguém a mova.
+      `Pourriez-vous` significa poderia e suaviza o pedido; `déplacer cette chaise` identifica a
+      ação e esta cadeira. O hífen liga verbo e `vous` na pergunta. `S’il vous plaît` acrescenta por
+      favor. Depois de `pourriez-vous`, o verbo da ação fica no infinitivo: `Pourriez-vous fermer la
+      porte ?` pede outra ação. Com pessoa próxima, `Tu peux déplacer cette chaise ?` é um pedido
+      cotidiano mais direto; `vous` também se dirige a várias pessoas."
+    examples:
+      - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+        meaning: Você poderia mover esta cadeira, por favor?
+        note: "Peça educadamente que abram a janela. Uma resposta: `Pourriez-vous ouvrir la fenêtre, s’il
+          vous plaît ?` Mantenha `pourriez-vous` e troque a ação por `ouvrir la fenêtre`; `ouvrir`
+          permanece no infinitivo."
+  - subskill_id: offers_invitations
+    explanation: Um amigo planeja ir ao mercado sábado e convida você. `Tu veux` pergunta se você quer,
+      e `venir` significa vir; `avec nous` inclui o grupo de quem fala. `Samedi` dá a ocasião. Numa
+      conversa informal, a entonação crescente transforma essa frase em pergunta. `Tu veux venir au
+      cinéma avec nous ?` mantém o convite e muda o destino. Oferece escolha, sendo menos imperativo
+      que `Viens avec nous !`.
+    examples:
+      - text: Tu veux venir au marché avec nous samedi ?
+        meaning: Você gostaria de ir ao mercado conosco no sábado?
+        note: "Convide um amigo próximo para vir no domingo. `Tu veux venir au marché avec nous dimanche ?`
+          funciona: só o dia muda. Para alguém tratado por `vous`, a abertura passa a `Vous voulez
+          venir`."
+  - subskill_id: suggestions
+    explanation: Ao decidir onde almoçar, alguém propõe um lugar perto da estação. `On` significa nós
+      aqui, e `pourrait` apresenta uma opção, não plano fechado. `Déjeuner` significa almoçar; `près
+      de la gare` indica proximidade da estação. O verbo depois de `pourrait` fica no infinitivo,
+      como em `On pourrait manger dehors.` Ao contrário, `On va déjeuner près de la gare.` anuncia o
+      que o grupo fará. O condicional abre espaço para discussão.
+    examples:
+      - text: On pourrait déjeuner près de la gare.
+        meaning: Poderíamos almoçar perto da estação.
+        note: "Sugira comer ao ar livre. `On pourrait manger dehors.` é uma resposta: `manger dehors`
+          substitui a atividade proposta sem torná-la compromisso."
+  - subskill_id: commitments
+    explanation: O grupo divide tarefas de uma refeição, e alguém assume os pratos. `D’accord` aceita o
+      combinado. `J’apporterai` significa trarei; `les assiettes` nomeia os pratos. A terminação
+      futura de `apporterai` corresponde a `je`, reduzido a `j’` diante de vogal. `Nous apporterons`
+      muda o compromisso para nós traremos. Aqui o futuro assume uma tarefa; `Je pourrais apporter
+      les assiettes.` apenas oferece uma contribuição possível.
+    examples:
+      - text: D’accord, j’apporterai les assiettes.
+        meaning: Está bem, trarei os pratos.
+        note: Comprometa-se a trazer os copos. `D’accord, j’apporterai les verres.` funciona porque o verbo
+          futuro mantém o compromisso, enquanto `les verres` muda o objeto.
+  - subskill_id: accepting_declining
+    explanation: "Um convite merece resposta clara mesmo se você não pode comparecer. `Merci pour
+      l’invitation` agradece o convite, e `mais` introduz a recusa. `Je ne pourrai pas venir`
+      significa não poderei vir: `ne` e `pas` cercam o futuro `pourrai`, enquanto `venir` fica no
+      infinitivo. A impossibilidade é a razão. `Je ne veux pas venir` significa que você não quer
+      vir e pode soar menos delicado. Para aceitar, basta `Merci, je viendrai avec plaisir.`"
+    examples:
+      - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+        meaning: Obrigado pelo convite, mas não poderei ir.
+        note: Recuse porque não poderá ficar. `Merci, mais je ne pourrai pas rester.` mantém a
+          impossibilidade futura e troca `venir` por `rester`, ficar.
+  - subskill_id: negotiating_plans
+    explanation: Sexta-feira não serve para você, então propõe sábado para discussão. `Ne me convient
+      pas` significa não me convém; `me` identifica a pessoa afetada. `Est-ce que samedi vous irait
+      ?` pergunta se sábado convém à outra pessoa. `irait` é condicional de `aller` usado para
+      adequação, não deslocamento literal. O `vous` polido contrasta com `te` em `Est-ce que samedi
+      t’irait ?` para pessoa próxima. Outra opção é `Samedi vous convient ?`
+    examples:
+      - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+        meaning: Sexta-feira não funciona para mim. Sábado serviria para você?
+        note: "Proponha domingo mantendo o tratamento formal. `Est-ce que dimanche vous irait ?` funciona:
+          muda o dia proposto, e `vous irait` ainda pergunta pela disponibilidade da pessoa."
+provenance: &a1
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+    - texQuestionsTeaching20261007
+    - tex_modals2026
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: requests
+      explanation: "Uma cadeira grande bloqueia a porta; um visitante pede que alguém a mova.
+        `Pourriez-vous` significa poderia e suaviza o pedido; `déplacer cette chaise` identifica a
+        ação e esta cadeira. O hífen liga verbo e `vous` na pergunta. `S’il vous plaît` acrescenta
+        por favor. Depois de `pourriez-vous`, o verbo da ação fica no infinitivo: `Pourriez-vous
+        fermer la porte ?` pede outra ação. Com pessoa próxima, `Tu peux déplacer cette chaise ?` é
+        um pedido cotidiano mais direto; `vous` também se dirige a várias pessoas."
+      examples:
+        - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+          meaning: Você poderia mover esta cadeira, por favor?
+          note: "Peça educadamente que abram a janela. Uma resposta: `Pourriez-vous ouvrir la fenêtre, s’il
+            vous plaît ?` Mantenha `pourriez-vous` e troque a ação por `ouvrir la fenêtre`; `ouvrir`
+            permanece no infinitivo."
+    - subskill_id: offers_invitations
+      explanation: Um amigo planeja ir ao mercado sábado e convida você. `Tu veux` pergunta se você quer,
+        e `venir` significa vir; `avec nous` inclui o grupo de quem fala. `Samedi` dá a ocasião.
+        Numa conversa informal, a entonação crescente transforma essa frase em pergunta. `Tu veux
+        venir au cinéma avec nous ?` mantém o convite e muda o destino. Oferece escolha, sendo menos
+        imperativo que `Viens avec nous !`.
+      examples:
+        - text: Tu veux venir au marché avec nous samedi ?
+          meaning: Você gostaria de ir ao mercado conosco no sábado?
+          note: "Convide um amigo próximo para vir no domingo. `Tu veux venir au marché avec nous dimanche ?`
+            funciona: só o dia muda. Para alguém tratado por `vous`, a abertura passa a `Vous voulez
+            venir`."
+    - subskill_id: suggestions
+      explanation: Ao decidir onde tomar café da manhã, alguém propõe um lugar perto da estação. `On`
+        significa nós aqui, e `pourrait` apresenta opção, não plano fechado. `Déjeuner` significa
+        tomar café da manhã; `près de la gare` situa o lugar perto da estação. Depois de `pourrait`,
+        o verbo fica no infinitivo, como em `On pourrait manger dehors.` Ao contrário, `On va
+        déjeuner près de la gare.` anuncia a decisão. O condicional permite discussão.
+      examples:
+        - text: On pourrait déjeuner près de la gare.
+          meaning: Poderíamos tomar café da manhã perto da estação.
+          note: "Sugira comer ao ar livre. `On pourrait manger dehors.` é uma resposta: `manger dehors`
+            substitui a atividade proposta sem torná-la compromisso."
+    - subskill_id: commitments
+      explanation: O grupo divide tarefas de uma refeição, e alguém assume os pratos. `D’accord` aceita o
+        combinado. `J’apporterai` significa trarei; `les assiettes` nomeia os pratos. A terminação
+        futura de `apporterai` corresponde a `je`, reduzido a `j’` diante de vogal. `Nous
+        apporterons` muda o compromisso para nós traremos. Aqui o futuro assume uma tarefa; `Je
+        pourrais apporter les assiettes.` apenas oferece uma contribuição possível.
+      examples:
+        - text: D’accord, j’apporterai les assiettes.
+          meaning: Está bem, trarei os pratos.
+          note: Comprometa-se a trazer os copos. `D’accord, j’apporterai les verres.` funciona porque o verbo
+            futuro mantém o compromisso, enquanto `les verres` muda o objeto.
+    - subskill_id: accepting_declining
+      explanation: "Um convite merece resposta clara mesmo se você não pode comparecer. `Merci pour
+        l’invitation` agradece o convite, e `mais` introduz a recusa. `Je ne pourrai pas venir`
+        significa não poderei vir: `ne` e `pas` cercam o futuro `pourrai`, enquanto `venir` fica no
+        infinitivo. A impossibilidade é a razão. `Je ne veux pas venir` significa que você não quer
+        vir e pode soar menos delicado. Para aceitar, basta `Merci, je viendrai avec plaisir.`"
+      examples:
+        - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+          meaning: Obrigado pelo convite, mas não poderei ir.
+          note: Recuse porque não poderá ficar. `Merci, mais je ne pourrai pas rester.` mantém a
+            impossibilidade futura e troca `venir` por `rester`, ficar.
+    - subskill_id: negotiating_plans
+      explanation: Sexta-feira não serve para você, então propõe sábado para discussão. `Ne me convient
+        pas` significa não me convém; `me` identifica a pessoa afetada. `Est-ce que samedi vous
+        irait ?` pergunta se sábado convém à outra pessoa. `irait` é condicional de `aller` usado
+        para adequação, não deslocamento literal. O `vous` polido contrasta com `te` em `Est-ce que
+        samedi t’irait ?` para pessoa próxima. Outra opção é `Samedi vous convient ?`
+      examples:
+        - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+          meaning: Sexta-feira não funciona para mim. Sábado serviria para você?
+          note: "Proponha domingo mantendo o tratamento formal. `Est-ce que dimanche vous irait ?` funciona:
+            muda o dia proposto, e `vous irait` ainda pergunta pela disponibilidade da pessoa."

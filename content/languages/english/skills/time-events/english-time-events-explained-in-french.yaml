@@ -1,0 +1,249 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-french-2026-10-07
+skill_id: time_events
+language: english
+explanation_language: french
+shared_explanation: skills/time-events/time-events-explained-in-french.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Le présent permet de parler de situations régulières aussi bien que de ce qui se passe
+      maintenant. Pour décrire le métier d’une personne, on évoque généralement son lieu de travail habituel,
+      même si elle est chez elle aujourd’hui. Le présent simple convient à cette situation régulière.
+    examples:
+      - text: She works at the museum.
+        meaning: "`She` désigne la personne. `Works` porte la terminaison correspondant à `she` ; `at the museum`
+          indique son lieu de travail. Avec `I` ou `they`, employez `work` : `They work at the museum`. Cela
+          ne dit pas que ces personnes travaillent précisément en ce moment."
+        note: >-
+          `She is working at the museum today` met l’accent sur une activité qui se déroule maintenant ou
+          autour de maintenant. Pour nier que ce soit son emploi habituel, dites `She doesn’t work at the
+          museum` ; après `doesn’t`, `work` garde sa forme simple.
+
+
+          **À vous.** Décrivez le lieu de travail habituel de votre frère : une bibliothèque. Réponse : `He
+          works at the library`. Avec `He`, on emploie `works`, même lorsqu’on décrit un emploi plutôt qu’une
+          action en cours.
+  - subskill_id: past_events
+    explanation: Un événement passé raconte ce qui s’est produit auparavant. Dans le récit d’une sortie d’hier,
+      l’expression de temps et le verbe situent tous deux le déplacement dans le passé. Ajouter un mot comme «
+      hier » ne suffit généralement pas à laisser le verbe inchangé.
+    examples:
+      - text: Yesterday we went to the harbour.
+        meaning: "`Yesterday` fixe le moment. `We` désigne les personnes en déplacement ; `went` est le passé de `go`,
+          et `to the harbour` donne la destination. `Went` reste identique quelle que soit la personne : `I
+          went`, `she went`, `they went`."
+        note: >-
+          Certains passés prennent `-ed`, comme `walked` ; `go` a au contraire la forme irrégulière `went`.
+          Dans une question, `did` porte la marque du passé : `Did you go?`, et non la forme incorrecte `Did
+          you went?`
+
+
+          **À vous.** Racontez votre déplacement au marché hier. Réponse : `Yesterday I went to the market`.
+          Employez `went` pour ce trajet antérieur et achevé.
+  - subskill_id: future_events
+    explanation: Parler de l’avenir peut exprimer un arrangement, une intention ou une prévision. Si vous avez
+      convenu d’un lieu de rendez-vous pour demain, le présent continu peut présenter cet arrangement établi.
+      Une expression de temps futur montre clairement que la rencontre n’a pas lieu maintenant.
+    examples:
+      - text: We are meeting at the station tomorrow.
+        meaning: "`We are meeting` associe `are` et `meeting`. `At the station` donne le lieu ; `tomorrow` situe
+          l’arrangement dans l’avenir. Avec une seule personne, la forme de liaison change : `She is meeting
+          us tomorrow`."
+        note: >-
+          `We are going to meet` peut exprimer une intention. `I’ll meet you there` peut annoncer une décision
+          prise au moment de parler. Ces formes se recoupent, mais la situation aide à choisir ; elles ne sont
+          pas interchangeables dans toutes les phrases.
+
+
+          **À vous.** Décrivez un dîner convenu pour demain. Réponse : `We are having dinner tomorrow`. `Are
+          having` présente l’arrangement et `tomorrow` en donne le moment futur.
+  - subskill_id: duration_frequency
+    explanation: La durée indique combien de temps une activité dure ; la fréquence indique à quel rythme elle se
+      répète. Pour décrire une routine d’entraînement, vous pouvez avoir besoin des deux. Votre interlocuteur
+      distinguera ainsi une courte séance quotidienne d’une longue séance occasionnelle.
+    examples:
+      - text: I practise for twenty minutes every evening.
+        meaning: "`I practise` nomme l’activité régulière. `For twenty minutes` donne la durée de chaque séance, et
+          `every evening` indique qu’elle a lieu chaque soir. On peut changer l’une ou l’autre expression
+          séparément : `for ten minutes every morning` décrit une autre routine."
+        note: >-
+          `For` introduit une durée. `Since Monday` indique plutôt un point de départ, comme dans `I have
+          practised every day since Monday`. Ne remplacez pas `for twenty minutes` par la forme incorrecte
+          `since twenty minutes`.
+
+
+          **À vous.** Décrivez une lecture quotidienne d’une demi-heure. Réponse : `I read for thirty minutes
+          every day`. `For thirty minutes` répond à « combien de temps ? » ; `every day` répond à « à quelle
+          fréquence ? ».
+  - subskill_id: event_sequence
+    explanation: L’ordre des événements aide à reconstruire ce qui s’est passé ou à suivre des étapes. Dans le
+      récit d’un voyage, préciser la première action évite de laisser croire que le taxi est arrivé avant que
+      les bagages soient prêts.
+    examples:
+      - text: First we packed, then we called a taxi.
+        meaning: "`First` marque la préparation des bagages comme première action. `Packed` est une action passée
+          achevée ; `then` introduit la suivante, `called a taxi`. Les deux verbes portent la terminaison
+          régulière du passé. La phrase indique l’ordre sans affirmer que la première action a causé la
+          seconde."
+        note: >-
+          On peut montrer le même ordre avec `After we packed, we called a taxi`. `Before we packed, we called
+          a taxi` l’inverse. Dans des consignes, les verbes sont à la forme simple : `First pack, then call a
+          taxi`.
+
+
+          **À vous.** Mettez dans l’ordre deux actions passées : vous avez mangé, puis vous êtes parti.
+          Réponse : `First I ate, then I left`. Les formes passées situent les actions auparavant ; `first` et
+          `then` les ordonnent.
+  - subskill_id: event_phase
+    explanation: On peut présenter un événement pendant qu’il se déroule ou comme un tout. Pour expliquer une
+      coupure de courant, vous pouvez préciser ce que vous faisiez à ce moment-là. L’activité en cours forme
+      l’arrière-plan de l’événement soudain.
+    examples:
+      - text: I was cooking when the lights went out.
+        meaning: "`I was cooking` présente la cuisine comme en cours au moment passé pertinent. `Was` s’emploie avec
+          `I` ; `cooking` nomme l’activité. `When the lights went out` introduit l’événement survenu pendant
+          celle-ci ; ici, `went out` signifie que les lumières ont cessé d’éclairer."
+        note: >-
+          `I cooked dinner` présente la cuisine comme un événement passé pris dans son ensemble. `I was
+          cooking` ne dit pas à lui seul que le repas a été terminé. Avec plusieurs personnes, employez `We
+          were cooking`.
+
+
+          **À vous.** Vous étiez en train de lire quand le téléphone a sonné. Réponse : `I was reading when
+          the phone rang`. `Was reading` donne l’activité en cours en arrière-plan ; `rang` nomme l’événement
+          qui s’y est produit.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - bc_present2026
+        - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: present_events
+      explanation: Le présent permet de parler de situations régulières aussi bien que de ce qui se passe
+        maintenant. Pour décrire le métier d’une personne, on évoque généralement son lieu de travail
+        habituel, même si elle est chez elle aujourd’hui. Le présent simple convient à cette situation
+        régulière.
+      examples:
+        - text: She works at the museum.
+          meaning: "`She` désigne la personne. `Works` porte la terminaison correspondant à `she` ; `at the museum`
+            indique son lieu de travail. Avec `I` ou `they`, employez `work` : `They work at the museum`. Cela
+            ne dit pas que ces personnes travaillent précisément en ce moment."
+          note: >-
+            `She is working at the museum today` met l’accent sur une activité qui se déroule maintenant ou
+            autour de maintenant. Pour nier que ce soit son emploi habituel, dites `She doesn’t work at the
+            museum` ; après `doesn’t`, `work` garde sa forme simple.
+
+
+            **À vous.** Décrivez le lieu de travail habituel de votre frère : une bibliothèque. Réponse : `He
+            works at the library`. Avec `He`, on emploie `works`, même lorsqu’on décrit un emploi plutôt
+            qu’une action en cours.
+    - subskill_id: past_events
+      explanation: Un événement passé raconte ce qui s’est produit auparavant. Dans le récit d’une sortie d’hier,
+        l’expression de temps et le verbe situent tous deux le déplacement dans le passé. Ajouter un mot comme
+        « hier » ne suffit généralement pas à laisser le verbe inchangé.
+      examples:
+        - text: Yesterday we went to the harbor.
+          meaning: "`Yesterday` fixe le moment. `We` désigne les personnes en déplacement ; `went` est le passé de `go`,
+            et `to the harbor` donne la destination. `Went` reste identique quelle que soit la personne : `I
+            went`, `she went`, `they went`."
+          note: >-
+            Certains passés prennent `-ed`, comme `walked` ; `go` a au contraire la forme irrégulière `went`.
+            Dans une question, `did` porte la marque du passé : `Did you go?`, et non la forme incorrecte `Did
+            you went?`
+
+
+            **À vous.** Racontez votre déplacement au marché hier. Réponse : `Yesterday I went to the market`.
+            Employez `went` pour ce trajet antérieur et achevé.
+    - subskill_id: future_events
+      explanation: Parler de l’avenir peut exprimer un arrangement, une intention ou une prévision. Si vous avez
+        convenu d’un lieu de rendez-vous pour demain, le présent continu peut présenter cet arrangement
+        établi. Une expression de temps futur montre clairement que la rencontre n’a pas lieu maintenant.
+      examples:
+        - text: We are meeting at the station tomorrow.
+          meaning: "`We are meeting` associe `are` et `meeting`. `At the station` donne le lieu ; `tomorrow` situe
+            l’arrangement dans l’avenir. Avec une seule personne, la forme de liaison change : `She is meeting
+            us tomorrow`."
+          note: >-
+            `We are going to meet` peut exprimer une intention. `I’ll meet you there` peut annoncer une
+            décision prise au moment de parler. Ces formes se recoupent, mais la situation aide à choisir ;
+            elles ne sont pas interchangeables dans toutes les phrases.
+
+
+            **À vous.** Décrivez un dîner convenu pour demain. Réponse : `We are having dinner tomorrow`. `Are
+            having` présente l’arrangement et `tomorrow` en donne le moment futur.
+    - subskill_id: duration_frequency
+      explanation: La durée indique combien de temps une activité dure ; la fréquence indique à quel rythme elle se
+        répète. Pour décrire une routine d’entraînement, vous pouvez avoir besoin des deux. Votre
+        interlocuteur distinguera ainsi une courte séance quotidienne d’une longue séance occasionnelle.
+      examples:
+        - text: I practice for twenty minutes every evening.
+          meaning: "`I practice` nomme l’activité régulière. `For twenty minutes` donne la durée de chaque séance, et
+            `every evening` indique qu’elle a lieu chaque soir. On peut changer l’une ou l’autre expression
+            séparément : `for ten minutes every morning` décrit une autre routine."
+          note: >-
+            `For` introduit une durée. `Since Monday` indique plutôt un point de départ, comme dans `I have
+            practiced every day since Monday`. Ne remplacez pas `for twenty minutes` par la forme incorrecte
+            `since twenty minutes`.
+
+
+            **À vous.** Décrivez une lecture quotidienne d’une demi-heure. Réponse : `I read for thirty
+            minutes every day`. `For thirty minutes` répond à « combien de temps ? » ; `every day` répond à «
+            à quelle fréquence ? ».
+    - subskill_id: event_sequence
+      explanation: L’ordre des événements aide à reconstruire ce qui s’est passé ou à suivre des étapes. Dans le
+        récit d’un voyage, préciser la première action évite de laisser croire que le taxi est arrivé avant
+        que les bagages soient prêts.
+      examples:
+        - text: First we packed, then we called a taxi.
+          meaning: "`First` marque la préparation des bagages comme première action. `Packed` est une action passée
+            achevée ; `then` introduit la suivante, `called a taxi`. Les deux verbes portent la terminaison
+            régulière du passé. La phrase indique l’ordre sans affirmer que la première action a causé la
+            seconde."
+          note: >-
+            On peut montrer le même ordre avec `After we packed, we called a taxi`. `Before we packed, we
+            called a taxi` l’inverse. Dans des consignes, les verbes sont à la forme simple : `First pack,
+            then call a taxi`.
+
+
+            **À vous.** Mettez dans l’ordre deux actions passées : vous avez mangé, puis vous êtes parti.
+            Réponse : `First I ate, then I left`. Les formes passées situent les actions auparavant ; `first`
+            et `then` les ordonnent.
+    - subskill_id: event_phase
+      explanation: On peut présenter un événement pendant qu’il se déroule ou comme un tout. Pour expliquer une
+        coupure de courant, vous pouvez préciser ce que vous faisiez à ce moment-là. L’activité en cours forme
+        l’arrière-plan de l’événement soudain.
+      examples:
+        - text: I was cooking when the lights went out.
+          meaning: "`I was cooking` présente la cuisine comme en cours au moment passé pertinent. `Was` s’emploie avec
+            `I` ; `cooking` nomme l’activité. `When the lights went out` introduit l’événement survenu pendant
+            celle-ci ; ici, `went out` signifie que les lumières ont cessé d’éclairer."
+          note: >-
+            `I cooked dinner` présente la cuisine comme un événement passé pris dans son ensemble. `I was
+            cooking` ne dit pas à lui seul que le repas a été terminé. Avec plusieurs personnes, employez `We
+            were cooking`.
+
+
+            **À vous.** Vous étiez en train de lire quand le téléphone a sonné. Réponse : `I was reading when
+            the phone rang`. `Was reading` donne l’activité en cours en arrière-plan ; `rang` nomme
+            l’événement qui s’y est produit.

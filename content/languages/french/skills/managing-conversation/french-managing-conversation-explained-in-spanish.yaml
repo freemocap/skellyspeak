@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: managing_conversation
+language: french
+explanation_language: spanish
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "Debes irte de una conversación y esperas volver a ver a la persona mañana. `Je dois
+      partir` explica el final del intercambio: tengo que irme. `À demain !` lo cierra con hasta
+      mañana. `Dois` es la forma de `devoir` con `je`, y `partir` queda en infinitivo. Si no hay un
+      próximo encuentro fijado, `À bientôt !` significa hasta pronto sin prometer mañana. `Bonjour
+      !` saluda al inicio y no cumple la misma función de despedida."
+    examples:
+      - text: Je dois partir. À demain !
+        meaning: Tengo que irme. ¡Hasta mañana!
+        note: "Despídete hasta el lunes. `Je dois partir. À lundi !` funciona: `à` seguido del día indica
+          cuándo esperas el próximo encuentro."
+  - subskill_id: acknowledging
+    explanation: Alguien explica una idea y señalas que ya la entiendes. `Ah` marca el momento de
+      comprensión. `Je vois` significa literalmente veo, pero aquí también entiendo; `ce que tu veux
+      dire` significa lo que quieres decir. Reconoces la explicación sin que eso implique aceptarla.
+      `Je suis d’accord` añadiría acuerdo. `Je vois ce que vous voulez dire` conserva la respuesta
+      con tratamiento formal o plural.
+    examples:
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: Ah, entiendo lo que quieres decir.
+        note: "Responde a una persona a la que tratas de `vous`. `Ah, je vois ce que vous voulez dire.`
+          funciona: pasar de `tu veux` a `vous voulez` cambia el tratamiento, no indica si compartes
+          la idea."
+  - subskill_id: clarification
+    explanation: Has oído la palabra provisional, pero no sabes qué quería decir con ella la otra
+      persona. `Qu’est-ce que` pregunta qué; `tu veux dire` significa quieres decir y `par «
+      provisoire »` señala la palabra que necesita explicación. Las comillas indican que habláis de
+      una palabra, no que estés describiendo algo como provisional. `Qu’est-ce que tu veux dire par
+      « urgent » ?` pregunta por otro término. `Tu peux répéter ?` pide repetirlo y quizá no
+      resuelva la duda de significado.
+    examples:
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: ¿Qué quieres decir con «provisional»?
+        note: Pregunta qué significa importante para quien habla. `Qu’est-ce que tu veux dire par «
+          important » ?` funciona porque la palabra entre comillas identifica exactamente la duda.
+  - subskill_id: rephrasing
+    explanation: Se ha explicado una norma de reservas con detalle y ahora expresas su consecuencia
+      práctica. `Autrement dit` anuncia una reformulación. `Nous devons réserver` significa tenemos
+      que reservar; `avant de payer`, antes de pagar. Cuando las mismas personas realizan ambas
+      acciones, `avant de` puede introducir el infinitivo `payer`. `Avant de` indica orden, pero no
+      explica por sí solo por qué hay que reservar. La reformulación debe conservar la norma
+      original sin añadir discretamente otra condición.
+    examples:
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: Dicho de otro modo, tenemos que reservar antes de pagar.
+        note: "Reformula una norma que exige reservar antes de salir. `Autrement dit, nous devons réserver
+          avant de partir.` funciona: solo cambia la segunda acción y `partir` permanece en
+          infinitivo."
+  - subskill_id: correcting_misunderstanding
+    explanation: La otra persona anotó jueves, pero querías decir martes. `Je voulais dire` significa
+      quería decir; el imperfecto `voulais` remite a tu intención anterior. `Mardi, pas jeudi`
+      sustituye el día equivocado por el correcto. Así corriges el mensaje sin culpar a quien
+      escucha. `Je veux dire mardi` puede corregir mientras hablas; `je voulais dire` se refiere más
+      naturalmente a algo ya dicho.
+    examples:
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: Quería decir martes, no jueves.
+        note: Corrige viernes por sábado. `Je voulais dire samedi, pas vendredi.` funciona porque primero va
+          el día pretendido y el rechazado sigue a `pas`.
+  - subskill_id: turns_topics
+    explanation: La conversación está a punto de avanzar, pero todavía necesitas un detalle del precio.
+      `Avant de changer de sujet` significa antes de cambiar de tema. `Puis-je` es una pregunta
+      formal y cortés equivalente a puedo; lleva después el infinitivo `poser`. `Poser une question
+      sur le prix` significa hacer una pregunta sobre el precio. En una conversación cotidiana,
+      `Est-ce que je peux poser une question ?` es menos formal. El comienzo explica por qué
+      retienes brevemente el tema actual.
+    examples:
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: Antes de cambiar de tema, ¿puedo preguntar por el precio?
+        note: "Mantén un momento el tema para preguntar por la fecha. `Avant de changer de sujet, puis-je
+          poser une question sur la date ?` funciona: `sur la date` indica el punto pendiente."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of current french guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - dingemanse2015_communication_repair
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original french constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

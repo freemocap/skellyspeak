@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: managing_conversation
+explanation_language: mandarin
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-mandarin.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 早晨问候是与你遇见的人开始交谈的一种简单方式。回应可以使用另一句惯用表达，不必逐字重复问候。
+    examples:
+      - text: صَبَاحُ الْخَيْرِ!
+        meaning: "**例句。** 早上好！`صَبَاحُ` 意为早晨，`الْخَيْرِ` 意为善或美好。合起来是惯用的早安问候。要把整句当作问候语来学，不必替英语的每个词都找一个单独的阿拉伯语对应词。"
+        note: 惯用回答是 `صَبَاحُ النُّورِ`，字面上是光明的早晨。傍晚问候可用 `مَسَاءُ الْخَيْرِ`。试一试：晚上向人问好。答案：`مَسَاءُ
+          الْخَيْرِ`；一天中的时间名词改变，问候句式仍在。
+  - subskill_id: acknowledging
+    explanation: 有人解释一项任务怎样做，你可以让对方知道自己已经听懂。说自己明白了，并不一定表示赞同这个计划。
+    examples:
+      - text: حَسَنًا، فَهِمْتُ.
+        meaning: "**例句。** 好的，我明白了。`حَسَنًا` 表示好的；`فَهِمْتُ` 意为我理解了。过去形式把理解呈现为已经达到的状态，因此在这样的答话里自然译为“我明白了”。词尾指出说话人。"
+        note: 代表一组人可说 `حَسَنًا، فَهِمْنَا`，意为好的，我们明白了。若理解与赞同不同，要把两者分开。试一试：代表小组表示听懂。答案：`حَسَنًا،
+          فَهِمْنَا`；词尾从“我”变为“我们”。
+  - subskill_id: clarification
+    explanation: 听到一个句子，不代表明白说话人的本意。`مَاذَا تَقْصِدُ بِهٰذَا؟` 请对方解释他是什么意思。这个例子称呼一名男子，并指回他刚说的话。
+    examples:
+      - text: مَاذَا تَقْصِدُ بِهٰذَا؟
+        meaning: "**例句。** “你说的那个是什么意思？” `مَاذَا` 问什么；`تَقْصِدُ` 在这里意为你打算表达或你指的是。`بِهٰذَا` 由附着介词 `بِـ` 与表示这个的 `هٰذَا`
+          组成，指回刚才的话。"
+        note: |-
+          **改变听话人。** 称呼一名女子时，用 `مَاذَا تَقْصِدِينَ بِهٰذَا؟`。变化在动词上，标明你问的是谁。
+
+          **练一练。** 哪一部分指向需要解释的表达？答案：`بِهٰذَا`。
+  - subskill_id: rephrasing
+    explanation: 预订规则的解释可能太复杂。改述应保留实际意思，用更简单的话说出主要要求，而不是加入另一条指示。
+    examples:
+      - text: بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ نَحْجِزَ مُسْبَقًا.
+        meaning: "**例句。** 简单来说，我们需要提前预订。`بِعِبَارَةٍ أَبْسَطَ` 意为用更简单的话说。`يَجِبُ أَنْ` 引出要求；`نَحْجِزَ` 是 `أَنْ`
+          后表示我们预订的形式。`مُسْبَقًا` 是提前。开头告诉听话人，这里是在重述。"
+        note: 若只有自己要预订，用 `يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`。人称标记体现在预订动词上。试一试：把同一要求改成只针对自己。答案：`بِعِبَارَةٍ أَبْسَطَ،
+          يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`；把“我们”改成“我”，要求不变。
+  - subskill_id: correcting_misunderstanding
+    explanation: 听话人以为你说今天，但原意是明天。纠正时先给出原定信息，再明确排除误听的版本。
+    examples:
+      - text: أَقْصِدُ غَدًا، وَلَيْسَ الْيَوْمَ.
+        meaning: "**例句。** 我说的是明天，不是今天。`أَقْصِدُ` 意为我指的是。`غَدًا` 是明天；`وَلَيْسَ الْيَوْمَ`
+          意为而不是今天。两个时间短语使纠正具体，听话人知道该替换哪一处。"
+        note: 若要反过来纠正日期，就说 `أَقْصِدُ الْيَوْمَ، وَلَيْسَ
+          غَدًا`。纠正一个细节与取消整次见面不同。试一试：对方听成明天，你本意是今天。答案：用刚才对调日期的句子；原定时间先说。
+  - subskill_id: turns_topics
+    explanation: 交谈已经离开约会话题，但你仍要确定时间。先指出话题，再提出问题，听话人便能跟上转换。
+    examples:
+      - text: بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي صَبَاحًا؟
+        meaning: "**例句。** 关于这次约会，我们早上见面好吗？`بِخُصُوصِ الْمَوْعِدِ` 意为关于这次约会。`هَلْ` 引出是非问句；`نَلْتَقِي` 意为我们见面，`صَبَاحًا`
+          意为在早上。话题短语为问句设定背景，并不是回答。"
+        note: 若改为晚上，用 `مَسَاءً`。试一试：回到约会话题，提议晚上见。答案：`بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي
+          مَسَاءً؟`；话题和共同见面的行动不变，所提议的时间改变。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: opening_closing
+      explanation: 早晨问候是与你遇见的人开始交谈的一种简单方式。回应可以使用另一句惯用表达，不必逐字重复问候。
+      examples:
+        - text: صَبَاحْ الْخَيْرْ!
+          meaning: "**例句。** 早上好！`صَبَاحْ` 是早晨，`الْخَيْرْ` 是美好。整句是开始口语交谈的早安问候，是惯用表达，并非报告今天早晨发生了什么。"
+          note: 熟悉的回答是 `صَبَاحْ النُّورْ`，字面上是光明的早晨。傍晚问候可说 `مَسَا الْخَيْرْ`。试一试：回答早安问候。答案：`صَبَاحْ
+            النُّورْ`；使用这句惯用回应表示收到问候。
+    - subskill_id: acknowledging
+      explanation: 有人解释一项任务怎样做，你可以让对方知道自己已经听懂。说自己明白了，并不一定表示赞同这个计划。
+      examples:
+        - text: طَيِّبْ، فِهِمْتْ.
+          meaning: "**例句。** 好的，我明白了。`طَيِّبْ` 在这句答话里表示好的；`فِهِمْتْ`
+            意为我理解了。简短回答就能表示解释现在已清楚。过去形式着重达到理解的时刻，而不是在讲述很久以前的一件事。"
+          note: "`طَيِّبْ، فِهِمْنَا` 是“我们”形式。若也想接受提议，还需要另用表达赞同的话。试一试：代表两人或更多人表示理解。答案：`طَيِّبْ،
+            فِهِمْنَا`；复数说话人词尾明确指出整个小组。"
+    - subskill_id: clarification
+      explanation: 有时词句听清了，本意却不明白。`شُو قَصْدَكْ بِهَادْ؟` 请对方解释刚才那句话是什么意思。例句称呼一名男子。平和的语气有助于把请求澄清与质疑区分开。
+      examples:
+        - text: شُو قَصْدَكْ بِهَادْ؟
+          meaning: "**例句。** “你说的那个是什么意思？” `شُو` 意为什么。`قَصْدَكْ` 用表示意图或意思的名词加“你的”词尾，这里称呼一名男子。`بِهَادْ`
+            指回刚才的说法。词尾指出你问的是谁的本意。"
+          note: |-
+            **选择修复方式。** 这个问句要的是解释，所以单纯重复相同的词未必能解决问题。你也可以指出具体哪一个词不明白。
+
+            **练一练。** 指出哪个词意为“你的意思”。答案：`قَصْدَكْ`。学习这个表达时，把整个词连在一起。
+    - subskill_id: rephrasing
+      explanation: 预订规则的解释可能太复杂。改述应保留实际意思，用更简单的话说出主要要求，而不是加入另一条指示。
+      examples:
+        - text: بِكَلَامْ أَبْسَطْ، لَازِمْ نِحْجِزْ مِنْ قَبْلْ.
+          meaning: "**例句。** 简单来说，我们需要提前预订。`بِكَلَامْ أَبْسَطْ` 意为用更简单的话说。`لَازِمْ` 表示必须；`نِحْجِزْ` 是我们预订，`مِنْ قَبْلْ`
+            在这里表示提前。`لَازِمْ` 后的预订动作不带普通 b- 前缀。"
+          note: 说自己必须预订时，用 `لَازِمْ أَحْجِزْ مِنْ قَبْلْ`。改述应保留之前的要求，不能悄悄改变日期或责任人。试一试：把同一要求改为自己承担。答案：`بِكَلَامْ
+            أَبْسَطْ، لَازِمْ أَحْجِزْ مِنْ قَبْلْ`；新的第一人称形式明确指出“我”。
+    - subskill_id: correcting_misunderstanding
+      explanation: 听话人以为你说今天，但原意是明天。纠正时先给出原定信息，再明确排除误听的版本。
+      examples:
+        - text: قَصْدِي بُكْرَا، مِشْ الْيَوْمْ.
+          meaning: "**例句。** 我说的是明天，不是今天。`قَصْدِي` 意为我的本意。`بُكْرَا` 是明天；`مِشْ الْيَوْمْ` 意为不是今天。附着的“我的”词尾表明是在纠正自己想传达的信息。"
+          note: 相反方向可说 `قَصْدِي الْيَوْمْ، مِشْ بُكْرَا`。被否定的信息放在否定词后。试一试：把误听的明天纠正为今天。答案：`قَصْدِي الْيَوْمْ، مِشْ
+            بُكْرَا`；原定日期现在放在误听日期前。
+    - subskill_id: turns_topics
+      explanation: 交谈已经离开约会话题，但你仍要确定时间。先指出话题，再提出问题，听话人便能跟上转换。
+      examples:
+        - text: بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي الصُّبْحْ؟
+          meaning: "**例句。** 关于这次约会，我们早上见面好吗？`بِالنِّسْبِة لِلْمَوْعِدْ` 意为关于约会。`نِلْتَقِي` 是我们见面，`الصُّبْحْ`
+            在这里是早上。疑问语调把见面时刻交给对方商量，开头短语提示话题转换。"
+          note: 若要提议晚上，把时间换成 `بِالْمَسَا`。试一试：询问晚上见面如何。答案：`بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي
+            بِالْمَسَا؟`；话题短语保留，时间短语整体改变。

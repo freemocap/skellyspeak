@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: managing_conversation
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-portuguese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: No fim de uma conversa amigável, uma despedida deixa claro que ela está terminando.
+      `Hasta luego` é uma forma comum de se despedir. Sugere rever a pessoa mais tarde, mas no uso
+      cotidiano não exige horário marcado.
+    examples:
+      - text: Hasta luego.
+        meaning: “Até mais.” `Hasta` significa até e `luego` mais tarde. Juntas, formam uma despedida
+          convencional; traduzir cada palavra isoladamente não explica a função da expressão na
+          conversa.
+        note: "**Adapte.** `Hasta mañana` é apropriado se amanhã for o próximo encontro. `Hola` inicia a
+          conversa. Uma despedida não agenda o encontro seguinte por si só. **Pratique.** Encerre a
+          conversa antes de se reencontrarem amanhã. Resposta: `Hasta mañana`. Troque `luego` pelo
+          dia pretendido."
+  - subskill_id: acknowledging
+    explanation: Se alguém avisa você sobre uma mudança de plano, agradecer mostra que recebeu e
+      valorizou a mensagem. O espanhol usa `gracias por` para agradecer uma ação específica. O verbo
+      depois de `por` aparece aqui no infinitivo.
+    examples:
+      - text: Gracias por avisarme.
+        meaning: "“Obrigado por me avisar.” `Gracias` agradece; `por avisarme` indica o motivo. `Avisar`
+          significa avisar, e o `me` ligado ao verbo identifica a pessoa avisada: quem fala."
+        note: "**Adapte.** `Gracias por ayudarme` agradece a ajuda recebida. `Entendido` apenas reconhece
+          que você entendeu, sem agradecer. Não substitua a ação por um verbo conjugado diretamente
+          depois de `por`. **Pratique.** Agradeça uma ligação usando `llamarme`. Resposta: `Gracias
+          por llamarme`. O `me` ligado ao verbo identifica quem recebeu a ligação."
+  - subskill_id: clarification
+    explanation: Às vezes você ouve todas as palavras, mas ainda não entende o que a pessoa quer dizer.
+      Uma pergunta de esclarecimento pede que ela explique o sentido pretendido. Assim você repara a
+      conversa antes de responder com base numa suposição errada.
+    examples:
+      - text: ¿Qué quieres decir?
+        meaning: “O que você quer dizer?” `Qué` pergunta o quê, `quieres` se refere ao interlocutor, e
+          `decir` significa dizer. Aqui a expressão completa `querer decir` pergunta pelo sentido,
+          não apenas pela vontade de falar.
+        note: "**Compare.** `¿Puedes repetirlo?` pede repetição, útil se você não ouviu. `¿Qué significa
+          esta palabra?` pergunta pelo significado de uma palavra. Mantenha o acento no
+          interrogativo `qué`. **Pratique.** Você ouviu a frase, mas não entendeu a mensagem
+          pretendida. Pergunte `¿Qué quieres decir?`. Isso pede explicação, não só a repetição das
+          mesmas palavras."
+  - subskill_id: rephrasing
+    explanation: Se sua primeira explicação não ficou clara, você pode apresentar a mensagem pretendida
+      de modo mais simples. `Quiero decir que` introduz seu esclarecimento. A oração seguinte deve
+      resolver a confusão com o detalhe importante.
+    examples:
+      - text: Quiero decir que llego después de las ocho.
+        meaning: “Quero dizer que chego depois das oito.” `Quiero decir que` introduz a explicação; `llego`
+          diz que você chega. `Después de las ocho` situa a chegada mais tarde que oito, não
+          exatamente às oito.
+        note: "**Compare.** `Llego a las ocho` fixa a chegada às oito. `Llego antes de las ocho` indica
+          antes de oito. Depois de `después`, mantenha `de` antes do horário. **Pratique.**
+          Esclareça que você chega antes das nove. Resposta: `Quiero decir que llego antes de las
+          nueve`. Mude a expressão temporal sem alterar a estrutura explicativa."
+  - subskill_id: correcting_misunderstanding
+    explanation: Se alguém confundiu dois dias, uma boa correção nomeia o dia pretendido e o equivocado.
+      `Me refiero a` introduz aquilo a que você se refere. Assim a correção é precisa, em vez de
+      deixar o interlocutor adivinhar depois de um simples não.
+    examples:
+      - text: No, me refiero al martes, no al jueves.
+        meaning: “Não, quero dizer terça, não quinta.” `No` rejeita a interpretação errada. `Me refiero al
+          martes` identifica terça como o dia pretendido; `no al jueves` exclui quinta. `Al` combina
+          `a` com `el`.
+        note: "**Adapte.** `Me refiero a Ana, no a Luis` corrige a identidade de uma pessoa. A preposição
+          `a` permanece, mas esses nomes não usam o artigo empregado com os dias. **Pratique.**
+          Corrija quinta para sexta. Resposta: `No, me refiero al viernes, no al jueves`. Primeiro o
+          dia pretendido, depois o equivocado."
+  - subskill_id: turns_topics
+    explanation: Uma conversa pode passar a uma ideia relacionada que acabou de ocorrer. `Por cierto`
+      sinaliza a mudança para que o interlocutor a acompanhe. Aqui quem fala sai do assunto anterior
+      e pergunta sobre a irmã da outra pessoa.
+    examples:
+      - text: Por cierto, ¿cómo está tu hermana?
+        meaning: “A propósito, como está sua irmã?” `Por cierto` introduz o assunto lateral; `cómo está`
+          pergunta por sua condição. `Tu hermana` identifica a pessoa. `Cómo` recebe acento
+          interrogativo, enquanto o possessivo `tu` não recebe.
+        note: "**Compare.** `¿Dónde está tu hermana?` pergunta onde ela está, não como está. `Por cierto`
+          sinaliza um novo ponto; não é palavra que explique a causa de algo. **Pratique.** Traga o
+          irmão da outra pessoa à conversa com `tu hermano`. Resposta: `Por cierto, ¿cómo está tu
+          hermano?`. Mude a pessoa, mantendo a marca de tópico e a pergunta."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-portuguese-2026-10-07
+skill_id: information_exchange
+language: french
+explanation_language: portuguese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-portuguese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Você precisa saber quando a loja fecha antes de sair. `À quelle heure` pergunta em que
+      horário; `est-ce que` marca a pergunta, e `le magasin ferme` significa que a loja fecha.
+      Depois de `est-ce que`, o sujeito ainda precede o verbo. `À quelle heure est-ce que le train
+      arrive ?` reutiliza a pergunta com outro evento. `Est-ce que le magasin ferme à six heures ?`
+      propõe uma hora para confirmação, em vez de deixar a resposta aberta.
+    examples:
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: A que horas a loja fecha?
+        note: "Pergunte quando a loja abre. `À quelle heure est-ce que le magasin ouvre ?` funciona: `ouvre`
+          troca o fechamento pela abertura enquanto a pergunta ainda pede uma hora."
+  - subskill_id: answering_information
+    explanation: O horário de fechamento já é o assunto, então uma expressão de hora responde sem
+      repetir a pergunta. `À dix-huit heures` significa às dezoito horas, ou seis da tarde. `À`
+      introduz o horário; `heures` está no plural porque são dezoito. Uma resposta completa seria
+      `Le magasin ferme à dix-huit heures.` Num horário ou compromisso preciso, o relógio de 24
+      horas evita dúvida entre manhã e noite. `Dix-huit heures` aqui é hora do dia, não duração de
+      dezoito horas.
+    examples:
+      - text: À dix-huit heures.
+        meaning: Às seis da tarde.
+        note: Responda com sete da noite. `À dix-neuf heures.` basta quando a pergunta sobre o fechamento já
+          é conhecida. `Dix-neuf` é dezenove no relógio de 24 horas.
+  - subskill_id: checking_facts
+    explanation: Você acha que um compromisso é na quinta-feira e quer conferir antes de anotá-lo. `Le
+      rendez-vous` nomeia o compromisso, e `bien jeudi` apresenta quinta como dado a confirmar. Aqui
+      `bien` reforça o fato proposto; não significa bem. `C’est ça ?` pergunta se está correto. Essa
+      forma explicita sua crença, ao contrário da pergunta aberta `Quel jour est le rendez-vous ?` A
+      outra pessoa pode confirmar ou corrigir o dia.
+    examples:
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: O compromisso é mesmo na quinta-feira, certo?
+        note: "Confira se o compromisso é na terça. `Le rendez-vous est bien mardi, c’est ça ?` funciona: o
+          dia proposto muda para terça, e a estrutura de confirmação permanece."
+  - subskill_id: useful_detail
+    explanation: "Um visitante procura um café específico; duas referências ajudam a encontrá-lo. `Le
+      café que tu cherches` significa o café que você procura: `que` representa o café como objeto
+      de `cherches`, enquanto `tu` faz a procura. `Au deuxième étage` indica o segundo andar; `près
+      de l’escalier` acrescenta perto da escada. `Au` junta `à` a `le`. Um café que serve refeições
+      poderia ser `le café qui sert des repas`: `qui` realiza a ação, enquanto `que` a recebe."
+    examples:
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: O café que você procura fica no segundo andar, perto da escada.
+        note: "Situe-o no terceiro andar. `Le café que tu cherches est au troisième étage, près de
+          l’escalier.` funciona: `troisième` muda o andar, e `que tu cherches` ainda identifica o
+          café."
+provenance: &a1
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - texRelativeTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: reasons_connections
+explanation_language: mandarin
+title: 原因与关联
+introduction: 通过解释原因、结果、条件和差异，把想法联系起来。
+sections:
+  - subskill_id: causes_reasons
+    title: 成因与理由
+    concept: 解释某事为什么发生，或某人为什么这样做。
+  - subskill_id: consequences
+    title: 结果
+    concept: 解释随之发生了什么。
+  - subskill_id: conditions
+    title: 条件
+    concept: 说明要出现某个结果，先要满足什么条件。
+  - subskill_id: contrast
+    title: 对比
+    concept: 指出两个想法有何不同，或某个结果为什么出人意料。
+  - subskill_id: supporting_claims
+    title: 支持自己的判断
+    concept: 为自己的看法提供理由或证据。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English learner-facing concepts. Skill
+    identities and assessment criteria are unchanged; independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: Learner-facing Mandarin title, introduction and section concepts; copied source keys support the
+      original concepts and do not certify the translation.

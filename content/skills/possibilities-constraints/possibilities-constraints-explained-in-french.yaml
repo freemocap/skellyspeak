@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: possibilities_constraints
+explanation_language: french
+title: Possibilités et contraintes
+introduction: Parler de ce que l’on peut faire, de ce qui est permis ou nécessaire, et de ce qui reste
+  possible ou incertain.
+sections:
+  - subskill_id: ability
+    title: Capacité
+    concept: Parler de ce qu’une personne est capable de faire.
+  - subskill_id: permission
+    title: Permission
+    concept: Demander ou dire si une action est autorisée.
+  - subskill_id: obligation
+    title: Obligation et nécessité
+    concept: Dire ce qu’une personne doit faire ou a besoin de faire.
+  - subskill_id: possibility
+    title: Possibilité
+    concept: Dire qu’une chose est possible sans affirmer qu’elle est certaine.
+  - subskill_id: certainty
+    title: Certitude et incertitude
+    concept: Indiquer son degré de certitude à propos d’une chose.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

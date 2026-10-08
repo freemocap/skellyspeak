@@ -1,79 +1,119 @@
-# Narrow chat header: one row — 2026-10-07
+# One-row top bar and chat header — 2026-10-07
 
-Status: implemented and verified in the layout fixture (`ui/tools/conversation-preview.html`)
-at 360, 412 and 463px with touch emulation. Not yet checked in the phone build.
-Desktop widths (above 860px) are unchanged.
+Status: implemented and verified in the layout preview, in headless Edge at true
+viewport widths with and without touch, and across live coach panel open/close.
+Not yet checked in the running desktop app or the phone build.
 
-## Problem
+## Rule
 
-Below 860px the conversation header stacked the partner name over the difficulty
-select. The row grew to roughly twice the top bar's height, the Conversations
-button stretched with it, and the counters and action buttons floated mid-row
-(phone screenshots, 2026-10-07). The
-[narrow-layout note](narrow-layout-overlaps-2026-09-26.md) had already named the
-next step: a deliberate narrow header, not a smaller squeeze.
+The top bar and the chat header are one row at every width. Nothing in them
+wraps. When a row is short of room it gives up parts in a fixed order, decided by
+measuring the row itself, never by the window width: the chat header's room also
+changes when the docked coach panel opens or closes.
+
+## History
+
+- **First pass (superseded).** At 860px and below the header was made one row by
+  moving difficulty into the settings sheet and hiding the counters' glyph and unit
+  at 480px and 400px. All three were window-width rules. Review on 2026-10-07 found
+  three failures, reproduced in the preview with the learner's setup (Irish,
+  181 total XP):
+  - 360px window: the top bar's progress pill took 177px and the language picker
+    showed "G…" (14 of 45px).
+  - 412–860px: difficulty was hidden although the header had 300px or more to spare.
+  - 900–919px with the coach open: the header was 94px tall, because the identity
+    still wrapped above 860px and the select dropped to a second row.
+- **Current design (implemented).** Both rows measure their own room.
 
 ## Decision (implemented)
 
-- **860px and below the header is one row** of 44px controls: Conversations,
-  partner, this conversation's counters, settings, new conversation. The partner
-  name is what gives up room, by shortening; the identity never wraps.
-- **Difficulty moves into the Conversation settings sheet** at that width, as the
-  sheet's first group. Before a conversation starts, the start screen's Options
-  bar still carries Difficulty, so nothing is lost there. Above 860px the select
-  stays beside the partner as before.
-- The row takes the top bar's inline padding, so the Conversations button shares
-  the logo's edge and New shares the More button's edge.
-- **480px and below the counters tighten:** the points button keeps its number
-  and drops its shape glyph (the Progress tab draws the shape large), and the XP
-  chip loses its extra padding. **400px and below XP loses its unit**, as the top
-  bar's pill already does there.
+**Chat header**, fullest layout first:
+
+1. Everything: counters with their shape and unit, difficulty beside the partner.
+2. Compact counters: the points drop their shape (the Progress tab draws it
+   large) and XP drops its unit and padding; difficulty stays.
+3. Difficulty in the settings sheet, where it is the first group; counters full.
+4. Difficulty in the settings sheet and compact counters.
+
+A layout fits when the partner's whole name shows and nothing runs past the row.
+When none fits, the last is kept and the partner's name shortens with an ellipsis.
+
+**Top bar:** the progress pill folds to the skill level (radar and "Lv N") when the
+target language's own name would otherwise be cut, or the bar would overflow. The
+language picker is one line at every width: the variety gives way first, then the
+language's name in the interface language. While folded, the reward pop sounds and
+flashes on the pill instead of the hidden XP number. The XP numbers stay in the
+Progress page and in the chat header's counters.
 
 ## Implementation
 
-- `ui/src/features/conversation/ConversationPage.tsx` builds the select once and
-  hands it to the header or to `ConversationSettings` by the shared width tier
-  (`useWidthTier`, the same 860px the stylesheets use).
-- `ui/src/features/conversation/session/ConversationSettings.tsx` gains an optional
-  `difficulty` slot rendered as the leading group.
-- `ui/src/styles/features/conversation/header.css`: narrow row, no wrap, top-bar padding.
-- `ui/src/styles/features/conversation/reward-presentation.css`: counter tightening
-  at 480px and 400px.
-- `ui/tools/conversation-preview.tsx` now renders the counters (sample effort data)
-  and mirrors the placement; `?opening` and `?theme=dark` select the first view.
+- `ui/src/components/layout/useFitStage.ts`: tries a bar's layouts in order by
+  setting its `data-fit` attribute and keeps the first without overflow. It runs
+  synchronously before paint, and again when the bar resizes, its content changes,
+  the root element's appearance attributes change, or a font loads.
+- `ui/src/features/conversation/session/ConversationHeader.tsx`: the header's four
+  layouts and fit test; it reports where difficulty is (`onDifficultyPlace`).
+- `ui/src/features/conversation/ConversationPage.tsx`: always gives the select to
+  the header and, while the header reports no room, to the settings sheet too.
+- `ui/src/app/shell/TopBar.tsx`: the bar's two layouts and fit test, and the
+  reward pop's anchor.
+- `ui/src/features/settings/language/LanguagePickers.tsx`: the endonym span has
+  the `learning-picker-endonym` class the fit test measures.
+- Styles: `features/conversation/header.css` (no wrap anywhere, difficulty layout,
+  one-line picker), `features/conversation/reward-presentation.css` (compact
+  counters), `shell/layout.css` (folded pill).
+- `ui/tools/conversation-preview.tsx` renders the production language picker and
+  evidence. `?lang=irish|indonesian|…` picks the target and `?coach=closed` starts
+  with the panel closed.
+- `ui/tools/one-row-bars-preview.html` shows both bars at 16 widths and tabulates
+  the layout each bar chose, wraps, overflow and cut names. It accepts the same
+  query parameters.
 
 ## Measurements
 
-Layout fixture, touch emulation, partner "Uxía Castro" (needs 80px).
+Headless Edge with a true viewport, partner "Uxía Castro", target Irish unless noted.
 
-| Width | Top bar | Header | Name room | Points glyph | XP unit |
-|------:|--------:|-------:|----------:|:------------:|:-------:|
-| 463px | 49px | 48px | 80px, whole | hidden | shown |
-| 412px | 49px | 48px | 77px, whole | hidden | shown |
-| 360px | 49px | 48px | 57px, shortened | hidden | hidden |
+| Viewport | Top bar | Header layout | Difficulty |
+|---|---|---|---|
+| 360px | folded | 4, name shortened | sheet |
+| 412px | full | 4 | sheet |
+| 520px | full | 2 | header |
+| 649px | full | 1 | header |
+| 861px, coach open | full | 3 | sheet |
+| 919px, coach open | full | 2 | header |
+| 919px, coach closed | full | 1 | header |
+| 1228px, coach open | full | 1 | header |
+| 412px, Bahasa Indonesia | folded | 4 | sheet |
+| 649px, Bahasa Indonesia | folded | 1 | header |
 
-Before the change at 412px the row was one line only because the identity
-wrapped: the name had 39px and showed "Uxía C…" under the difficulty select.
+In every capture both bars are one row, nothing overflows, and the language's own
+name shows whole. Touch emulation at 360px and 412px gives the same layouts. The
+649px fold for "Bahasa Indonesia" comes from the Practice and Progress labels,
+which still follow the window-width rule at 600px.
 
 ## Verification
 
-- `ConversationSettings.test.tsx`: the sheet leads with a given difficulty control
-  and has no Difficulty group otherwise.
-- `ConversationPage.conversation.test.tsx`: at full width the header holds the
-  select and the sheet does not; at 860px the header has none and the sheet leads
-  with it.
-- Fixture at 412px: header is one row, Difficulty is the sheet's first group.
-  A headless render at a true 412px viewport (dark theme) shows the top bar and
-  the header as two matched rows with the whole partner name.
-- At 1280px the select is still in the header and the counters keep their glyph
-  and unit; the sheet has no Difficulty group.
-- `npm run check:fast`, the six header-adjacent suites (91 tests), the full UI
-  suite (1899 tests) and `npm run build` all pass on this state.
+- `useFitStage.test.tsx`: fullest fitting layout, last-layout fallback, return to
+  a fuller layout on resize, refit on content change and on root appearance
+  change. Disabling the content observers fails the last two.
+- `ConversationHeader.test.tsx`: the four layouts in order, and difficulty
+  returning to the header when the row regains room.
+- `ConversationPage.conversation.test.tsx`: difficulty stays in the header in a
+  narrow window with room, and leads the settings sheet in a wide window without.
+- `TopBar.test.tsx`: the pill folds while the endonym would be cut and unfolds
+  with room; the reward pop plays on the pill while folded.
+- Live coach toggles in headless Edge: 919px open (layout 2, header 540px) to
+  closed (layout 1, 868px); 861px closed (layout 1, 810px) to open (layout 3, 482px).
+- The in-app browser pane cannot check resizing: while hidden it runs no animation
+  frames or resize observers. Its measurements are valid only for first layout.
+- `npm run check:fast` passes, and `vite build` bundles. The full UI suite has 1919
+  passing tests and one failure, in `GuideDocument.test.tsx`. `tsc` reports seven
+  errors in `domain/reading/saved-reading-result*`. Both come from concurrent
+  uncommitted work outside these files, so `npm run build` stops at `tsc`.
 
 ## Open
 
-- Check on the phone build. The 480px and 400px thresholds are CSS-only and easy
-  to retune if the glyph is missed at the larger phone widths.
-- `npm run previews:check` fails on `skill-levels-preview.tsx` and
-  `xp-payout-preview.tsx` (XpChip `onOpen`, SkillRewards `languageName`); these
-  predate this change and are unrelated to it.
+- Check the running desktop app and the phone build.
+- `npm run previews:check` still fails in other fixtures (`skill-levels-preview`,
+  `xp-payout-preview`, `practice-preview`, `progress-preview`), which predate this
+  work. The conversation preview's coach tab type drift is fixed here.

@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: people_places
+language: spanish
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: "Quand vous rencontrez quelqu’un, une présentation brève lui indique qui vous êtes. L’espagnol
+      emploie `ser` pour l’identité ; `soy` signifie « je suis ». Le verbe identifie déjà la personne qui
+      parle : vous pouvez donc vous présenter sans ajouter `yo`."
+    examples:
+      - text: Soy Ana.
+        meaning: « Je suis Ana. » `Soy` présente la personne qui parle et `Ana` donne son prénom. Dans cette
+          présentation, il n’y a pas d’article devant le nom.
+        note: >-
+          **Adaptez.** `Soy Luis` présente Luis ; `Ella es Ana` identifie une autre personne. Remplacez `soy`
+          par `es` lorsque le sujet est « elle ». `Estoy Ana` n’exprime pas cette identité.
+
+
+          **À vous.** Présentez-vous sous le prénom Marta. Réponse : `Soy Marta`. Gardez `soy` et changez le
+          prénom.
+  - subskill_id: qualities_states
+    explanation: Avant d’entrer dans une pièce, vous pouvez avoir besoin de dire si sa porte est ouverte. `Estar`
+      décrit l’état dans lequel vous la trouvez. `Ser` et `estar` servent à des descriptions différentes ; se
+      demander simplement si une propriété est permanente ne permet pas toujours de choisir entre eux.
+    examples:
+      - text: La puerta está abierta.
+        meaning: « La porte est ouverte. » `La puerta` désigne la porte, `está` décrit son état et `abierta` signifie
+          ouverte. La terminaison de `abierta` s’accorde avec le nom féminin singulier `puerta`.
+        note: >-
+          **Adaptez.** `Las puertas están abiertas` décrit plusieurs portes : le verbe et l’adjectif changent.
+          `La puerta es grande` décrit au contraire une qualité de la porte, sa taille.
+
+
+          **À vous.** Dites que la porte est fermée avec `cerrada`. Réponse : `La puerta está cerrada`. L’état
+          change ; le sujet et le verbe restent identiques.
+  - subskill_id: location_movement
+    explanation: Si quelqu’un cherche un livre, une indication de lieu lui dit où le trouver. `Estar` situe une
+      personne ou un objet ; l’expression de lieu qui suit rend la réponse utile. Ici, le livre repose sur une
+      table.
+    examples:
+      - text: El libro está en la mesa.
+        meaning: « Le livre est sur la table. » `El libro` est le livre, `está` indique sa position et `en la mesa`
+          donne le lieu. `En` peut signifier « dans » ou « sur » ; le rapport entre les objets précise le sens
+          voulu.
+        note: >-
+          **Comparez.** `Voy a la mesa` décrit un déplacement vers la table, et non une position. Dans `El
+          libro está aquí`, `aquí` remplace toute l’expression de lieu.
+
+
+          **À vous.** Situez le livre dans un sac à dos avec `la mochila`. Réponse : `El libro está en la
+          mochila`. Employez `en` pour sa position, et non le mot de déplacement `a`.
+  - subskill_id: possession_relations
+    explanation: "Lorsque deux personnes possèdent des livres semblables, nommer le propriétaire aide à les
+      distinguer. En espagnol, `de` peut suivre l’objet et introduire son propriétaire. Un possessif comme
+      `mi` indique aussi une relation : ici, il précise de quelle sœur on parle."
+    examples:
+      - text: Es el libro de mi hermana.
+        meaning: « C’est le livre de ma sœur. » `Es` identifie le livre évoqué ; `el libro` nomme l’objet. `De mi
+          hermana` dit qu’il appartient à ma sœur. `Mi` relie la sœur à la personne qui parle, et ne décrit
+          pas le livre.
+        note: >-
+          **Adaptez.** `Es mi libro` dit que le livre m’appartient. `Son mis libros` décrit plusieurs livres :
+          `mis` s’accorde avec les livres, et non avec le nombre de propriétaires. L’espagnol n’emploie pas
+          ici d’apostrophe possessive anglaise.
+
+
+          **À vous.** Dites que c’est le livre de votre frère avec `mi hermano`. Réponse : `Es el libro de mi
+          hermano`. Gardez `de` avant le propriétaire.
+  - subskill_id: quantity_comparison
+    explanation: Comparer une boîte à une autre facilite le choix. L’espagnol place `más` avant la qualité et
+      `que` avant l’élément de comparaison. Cette phrase compare la taille ; elle ne compte pas le nombre de
+      boîtes.
+    examples:
+      - text: Esta caja es más grande que esa.
+        meaning: « Cette boîte est plus grande que celle-là. » `Esta caja` désigne la boîte proche ; `es más grande`
+          indique qu’elle est plus grande. `Que esa` désigne l’autre boîte sans répéter `caja`. `Esta` et
+          `esa` s’accordent avec le nom féminin.
+        note: >-
+          **Adaptez.** `Esta caja es menos grande que esa` inverse la comparaison. `Tengo más cajas` exprime
+          plutôt un plus grand nombre de boîtes. Gardez `que` lorsque vous nommez l’autre élément comparé.
+
+
+          **À vous.** Comparez deux livres avec `este libro` et `ese`. Réponse : `Este libro es más grande que
+          ese`. Les démonstratifs prennent le masculin parce que `libro` est masculin.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

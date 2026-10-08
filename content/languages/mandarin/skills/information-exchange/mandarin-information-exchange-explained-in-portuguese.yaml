@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-portuguese-2026-10-07
+language: mandarin
+skill_id: information_exchange
+explanation_language: portuguese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-portuguese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Antes de visitar uma loja, saber a hora de fechamento ajuda a chegar a tempo. `几点` pergunta a
+      hora na mesma posição em que entraria uma resposta como `五点`. A loja continua no início.
+    examples:
+      - text: 商店几点关门？
+        meaning: "**O exemplo.** A que horas a loja fecha? `商店` é loja, `几点` pergunta a hora, e `关门` significa fechar
+          para o público. A ordem é loja, hora desconhecida, ação de fechar; a palavra interrogativa basta,
+          sem um `吗` final."
+        note: "Experimente perguntar quando a loja abre. Resposta: `商店几点开门？` Troque `关门` por `开门`, abrir para o
+          público. `商店五点关门吗？` pergunta, em vez disso, se a loja fecha às cinco, com uma hora proposta e `吗`
+          final."
+  - subskill_id: answering_information
+    explanation: Depois de uma pergunta sobre a hora de fechamento, o acontecimento já está claro. Uma expressão
+      de horário pode responder sozinha. `点` depois de um número identifica uma hora, não uma quantidade de
+      objetos.
+    examples:
+      - text: 五点。
+        meaning: "**O exemplo.** Às cinco. `五` é cinco e `点` marca uma hora do relógio. A resposta curta fornece
+          exatamente a hora que falta em `商店几点关门？`; não é necessário repetir a loja ou a ação de fechar."
+        note: "Experimente responder às seis. Resposta: `六点。` Troque o número e mantenha `点`. Uma resposta mais
+          completa é `商店六点关门。` Ambas funcionam depois da pergunta sobre o fechamento; `六个` conta seis objetos
+          e não indica hora."
+  - subskill_id: checking_facts
+    explanation: Você ouviu que a loja fecha às cinco e quer verificar antes de sair. `对吗` vem depois da
+      informação proposta e pergunta se está correta. Assim, a outra pessoa recebe um fato específico para
+      confirmar ou corrigir.
+    examples:
+      - text: 商店五点关门，对吗？
+        meaning: "**O exemplo.** A loja fecha às cinco, certo? `商店五点关门` apresenta a loja, a hora e o fechamento. `对`
+          significa correto, e `吗` forma a pergunta curta de confirmação. A vírgula separa a checagem do fato
+          proposto."
+        note: "Experimente confirmar um fechamento às seis. Resposta: `商店六点关门，对吗？` Mude a hora proposta. Se a hora for
+          totalmente desconhecida, `商店几点关门？` faz uma pergunta aberta em vez de apresentar uma resposta para
+          verificar."
+  - subskill_id: useful_detail
+    explanation: Quando alguém precisa escolher uma mesa entre várias, a janela serve de referência. `靠窗的`
+      descreve a mesa antes de nomeá-la, e `那张` aponta para aquela mesa específica.
+    examples:
+      - text: 请用靠窗的那张桌子。
+        meaning: "**O exemplo.** Por favor, use a mesa perto da janela. `请用` significa « por favor, use », `靠窗` é
+          junto à janela, e `的` liga essa descrição a `桌子`, mesa. `那` indica aquela, e `张` é o classificador
+          usado aqui para mesas. Toda a expressão que identifica a mesa vem depois de `用`."
+        note: "Experimente indicar a mesa perto da porta. Resposta: `请用靠门的那张桌子。` Troque `窗` por `门` na descrição.
+          `请用桌子` apenas pede para usar uma mesa e perde a pista necessária para escolher entre várias."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

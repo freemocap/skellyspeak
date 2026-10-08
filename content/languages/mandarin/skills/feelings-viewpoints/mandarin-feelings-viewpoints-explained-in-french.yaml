@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-french-2026-10-07
+language: mandarin
+skill_id: feelings_viewpoints
+explanation_language: french
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-french.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Réparer un vélo est une compétence que vous pouvez vouloir acquérir avant de la maîtriser. `想`
+      devant une activité exprime ce souhait ; `学` introduit ce que vous voulez apprendre.
+    examples:
+      - text: 我想学修自行车。
+        meaning: "**L’exemple.** Je veux apprendre à réparer des vélos. `我想` signifie « je veux », `学` « apprendre »
+          et `修自行车` « réparer des vélos ». Toute l’activité de réparation suit `学` ; `想` exprime le souhait
+          d’apprendre."
+        note: "Essayez : dites que le groupe veut apprendre cette compétence. Réponse : `我们想学修自行车。` Remplacez `我` par
+          `我们`, sans changer la terminaison du verbe. `我会修自行车` dit que vous savez déjà le faire ; `我想学`
+          exprime le souhait d’apprendre."
+  - subskill_id: preferences
+    explanation: Pour choisir une boisson, vous pouvez nommer d’abord les options, puis dire laquelle vous
+      préférez. `更喜欢` compare ce que vous aimez, et non le prix ou la taille.
+    examples:
+      - text: 咖啡和红茶，我更喜欢红茶。
+        meaning: "**L’exemple.** Entre le café et le thé noir, je préfère le thé noir. `咖啡和红茶` présente les deux
+          boissons ; `和` les relie. `我更喜欢红茶` signifie que j’aime davantage le thé noir. `更` précède `喜欢`, puis
+          vient la boisson préférée."
+        note: "Essayez : préférez le café. Réponse : `咖啡和红茶，我更喜欢咖啡。` Ne changez que la boisson après `更喜欢`. `我喜欢红茶`
+          dit que vous aimez le thé noir, mais ne le compare pas en soi au café."
+  - subskill_id: emotions
+    explanation: Une bonne nouvelle peut susciter une émotion que vous partagez. L’écoute est mentionnée d’abord,
+      puis vient votre réaction. `高兴` exprime directement la joie, sans verbe de liaison distinct.
+    examples:
+      - text: 听到这个消息，我很高兴。
+        meaning: "**L’exemple.** Je suis heureux d’apprendre cette nouvelle. `听到` signifie « entendre », avec `到`
+          indiquant que la nouvelle vous parvient. `这个消息` désigne cette nouvelle. Après la virgule, `我很高兴`
+          exprime votre joie. Ici, `很` ne signifie pas nécessairement « très » avec insistance."
+        note: "Essayez : rapportez la joie du groupe. Réponse : `听到这个消息，我们很高兴。` Remplacez la personne qui éprouve
+          l’émotion par `我们` ; la proposition d’écoute reste. `我听到这个消息` dit seulement que vous avez entendu la
+          nouvelle."
+  - subskill_id: opinions
+    explanation: Après avoir discuté d’une solution, vous pouvez donner votre appréciation. `我觉得` présente la
+      suite comme votre jugement, et `不错` apporte une évaluation positive.
+    examples:
+      - text: 我觉得这个办法不错。
+        meaning: "**L’exemple.** Je trouve cette méthode plutôt bonne. `这个办法` désigne cette méthode ou approche. `不错`
+          contient littéralement « pas » et « faux », mais forme ici l’appréciation courante « pas mal ». `觉得`
+          introduit cette évaluation ; il ne décrit pas un toucher physique."
+        note: "Essayez : évaluez une autre méthode. Réponse : `我觉得那个办法不错。` Remplacez `这个` par `那个`. `这个办法很贵` affirme
+          que la méthode coûte cher ; ajouter `我觉得` présente cette appréciation comme la vôtre."
+  - subskill_id: agreement_disagreement
+    explanation: Quelqu’un a donné son avis sur une méthode et vous partagez cette opinion. `也` vous ajoute aux
+      personnes qui pensent ainsi ; `这么` renvoie à l’avis déjà exprimé.
+    examples:
+      - text: 我也这么想。
+        meaning: "**L’exemple.** Moi aussi, je le pense. `我` signifie « je », `也` « aussi », `这么` « de cette façon »
+          et `想` ici « penser ». `也` précède l’expression de pensée. L’opinion précédente permet de comprendre
+          ce que vous approuvez."
+        note: "Essayez : exprimez plutôt votre désaccord. Réponse : `我不这么想。` Remplacez `也` par `不` ; vous ne partagez
+          plus cet avis. `我明白了` signifie que vous avez compris l’explication, ce qui peut être vrai même en
+          désaccord."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

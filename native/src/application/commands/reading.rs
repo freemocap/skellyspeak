@@ -40,7 +40,8 @@ pub(in crate::application) fn get_saved_gloss_sources(
 ) -> Result<Vec<reading::saved::SavedGlossSource>> {
     let store = state.lock()?;
     let accepted = crate::conversations::saved_reading::sources(&store, &query)?;
-    let mut sources = reading::text_sources::sources(&store, &query)?;
+    let mut sources = reading::preloaded::sources(&store, &query)?;
+    sources.extend(reading::text_sources::sources(&store, &query)?);
     // Exact accepted passages take precedence in the display index.
     sources.extend(accepted);
     if serde_json::to_vec(&sources)?.len() > 8 * 1024 * 1024 {

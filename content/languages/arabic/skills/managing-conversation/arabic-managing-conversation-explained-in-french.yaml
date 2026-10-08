@@ -1,0 +1,219 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-french-2026-10-07
+language: arabic
+skill_id: managing_conversation
+explanation_language: french
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-french.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Une salutation du matin permet d’ouvrir simplement un échange avec une personne rencontrée. La
+      réponse peut employer une autre formule conventionnelle ; elle n’a pas besoin de répéter mot pour mot la
+      salutation.
+    examples:
+      - text: صَبَاحُ الْخَيْرِ!
+        meaning: "**L’exemple.** Bonjour ! `صَبَاحُ` signifie « matin » et `الْخَيْرِ` évoque le bien. Ensemble, ils
+          forment une salutation conventionnelle du matin. Apprenez l’expression comme formule de salutation,
+          sans chercher un mot arabe distinct pour chaque mot de la traduction française."
+        note: "Une réponse conventionnelle est `صَبَاحُ النُّورِ`, littéralement « matin de lumière ». Pour saluer le
+          soir, employez `مَسَاءُ الْخَيْرِ`. Essayez : saluez quelqu’un le soir. Réponse : `مَسَاءُ
+          الْخَيْرِ` ; le nom du moment de la journée change, mais la formule reste."
+  - subskill_id: acknowledging
+    explanation: Après une explication sur le fonctionnement d’une tâche, vous pouvez faire savoir que le message
+      est compris. Dire que vous avez compris ne signifie pas nécessairement que vous approuvez le projet.
+    examples:
+      - text: حَسَنًا، فَهِمْتُ.
+        meaning: "**L’exemple.** D’accord, j’ai compris. `حَسَنًا` signifie « bien » ou « d’accord » ; `فَهِمْتُ`
+          signifie « j’ai compris ». Le passé présente la compréhension comme acquise, d’où sa valeur
+          naturelle de « je comprends » dans cette réponse. Sa terminaison identifie la personne qui parle."
+        note: "Pour un groupe, `حَسَنًا، فَهِمْنَا` dit que nous avons compris. Distinguez la compréhension d’une
+          déclaration d’accord lorsque ces deux choses diffèrent. Essayez : confirmez la compréhension au nom
+          du groupe. Réponse : `حَسَنًا، فَهِمْنَا` ; la terminaison passe de « je » à « nous »."
+  - subskill_id: clarification
+    explanation: Entendre une phrase ne signifie pas toujours comprendre l’intention de la personne qui parle.
+      `مَاذَا تَقْصِدُ بِهٰذَا؟` lui demande d’expliquer ce qu’elle veut dire. L’exemple s’adresse à un homme
+      et renvoie à une chose qu’il vient de dire.
+    examples:
+      - text: مَاذَا تَقْصِدُ بِهٰذَا؟
+        meaning: "**L’exemple.** « Que veux-tu dire par là ? » `مَاذَا` demande quoi ; `تَقْصِدُ` signifie ici « tu
+          veux dire ». `بِهٰذَا` réunit la préposition attachée `بِـ`, « par », et `هٰذَا`, « ceci », qui
+          renvoie aux paroles précédentes."
+        note: >-
+          **Changez d’interlocutrice.** Pour vous adresser à une femme, employez `مَاذَا تَقْصِدِينَ
+          بِهٰذَا؟`. Le changement porte sur le verbe et indique à qui s’adresse la question.
+
+
+          **À vous.** Quelle partie désigne l’expression à expliquer ? Réponse : `بِهٰذَا`.
+  - subskill_id: rephrasing
+    explanation: Une explication sur la réservation peut être trop compliquée. La reformulation en garde le sens
+      pratique, mais exprime plus simplement l’exigence principale, sans ajouter une consigne différente.
+    examples:
+      - text: بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ نَحْجِزَ مُسْبَقًا.
+        meaning: "**L’exemple.** Plus simplement, nous devons réserver à l’avance. `بِعِبَارَةٍ أَبْسَطَ` annonce une
+          expression plus simple. `يَجِبُ أَنْ` introduit une obligation ; `نَحْجِزَ` signifie « nous
+          réservons » sous la forme qui suit `أَنْ`. `مُسْبَقًا` signifie à l’avance. L’ouverture indique
+          qu’il s’agit d’une reformulation."
+        note: "Pour une réservation qui ne concerne que moi, employez `يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`. La marque de
+          personne se trouve sur le verbe « réserver ». Essayez : reformulez l’obligation pour vous seul.
+          Réponse : `بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا` ; remplacez « nous » par « je » en
+          gardant l’obligation."
+  - subskill_id: correcting_misunderstanding
+    explanation: L’autre personne a compris « aujourd’hui », alors que vous vouliez dire « demain ». Une
+      correction nomme d’abord le moment voulu, puis écarte explicitement la version erronée.
+    examples:
+      - text: أَقْصِدُ غَدًا، وَلَيْسَ الْيَوْمَ.
+        meaning: "**L’exemple.** Je veux dire demain, pas aujourd’hui. `أَقْصِدُ` exprime ce que je veux dire. `غَدًا`
+          signifie demain ; `وَلَيْسَ الْيَوْمَ` signifie « et non aujourd’hui ». Les deux expressions de
+          temps rendent la correction précise : l’autre personne sait quoi remplacer."
+        note: "Inversez les jours pour la correction opposée : `أَقْصِدُ الْيَوْمَ، وَلَيْسَ غَدًا`. Corriger un
+          détail n’équivaut pas à annuler toute la rencontre. Essayez : corrigez une personne qui a compris
+          demain alors que vous vouliez dire aujourd’hui. Réponse : employez cette phrase inversée ; le moment
+          voulu vient en premier."
+  - subskill_id: turns_topics
+    explanation: La conversation s’est éloignée d’un rendez-vous et vous devez en fixer l’heure. Nommer le sujet
+      avant la question aide l’autre personne à suivre le changement.
+    examples:
+      - text: بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي صَبَاحًا؟
+        meaning: "**L’exemple.** À propos du rendez-vous, nous voyons-nous le matin ? `بِخُصُوصِ الْمَوْعِدِ` signifie
+          « au sujet du rendez-vous ». `هَلْ` ouvre une question fermée ; `نَلْتَقِي` signifie « nous nous
+          rencontrons » et `صَبَاحًا` « le matin ». L’expression initiale situe le sujet ; elle ne répond pas
+          à la question."
+        note: "Employez `مَسَاءً` pour le soir. Essayez : revenez au rendez-vous et proposez le soir. Réponse :
+          `بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي مَسَاءً؟` ; le sujet et l’action commune restent, seul le
+          moment proposé change."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: opening_closing
+      explanation: Une salutation du matin permet d’ouvrir simplement un échange avec une personne rencontrée. La
+        réponse peut employer une autre formule conventionnelle ; elle n’a pas besoin de répéter mot pour mot
+        la salutation.
+      examples:
+        - text: صَبَاحْ الْخَيْرْ!
+          meaning: "**L’exemple.** Bonjour ! `صَبَاحْ` signifie « matin » et `الْخَيْرْ` évoque le bien. La formule
+            entière sert à saluer le matin dans un échange parlé ; ce n’est pas un récit de ce qui s’est passé
+            ce matin."
+          note: "Une réponse habituelle est `صَبَاحْ النُّورْ`, littéralement « matin de lumière ». Pour le soir, on
+            emploie `مَسَا الْخَيْرْ`. Essayez : répondez à la salutation du matin. Réponse : `صَبَاحْ
+            النُّورْ` ; vous reconnaissez la salutation avec sa réponse conventionnelle."
+    - subskill_id: acknowledging
+      explanation: Après une explication sur le fonctionnement d’une tâche, vous pouvez faire savoir que le message
+        est compris. Dire que vous avez compris ne signifie pas nécessairement que vous approuvez le projet.
+      examples:
+        - text: طَيِّبْ، فِهِمْتْ.
+          meaning: "**L’exemple.** D’accord, j’ai compris. `طَيِّبْ` marque ici l’acquiescement ; `فِهِمْتْ` signifie «
+            j’ai compris ». Une réponse brève suffit à montrer que l’explication est désormais claire. Le
+            passé insiste sur l’accès à la compréhension, plutôt que de raconter un long événement antérieur."
+          note: "`طَيِّبْ، فِهِمْنَا` donne la réponse au nom de « nous ». Si vous voulez aussi accepter la proposition,
+            employez une autre expression d’accord. Essayez : répondez au nom de plusieurs personnes. Réponse
+            : `طَيِّبْ، فِهِمْنَا` ; la terminaison du locuteur au pluriel désigne le groupe."
+    - subskill_id: clarification
+      explanation: Parfois, les mots sont clairs, mais le sens voulu ne l’est pas. `شُو قَصْدَكْ بِهَادْ؟` demande à
+        l’autre personne d’expliquer ce qu’elle entend par ce qu’elle vient de dire. L’exemple s’adresse à un
+        homme. Un ton calme aide à distinguer cette demande d’une contestation.
+      examples:
+        - text: شُو قَصْدَكْ بِهَادْ؟
+          meaning: "**L’exemple.** « Que veux-tu dire par là ? » `شُو` demande quoi. `قَصْدَكْ` contient un nom lié à
+            l’intention ou au sens et un suffixe « ton », adressé ici à un homme. `بِهَادْ` renvoie à
+            l’expression précédente. Le suffixe précise de qui l’on demande l’intention."
+          note: >-
+            **Choisissez la réparation.** Cette question demande une explication ; répéter les mêmes mots peut
+            ne pas suffire. Vous pouvez désigner le mot précis qui reste obscur.
+
+
+            **À vous.** Quelle partie signifie « ton intention » ? Réponse : `قَصْدَكْ`. Apprenez ce mot comme
+            une unité.
+    - subskill_id: rephrasing
+      explanation: Une explication sur la réservation peut être trop compliquée. La reformulation en garde le sens
+        pratique, mais exprime plus simplement l’exigence principale, sans ajouter une consigne différente.
+      examples:
+        - text: بِكَلَامْ أَبْسَطْ، لَازِمْ نِحْجِزْ مِنْ قَبْلْ.
+          meaning: "**L’exemple.** Plus simplement, nous devons réserver à l’avance. `بِكَلَامْ أَبْسَطْ` annonce des
+            mots plus simples. `لَازِمْ` exprime la nécessité ; `نِحْجِزْ` signifie « nous réservons » et
+            `مِنْ قَبْلْ` situe l’action à l’avance. Après `لَازِمْ`, le verbe de réservation n’a pas son
+            préfixe b- ordinaire."
+          note: "Pour « je dois réserver », employez `لَازِمْ أَحْجِزْ مِنْ قَبْلْ`. Une reformulation doit conserver
+            l’exigence précédente, sans en changer discrètement le jour ou la personne. Essayez : énoncez
+            cette exigence pour vous seul. Réponse : `بِكَلَامْ أَبْسَطْ، لَازِمْ أَحْجِزْ مِنْ قَبْلْ` ; la
+            nouvelle forme en « je » est explicite."
+    - subskill_id: correcting_misunderstanding
+      explanation: L’autre personne a compris « aujourd’hui », alors que vous vouliez dire « demain ». Une
+        correction nomme d’abord le moment voulu, puis écarte explicitement la version erronée.
+      examples:
+        - text: قَصْدِي بُكْرَا، مِشْ الْيَوْمْ.
+          meaning: "**L’exemple.** Je veux dire demain, pas aujourd’hui. `قَصْدِي` signifie « mon intention » ou « ce
+            que je veux dire ». `بُكْرَا` désigne demain ; `مِشْ الْيَوْمْ` signifie « pas aujourd’hui ». Le
+            suffixe « mon » attaché fait porter la correction sur votre propre message."
+          note: "Pour la correction opposée, dites `قَصْدِي الْيَوْمْ، مِشْ بُكْرَا`. Gardez l’information rejetée après
+            le mot négatif. Essayez : corrigez demain en aujourd’hui. Réponse : `قَصْدِي الْيَوْمْ، مِشْ
+            بُكْرَا` ; le jour voulu vient avant le jour écarté."
+    - subskill_id: turns_topics
+      explanation: La conversation s’est éloignée d’un rendez-vous et vous devez en fixer l’heure. Nommer le sujet
+        avant la question aide l’autre personne à suivre le changement.
+      examples:
+        - text: بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي الصُّبْحْ؟
+          meaning: "**L’exemple.** À propos du rendez-vous, nous voyons-nous le matin ? `بِالنِّسْبِة لِلْمَوْعِدْ`
+            introduit le sujet du rendez-vous. `نِلْتَقِي` signifie « nous nous rencontrons » et `الصُّبْحْ`
+            situe cela le matin. L’intonation interrogative propose l’horaire à l’accord de l’autre personne,
+            tandis que l’expression initiale signale le retour au sujet."
+          note: "Pour proposer le soir, remplacez l’heure par `بِالْمَسَا`. Essayez : demandez si la rencontre peut
+            avoir lieu le soir. Réponse : `بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي بِالْمَسَا؟` ; gardez
+            l’expression de sujet et changez toute l’expression de temps."

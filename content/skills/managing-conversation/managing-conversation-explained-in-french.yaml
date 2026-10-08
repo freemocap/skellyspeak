@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: managing_conversation
+explanation_language: french
+title: Gérer la conversation
+introduction: Commencer et terminer une conversation, prendre la parole à tour de rôle et éclaircir les incompréhensions.
+sections:
+  - subskill_id: opening_closing
+    title: Ouvrir et clore une conversation
+    concept: Commencer une conversation ou y mettre fin.
+  - subskill_id: acknowledging
+    title: Accuser réception et répondre
+    concept: Montrer que l’on a entendu l’autre personne et répondre de façon appropriée.
+  - subskill_id: clarification
+    title: Demander une clarification
+    concept: Demander de l’aide pour comprendre ce que l’on n’a pas entendu ou compris.
+  - subskill_id: rephrasing
+    title: Reformuler
+    concept: Exprimer la même chose autrement pour la rendre plus claire.
+  - subskill_id: correcting_misunderstanding
+    title: Corriger un malentendu
+    concept: Expliquer ce que l’on voulait dire lorsque l’autre personne a compris autre chose.
+  - subskill_id: turns_topics
+    title: Gérer les tours de parole et les sujets
+    concept: Prendre la parole à tour de rôle et faciliter le passage d’un sujet à un autre.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

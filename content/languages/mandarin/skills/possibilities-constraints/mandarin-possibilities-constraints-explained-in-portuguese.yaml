@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-portuguese-2026-10-07
+language: mandarin
+skill_id: possibilities_constraints
+explanation_language: portuguese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: ability
+    explanation: Quando uma bicicleta quebra, o grupo precisa saber quem tem a habilidade de consertá-la. `会`
+      antes de uma atividade expressa aqui capacidade aprendida. `我会修自行车` responde a essa pergunta prática,
+      sem prometer um conserto em horário específico.
+    examples:
+      - text: 我会修自行车。
+        meaning: "**O exemplo.** Sei consertar bicicletas. `我` é eu, `会` indica saber fazer, `修` significa consertar e
+          `自行车` bicicleta. A atividade vem depois de `会`, e o objeto consertado segue `修`. O verbo não recebe
+          terminação separada para eu ou nós."
+        note: "Para informar que não tem essa habilidade, use `不会` antes da atividade. Experimente dizer que seu grupo
+          sabe consertar bicicletas. Resposta: `我们会修自行车。` Troque `我` por `我们`; `会` e a atividade ficam iguais.
+          `我今天不能修自行车` indica, em vez disso, que você não pode fazer o conserto hoje, talvez por falta de tempo
+          ou ferramentas."
+  - subskill_id: permission
+    explanation: Antes de deixar uma bolsa no espaço de alguém, perguntar à pessoa responsável deixa clara a
+      permissão. `我可以` introduz a ação proposta, e o `吗` final transforma a afirmação em pergunta de sim ou
+      não. A bolsa é nomeada antes de ser colocada.
+    examples:
+      - text: 我可以把包放在这里吗？
+        meaning: "**O exemplo.** Posso colocar minha bolsa aqui? `把包` traz a bolsa para a frente como objeto
+          manipulado. `放在这里` significa colocá-la aqui: `放` é colocar e `在这里` dá o lugar resultante. `可以` vem
+          antes de toda a ação, enquanto `吗` fica no final."
+        note: "Experimente pedir para deixar a bolsa lá. Resposta: `我可以把包放在那里吗？` Troque `这里` por `那里` e mantenha o
+          lugar depois de `放在`. Uma resposta que autoriza pode ser apenas `可以`, sim, você pode. `我把包放在这里`
+          afirma a colocação sem pedir permissão."
+  - subskill_id: obligation
+    explanation: Um prazo da biblioteca pode tornar obrigatória a devolução dos livros hoje. `必须` enuncia essa
+      exigência, não um desejo. O dia vem antes de `必须`, e a ação vem depois.
+    examples:
+      - text: 我们今天必须还书。
+        meaning: "**O exemplo.** Temos que devolver os livros hoje. `我们` é nós, `今天` hoje, e `还书` devolver livros.
+          Aqui `还` se pronuncia `huán`, devolver, e não `hái`, ainda. `必须` incide sobre a ação de devolução."
+        note: "Experimente retirar a obrigação. Resposta: `我们今天不用还书。` `不用` significa que não é necessário, sem proibir
+          a devolução. `我们今天不能还书` indica, em vez disso, que não é possível ou permitido devolver, conforme a
+          situação."
+  - subskill_id: possibility
+    explanation: Ao decidir se vai sair, a incerteza sobre o tempo é importante. `可能` deixa a chuva como
+      possibilidade, não previsão certa. A tarde dá o momento, seguida da incerteza e do acontecimento.
+    examples:
+      - text: 下午可能下雨。
+        meaning: "**O exemplo.** Pode chover à tarde. `下午` é tarde, `可能` é possivelmente, e `下雨` significa chover. O
+          mandarim não exige um sujeito meteorológico separado equivalente ao « it » do inglês nessa frase."
+        note: "Experimente situar a chuva possível amanhã. Resposta: `明天可能下雨。` Troque a indicação de tempo por `明天` e
+          mantenha `可能` antes de `下雨`. `下午下雨` apresenta a chuva como fato, enquanto `下午可能不下雨` deixa aberta a
+          possibilidade de não chover."
+  - subskill_id: certainty
+    explanation: Antes de organizar o trabalho de amanhã, você talvez não saiba se será um dia de folga. `不确定`
+      expressa sua incerteza, e `是不是` apresenta as alternativas ainda não resolvidas dentro da afirmação.
+    examples:
+      - text: 我不确定明天是不是休息日。
+        meaning: "**O exemplo.** Não tenho certeza se amanhã é dia de folga. `我不确定` significa não tenho certeza. `明天`
+          é amanhã, `是不是` é se é ou não, e `休息日` é dia de descanso. As alternativas são consideradas, não
+          afirmadas."
+        note: "Experimente expressar a incerteza do grupo. Resposta: `我们不确定明天是不是休息日。` Apenas `我` muda para `我们`.
+          `明天不是休息日` afirma que amanhã não é dia de folga; remove a incerteza em vez de expressá-la."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

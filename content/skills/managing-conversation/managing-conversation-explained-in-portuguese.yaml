@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-portuguese-2026-10-07
+skill_id: managing_conversation
+explanation_language: portuguese
+title: Conduzir uma conversa
+introduction: Comece e encerre conversas, alterne a fala com outras pessoas e esclareça o que você não entendeu.
+sections:
+  - subskill_id: opening_closing
+    title: Começar e encerrar
+    concept: Comece uma conversa ou encaminhe seu encerramento.
+  - subskill_id: acknowledging
+    title: Mostrar que ouviu e responder
+    concept: Mostre que ouviu a outra pessoa e responda de forma adequada.
+  - subskill_id: clarification
+    title: Pedir esclarecimentos
+    concept: Peça ajuda com algo que você não ouviu ou não entendeu.
+  - subskill_id: rephrasing
+    title: Reformular
+    concept: Diga algo de outra maneira para deixá-lo mais claro.
+  - subskill_id: correcting_misunderstanding
+    title: Corrigir um mal-entendido
+    concept: Explique o que você quis dizer quando alguém entendeu de outra forma.
+  - subskill_id: turns_topics
+    title: Alternar a fala e mudar de assunto
+    concept: Alterne a fala com outras pessoas e ajude a passar de um assunto a outro.
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese localization of shared English teaching concepts. Skill
+    identities and assessment criteria unchanged. Source references inherited from the English
+    edition; they do not independently validate this translation.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; independent linguistic review pending.

@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: possibilities_constraints
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 西语区分学会做某事与特定情况下能否做到。对游泳、做饭等学得的技能，`saber` 后接不定式表示“会做”。不定式是动词的词典形式，例如 `nadar`。下面的例句描述说话人学会的一项技能。
+    examples:
+      - text: Sé nadar.
+        meaning: "**句子怎么组成。** 这句话意为“我会游泳”。`Sé` 已经标明说话人，因此 `yo` 可以省略。`Nadar` 保留不定式。`sé` 的书面重音符号必须保留；没有重音的 `se` 是另一个词。"
+        note: |-
+          **比较。** `Puedo nadar hoy` 意为今天可以游泳：条件允许。一个人可能会游泳，今天却无法下水。否定时把 `no` 放在第一个动词前：`No sé nadar`。
+
+          **练一练。** 用 `cocinar` 说她会做饭。答案：`Ella sabe cocinar`。改变第一个动词，活动仍用不定式。
+  - subskill_id: permission
+    explanation: 行动需要别人同意时，用 `poder` 构成问句可以请求许可。`¿Puedo…?` 询问我能否做某事；在门口、共用空间或借东西之前，这都是实用的日常句式。动作以不定式跟在后面，例如表示进入的 `entrar`。
+    examples:
+      - text: ¿Puedo entrar?
+        meaning: "**句子怎么组成。** “我可以进来吗？”把询问自己可否行动的 `puedo` 与表示进入的 `entrar` 结合起来。在门口，听话人可以允许或拒绝。这个问句不需要另加对应英语 do 的词。"
+        note: |-
+          **改变人称。** `¿Puedes entrar?` 问对方能否进入，不再是替自己请求许可。`¿Podría entrar?` 则是替自己提出更委婉的请求。语气和双方关系仍然重要。
+
+          **练一练。** 用 `usar esta silla` 请求使用一把椅子。答案：`¿Puedo usar esta silla?`。一种可能的回答是 `Sí, claro`，意为当然可以。
+  - subskill_id: obligation
+    explanation: 义务是某人需要或被期望去做的事。西语常用 `tener que` 后接不定式表达。例句中，说话人需要离开。句子只说明这种必要性；为什么非走不可，可以由对话背景提供，例如有约或快关门。
+    examples:
+      - text: Tengo que salir.
+        meaning: "**句子怎么组成。** “我必须走”用 `tengo` 指“我”。换成另一个人时，改变这个词：`Ella tiene que salir`。`que salir`
+          保持不变。句子陈述要求，周围的对话解释离开的缘由。"
+        note: |-
+          **比较。** `Hay que salir` 表示需要离开，但不指定某个人。`No tengo que salir` 通常是我不必离开，并不是禁止离开。
+
+          **练一练。** 用 `devolver la llave` 说你必须还钥匙。答案：`Tengo que devolver la llave`。两个动词之间的 `que` 不能省。
+  - subskill_id: possibility
+    explanation: 有时你想提到一种结果，却不声称它一定会发生。西语用 `puede que` 表示这种可能。后面的动词使用虚拟式，即这个句式所要求的动词形式。天气预报是好例子：说话人认为可能下雨，但没有保证会下。
+    examples:
+      - text: Puede que llueva.
+        meaning: "**句子怎么组成。** “可能下雨”用 `llover`（下雨）的形式 `llueva`。比较表示正在下雨的 `Llueve`，以及表示可能下雨的 `Puede que
+          llueva`。西语不需要另加对应英语天气主语 it 的词。"
+        note: >-
+          **改变可能的结果。** 在 `que` 后放 `no`，表示可能不下雨：`Puede que no llueva`。结果仍不确定。加上 `mañana`，就说的是明天：`Puede que
+          llueva mañana`。
+
+
+          **练一练。** 说明天可能不下雨。答案：`Puede que no llueva mañana`。在这个句式里保留 `llueva`，不要换成 `llueve`。
+  - subskill_id: certainty
+    explanation: 你也许知道一些情况，但还不能确认。`No estoy seguro` 或 `No estoy segura` 表达没有把握。它说的是你的确信程度，并不是说某个主张一定错误。`seguro` 或
+      `segura` 的词尾要与说话人一致。
+    examples:
+      - text: No estoy seguro.
+        meaning: "**句子怎么组成。** “我不确定”这里使用阳性形式。使用阴性一致形式的说话人则说 `No estoy segura`。形容词描述说话人，不由所谈事物的语法性别决定。两个版本都没有说对方错了。"
+        note: |-
+          **说出不确定的对象。** `No estoy seguro de la hora` 意为我对时间没有把握。`No sé` 则表示我不知道；缺少信息时可以直接这样回答。
+
+          **练一练。** 一位女性不能确认时间。一种回答是：`No estoy segura de la hora`。表示“我”的 `estoy` 不变，只改变形容词词尾。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesSaberTeaching20261007
+    - raePoderTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

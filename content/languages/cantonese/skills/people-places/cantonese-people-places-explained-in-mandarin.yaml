@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: people_places
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 你把一个人介绍给另一个人，并说明彼此关系。`呢位` 礼貌地指这位人士；`係` 把此人与表示身份的名词短语连起来。
+    examples:
+      - text: 呢位係我朋友。
+        meaning: 这是我的朋友。`呢` 意为这，`位` 是称呼人的尊敬量词。`我朋友` 表示我的朋友；熟悉的人际关系可以不用 `嘅`。`係` 引出名词身份，而不是描述心情或大小。
+        note: 试一试：介绍你的老师。答案：`呢位係我老師。` 把关系换成 `老師`。`呢個係我朋友` 也能用普通量词 `個` 来介绍朋友；`位` 使介绍更显尊重。
+  - subskill_id: qualities_states
+    explanation: 你在选读书的地方，描述这个房间很安静。`靜` 这样的性质词可以直接作描述；`好` 组成自然的肯定性质短语。
+    examples:
+      - text: 呢間房好靜。
+        meaning: 这个房间很安静。`呢間房` 指这间房，量词 `間` 放在 `呢` 与 `房` 中间。`好靜` 表示安静或很安静。普通的形容词描述前不加 `係`；用名词辨认人或物时才常用 `係`。
+        note: 试一试：说这间房很明亮。答案：`呢間房好光猛。` 把 `靜` 换成表示明亮的 `光猛`。`呢間房唔靜` 在性质词前用 `唔` 表示不安静；`呢間房係課室` 是辨认为教室，因此用 `係`。
+  - subskill_id: location_movement
+    explanation: 你在找某个人，答话告诉你这个人在图书馆。`喺` 表明所在位置；若用 `去` 引出目的地，说的则是去往某处。
+    examples:
+      - text: 佢喺圖書館。
+        meaning: 那个人在图书馆。`佢` 指一个人，不标明性别；原英文用单数 they，避免猜测。`喺圖書館` 表示在图书馆，地点跟在 `喺` 后面。句子报告位置，不描述前往那里的路程。
+        note: 试一试：说整个小组都在那里。答案：`佢哋喺圖書館。` 把单数的 `佢` 换成复数的 `佢哋`，地点表达不变。`佢去圖書館` 则表示那个人去或正在去图书馆，`去` 指向那里的移动。
+  - subskill_id: possession_relations
+    explanation: 桌上留着好几本书，你指出哪一本属于自己。先说书，再用短语说出它的主人。
+    examples:
+      - text: 呢本書係我嘅。
+        meaning: 这本书是我的。`呢本書` 指这本书，量词是 `本`。`係我嘅` 表示是我的；`嘅` 跟在主人 `我` 后，让物主短语单独成立，不必再次说书。若把名词说出来，`我嘅書` 就是我的书。
+        note: 试一试：指出听话人是书的主人。答案：`呢本書係你嘅。` 在 `係` 后把 `我` 换成 `你`。`我有呢本書` 则表示你拥有这本书；用 `有` 说拥有，不采用这里辨认主人的同一句式。
+  - subskill_id: quantity_comparison
+    explanation: 你在数有多少本书可以借出。数字与书的量词一起放在名词前；名词本身不需要复数词尾。
+    examples:
+      - text: 我有三本書。
+        meaning: 我有三本书。`我有` 表示我拥有；`三本書` 依次由数字 `三`、量词 `本` 和名词 `書` 构成。`有` 报告说话人手头有什么。
+        note: 试一试：说你有两本书。答案：`我有兩本書。` 这种普通数量短语在量词前用 `兩`；把 `兩本` 作为计数搭配来学。若比较总数，`我有三本書，你有兩本，我多一本。` 表示你多一本。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

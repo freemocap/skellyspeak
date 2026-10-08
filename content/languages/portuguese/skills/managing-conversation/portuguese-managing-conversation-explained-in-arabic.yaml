@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: managing_conversation
+explanation_language: arabic
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-arabic.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "انتهى حديث المساء وتتوقع أن تلتقي الشخص مجددًا غدًا. تختم `Até amanhã! Boa noite!`
+      التواصل: تشير `até` إلى اللقاء المقبل، وتعني `amanhã` غدًا، وتتمنى `boa noite` للشخص ليلة
+      طيبة. تؤدي الكلمات وظيفة اجتماعية عند انتهاء اللقاء، فهي أكثر من تاريخ ووصف لليل. وللقاء في
+      الأسبوع المقبل، تغيّر `Até a semana que vem!` الموعد التالي. أما التحية في البداية فتفتح
+      التواصل."
+    examples:
+      - text: Até amanhã! Boa noite!
+        meaning: أراك غدًا! تصبح على خير!
+        note: "اختم اللقاء وأنت تتوقع رؤية الشخص يوم السبت. الإجابة: `Até sábado! Boa noite!` وهي تعطي يوم
+          اللقاء القادم ووداعًا مسائيًا؛ وتحل `sábado` محل `amanhã`."
+  - subskill_id: acknowledging
+    explanation: يشرح لك شخص كيفية إعادة الكتب المستعارة. `Entendi` رد فوري قصير بمعنى «فهمت». وهي صيغة
+      المتكلم الدالة على اكتمال الفهم من `entender`، لكنها هنا تبيّن أن الشرح وصل إليك الآن، ولا
+      تسرد حدثًا منفصلًا وقع أمس. يتضمن الفعل فاعله «أنا». لا تعني معرفة شرح ما موافقتك تلقائيًا على
+      رأي فيه؛ وتصرّح `concordo` بالموافقة.
+    examples:
+      - text: Entendi.
+        meaning: فهمت.
+        note: "أقرّ بفهم التعليمات واشكر المتحدث. الإجابة: `Entendi, obrigado.` للمتكلم الذكر، أو `Entendi,
+          obrigada.` للمتكلمة الأنثى. تؤدي `Entendi` الإقرار بالفهم في الحالتين."
+  - subskill_id: clarification
+    explanation: "يصف الشخص الآخر مواعيد الفتح بأنها مؤقتة، وأنت لا تعرف ما يقصده بتلك الكلمة. تسأل `O
+      que você quer dizer com provisório?` للتوضيح: تسأل `o que` «ماذا؟»، وتعني `você quer dizer`
+      «تقصد أن تقول»، وتشير `com provisório` إلى التعبير غير الواضح. تصلح فهم اللفظ، ولا تتحقق من
+      صحة وقت فتح مقترح."
+    examples:
+      - text: O que você quer dizer com provisório?
+        meaning: ماذا تقصد بكلمة «مؤقت»؟
+        note: "اسأل عن كلمة temporário بدلًا من ذلك. الإجابة: `O que você quer dizer com temporário?` وهي
+          تامة بعد أن يستخدم الشخص الكلمة؛ وتقدم `com` التعبير المطلوب شرحه."
+  - subskill_id: rephrasing
+    explanation: لم يفهم مستعير الكتاب شرحك أن الإعارة تنتهي يوم الجمعة. تعيد `Em outras palavras, você
+      pode ficar com o livro até sexta` صياغة الحد العملي نفسه. تشير `Em outras palavras` إلى صياغة
+      جديدة، وتعني `você pode ficar com o livro` أن الشخص يستطيع الاحتفاظ بالكتاب، وتحدد `até sexta`
+      وقت الانتهاء. تنفع إعادة الصياغة لأنها تستبدل قاعدة انتهاء مجردة بما يمكن للمستعير فعله.
+    examples:
+      - text: Em outras palavras, você pode ficar com o livro até sexta.
+        meaning: بعبارة أخرى، يمكنك الاحتفاظ بالكتاب حتى الجمعة.
+        note: "أعد صياغة موعد انتهاء أصلي يوم الاثنين بكلمات أبسط. الإجابة: `Em outras palavras, você pode
+          ficar com o livro até segunda.` وهي إعادة صياغة كاملة إذا كانت القاعدة السابقة تنتهي يوم
+          الاثنين أيضًا؛ وتوضح `até segunda` موعد الانتهاء."
+  - subskill_id: correcting_misunderstanding
+    explanation: "كرر شريكك الجمعة، لكنك قصدت السبت موعدًا للتبادل. تصلح `Eu quis dizer sábado, não
+      sexta` سوء الفهم: تعني `eu quis dizer` «قصدت»، وتحدد `sábado` اليوم المقصود، وترفض `não sexta`
+      اليوم الذي فُهم خطأً. `Quis` صيغة ماضية للمتكلم من `querer` في هذا التعبير. قد يكفي قول
+      `sábado` وحدها في حديث قريب، لكن العبارة الكاملة توضح التصحيح."
+    examples:
+      - text: Eu quis dizer sábado, não sexta.
+        meaning: قصدت السبت، لا الجمعة.
+        note: "صحح شريكًا فهم الخميس بدل السبت. الإجابة: `Eu quis dizer sábado, não quinta.` تذكر اليوم
+          المقصود والتفسير المرفوض معًا."
+  - subskill_id: turns_topics
+    explanation: "انتهت المجموعة من اختيار الكتب وانتقلت إلى الترتيبات. تطلب `Posso falar dos horários
+      agora?` دورًا للحديث عن المواعيد: تعني `posso` «هل يجوز لي؟»، و`falar de` الحديث عن، وتجمع
+      `dos` بين `de` وأداة الجمع `os`، وتعني `agora` الآن. تسأل هنا أن تأخذ دورك وتغيّر الموضوع، لا
+      عن قدرتك الجسدية على الكلام. يحدد الحوار المحيط وظيفة السؤال."
+    examples:
+      - text: Posso falar dos horários agora?
+        meaning: هل يمكنني التحدث عن المواعيد الآن؟
+        note: "اطلب مناقشة الأسعار تاليًا. الإجابة: `Posso falar dos preços agora?` وهو طلب كامل لدور في
+          موضوع جديد؛ وتحل `dos preços` محل `dos horários`."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

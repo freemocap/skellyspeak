@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-portuguese-2026-10-07
+skill_id: managing_conversation
+language: french
+explanation_language: portuguese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-portuguese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "Você precisa encerrar uma conversa e espera rever a pessoa amanhã. `Je dois partir` dá
+      o motivo: tenho que sair. `À demain !` encerra com até amanhã. `Dois` é a forma de `devoir`
+      para `je`; `partir` fica no infinitivo. Se o próximo encontro não está marcado, `À bientôt !`
+      significa até breve sem prometer amanhã. `Bonjour !` abre um encontro e não tem a mesma função
+      de encerramento."
+    examples:
+      - text: Je dois partir. À demain !
+        meaning: Preciso ir. Até amanhã!
+        note: "Despeça-se esperando rever a pessoa segunda-feira. `Je dois partir. À lundi !` funciona: `à`
+          seguido do dia indica o próximo encontro esperado."
+  - subskill_id: acknowledging
+    explanation: Alguém explica uma ideia, e você mostra que agora a entendeu. `Ah` marca o
+      reconhecimento. `Je vois` significa literalmente eu vejo, mas aqui também entendi; `ce que tu
+      veux dire` significa o que você quer dizer. Isso reconhece a explicação sem exigir
+      concordância. `Je suis d’accord` acrescentaria concordância. `Je vois ce que vous voulez dire`
+      serve para tratamento polido ou vários ouvintes.
+    examples:
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: Ah, entendi o que você quer dizer.
+        note: "Reconheça a fala de alguém tratado por `vous`. `Ah, je vois ce que vous voulez dire.`
+          funciona: trocar `tu veux` por `vous voulez` muda o tratamento, não sua concordância."
+  - subskill_id: clarification
+    explanation: Você ouviu a palavra temporário, mas não sabe o sentido pretendido. `Qu’est-ce que`
+      pergunta o quê; `tu veux dire` significa você quer dizer, e `par « provisoire »` destaca a
+      palavra a explicar. As aspas mostram que se discute uma palavra, não que se descreve algo.
+      `Qu’est-ce que tu veux dire par « urgent » ?` aponta para outro termo obscuro. `Tu peux
+      répéter ?` pede repetição e pode deixar o sentido obscuro.
+    examples:
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: O que você quer dizer com “temporário”?
+        note: Pergunte o que a pessoa quer dizer por importante. `Qu’est-ce que tu veux dire par « important
+          » ?` funciona porque a palavra entre aspas identifica a dúvida exata.
+  - subskill_id: rephrasing
+    explanation: Uma regra de reserva foi explicada em detalhe, e você reformula seu sentido prático.
+      `Autrement dit` anuncia outras palavras. `Nous devons réserver` significa precisamos reservar;
+      `avant de payer` significa antes de pagar. Quando as mesmas pessoas fazem ambas as ações,
+      `avant de` pode introduzir o infinitivo `payer`. `Avant de` estabelece ordem; não explica por
+      si só por que a reserva é exigida. Uma reformulação equivalente deve preservar a regra
+      original, sem acrescentar discretamente outra condição.
+    examples:
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: Em outras palavras, precisamos reservar antes de pagar.
+        note: "Reformule uma regra segundo a qual a reserva vem antes da partida. `Autrement dit, nous
+          devons réserver avant de partir.` funciona: só a segunda ação muda, e `partir` fica no
+          infinitivo."
+  - subskill_id: correcting_misunderstanding
+    explanation: A outra pessoa anotou quinta, mas você quis dizer terça. `Je voulais dire` significa eu
+      queria dizer; o imperfeito `voulais` retoma sua intenção anterior. `Mardi, pas jeudi` troca o
+      dia errado pelo certo. Assim você corrige a mensagem sem culpar quem ouviu. `Je veux dire
+      mardi` pode corrigir sua fala no momento; `je voulais dire` remete mais naturalmente ao que já
+      disse.
+    examples:
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: Quis dizer terça, não quinta.
+        note: Corrija sexta para sábado. `Je voulais dire samedi, pas vendredi.` funciona porque o dia
+          pretendido vem primeiro e o recusado depois de `pas`.
+  - subskill_id: turns_topics
+    explanation: A discussão está prestes a mudar, mas você ainda precisa de um detalhe sobre o preço.
+      `Avant de changer de sujet` significa antes de mudar de assunto. `Puis-je` é uma pergunta
+      formal e educada de permissão, seguida pelo infinitivo `poser`. `Poser une question sur le
+      prix` significa fazer uma pergunta sobre o preço. Na conversa cotidiana, `Est-ce que je peux
+      poser une question ?` é alternativa menos formal. A abertura explica por que você retém
+      brevemente o tópico, em vez de interromper com algo sem relação.
+    examples:
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: Antes de mudar de assunto, posso perguntar sobre o preço?
+        note: "Mantenha o tema por um instante para perguntar a data. `Avant de changer de sujet, puis-je
+          poser une question sur la date ?` funciona: `sur la date` identifica o ponto pendente."
+provenance: &a1
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - dingemanse2015_communication_repair
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

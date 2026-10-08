@@ -1,0 +1,213 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: coordinating_action
+explanation_language: spanish
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-spanish.yaml
+sections:
+  - subskill_id: requests
+    explanation: "Una petición pide a otra persona que actúe. Imagina una corriente de aire por una
+      puerta abierta: quieres que la cierren y añades una fórmula de cortesía para suavizar la
+      orden."
+    examples:
+      - text: أَغْلِقِ الْبَابَ، مِنْ فَضْلِكَ.
+        meaning: "**El ejemplo.** Cierra la puerta, por favor. `أَغْلِقِ` ordena a un hombre cerrar algo;
+          `الْبَابَ` es la puerta. `مِنْ فَضْلِكَ` significa por favor al dirigirse a ese hombre. La
+          vocal breve final del imperativo enlaza con la palabra siguiente en una pronunciación
+          cuidada."
+        note: "Para dirigirse a una mujer, se usan `أَغْلِقِي` y la cortesía `مِنْ فَضْلِكِ`. **Practica:**
+          pídele que cierre la puerta. Respuesta: `أَغْلِقِي الْبَابَ، مِنْ فَضْلِكِ`. El imperativo
+          adquiere una vocal final larga y el sufijo cortés también cambia para concordar con la
+          oyente."
+  - subskill_id: offers_invitations
+    explanation: Si alguien tiene dificultades con una tarea, puedes ofrecer tu propia ayuda en vez de
+      pedirle que te ayude. Una pregunta breve le permite aceptar o rechazar la oferta.
+    examples:
+      - text: هَلْ أُسَاعِدُكَ؟
+        meaning: "**El ejemplo.** ¿Te ayudo? `هَلْ` introduce una pregunta de sí o no. `أُسَاعِدُ` significa
+          ayudo y el `كَ` unido al verbo significa a ti, dirigido a un hombre. La forma de primera
+          persona hace que quien habla sea el posible ayudante; el sufijo identifica a quien recibe
+          la ayuda."
+        note: "Para una mujer, usa `هَلْ أُسَاعِدُكِ؟`. Compara `هَلْ تُسَاعِدُنِي؟`, ¿me ayudas tú?,
+          dirigido a un hombre: ahora ayuda la otra persona y yo recibo la ayuda. **Practica:**
+          ofrece ayuda a una mujer. Respuesta: `هَلْ أُسَاعِدُكِ؟`; conserva la forma de yo y cambia
+          el sufijo de la oyente."
+  - subskill_id: suggestions
+    explanation: Un grupo necesita dónde sentarse. Una pregunta equivalente a por qué no propone este
+      lugar como opción compartida sin ordenar que lo elijan.
+    examples:
+      - text: لِمَاذَا لَا نَجْلِسُ هُنَا؟
+        meaning: "**El ejemplo.** ¿Por qué no nos sentamos aquí? `لِمَاذَا` significa por qué y `لَا` niega
+          la acción siguiente. `نَجْلِسُ` significa nos sentamos; `هُنَا` es aquí. En este contexto,
+          la pregunta entera sugiere sentarse, no pide una explicación detallada contra esa
+          posibilidad."
+        note: "Usa `هُنَاكَ` para allí y conserva la forma de nosotros. Con otro tono o contexto, por qué no
+          puede preguntar por un obstáculo real. **Practica:** propón sentarse allí. Respuesta:
+          `لِمَاذَا لَا نَجْلِسُ هُنَاكَ؟`; solo cambia el lugar."
+  - subskill_id: commitments
+    explanation: Alguien debe traer las llaves. Cuando asumes esa responsabilidad, nombrar tu acción
+      futura permite a los demás contar contigo.
+    examples:
+      - text: سَأُحْضِرُ الْمَفَاتِيحَ غَدًا.
+        meaning: "**El ejemplo.** Traeré las llaves mañana. El `سَـ` unido a `سَأُحْضِرُ` señala el futuro;
+          `أُحْضِرُ` significa traigo. `الْمَفَاتِيحَ` son las llaves y `غَدًا` significa mañana.
+          Haber aceptado la responsabilidad convierte esta frase de futuro en un compromiso."
+        note: "Usa `الْيَوْمَ` para hoy si cambia el acuerdo. Un verbo de futuro también puede expresar una
+          predicción; no siempre es una promesa. **Practica:** adelanta el compromiso a hoy.
+          Respuesta: `سَأُحْضِرُ الْمَفَاتِيحَ الْيَوْمَ`; la acción se conserva y cambia el
+          tiempo."
+  - subskill_id: accepting_declining
+    explanation: Te han invitado a un lugar hoy, pero no puedes asistir. Agradecer la invitación antes
+      de explicar el impedimento comunica la negativa con claridad y cortesía.
+    examples:
+      - text: شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ الْيَوْمَ.
+        meaning: "**El ejemplo.** Gracias, pero hoy no puedo asistir. `شُكْرًا` agradece. `لٰكِنَّنِي`
+          significa pero yo; `لَا أَسْتَطِيعُ` significa no puedo. `الْحُضُورَ` nombra la asistencia
+          y `الْيَوْمَ` limita la negativa a hoy. Aquí el verbo de capacidad va seguido de un
+          sustantivo que nombra la actividad."
+        note: "Si la invitación es para mañana, sustituye `الْيَوْمَ` por `غَدًا`. Conserva `لَا` para
+          mantener la negativa. **Practica:** rechaza la invitación de mañana. Respuesta: `شُكْرًا،
+          لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ غَدًا`. El agradecimiento y la imposibilidad siguen
+          iguales; solo cambia el día."
+  - subskill_id: negotiating_plans
+    explanation: Ya hay una reunión prevista para hoy, pero mañana te convendría más. Negociar consiste
+      en proponer un cambio concreto mientras se conserva el plan compartido.
+    examples:
+      - text: هَلْ يُمْكِنُ أَنْ نَلْتَقِيَ غَدًا بَدَلًا مِنَ الْيَوْمِ؟
+        meaning: "**El ejemplo.** ¿Podríamos reunirnos mañana en vez de hoy? `هَلْ يُمْكِنُ` pregunta si
+          algo es posible. `أَنْ نَلْتَقِيَ` aporta la acción compartida de reunirnos. `غَدًا` es el
+          día propuesto; `بَدَلًا مِنَ الْيَوْمِ` significa en vez de hoy e identifica lo que deseas
+          sustituir."
+        note: "Mantén el día nuevo antes de la expresión de sustitución para distinguir las opciones. Es una
+          petición de acuerdo, no un anuncio de que ya se ha cambiado la cita. **Practica:** ¿qué
+          día se sustituye? Respuesta: hoy, mencionado después de `بَدَلًا مِنَ`; mañana es la
+          alternativa propuesta."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: requests
+      explanation: "Una petición pide a otra persona que actúe. Imagina una corriente de aire por una
+        puerta abierta: quieres que la cierren y añades una fórmula de cortesía para suavizar la
+        orden."
+      examples:
+        - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
+          meaning: "**El ejemplo.** Cierra la puerta, por favor. `سَكِّرْ` ordena a un hombre cerrar;
+            `الْبَابْ` es la puerta. `لَوْ سَمَحْتْ` es una fórmula convencional de por favor,
+            literalmente si permites. Apréndela como expresión cortés, no como una condición que
+            deba completarse."
+          note: "Para una mujer, usa `سَكِّرِي` y `لَوْ سَمَحْتِي`. **Practica:** dirige la petición completa
+            a una mujer. Respuesta: `سَكِّرِي الْبَابْ، لَوْ سَمَحْتِي`. Cambian ambos finales; la
+            puerta y la acción solicitada son las mismas."
+    - subskill_id: offers_invitations
+      explanation: Si alguien tiene dificultades con una tarea, puedes ofrecer tu propia ayuda en vez de
+        pedirle que te ayude. Una pregunta breve le permite aceptar o rechazar la oferta.
+      examples:
+        - text: أَسَاعْدَكْ؟
+          meaning: "**El ejemplo.** ¿Te ayudo? `أَسَاعْدَكْ` combina ayudo con un sufijo que significa a ti,
+            aquí dirigido a un hombre. La entonación interrogativa convierte la acción posible en
+            una oferta. En este patrón de oferta, el verbo no lleva el prefijo habitual b."
+          note: "Para ofrecer ayuda a una mujer, usa `أَسَاعْدِكْ؟` en este modelo hablado. Compara
+            `تْسَاعْدْنِي؟`, ¿me ayudas tú?, que pide ayuda a la otra persona. **Practica:** elige
+            la oferta si te estás ofreciendo. Respuesta: `أَسَاعْدَكْ؟` para un hombre; la forma
+            inicial de yo te mantiene como ayudante."
+    - subskill_id: suggestions
+      explanation: Un grupo necesita dónde sentarse. Una pregunta equivalente a por qué no propone este
+        lugar como opción compartida sin ordenar que lo elijan.
+      examples:
+        - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
+          meaning: "**El ejemplo.** ¿Por qué no nos sentamos aquí? `لَيْشْ` es por qué, `مَا` es no,
+            `نِقْعُدْ` significa nos sentamos y `هُونْ` es aquí. Juntos sugieren una acción común.
+            La forma de nosotros incluye a quien habla; no es una orden dirigida solo a quien
+            escucha."
+          note: "Sustituye `هُونْ` por `هُنِيكْ` para proponer allí. Aprende la sugerencia completa como
+            patrón hablado; en otro contexto también puede preguntar por un impedimento real.
+            **Practica:** ¿qué palabra incluye a quien habla en el plan? Respuesta: `نِقْعُدْ`, la
+            forma de nosotros."
+    - subskill_id: commitments
+      explanation: Alguien debe traer las llaves. Cuando asumes esa responsabilidad, nombrar tu acción
+        futura permite a los demás contar contigo.
+      examples:
+        - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
+          meaning: "**El ejemplo.** Traeré las llaves mañana. `رَحْ` apunta al futuro, `أَجِيبْ` significa
+            traigo, `الْمَفَاتِيحْ` son las llaves y `بُكْرَا` es mañana. Tras `رَحْ`, este verbo
+            aparece sin su prefijo b habitual. Como has aceptado la tarea, la frase asume una
+            responsabilidad."
+          note: "Después de `رَحْ`, conserva la acción sin el prefijo b habitual. **Practica:** promete traer
+            las llaves hoy. Respuesta: `رَحْ أَجِيبْ الْمَفَاتِيحْ الْيَوْمْ`. Sustituir `بُكْرَا`
+            por `الْيَوْمْ` cambia el día y conserva la misma responsabilidad."
+    - subskill_id: accepting_declining
+      explanation: Te han invitado a un lugar hoy, pero no puedes asistir. Agradecer la invitación antes
+        de explicar el impedimento comunica la negativa con claridad y cortesía.
+      examples:
+        - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
+          meaning: "**El ejemplo.** Gracias, pero hoy no puedo ir. `شُكْرًا` agradece y `بَسّ` introduce pero.
+            `مَا بَقْدَرْ` significa no puedo; `أَجِي` es la acción dependiente venir, sin prefijo
+            b. `الْيَوْمْ` significa hoy. La imposibilidad explica la negativa."
+          note: "Usa `بُكْرَا` para una invitación de mañana y conserva `مَا` antes del verbo de capacidad.
+            **Practica:** rechaza la invitación de mañana. Respuesta: `شُكْرًا، بَسّ مَا بَقْدَرْ
+            أَجِي بُكْرَا`. La forma dependiente de venir sigue sin prefijo b; solo cambia el día."
+    - subskill_id: negotiating_plans
+      explanation: Ya hay una reunión prevista para hoy, pero mañana te convendría más. Negociar consiste
+        en proponer un cambio concreto mientras se conserva el plan compartido.
+      examples:
+        - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
+          meaning: "**El ejemplo.** ¿Podríamos reunirnos mañana en vez de hoy? `مُمْكِنْ` abre una pregunta de
+            posibilidad y `نِلْتَقِي` significa nos reunimos. `بُكْرَا` es mañana; `بَدَلْ
+            الْيَوْمْ` significa en vez de hoy. La forma de nosotros incluye a ambas partes y las
+            dos expresiones de tiempo identifican el cambio solicitado."
+          note: "La acción después de `مُمْكِنْ` no lleva el prefijo b habitual en esta propuesta. Invertir
+            los dos días invertiría el cambio pedido. **Practica:** ¿estás cancelando la reunión?
+            Respuesta: no; `نِلْتَقِي` sigue siendo el plan y solo se negocia su día."

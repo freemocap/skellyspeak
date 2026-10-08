@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: feelings_viewpoints
+language: english
+explanation_language: arabic
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-arabic.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: تختلف وظيفة الرغبة عن وظيفة الخطة. قد ترغب في الدراسة من دون أن تخصص لها وقتًا؛ أما
+      قولك إنك تخطط للدراسة فيخبر صديقًا بأن هذا هو النشاط الذي تنوي فعله. ومع ذلك لا يضمن حدوثه.
+    examples:
+      - text: I plan to study tonight.
+        meaning: تذكر `I plan` النية، وتحدد `to study` الفعل المقصود، وتبين `tonight` وقته. بعد `plan` اربط
+          الفعل التالي بـ`to` وصيغته الأساسية. وإذا غيّرت الشخص قلت `She plans to study tonight`.
+        note: >-
+          قارن بـ`I want to study tonight`: تعبّر عن رغبة قد لا تكون خطة بعد. ويمكن أن تعرض `I am
+          studying tonight` الأمر بوصفه ترتيبًا قائمًا.
+
+
+          **جرّب.** قل إنك تنوي الطبخ غدًا. الإجابة: `I plan to cook tomorrow`. أبقِ `to` قبل
+          `cook`، لأنها تصل التخطيط بالفعل المقصود.
+  - subskill_id: preferences
+    explanation: تخبر التفضيلات شخصًا أي خيار تحب أكثر. إذا عرض مضيف مشروبين، يمكنك تسمية الشاي خيارك
+      الأول من غير القول إنك تكره القهوة. تجعل `Prefer` المقارنة صريحة.
+    examples:
+      - text: I prefer tea to coffee.
+        meaning: "تقدّم `I prefer` اختيارك. `Tea` هو الخيار المفضّل؛ وتذكر `to coffee` البديل. تصل `to` هنا
+          بين شيئين في مقارنة، ولا تقدّم فعلًا. يغيّر عكسهما تفضيلك: `I prefer coffee to tea`."
+        note: >-
+          استعمل `to` هنا بدلًا من `than`: `I prefer tea to coffee`. لا تقارن عبارة `I like tea`
+          وحدها بين المشروبين. ويمكن أيضًا وصف نشاطين: `I prefer walking to driving`.
+
+
+          **جرّب.** أنت تحب الصباح أكثر من المساء. الإجابة: `I prefer mornings to evenings`. ضع
+          الخيار المفضّل أولًا والبديل بعد `to`.
+  - subskill_id: emotions
+    explanation: تسمية الشعور تساعد شخصًا آخر على فهم رد فعلك. قبل مقابلة، قد تقلق مما سيحدث. تذكر
+      `Feel` متبوعةً بكلمة وصف الشعور؛ ويمكن أن تقدّم `about` موضوعه.
+    examples:
+      - text: I feel nervous about the interview.
+        meaning: "تصف `I feel` تجربة المتحدث. وتحدد `Nervous` الشعور، بينما تعيّن `about the interview` ما
+          يتعلق به. لا تتغير كلمة الوصف بتغيّر الشخص: `She feels nervous`."
+        note: >-
+          تصف `I am nervous` الحالة أيضًا. تصف `Nervous` شعور الشخص، أما `nerve-racking` فقد تصف
+          التجربة التي تسببه: `The interview was nerve-racking`. لا تستعمل الكلمتين بالتبادل.
+
+
+          **جرّب.** صف شعورك بالحماس لرحلة. الإجابة: `I feel excited about the trip`. تسمّي
+          `Excited` شعورك، وتوضح `about the trip` ما يتعلق به.
+  - subskill_id: opinions
+    explanation: يسمح لك الرأي بإضافة حكمك إلى نقاش. إذا اختارت مجموعة خطةً، فقد ترى أن تكلفتها مشكلة.
+      تعرض `I think` الجملة التالية بوصفها رأيك وتترك مجالًا لرد الآخرين.
+    examples:
+      - text: I think this plan is too expensive.
+        meaning: "تقدّم `I think` الحكم. وتعبّر عنه `This plan is too expensive`: تعني `too` أن التكلفة
+          تتجاوز الحد الملائم، وليس مجرد أنها مرتفعة. ويمكن إضافة سبب مثل `It uses our whole
+          budget`."
+        note: >-
+          قارن بـ`very expensive`؛ فهي تصف سعرًا مرتفعًا دون أن تقول بنفسها إنه مفرط. وعبارة `I
+          don’t think this plan is affordable` طريقة شائعة للتعبير عن رأي سلبي.
+
+
+          **جرّب.** اذكر رأيك بأن الغرفة صغيرة أكثر من اللازم. الإجابة: `I think this room is too
+          small`. تبيّن `Too` وجود مشكلة في حجمها.
+  - subskill_id: agreement_disagreement
+    explanation: تأتي الموافقة ردًا على رأي شخص آخر. إذا قال زميل إن العمل يحتاج يومًا إضافيًا، يمكنك
+      قبول هذه النقطة صراحةً. وتساعد تسمية ما توافق عليه عندما يتضمن النقاش عدة اقتراحات.
+    examples:
+      - text: I agree that we need more time.
+        meaning: "تعني `I agree` أنك تشاطر الرأي. وتحدد `That we need more time` النقطة المقبولة؛ وتصل
+          `that` الموافقةَ بجملة كاملة. ومع الشخص استعمل `with`: `I agree with you`."
+        note: >-
+          للاختلاف من غير مهاجمة الشخص، قل مثلًا `I see your point, but I think we have enough
+          time`. فهم الرأي لا يعني بالضرورة قبوله. تجنب الصيغة الخاطئة `I am agree`؛ فـ`agree` هي
+          الفعل الرئيسي أصلًا.
+
+
+          **جرّب.** وافق على أن الغرفة صغيرة أكثر من اللازم. الإجابة: `I agree that the room is too
+          small`. تحدد الكلمات بعد `that` الحكم المشترك.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

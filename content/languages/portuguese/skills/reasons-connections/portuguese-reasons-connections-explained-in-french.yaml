@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: reasons_connections
+explanation_language: french
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-french.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "Un ami demande pourquoi vous n’êtes pas sorti. `Fiquei em casa porque estava chovendo` donne la
+      raison : `fiquei em casa` rapporte votre séjour à la maison, `porque` signifie « parce que » et `estava
+      chovendo` présente une pluie en cours à ce moment passé. La proposition causale explique la décision, au
+      lieu d’ajouter un fait indépendant. Dans une question « pourquoi », on écrit `por que` ; ici, le
+      `porque` explicatif s’écrit en un mot."
+    examples:
+      - text: Fiquei em casa porque estava chovendo.
+        meaning: Je suis resté chez moi parce qu’il pleuvait.
+        note: "Donnez la maladie comme motif. `Fiquei em casa porque estava doente.` est complet : `porque` relie
+          l’action à sa raison, et `estava doente` exprime cette raison."
+  - subskill_id: consequences
+    explanation: "Votre pneu crève pendant le trajet et vous rentrez à pied. `O pneu furou, por isso voltei a pé`
+      donne le résultat : `furou` indique la crevaison, `por isso` signifie « donc » ou « pour cette raison »,
+      `voltei` « je suis rentré » et `a pé` « à pied ». Le connecteur renvoie à la crevaison comme cause de ce
+      retour. `O pneu furou, depois voltei a pé` ne fait qu’ordonner les faits, sauf si le contexte fournit
+      déjà leur lien. `Por isso` rend la conséquence explicite."
+    examples:
+      - text: O pneu furou, por isso voltei a pé.
+        meaning: Le pneu a crevé, donc je suis rentré à pied.
+        note: "Expliquez un retard causé par le bus. `O ônibus atrasou, por isso cheguei tarde.` donne une conséquence
+          complète : `por isso` relie l’arrivée tardive au retard du bus."
+  - subskill_id: conditions
+    explanation: "Vous préparez un échange de livres pour demain et le lieu dépend de la pluie. `Se chover amanhã,
+      vamos fazer a troca de livros na biblioteca` comporte une condition et sa conséquence : `se` signifie «
+      si », `chover` est le subjonctif futur de `chover` et `vamos fazer` donne l’action prévue si la pluie se
+      produit. Pour ce verbe régulier, le subjonctif futur ressemble à l’infinitif. Avec un verbe irrégulier,
+      la différence apparaît : `Se tivermos tempo, vamos fazer a troca` signifie « si nous avons le temps ».
+      Aucune des deux phrases n’affirme que la pluie ou le temps libre sont déjà là."
+    examples:
+      - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
+        meaning: S’il pleut demain, nous ferons l’échange de livres à la bibliothèque.
+        note: Prenez le temps disponible comme condition. `Se tivermos tempo, vamos fazer a troca de livros na
+          biblioteca.` est une condition envisagée complète ; `tivermos` est le subjonctif futur de `ter` à la
+          première personne du pluriel.
+  - subskill_id: contrast
+    explanation: "Vous souhaitez prendre le vélo, mais le pneu est crevé. `Quero ir de bicicleta, mas o pneu está
+      furado` oppose une intention à un obstacle : `quero ir` signifie « je veux aller », `de bicicleta`
+      indique le moyen de transport, `mas` « mais » et `está furado` l’état actuel du pneu. La seconde
+      proposition importe parce qu’elle gêne la première ; un fait quelconque après `mas` ne créerait pas un
+      contraste utile."
+    examples:
+      - text: Quero ir de bicicleta, mas o pneu está furado.
+        meaning: Je veux y aller à vélo, mais le pneu est crevé.
+        note: "Opposez la marche à la pluie. `Quero ir a pé, mas está chovendo.` forme un contraste complet : la pluie
+          rend la marche envisagée moins pratique."
+  - subskill_id: supporting_claims
+    explanation: "Vous recommandez un itinéraire plutôt qu’un autre. `Acho que este caminho é melhor: é mais
+      curto` donne d’abord votre jugement, puis son fondement. `Acho que` marque votre avis, `este caminho`
+      désigne cet itinéraire, `é melhor` signifie « est meilleur » et `é mais curto` précise qu’il est plus
+      court. La seconde proposition étaye le jugement même sans `porque`. Un fait sans rapport ne
+      constituerait pas un argument."
+    examples:
+      - text: "Acho que este caminho é melhor: é mais curto."
+        meaning: "Je trouve cet itinéraire meilleur : il est plus court."
+        note: "Appuyez la même recommandation sur la sécurité. `Acho que este caminho é melhor: é mais seguro.` est
+          complet ; `é mais seguro` donne une raison pertinente de choisir cet itinéraire."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: coordinating_action
+explanation_language: mandarin
+title: 协调行动
+introduction: 请求帮助、提出想法，并商量一起做什么。
+sections:
+  - subskill_id: requests
+    title: 请求
+    concept: 请别人做某事，或停止做某事。
+  - subskill_id: offers_invitations
+    title: 提议与邀请
+    concept: 主动提供帮助，或邀请别人参与。
+  - subskill_id: suggestions
+    title: 建议
+    concept: 提出一个行动，供别人考虑。
+  - subskill_id: commitments
+    title: 承诺
+    concept: 说明自己愿意负责完成什么事。
+  - subskill_id: accepting_declining
+    title: 接受与婉拒
+    concept: 接受或拒绝请求、帮助提议、邀请或建议。
+  - subskill_id: negotiating_plans
+    title: 协商计划
+    concept: 调整计划，使参与的人都能接受。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English learner-facing concepts. Skill
+    identities and assessment criteria are unchanged; independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: Learner-facing Mandarin title, introduction and section concepts; copied source keys support the
+      original concepts and do not certify the translation.

@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: feelings_viewpoints
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 你想学一项新的厨房技能。`Quero aprender a fazer pão` 包含两个动作：`quero` 表示你想要，`aprender a fazer`
+      表示学会制作。后面接另一个不定式时，`a` 属于 `aprender a` 这个句式。`quero` 的主语是没有说出的说话人。`Quero aprender a nadar`
+      用同样结构表示想学游泳。愿望本身不等于承诺一定会去上课。
+    examples:
+      - text: Quero aprender a fazer pão.
+        meaning: 我想学做面包。
+        note: 说出你想学做汤。`Quero aprender a fazer sopa.` 保留 `quero aprender a fazer`，把要制作的东西换成 `sopa`。
+  - subskill_id: preferences
+    explanation: 你一般喜欢做饭，但有选择时更想做面包。`Gosto de cozinhar, mas prefiro fazer pão` 把喜好和偏好连起来。`Gostar` 在说出喜欢的对象时后接
+      `de`，这里对象是不定式 `cozinhar`；`gosto` 对应说喜欢的那个人。`Prefiro` 意为“我更喜欢”，直接引出 `fazer pão`，不需要 `de`。`Mas`
+      标出一般喜欢和特别偏好的对比。`Gosto de ler, mas prefiro escrever` 也遵循这个句式。
+    examples:
+      - text: Gosto de cozinhar, mas prefiro fazer pão.
+        meaning: 我喜欢做饭，但更喜欢做面包。
+        note: 在仍喜欢做饭的同时，表示更想做汤。`Gosto de cozinhar, mas prefiro fazer sopa.` 是完整的表达；`de` 留在 `gosto` 后，`prefiro` 则直接放在
+          `fazer` 前。
+  - subskill_id: emotions
+    explanation: 你刚看到一个项目的结果，感到高兴。`Estou contente com o resultado` 用 `estou`（`estar` 的第一人称现在时）报告当前感受。`Contente`
+      表示高兴，无论说话人是男性还是女性，单数形式都一样；`com o resultado` 点出感受所针对的事。这是在报告情绪，不是断言结果客观上很好。`Estou preocupado com o
+      resultado` 把感受改成担忧；这个形容词可能要随说话人变化。
+    examples:
+      - text: Estou contente com o resultado.
+        meaning: 我对结果感到高兴。
+        note: 说出你对这个消息感到高兴。`Estou contente com a notícia.` 给出完整的感受和所涉及的事；`com a notícia` 取代 `com o resultado`。
+  - subskill_id: opinions
+    explanation: 讨论图书馆时，你认为多一些桌子会有帮助。`Acho que a biblioteca precisa de mais mesas` 用 `acho que`（我认为）引出你的判断。`que`
+      后面的从句说明观点：`a biblioteca` 是主语，`precisa de` 意为需要，`mais mesas` 是更多桌子。需要某物时，`de` 属于 `precisar de`
+      这个搭配。这是在表达看法，而不是请别人重复没有听清的话。
+    examples:
+      - text: Acho que a biblioteca precisa de mais mesas.
+        meaning: 我认为图书馆需要更多桌子。
+        note: 表示你认为图书馆需要更多椅子。`Acho que a biblioteca precisa de mais cadeiras.` 保留表达观点的句式和必要的 `de`，把桌子换成椅子。
+  - subskill_id: agreement_disagreement
+    explanation: 有人提议星期六关闭图书馆，你反对。`Não concordo com essa ideia` 把 `não` 放在 `concordo` 前面否定赞同；`com essa ideia`
+      指出你反对的提议。`Concordar com` 可以把赞同的对象连到某个人或某个想法。语境很重要，因为 `essa ideia` 指回前面提到的想法。
+    examples:
+      - text: Não concordo com essa ideia.
+        meaning: 我不同意这个想法。
+        note: 改为赞同这项提议。`Concordo com essa ideia.` 是对已知想法的完整回应；去掉 `não` 就改变了立场，而 `com` 仍把立场连到这项提议。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_gostar2026
+        - ut_pt_negation2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

@@ -1,0 +1,117 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: coordinating_action
+language: english
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 请求是请别人做一件事。双手拿满东西时，你可能需要对方帮忙短暂拿住箱子。用 `Could you` 提问，比 `Hold this box` 这样的直接指令委婉。
+    examples:
+      - text: Could you hold this box for a moment?
+        meaning: "`Could you` 称呼帮忙的人；`hold this box` 说出动作。`For a moment` 表明只需帮一小会儿。`could` 后用原形动词 `hold`，不用加 `to`。"
+        note: |-
+          `Could you hold this box?` 请听话人行动。`Could I put this box here?` 则是请求允许自己做事。一种可能的回答是 `Sure`，随后接过箱子。
+
+          **练一练。** 礼貌地请别人关门。答案：`Could you close the door, please?` 主语是 `you`，`close` 保持动词原形。
+  - subskill_id: offers_invitations
+    explanation: 邀请给对方一个参加活动的选择。如果你们一组人要去吃午饭，`Would you like to` 欢迎另一个人加入，却不预设对方一定来。同一个开头也可以提供对方可能想要的东西。
+    examples:
+      - text: Would you like to join us for lunch?
+        meaning: "`Would you like to` 引出提议做的事。`Join us` 是加入我们这组人；`for lunch` 指明午饭这个场合。这个句式里，在 `join` 前保留 `to`。"
+        note: >-
+          比较 `Would you like some tea?`：`like` 后跟的是东西，因此没有动作动词，也没有 `to`。若主动提供自己的帮助，可以说 `Shall I carry
+          that?`；这时行动的人是你。
+
+
+          **练一练。** 邀请朋友去散步。答案：`Would you like to go for a walk?` 所提议的活动用 `to go`。`Yes, thanks` 接受；`Sorry, I
+          cannot today` 拒绝。
+  - subskill_id: suggestions
+    explanation: 建议是在共同决定中提出一个选项。选择路线时，你可以提到一条较安静的路，而不强迫大家选它。`We could` 表示这件事可供大家考虑。
+    examples:
+      - text: We could take the quieter route.
+        meaning: "`We` 包括说话人和同伴。`Could take` 提出可能采取的行动；`the quieter route` 指比另一条噪声更少的路线。`could` 后面的动词是 `take`，不是 `to
+          take`。"
+        note: >-
+          `We should take the quieter route` 更强烈地推荐这个选择。`We will take it` 可能宣布已经决定。建议仍留给别人回应，例如 `Good idea` 或
+          `That takes too long`。
+
+
+          **练一练。** 建议坐公交车，但不宣布决定。答案：`We could take the bus`。`Could` 让它仍是可商量的选项。
+  - subskill_id: commitments
+    explanation: 承诺告诉别人可以指望你做什么。朋友需要地址时，回答今晚会发过去，就能明确由谁负责。`I will` 在这种对话里可以表达决定或承诺。
+    examples:
+      - text: I will send you the address tonight.
+        meaning: "`I` 指负责的人。`Will send` 在此处表示承诺发送；`you` 是收件人，`the address` 是要发送的内容，`tonight` 说明时间。日常缩写是 `I’ll`。"
+        note: |-
+          语境能区分承诺与预测。`It will rain tonight` 是预测天气，不是承诺行动。有效的承诺会说出你能完成的任务和时间。
+
+          **练一练。** 朋友请你明天打电话，你答应了。答案：`I’ll call you tomorrow`。`Will` 后接原形 `call`，`tomorrow` 说清时间。
+  - subskill_id: accepting_declining
+    explanation: 明确回答能让对方知道是否把你算进计划。受邀吃晚饭时，你可以先感谢主人，再说自己不能留下。简短原因可以加，但无需长篇解释。
+    examples:
+      - text: Thanks, but I cannot stay for dinner.
+        meaning: "`Thanks` 友好地回应邀请。`But` 引出限制；`cannot stay` 表示不能留下，`for dinner` 指被婉拒的晚饭邀请。日常口语常用 `can’t`。"
+        note: |-
+          `Thanks, I’d love to` 接受邀请。`Maybe` 没有明确答复；如果已经知道来不了，就不宜用它。也可以提出替代安排：`Could we have lunch tomorrow?`
+
+          **练一练。** 婉拒留下喝咖啡。一种回答：`Thanks, but I can’t stay for coffee`。先感谢，再直接说明不能留下。
+  - subskill_id: negotiating_plans
+    explanation: 商量计划是找到双方都可行的选项。如果五点太早，可以保留见面这件事，改提六点。具体的替代方案比只说原计划不行更容易让对方回应。
+    examples:
+      - text: Could we meet at six instead of five?
+        meaning: "`Could we meet` 请双方考虑调整。`At six` 提出新时间；`instead of five` 指明它要取代五点。`could` 后面的 `meet` 保持原形。"
+        note: >-
+          `At six or five?` 提供选择，但没有明确说要替换原时间。`Instead of` 直接表明你想改哪里。对方可能接受，也可能回提 `Six is too late. How about
+          half past five?`
+
+
+          **练一练。** 活动不变，把星期一改到星期三。答案：`Could we meet on Wednesday instead of Monday?` 星期前用 `on`，钟点前则用 `at`。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - bc_modals2026
+    - bunt2020_dialogue_acts
+    - bcCanCouldTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.

@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: information_exchange
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/information-exchange/information-exchange-explained-in-mandarin.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 信息问句要明确说明你想知道什么。西语用 `dónde` 问地点，`cuándo` 问时间，`qué` 问事物或解释。例句缺少的信息是车站的位置。询问人或物在哪里，要使用 `estar` 的相应形式。
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: "**句子怎么组成。** “车站在哪里？”包含三部分：`dónde` 询问位置，`está` 是单数动词，`la estación` 指你要找的车站。`dónde` 和 `está`
+          都要保留重音符号，还要写出前后的问号。"
+        note: |-
+          **改变数量。** `¿Dónde están las llaves?` 问钥匙在哪里。`están` 和 `las llaves` 都是复数。回答可以只说地点：`En la mesa`，在桌上。
+
+          **练一练。** 用 `el baño` 询问洗手间在哪里。答案：`¿Dónde está el baño?`。因为问的是一个洗手间，使用单数 `está`。
+  - subskill_id: answering_information
+    explanation: 别人问你在哪里时，一个简短的地点短语就能给出所需信息。问句已经提供了人物和动词，所以回答只说地点即可。这是自然的对话回答，不是不完整的回答。
+    examples:
+      - text: En casa.
+        meaning: “在家。” `En` 引出位置，`casa` 在这里意为家。接在 `¿Dónde estás?` 后，这个短语回答说话人在哪里。日常表达 `En casa` 不加冠词。
+        note: |-
+          **比较。** `En la casa de Ana` 指一所具体房子：安娜的房子。地点回答不能回答 `¿Cuándo llegas?`，因为后者问的是何时到达。
+
+          **练一练。** 用公园 `el parque` 回答 `¿Dónde estás?`。答案：`En el parque`。保留这个名词短语所需的冠词。
+  - subskill_id: checking_facts
+    explanation: 如果你以为访客八点到，可以核实这个细节，而不是完全开放地询问。西语可以用语调和书面的问号，把普通陈述变成是非问句。
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: “你八点到吗？” `Llegas` 意为你到达，`a las ocho` 给出时间。这里的现在时指已安排的到达。西语不另加相当于英语 do 的疑问助动词。
+        note: |-
+          **比较。** `¿A qué hora llegas?` 没有先提出八点，而是询问具体时间。纠正时可以答 `No, a las nueve`。一点钟则说 `a la una`，用单数冠词。
+
+          **练一练。** 核实是不是九点到。答案：`¿Llegas a las nueve?`。只替换时间。
+  - subskill_id: useful_detail
+    explanation: 指路时，只给一个地标仍可能让人分不清具体地点。第二个地标可以缩小范围。西语的地点短语可以组合起来，从两个有用的参照点描述同一位置。
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: “它在银行旁边，公园对面。” `Está` 指前面谈到的地点。`Al lado del banco` 表示在银行旁，`frente al parque` 表示在公园对面。`Del` 是 `de` 与
+          `el` 的合成，`al` 是 `a` 与 `el` 的合成。
+        note: |-
+          **变换用法。** `Está al lado de la farmacia` 把地标改成药房。`De la` 仍分开写，因为只有 `de el` 缩合成 `del`。选择听话人能够找到的地标。
+
+          **练一练。** 说它在银行对面。答案：`Está frente al banco`。这个表达用 `a`，与 `el` 合成。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

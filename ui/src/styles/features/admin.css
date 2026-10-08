@@ -91,3 +91,6 @@
 #admin-console .report-table td { max-width: 500px; white-space: nowrap; }
 #admin-console .report-table th { min-width: 110px; }
 #admin-console .metadata-details { white-space: normal; }
+
+/* Explicit two-line account headings keep period and unit together. */
+#admin-console .column-heading-line { display: block; white-space: nowrap; }

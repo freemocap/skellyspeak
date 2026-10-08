@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-french-2026-10-07
+language: mandarin
+skill_id: coordinating_action
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: Une boîte gêne le travail ; une demande précise où la déplacer. `请` rend la demande directe
+      polie, et `把` place l’objet connu avant l’action et sa destination.
+    examples:
+      - text: 请把这个箱子搬到门口。
+        meaning: "**L’exemple.** Veuillez déplacer cette boîte près de la porte. `这个箱子` désigne cette boîte,
+          introduite par `把`. `搬` signifie déplacer ou porter un objet volumineux, `到` mène à la destination
+          et `门口` désigne l’entrée. `搬到门口` dit ce qui doit arriver à la boîte."
+        note: "Essayez : demandez que l’on déplace une autre boîte au même endroit. Réponse : `请把那个箱子搬到门口。` Remplacez
+          `这个` par `那个` et gardez l’action complète et sa destination. `请搬箱子` demande simplement de déplacer
+          des boîtes, sans préciser laquelle ni où la mettre."
+  - subskill_id: offers_invitations
+    explanation: "Une autre personne porte des outils ; vous proposez votre aide. `要不要` demande si elle souhaite
+      l’aide proposée. `我` nomme explicitement la personne qui aidera : l’offre concerne votre action."
+    examples:
+      - text: 要不要我帮你拿工具？
+        meaning: "**L’exemple.** Veux-tu que je t’aide à porter les outils ? `要不要` présente le choix « vouloir ou ne
+          pas vouloir ». `我帮你` signifie « je t’aide » et `拿工具` « porter ou prendre les outils ». Les rôles
+          sont nets : j’aide, tu reçois l’aide, les outils sont portés."
+        note: "Essayez : proposez de porter un sac. Réponse : `要不要我帮你拿包？` Remplacez `工具` par `包`. `你能帮我拿工具吗？` inverse
+          les rôles et demande à l’autre personne de vous aider."
+  - subskill_id: suggestions
+    explanation: Après une marche, le groupe pourrait faire une courte pause. `我们` vous inclut dans l’activité
+      proposée. Le `吧` final présente le repos comme une suggestion à accepter ensemble.
+    examples:
+      - text: 我们在这里休息一下吧。
+        meaning: "**L’exemple.** Reposons-nous ici un moment. `在这里` signifie « ici » et précède `休息`, « se reposer ».
+          `一下` indique un repos bref, tandis que `吧` donne le ton de la proposition. La phrase ne rapporte pas
+          que le groupe se repose déjà."
+        note: "Essayez : proposez une pause là-bas. Réponse : `我们在那里休息一下吧。` Remplacez `这里` par `那里` ; le lieu reste
+          avant l’action. `我们在这里休息` peut décrire où le groupe se repose ; ici, le `吧` final rend la
+          proposition explicite."
+  - subskill_id: commitments
+    explanation: Pendant la répartition des tâches de demain, vous vous chargez d’apporter les outils. Dans ce
+      contexte, `我来` prend la responsabilité à votre compte ; `来` n’implique pas forcément un déplacement
+      distinct vers l’autre personne.
+    examples:
+      - text: 明天我来带工具。
+        meaning: "**L’exemple.** J’apporterai les outils demain. `明天` signifie « demain », `我来` « je m’en charge » et
+          `带工具` « apporter les outils ». Le temps précède la personne qui se porte volontaire et la tâche. Le
+          verbe ne reçoit pas de terminaison future."
+        note: "Essayez : proposez d’apporter de l’eau à la place. Réponse : `明天我来带水。` Remplacez `工具` par `水` et gardez
+          `我来` dans cet échange de répartition. `明天可能下雨` prédit un événement possible sans attribuer de
+          responsabilité."
+  - subskill_id: accepting_declining
+    explanation: Une invitation pour ce soir peut être impossible à accepter. Une excuse brève, suivie du problème
+      de disponibilité, exprime clairement le refus. `来不了` dit que vous ne pouvez pas parvenir à venir.
+    examples:
+      - text: 不好意思，我今晚来不了。
+        meaning: "**L’exemple.** Désolé, je ne peux pas venir ce soir. `不好意思` ouvre par une excuse, `我今晚` signifie «
+          moi, ce soir » et `来不了` « ne pas pouvoir venir ». Ici, `了` se prononce `liǎo`, et non comme la
+          particule finale `le` ; l’ensemble exprime une incapacité à réaliser l’action."
+        note: "Essayez : refusez une invitation pour demain soir. Réponse : `不好意思，我明晚来不了。` Remplacez `今晚` par `明晚`.
+          `我今晚不来` dit seulement que vous ne venez pas ce soir ; cette phrase n’exprime pas le même empêchement
+          que `来不了`."
+  - subskill_id: negotiating_plans
+    explanation: Quelqu’un propose vendredi, mais ce jour ne vous convient pas. Nommer un autre jour garde le
+      projet ouvert. Après le nouveau jour, `怎么样` demande si cette option convient à l’autre personne.
+    examples:
+      - text: 周五不行，周六怎么样？
+        meaning: "**L’exemple.** Vendredi ne va pas ; et samedi ? `周五` signifie « vendredi » et `不行` écarte ce jour.
+          `周六` signifie « samedi », suivi de `怎么样`, « qu’en penses-tu ? ». La rencontre peut rester implicite
+          puisqu’elle est déjà en discussion."
+        note: "Essayez : proposez dimanche à la place. Réponse : `周五不行，周日怎么样？` Ne changez que le jour de remplacement.
+          `周六可以` affirme que samedi convient ; `周六怎么样` sollicite encore la réponse de l’autre personne."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

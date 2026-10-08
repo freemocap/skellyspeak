@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: feelings_viewpoints
+explanation_language: arabic
+title: المشاعر ووجهات النظر
+introduction: تحدّث عن المشاعر والرغبات والتفضيلات وما تفكر فيه.
+sections:
+  - subskill_id: wants_intentions
+    title: الرغبات والنوايا
+    concept: اذكر ما تريد فعله أو تنوي فعله.
+  - subskill_id: preferences
+    title: التفضيلات
+    concept: اذكر ما تحبه أو أي خيار تفضّل.
+  - subskill_id: emotions
+    title: المشاعر
+    concept: تحدّث عمّا يشعر به شخص ما.
+  - subskill_id: opinions
+    title: الآراء
+    concept: اذكر رأيك في شيء ما.
+  - subskill_id: agreement_disagreement
+    title: الاتفاق والاختلاف
+    concept: ردّ على فكرة بالموافقة عليها أو بتوضيح موضع اختلافك معها.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

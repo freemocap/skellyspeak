@@ -1,0 +1,244 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: time_events
+language: english
+explanation_language: spanish
+shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Los hechos presentes incluyen situaciones habituales y acciones que suceden ahora. Al
+      describir el trabajo de alguien, normalmente hablas de su lugar de trabajo habitual, aunque
+      hoy esté en casa. El presente simple sirve para esa situación regular.
+    examples:
+      - text: She works at the museum.
+        meaning: "`She` identifica a la persona. `Works` lleva la terminación correspondiente a `she`; `at
+          the museum` nombra su lugar de trabajo. Con `I` o `they` se usa `work`: `They work at the
+          museum`. La oración no dice que esté trabajando exactamente ahora."
+        note: >-
+          `She is working at the museum today` se centra en una actividad actual. Para negar el
+          trabajo habitual, di `She doesn’t work at the museum`; después de `doesn’t`, `work`
+          conserva su forma simple.
+
+
+          **Practica.** Describe el lugar de trabajo habitual de tu hermano: una biblioteca.
+          Respuesta: `He works at the library`. Con `He` se usa `works`, aunque describas un empleo
+          y no una acción de este instante.
+  - subskill_id: past_events
+    explanation: Un hecho pasado comunica lo que sucedió antes. Al contar una salida de ayer, tanto la
+      expresión de tiempo como el verbo sitúan el viaje en el pasado. Añadir una palabra de tiempo
+      pasado no suele permitir dejar el verbo en presente.
+    examples:
+      - text: Yesterday we went to the harbour.
+        meaning: "`Yesterday` indica cuándo. `We` identifica a los viajeros; `went` es el pasado de `go` y
+          `to the harbour` indica el destino. `Went` no cambia según la persona: `I went`, `she
+          went`, `they went`."
+        note: >-
+          Algunos pasados añaden `-ed`, como `walked`; `go` tiene, en cambio, la forma irregular
+          `went`. En una pregunta, `did` lleva la marca de pasado: `Did you go?`, no el incorrecto
+          `Did you went?`
+
+
+          **Practica.** Cuenta tu visita al mercado ayer. Respuesta: `Yesterday I went to the
+          market`. Usa `went` para el viaje anterior ya realizado.
+  - subskill_id: future_events
+    explanation: Hablar del futuro puede presentar un acuerdo, una intención o una predicción. Si ya has
+      acordado dónde encontraros mañana, el presente continuo puede expresar ese encuentro previsto.
+      Una expresión de futuro deja claro que no está sucediendo ahora.
+    examples:
+      - text: We are meeting at the station tomorrow.
+        meaning: "`We are meeting` combina `are` con `meeting`. `At the station` indica el lugar; `tomorrow`
+          sitúa el acuerdo en el futuro. Con una persona, cambia el auxiliar: `She is meeting us
+          tomorrow`."
+        note: >-
+          `We are going to meet` puede expresar una intención. `I’ll meet you there` puede comunicar
+          una decisión tomada al hablar. Estas formas se solapan, pero el contexto orienta la
+          elección; no son intercambiables en todos los casos.
+
+
+          **Practica.** Describe una cena ya acordada para mañana. Respuesta: `We are having dinner
+          tomorrow`. `Are having` presenta el acuerdo y `tomorrow` sitúa el momento futuro.
+  - subskill_id: duration_frequency
+    explanation: La duración indica cuánto tiempo ocupa una actividad; la frecuencia, cada cuánto
+      sucede. Al describir una rutina de práctica, quizá necesites ambos datos. Así se distingue una
+      sesión diaria breve de una larga pero ocasional.
+    examples:
+      - text: I practise for twenty minutes every evening.
+        meaning: "`I practise` nombra la actividad habitual. `For twenty minutes` expresa cuánto dura cada
+          sesión y `every evening` indica que ocurre cada tarde. Puedes cambiar cada parte por
+          separado: `for ten minutes every morning` describe otra rutina."
+        note: >-
+          `For` introduce un período de tiempo. `Since Monday` indica, en cambio, un punto de
+          inicio, como en `I have practised every day since Monday`. No sustituyas `for twenty
+          minutes` por el incorrecto `since twenty minutes`.
+
+
+          **Practica.** Describe que lees media hora cada día. Respuesta: `I read for thirty minutes
+          every day`. `For thirty minutes` responde cuánto dura; `every day`, con qué frecuencia.
+  - subskill_id: event_sequence
+    explanation: El orden ayuda a reconstruir lo que pasó o a seguir instrucciones. En una historia de
+      viaje, indicar qué ocurrió primero evita confundir si llamaste al taxi antes de preparar las
+      bolsas.
+    examples:
+      - text: First we packed, then we called a taxi.
+        meaning: "`First` sitúa la preparación de las bolsas al principio. `Packed` es una acción pasada y
+          terminada; `then` introduce la siguiente, `called a taxi`. Los dos verbos tienen
+          terminación regular de pasado. La oración ordena los hechos sin decir que uno causó el
+          otro."
+        note: >-
+          Puedes expresar el mismo orden con `After we packed, we called a taxi`. `Before we packed,
+          we called a taxi` lo invierte. En instrucciones, los verbos van en su forma simple: `First
+          pack, then call a taxi`.
+
+
+          **Practica.** Ordena dos acciones pasadas: comiste y después saliste. Respuesta: `First I
+          ate, then I left`. Los pasados sitúan los hechos antes; `first` y `then` indican su orden.
+  - subskill_id: event_phase
+    explanation: Una acción puede verse mientras sucede o como un hecho completo. Al explicar un corte
+      de luz, quizá quieras decir qué hacías en aquel momento. La actividad en curso da el contexto
+      del suceso repentino.
+    examples:
+      - text: I was cooking when the lights went out.
+        meaning: "`I was cooking` presenta la cocina como actividad en curso en ese momento pasado. `Was`
+          concuerda con `I`; `cooking` nombra la acción. `When the lights went out` introduce el
+          suceso que ocurrió durante ella; aquí `went out` significa que dejaron de alumbrar."
+        note: >-
+          `I cooked dinner` presenta cocinar como hecho pasado completo. `I was cooking` no dice por
+          sí solo que terminaras la comida. Con varias personas, se usa `We were cooking`.
+
+
+          **Practica.** Estabas leyendo cuando sonó el teléfono. Respuesta: `I was reading when the
+          phone rang`. `Was reading` da el trasfondo en curso y `rang` identifica el suceso que
+          ocurrió durante él.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored Spanish localization of current english guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_present2026
+        - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original english constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: present_events
+      explanation: Los hechos presentes incluyen situaciones habituales y acciones que suceden ahora. Al
+        describir el trabajo de alguien, normalmente hablas de su lugar de trabajo habitual, aunque
+        hoy esté en casa. El presente simple sirve para esa situación regular.
+      examples:
+        - text: She works at the museum.
+          meaning: "`She` identifica a la persona. `Works` lleva la terminación correspondiente a `she`; `at
+            the museum` nombra su lugar de trabajo. Con `I` o `they` se usa `work`: `They work at
+            the museum`. La oración no dice que esté trabajando exactamente ahora."
+          note: >-
+            `She is working at the museum today` se centra en una actividad actual. Para negar el
+            trabajo habitual, di `She doesn’t work at the museum`; después de `doesn’t`, `work`
+            conserva su forma simple.
+
+
+            **Practica.** Describe el lugar de trabajo habitual de tu hermano: una biblioteca.
+            Respuesta: `He works at the library`. Con `He` se usa `works`, aunque describas un
+            empleo y no una acción de este instante.
+    - subskill_id: past_events
+      explanation: Un hecho pasado comunica lo que sucedió antes. Al contar una salida de ayer, tanto la
+        expresión de tiempo como el verbo sitúan el viaje en el pasado. Añadir una palabra de tiempo
+        pasado no suele permitir dejar el verbo en presente.
+      examples:
+        - text: Yesterday we went to the harbor.
+          meaning: "`Yesterday` indica cuándo. `We` identifica a los viajeros; `went` es el pasado de `go` y
+            `to the harbor` indica el destino. `Went` no cambia según la persona: `I went`, `she
+            went`, `they went`."
+          note: >-
+            Algunos pasados añaden `-ed`, como `walked`; `go` tiene, en cambio, la forma irregular
+            `went`. En una pregunta, `did` lleva la marca de pasado: `Did you go?`, no el incorrecto
+            `Did you went?`
+
+
+            **Practica.** Cuenta tu visita al mercado ayer. Respuesta: `Yesterday I went to the
+            market`. Usa `went` para el viaje anterior ya realizado.
+    - subskill_id: future_events
+      explanation: Hablar del futuro puede presentar un acuerdo, una intención o una predicción. Si ya has
+        acordado dónde encontraros mañana, el presente continuo puede expresar ese encuentro
+        previsto. Una expresión de futuro deja claro que no está sucediendo ahora.
+      examples:
+        - text: We are meeting at the station tomorrow.
+          meaning: "`We are meeting` combina `are` con `meeting`. `At the station` indica el lugar; `tomorrow`
+            sitúa el acuerdo en el futuro. Con una persona, cambia el auxiliar: `She is meeting us
+            tomorrow`."
+          note: >-
+            `We are going to meet` puede expresar una intención. `I’ll meet you there` puede
+            comunicar una decisión tomada al hablar. Estas formas se solapan, pero el contexto
+            orienta la elección; no son intercambiables en todos los casos.
+
+
+            **Practica.** Describe una cena ya acordada para mañana. Respuesta: `We are having
+            dinner tomorrow`. `Are having` presenta el acuerdo y `tomorrow` sitúa el momento futuro.
+    - subskill_id: duration_frequency
+      explanation: La duración indica cuánto tiempo ocupa una actividad; la frecuencia, cada cuánto
+        sucede. Al describir una rutina de práctica, quizá necesites ambos datos. Así se distingue
+        una sesión diaria breve de una larga pero ocasional.
+      examples:
+        - text: I practice for twenty minutes every evening.
+          meaning: "`I practice` nombra la actividad habitual. `For twenty minutes` expresa cuánto dura cada
+            sesión y `every evening` indica que ocurre cada tarde. Puedes cambiar cada parte por
+            separado: `for ten minutes every morning` describe otra rutina."
+          note: >-
+            `For` introduce un período de tiempo. `Since Monday` indica, en cambio, un punto de
+            inicio, como en `I have practiced every day since Monday`. No sustituyas `for twenty
+            minutes` por el incorrecto `since twenty minutes`.
+
+
+            **Practica.** Describe que lees media hora cada día. Respuesta: `I read for thirty
+            minutes every day`. `For thirty minutes` responde cuánto dura; `every day`, con qué
+            frecuencia.
+    - subskill_id: event_sequence
+      explanation: El orden ayuda a reconstruir lo que pasó o a seguir instrucciones. En una historia de
+        viaje, indicar qué ocurrió primero evita confundir si llamaste al taxi antes de preparar las
+        bolsas.
+      examples:
+        - text: First we packed, then we called a taxi.
+          meaning: "`First` sitúa la preparación de las bolsas al principio. `Packed` es una acción pasada y
+            terminada; `then` introduce la siguiente, `called a taxi`. Los dos verbos tienen
+            terminación regular de pasado. La oración ordena los hechos sin decir que uno causó el
+            otro."
+          note: >-
+            Puedes expresar el mismo orden con `After we packed, we called a taxi`. `Before we
+            packed, we called a taxi` lo invierte. En instrucciones, los verbos van en su forma
+            simple: `First pack, then call a taxi`.
+
+
+            **Practica.** Ordena dos acciones pasadas: comiste y después saliste. Respuesta: `First
+            I ate, then I left`. Los pasados sitúan los hechos antes; `first` y `then` indican su
+            orden.
+    - subskill_id: event_phase
+      explanation: Una acción puede verse mientras sucede o como un hecho completo. Al explicar un corte
+        de luz, quizá quieras decir qué hacías en aquel momento. La actividad en curso da el
+        contexto del suceso repentino.
+      examples:
+        - text: I was cooking when the lights went out.
+          meaning: "`I was cooking` presenta la cocina como actividad en curso en ese momento pasado. `Was`
+            concuerda con `I`; `cooking` nombra la acción. `When the lights went out` introduce el
+            suceso que ocurrió durante ella; aquí `went out` significa que dejaron de alumbrar."
+          note: >-
+            `I cooked dinner` presenta cocinar como hecho pasado completo. `I was cooking` no dice
+            por sí solo que terminaras la comida. Con varias personas, se usa `We were cooking`.
+
+
+            **Practica.** Estabas leyendo cuando sonó el teléfono. Respuesta: `I was reading when
+            the phone rang`. `Was reading` da el trasfondo en curso y `rang` identifica el suceso
+            que ocurrió durante él.

@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: feelings_viewpoints
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 想学习新技能，可以让别人知道你对什么感兴趣。这也可以开启关于课程的讨论，但没有声称你已经报名。
+    examples:
+      - text: أُرِيدُ أَنْ أَتَعَلَّمَ السِّبَاحَةَ.
+        meaning: "**例句。** 我想学游泳。`أُرِيدُ` 意为我想要。`أَنْ أَتَعَلَّمَ` 指想做的事，即学习；`السِّبَاحَةَ`
+          是游泳。两个动词都指“我”，所以不需要另加人称代词。连接词 `أَنْ` 引出所希望做的动作。"
+        note: 在这里，带完整元音标记的动作动词跟在 `أَنْ` 后，以短 a 元音结尾。试一试：说我们想学游泳。答案：`نُرِيدُ أَنْ نَتَعَلَّمَ
+          السِّبَاحَةَ`。两个动词都变成“我们”形式；`أَنْ` 仍连接愿望与学习行动。
+  - subskill_id: preferences
+    explanation: 选饮料时，偏好是在比较选择，而不只是说其中一种好喝。这里茶比咖啡更合说话人的心意。
+    examples:
+      - text: أُفَضِّلُ الشَّايَ عَلَى الْقَهْوَةِ.
+        meaning: "**例句。** 比起咖啡，我更喜欢茶。`أُفَضِّلُ` 意为我更喜欢。`الشَّايَ` 是首选茶。`عَلَى الْقَهْوَةِ`
+          引出作为另一选择的咖啡。语序重要：动词后面先出现的是较喜欢的饮料。"
+        note: 首选饮料跟在 `أُفَضِّلُ` 后，另一选择跟在 `عَلَى` 后。试一试：反过来表达偏好。答案：`أُفَضِّلُ الْقَهْوَةَ عَلَى
+          الشَّايِ`。名词换位时，带完整元音标记的词尾也要适应新的语法位置。
+  - subskill_id: emotions
+    explanation: 好消息可以改变你的心情。这句话让一位女性告诉别人消息使她高兴，而不是把消息本身描述为高兴。
+    examples:
+      - text: أَنَا سَعِيدَةٌ بِهٰذَا الْخَبَرِ.
+        meaning: "**例句。** 我为这则消息感到高兴。`أَنَا` 是我，`سَعِيدَةٌ` 是与女性说话人一致的“高兴”。`بِهٰذَا الْخَبَرِ` 意为因为这则消息或对这则消息：附着的
+          `بِـ` 把感受与缘由连起来。现在时不需要一个独立对应英语 am 的词。"
+        note: 男性说话人用 `أَنَا سَعِيدٌ بِهٰذَا الْخَبَرِ`。表达感受的形容词与说话人一致，而不是与“消息”一词一致。试一试：男性说同一句话时，哪一部分改变？答案：`سَعِيدَةٌ`
+          变成 `سَعِيدٌ`；消息短语不变。
+  - subskill_id: opinions
+    explanation: 大家在讨论几种解决办法。你可以把自己的判断作为个人看法说出来，让别人也能偏向另一种方案。
+    examples:
+      - text: فِي رَأْيِي، هٰذَا الْحَلُّ أَفْضَلُ.
+        meaning: "**例句。** 在我看来，这个办法更好。`فِي رَأْيِي` 意为在我看来；末尾词缀表示“我的”。`هٰذَا الْحَلُّ` 指这个解决办法，`أَفْضَلُ`
+          意为更好。对话中已知另一个办法，因此不必重复。"
+        note: 开头标明判断属于谁，但本身没有给出依据。如果比较的选择不清楚，要说出另一项。试一试：哪个部分告诉听话人这是谁的判断？答案：`فِي رَأْيِي`，尤其是表示“我的”的词尾。
+  - subskill_id: agreement_disagreement
+    explanation: 有人提出一项建议，而你反对。点明所反对的提议，能清楚表达不同意见，又不把它变成对提议人的评价。
+    examples:
+      - text: لَا أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ.
+        meaning: "**例句。** 我不同意这个提议。`لَا` 否定表示我赞同的 `أُوَافِقُ`。`عَلَى هٰذَا الِاقْتِرَاحِ`
+          指这个提议。无论说话人是男性还是女性，第一人称动词形式相同；这里没有需要随性别变化的赞同形容词。"
+        note: 去掉 `لَا` 就变成赞同：`أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ`。不确定与明确反对不同。试一试：哪个词反转立场？答案：`لَا`；提议本身不变。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahNominalTeaching20261007
+    - madinahAdjectivesTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNominalTeaching20261007
+        - madinahAdjectivesTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: wants_intentions
+      explanation: 想学习新技能，可以让别人知道你对什么感兴趣。这也可以开启关于课程的讨论，但没有声称你已经报名。
+      examples:
+        - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
+          meaning: "**例句。** 我想学游泳。`بِدِّي` 意为我想要；词尾指出说话人。`أَتْعَلَّمْ` 在这个从属位置表示我学习，`السِّبَاحَة` 是游泳。`بِدِّي`
+            后面的动作不用普通的 b- 前缀。"
+          note: 愿望形式后的动作不用通常的 b- 前缀。试一试：说我们想学游泳。答案：`بِدْنَا نِتْعَلَّمْ السِّبَاحَة`。表示愿望的词尾和学习动词都改为“我们”形式；游泳仍是要学的技能。
+    - subskill_id: preferences
+      explanation: 选饮料时，偏好是在比较选择，而不只是说其中一种好喝。这里茶比咖啡更合说话人的心意。
+      examples:
+        - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
+          meaning: "**例句。** 比起咖啡，我更喜欢茶。`بَحِبّ` 意为我喜欢；`الشَّايْ` 是茶。`أَكْتَرْ مِنْ` 意为比……更多，`الْقَهْوِة`
+            是咖啡。这里通过比较喜欢的程度表达偏好，而不是另用一个“更喜欢”的动词。"
+          note: 比较两种饮料时保留 `أَكْتَرْ مِنْ`。试一试：说你更喜欢咖啡。答案：`بَحِبّ الْقَهْوِة أَكْتَرْ مِنْ
+            الشَّايْ`。对换饮料，就改变了首选；省掉比较，只会说你喜欢咖啡。
+    - subskill_id: emotions
+      explanation: 好消息可以改变你的心情。这句话让一位女性告诉别人消息使她高兴，而不是把消息本身描述为高兴。
+      examples:
+        - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
+          meaning: "**例句。** 我为这则消息感到高兴。`أَنَا` 是我，`مَبْسُوطَة` 是与女性说话人一致的高兴或满意。`بِهَادْ الْخَبَرْ`
+            指因为这则消息。开头附着的介词把感受与促成它的事连起来；不需要独立的现在时“是”。"
+          note: 男性说话人用 `مَبْسُوطْ`，而不是 `مَبْسُوطَة`。形容词对应高兴的人。试一试：阴性词尾描述消息吗？答案：不是；它描述说话的女性，`الْخَبَرْ` 才是她高兴的缘由。
+    - subskill_id: opinions
+      explanation: 大家在讨论几种解决办法。你可以把自己的判断作为个人看法说出来，让别人也能偏向另一种方案。
+      examples:
+        - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
+          meaning: "**例句。** 在我看来，这个办法更好。`بِرَأْيِي` 意为在我看来。`هَادْ الْحَلّ` 指这个办法，`أَحْسَنْ`
+            意为更好。句中没有单独表示现在时“是”的词；办法与评价直接相连。"
+          note: 保留第一人称词尾，也可以用这个开头表达另一种判断。说“更好”意味着有一个可理解的比较对象，并不代表各方面都完美。试一试：去掉 `بِرَأْيِي` 会怎样？答案：比较仍在，但明确标为个人观点的开头消失。
+    - subskill_id: agreement_disagreement
+      explanation: 有人提出一项建议，而你反对。点明所反对的提议，能清楚表达不同意见，又不把它变成对提议人的评价。
+      examples:
+        - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
+          meaning: "**例句。** 我不同意这个提议。`أَنَا` 是我，`مِشْ` 是否定，`مُوَافِقْ` 表示赞同，这里用阳性一致形式。`عَ هَادْ الِاقْتِرَاحْ`
+            指这个提议。这是以形容词作陈述，不是对普通现在时动词加否定。"
+          note: 女性说话人用 `مُوَافِقَة`。否定词可能因地区而异，但本课练习 `مِشْ`。试一试：换成女性说话人。答案：`أَنَا مِشْ مُوَافِقَة عَ هَادْ
+            الِاقْتِرَاحْ`；形容词改变，反对立场和所谈提议不变。

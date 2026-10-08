@@ -1,0 +1,2428 @@
+{
+  "spanish-spain": {
+    "principalSurfaceCount": 132,
+    "inlineSurfaceCount": 299,
+    "uniqueSurfaceCount": 301,
+    "exactCoveredCount": 301,
+    "exactUncoveredCount": 0,
+    "forms": [
+      {
+        "text": "a",
+        "status": "draft-present"
+      },
+      {
+        "text": "A",
+        "status": "draft-present"
+      },
+      {
+        "text": "abierta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Abierta",
+        "status": "draft-present"
+      },
+      {
+        "text": "abiertas",
+        "status": "draft-present"
+      },
+      {
+        "text": "abrir",
+        "status": "draft-present"
+      },
+      {
+        "text": "acuerdo",
+        "status": "draft-present"
+      },
+      {
+        "text": "al",
+        "status": "draft-present"
+      },
+      {
+        "text": "Al",
+        "status": "draft-present"
+      },
+      {
+        "text": "alegre",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ana",
+        "status": "draft-present"
+      },
+      {
+        "text": "anoche",
+        "status": "draft-present"
+      },
+      {
+        "text": "Anoche",
+        "status": "draft-present"
+      },
+      {
+        "text": "antes",
+        "status": "draft-present"
+      },
+      {
+        "text": "aquí",
+        "status": "draft-present"
+      },
+      {
+        "text": "Avisar",
+        "status": "draft-present"
+      },
+      {
+        "text": "avisarme",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ayer",
+        "status": "draft-present"
+      },
+      {
+        "text": "ayudarme",
+        "status": "draft-present"
+      },
+      {
+        "text": "banco",
+        "status": "draft-present"
+      },
+      {
+        "text": "baño",
+        "status": "draft-present"
+      },
+      {
+        "text": "buena",
+        "status": "draft-present"
+      },
+      {
+        "text": "Buena",
+        "status": "draft-present"
+      },
+      {
+        "text": "caja",
+        "status": "draft-present"
+      },
+      {
+        "text": "cajas",
+        "status": "draft-present"
+      },
+      {
+        "text": "cansada",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cansada",
+        "status": "draft-present"
+      },
+      {
+        "text": "cansado",
+        "status": "draft-present"
+      },
+      {
+        "text": "cara",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cara",
+        "status": "draft-present"
+      },
+      {
+        "text": "caro",
+        "status": "draft-present"
+      },
+      {
+        "text": "casa",
+        "status": "draft-present"
+      },
+      {
+        "text": "cenamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cenamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "cenar",
+        "status": "draft-present"
+      },
+      {
+        "text": "cerrada",
+        "status": "draft-present"
+      },
+      {
+        "text": "cerrar",
+        "status": "draft-present"
+      },
+      {
+        "text": "cierto",
+        "status": "draft-present"
+      },
+      {
+        "text": "claro",
+        "status": "draft-present"
+      },
+      {
+        "text": "coche",
+        "status": "draft-present"
+      },
+      {
+        "text": "cocinar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cocinaré",
+        "status": "draft-present"
+      },
+      {
+        "text": "comer",
+        "status": "draft-present"
+      },
+      {
+        "text": "cómo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cómo",
+        "status": "draft-present"
+      },
+      {
+        "text": "con",
+        "status": "draft-present"
+      },
+      {
+        "text": "contenta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Contenta",
+        "status": "draft-present"
+      },
+      {
+        "text": "contento",
+        "status": "draft-present"
+      },
+      {
+        "text": "contigo",
+        "status": "draft-present"
+      },
+      {
+        "text": "creo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Creo",
+        "status": "draft-present"
+      },
+      {
+        "text": "cuándo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cuándo",
+        "status": "draft-present"
+      },
+      {
+        "text": "de",
+        "status": "draft-present"
+      },
+      {
+        "text": "De",
+        "status": "draft-present"
+      },
+      {
+        "text": "decir",
+        "status": "draft-present"
+      },
+      {
+        "text": "del",
+        "status": "draft-present"
+      },
+      {
+        "text": "Del",
+        "status": "draft-present"
+      },
+      {
+        "text": "descansar",
+        "status": "draft-present"
+      },
+      {
+        "text": "descanso",
+        "status": "draft-present"
+      },
+      {
+        "text": "después",
+        "status": "draft-present"
+      },
+      {
+        "text": "Después",
+        "status": "draft-present"
+      },
+      {
+        "text": "devolver",
+        "status": "draft-present"
+      },
+      {
+        "text": "días",
+        "status": "draft-present"
+      },
+      {
+        "text": "dónde",
+        "status": "draft-present"
+      },
+      {
+        "text": "Dónde",
+        "status": "draft-present"
+      },
+      {
+        "text": "dos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Dos",
+        "status": "draft-present"
+      },
+      {
+        "text": "durante",
+        "status": "draft-present"
+      },
+      {
+        "text": "el",
+        "status": "draft-present"
+      },
+      {
+        "text": "El",
+        "status": "draft-present"
+      },
+      {
+        "text": "ella",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ella",
+        "status": "draft-present"
+      },
+      {
+        "text": "en",
+        "status": "draft-present"
+      },
+      {
+        "text": "En",
+        "status": "draft-present"
+      },
+      {
+        "text": "encendida",
+        "status": "draft-present"
+      },
+      {
+        "text": "Encendida",
+        "status": "draft-present"
+      },
+      {
+        "text": "enfermo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Entendido",
+        "status": "draft-present"
+      },
+      {
+        "text": "entrar",
+        "status": "draft-present"
+      },
+      {
+        "text": "es",
+        "status": "draft-present"
+      },
+      {
+        "text": "Es",
+        "status": "draft-present"
+      },
+      {
+        "text": "esa",
+        "status": "draft-present"
+      },
+      {
+        "text": "ese",
+        "status": "draft-present"
+      },
+      {
+        "text": "eso",
+        "status": "draft-present"
+      },
+      {
+        "text": "español",
+        "status": "draft-present"
+      },
+      {
+        "text": "esta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Esta",
+        "status": "draft-present"
+      },
+      {
+        "text": "está",
+        "status": "draft-present"
+      },
+      {
+        "text": "Está",
+        "status": "draft-present"
+      },
+      {
+        "text": "estación",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "están",
+        "status": "draft-present"
+      },
+      {
+        "text": "Están",
+        "status": "draft-present"
+      },
+      {
+        "text": "estar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estar",
+        "status": "draft-present"
+      },
+      {
+        "text": "estas",
+        "status": "draft-present"
+      },
+      {
+        "text": "estás",
+        "status": "draft-present"
+      },
+      {
+        "text": "este",
+        "status": "draft-present"
+      },
+      {
+        "text": "Este",
+        "status": "draft-present"
+      },
+      {
+        "text": "estos",
+        "status": "draft-present"
+      },
+      {
+        "text": "estoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "estudiar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estudio",
+        "status": "draft-present"
+      },
+      {
+        "text": "farmacia",
+        "status": "draft-present"
+      },
+      {
+        "text": "favor",
+        "status": "draft-present"
+      },
+      {
+        "text": "frente",
+        "status": "draft-present"
+      },
+      {
+        "text": "fue",
+        "status": "draft-present"
+      },
+      {
+        "text": "fui",
+        "status": "draft-present"
+      },
+      {
+        "text": "Fui",
+        "status": "draft-present"
+      },
+      {
+        "text": "gracias",
+        "status": "draft-present"
+      },
+      {
+        "text": "Gracias",
+        "status": "draft-present"
+      },
+      {
+        "text": "grande",
+        "status": "draft-present"
+      },
+      {
+        "text": "gusta",
+        "status": "draft-present"
+      },
+      {
+        "text": "gustan",
+        "status": "draft-present"
+      },
+      {
+        "text": "Gustan",
+        "status": "draft-present"
+      },
+      {
+        "text": "gustar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hasta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hay",
+        "status": "draft-present"
+      },
+      {
+        "text": "hermana",
+        "status": "draft-present"
+      },
+      {
+        "text": "hermano",
+        "status": "draft-present"
+      },
+      {
+        "text": "herramienta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hola",
+        "status": "draft-present"
+      },
+      {
+        "text": "hora",
+        "status": "draft-present"
+      },
+      {
+        "text": "hoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "iba",
+        "status": "draft-present"
+      },
+      {
+        "text": "Iba",
+        "status": "draft-present"
+      },
+      {
+        "text": "idea",
+        "status": "draft-present"
+      },
+      {
+        "text": "ir",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ir",
+        "status": "draft-present"
+      },
+      {
+        "text": "jueves",
+        "status": "draft-present"
+      },
+      {
+        "text": "la",
+        "status": "draft-present"
+      },
+      {
+        "text": "La",
+        "status": "draft-present"
+      },
+      {
+        "text": "lado",
+        "status": "draft-present"
+      },
+      {
+        "text": "las",
+        "status": "draft-present"
+      },
+      {
+        "text": "Las",
+        "status": "draft-present"
+      },
+      {
+        "text": "leer",
+        "status": "draft-present"
+      },
+      {
+        "text": "Leo",
+        "status": "draft-present"
+      },
+      {
+        "text": "leyendo",
+        "status": "draft-present"
+      },
+      {
+        "text": "libro",
+        "status": "draft-present"
+      },
+      {
+        "text": "Libro",
+        "status": "draft-present"
+      },
+      {
+        "text": "libros",
+        "status": "draft-present"
+      },
+      {
+        "text": "llamar",
+        "status": "draft-present"
+      },
+      {
+        "text": "llamarme",
+        "status": "draft-present"
+      },
+      {
+        "text": "llamarte",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llamarte",
+        "status": "draft-present"
+      },
+      {
+        "text": "llave",
+        "status": "draft-present"
+      },
+      {
+        "text": "llaves",
+        "status": "draft-present"
+      },
+      {
+        "text": "llegas",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llegas",
+        "status": "draft-present"
+      },
+      {
+        "text": "llego",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llego",
+        "status": "draft-present"
+      },
+      {
+        "text": "llevo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llevo",
+        "status": "draft-present"
+      },
+      {
+        "text": "llover",
+        "status": "draft-present"
+      },
+      {
+        "text": "llueva",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llueva",
+        "status": "draft-present"
+      },
+      {
+        "text": "llueve",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llueve",
+        "status": "draft-present"
+      },
+      {
+        "text": "Lo",
+        "status": "draft-present"
+      },
+      {
+        "text": "los",
+        "status": "draft-present"
+      },
+      {
+        "text": "luego",
+        "status": "draft-present"
+      },
+      {
+        "text": "Luis",
+        "status": "draft-present"
+      },
+      {
+        "text": "luz",
+        "status": "draft-present"
+      },
+      {
+        "text": "mala",
+        "status": "draft-present"
+      },
+      {
+        "text": "mañana",
+        "status": "draft-present"
+      },
+      {
+        "text": "Mañana",
+        "status": "draft-present"
+      },
+      {
+        "text": "Marta",
+        "status": "draft-present"
+      },
+      {
+        "text": "martes",
+        "status": "draft-present"
+      },
+      {
+        "text": "más",
+        "status": "draft-present"
+      },
+      {
+        "text": "me",
+        "status": "draft-present"
+      },
+      {
+        "text": "Me",
+        "status": "draft-present"
+      },
+      {
+        "text": "menos",
+        "status": "draft-present"
+      },
+      {
+        "text": "mercado",
+        "status": "draft-present"
+      },
+      {
+        "text": "mesa",
+        "status": "draft-present"
+      },
+      {
+        "text": "mi",
+        "status": "draft-present"
+      },
+      {
+        "text": "Mi",
+        "status": "draft-present"
+      },
+      {
+        "text": "mis",
+        "status": "draft-present"
+      },
+      {
+        "text": "mochila",
+        "status": "draft-present"
+      },
+      {
+        "text": "nadar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Nadar",
+        "status": "draft-present"
+      },
+      {
+        "text": "no",
+        "status": "draft-present"
+      },
+      {
+        "text": "No",
+        "status": "draft-present"
+      },
+      {
+        "text": "Nos",
+        "status": "draft-present"
+      },
+      {
+        "text": "nueve",
+        "status": "draft-present"
+      },
+      {
+        "text": "ocho",
+        "status": "draft-present"
+      },
+      {
+        "text": "palabra",
+        "status": "draft-present"
+      },
+      {
+        "text": "paraguas",
+        "status": "draft-present"
+      },
+      {
+        "text": "parque",
+        "status": "draft-present"
+      },
+      {
+        "text": "pasear",
+        "status": "draft-present"
+      },
+      {
+        "text": "películas",
+        "status": "draft-present"
+      },
+      {
+        "text": "pero",
+        "status": "draft-present"
+      },
+      {
+        "text": "Pero",
+        "status": "draft-present"
+      },
+      {
+        "text": "persona",
+        "status": "draft-present"
+      },
+      {
+        "text": "plan",
+        "status": "draft-present"
+      },
+      {
+        "text": "podemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Podemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "poder",
+        "status": "draft-present"
+      },
+      {
+        "text": "Podría",
+        "status": "draft-present"
+      },
+      {
+        "text": "por",
+        "status": "draft-present"
+      },
+      {
+        "text": "Por",
+        "status": "draft-present"
+      },
+      {
+        "text": "porque",
+        "status": "draft-present"
+      },
+      {
+        "text": "Porque",
+        "status": "draft-present"
+      },
+      {
+        "text": "primero",
+        "status": "draft-present"
+      },
+      {
+        "text": "Primero",
+        "status": "draft-present"
+      },
+      {
+        "text": "prometo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Prometo",
+        "status": "draft-present"
+      },
+      {
+        "text": "puede",
+        "status": "draft-present"
+      },
+      {
+        "text": "Puede",
+        "status": "draft-present"
+      },
+      {
+        "text": "puedes",
+        "status": "draft-present"
+      },
+      {
+        "text": "Puedes",
+        "status": "draft-present"
+      },
+      {
+        "text": "puedo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Puedo",
+        "status": "draft-present"
+      },
+      {
+        "text": "puerta",
+        "status": "draft-present"
+      },
+      {
+        "text": "puertas",
+        "status": "draft-present"
+      },
+      {
+        "text": "que",
+        "status": "draft-present"
+      },
+      {
+        "text": "Que",
+        "status": "draft-present"
+      },
+      {
+        "text": "qué",
+        "status": "draft-present"
+      },
+      {
+        "text": "Qué",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Quedamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedarse",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedas",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedo",
+        "status": "draft-present"
+      },
+      {
+        "text": "querer",
+        "status": "draft-present"
+      },
+      {
+        "text": "Querer",
+        "status": "draft-present"
+      },
+      {
+        "text": "quiere",
+        "status": "draft-present"
+      },
+      {
+        "text": "quieres",
+        "status": "draft-present"
+      },
+      {
+        "text": "Quieres",
+        "status": "draft-present"
+      },
+      {
+        "text": "quiero",
+        "status": "draft-present"
+      },
+      {
+        "text": "Quiero",
+        "status": "draft-present"
+      },
+      {
+        "text": "refiero",
+        "status": "draft-present"
+      },
+      {
+        "text": "repetirlo",
+        "status": "draft-present"
+      },
+      {
+        "text": "sabe",
+        "status": "draft-present"
+      },
+      {
+        "text": "saber",
+        "status": "draft-present"
+      },
+      {
+        "text": "salgo",
+        "status": "draft-present"
+      },
+      {
+        "text": "salimos",
+        "status": "draft-present"
+      },
+      {
+        "text": "salir",
+        "status": "draft-present"
+      },
+      {
+        "text": "se",
+        "status": "draft-present"
+      },
+      {
+        "text": "sé",
+        "status": "draft-present"
+      },
+      {
+        "text": "Sé",
+        "status": "draft-present"
+      },
+      {
+        "text": "sea",
+        "status": "draft-present"
+      },
+      {
+        "text": "segura",
+        "status": "draft-present"
+      },
+      {
+        "text": "seguro",
+        "status": "draft-present"
+      },
+      {
+        "text": "Seguro",
+        "status": "draft-present"
+      },
+      {
+        "text": "seis",
+        "status": "draft-present"
+      },
+      {
+        "text": "semana",
+        "status": "draft-present"
+      },
+      {
+        "text": "ser",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ser",
+        "status": "draft-present"
+      },
+      {
+        "text": "si",
+        "status": "draft-present"
+      },
+      {
+        "text": "Si",
+        "status": "draft-present"
+      },
+      {
+        "text": "sí",
+        "status": "draft-present"
+      },
+      {
+        "text": "Sí",
+        "status": "draft-present"
+      },
+      {
+        "text": "siento",
+        "status": "draft-present"
+      },
+      {
+        "text": "siete",
+        "status": "draft-present"
+      },
+      {
+        "text": "significa",
+        "status": "draft-present"
+      },
+      {
+        "text": "silla",
+        "status": "draft-present"
+      },
+      {
+        "text": "Son",
+        "status": "draft-present"
+      },
+      {
+        "text": "soy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Soy",
+        "status": "draft-present"
+      },
+      {
+        "text": "su",
+        "status": "draft-present"
+      },
+      {
+        "text": "te",
+        "status": "draft-present"
+      },
+      {
+        "text": "Te",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tenemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "tener",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tener",
+        "status": "draft-present"
+      },
+      {
+        "text": "tengo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tengo",
+        "status": "draft-present"
+      },
+      {
+        "text": "terminé",
+        "status": "draft-present"
+      },
+      {
+        "text": "tiene",
+        "status": "draft-present"
+      },
+      {
+        "text": "todos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Todos",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabaja",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabajando",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabajar",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabajo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Trabajo",
+        "status": "draft-present"
+      },
+      {
+        "text": "triste",
+        "status": "draft-present"
+      },
+      {
+        "text": "tu",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tu",
+        "status": "draft-present"
+      },
+      {
+        "text": "una",
+        "status": "draft-present"
+      },
+      {
+        "text": "usar",
+        "status": "draft-present"
+      },
+      {
+        "text": "usted",
+        "status": "draft-present"
+      },
+      {
+        "text": "útil",
+        "status": "draft-present"
+      },
+      {
+        "text": "Útil",
+        "status": "draft-present"
+      },
+      {
+        "text": "va",
+        "status": "draft-present"
+      },
+      {
+        "text": "veces",
+        "status": "draft-present"
+      },
+      {
+        "text": "vemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "venir",
+        "status": "draft-present"
+      },
+      {
+        "text": "ventana",
+        "status": "draft-present"
+      },
+      {
+        "text": "viernes",
+        "status": "draft-present"
+      },
+      {
+        "text": "voy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Voy",
+        "status": "draft-present"
+      },
+      {
+        "text": "y",
+        "status": "draft-present"
+      },
+      {
+        "text": "Y",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ya",
+        "status": "draft-present"
+      },
+      {
+        "text": "yo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Yo",
+        "status": "draft-present"
+      }
+    ]
+  },
+  "spanish-mexico": {
+    "principalSurfaceCount": 132,
+    "inlineSurfaceCount": 299,
+    "uniqueSurfaceCount": 301,
+    "exactCoveredCount": 301,
+    "exactUncoveredCount": 0,
+    "forms": [
+      {
+        "text": "a",
+        "status": "draft-present"
+      },
+      {
+        "text": "A",
+        "status": "draft-present"
+      },
+      {
+        "text": "abierta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Abierta",
+        "status": "draft-present"
+      },
+      {
+        "text": "abiertas",
+        "status": "draft-present"
+      },
+      {
+        "text": "abrir",
+        "status": "draft-present"
+      },
+      {
+        "text": "acuerdo",
+        "status": "draft-present"
+      },
+      {
+        "text": "al",
+        "status": "draft-present"
+      },
+      {
+        "text": "Al",
+        "status": "draft-present"
+      },
+      {
+        "text": "alegre",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ana",
+        "status": "draft-present"
+      },
+      {
+        "text": "anoche",
+        "status": "draft-present"
+      },
+      {
+        "text": "Anoche",
+        "status": "draft-present"
+      },
+      {
+        "text": "antes",
+        "status": "draft-present"
+      },
+      {
+        "text": "aquí",
+        "status": "draft-present"
+      },
+      {
+        "text": "Avisar",
+        "status": "draft-present"
+      },
+      {
+        "text": "avisarme",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ayer",
+        "status": "draft-present"
+      },
+      {
+        "text": "ayudarme",
+        "status": "draft-present"
+      },
+      {
+        "text": "banco",
+        "status": "draft-present"
+      },
+      {
+        "text": "baño",
+        "status": "draft-present"
+      },
+      {
+        "text": "buena",
+        "status": "draft-present"
+      },
+      {
+        "text": "Buena",
+        "status": "draft-present"
+      },
+      {
+        "text": "caja",
+        "status": "draft-present"
+      },
+      {
+        "text": "cajas",
+        "status": "draft-present"
+      },
+      {
+        "text": "cansada",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cansada",
+        "status": "draft-present"
+      },
+      {
+        "text": "cansado",
+        "status": "draft-present"
+      },
+      {
+        "text": "cara",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cara",
+        "status": "draft-present"
+      },
+      {
+        "text": "caro",
+        "status": "draft-present"
+      },
+      {
+        "text": "casa",
+        "status": "draft-present"
+      },
+      {
+        "text": "cenamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cenamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "cenar",
+        "status": "draft-present"
+      },
+      {
+        "text": "cerrada",
+        "status": "draft-present"
+      },
+      {
+        "text": "cerrar",
+        "status": "draft-present"
+      },
+      {
+        "text": "cierto",
+        "status": "draft-present"
+      },
+      {
+        "text": "claro",
+        "status": "draft-present"
+      },
+      {
+        "text": "coche",
+        "status": "draft-present"
+      },
+      {
+        "text": "cocinar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cocinaré",
+        "status": "draft-present"
+      },
+      {
+        "text": "comer",
+        "status": "draft-present"
+      },
+      {
+        "text": "cómo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cómo",
+        "status": "draft-present"
+      },
+      {
+        "text": "con",
+        "status": "draft-present"
+      },
+      {
+        "text": "contenta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Contenta",
+        "status": "draft-present"
+      },
+      {
+        "text": "contento",
+        "status": "draft-present"
+      },
+      {
+        "text": "contigo",
+        "status": "draft-present"
+      },
+      {
+        "text": "creo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Creo",
+        "status": "draft-present"
+      },
+      {
+        "text": "cuándo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Cuándo",
+        "status": "draft-present"
+      },
+      {
+        "text": "de",
+        "status": "draft-present"
+      },
+      {
+        "text": "De",
+        "status": "draft-present"
+      },
+      {
+        "text": "decir",
+        "status": "draft-present"
+      },
+      {
+        "text": "del",
+        "status": "draft-present"
+      },
+      {
+        "text": "Del",
+        "status": "draft-present"
+      },
+      {
+        "text": "descansar",
+        "status": "draft-present"
+      },
+      {
+        "text": "descanso",
+        "status": "draft-present"
+      },
+      {
+        "text": "después",
+        "status": "draft-present"
+      },
+      {
+        "text": "Después",
+        "status": "draft-present"
+      },
+      {
+        "text": "devolver",
+        "status": "draft-present"
+      },
+      {
+        "text": "días",
+        "status": "draft-present"
+      },
+      {
+        "text": "dónde",
+        "status": "draft-present"
+      },
+      {
+        "text": "Dónde",
+        "status": "draft-present"
+      },
+      {
+        "text": "dos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Dos",
+        "status": "draft-present"
+      },
+      {
+        "text": "durante",
+        "status": "draft-present"
+      },
+      {
+        "text": "el",
+        "status": "draft-present"
+      },
+      {
+        "text": "El",
+        "status": "draft-present"
+      },
+      {
+        "text": "ella",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ella",
+        "status": "draft-present"
+      },
+      {
+        "text": "en",
+        "status": "draft-present"
+      },
+      {
+        "text": "En",
+        "status": "draft-present"
+      },
+      {
+        "text": "encendida",
+        "status": "draft-present"
+      },
+      {
+        "text": "Encendida",
+        "status": "draft-present"
+      },
+      {
+        "text": "enfermo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Entendido",
+        "status": "draft-present"
+      },
+      {
+        "text": "entrar",
+        "status": "draft-present"
+      },
+      {
+        "text": "es",
+        "status": "draft-present"
+      },
+      {
+        "text": "Es",
+        "status": "draft-present"
+      },
+      {
+        "text": "esa",
+        "status": "draft-present"
+      },
+      {
+        "text": "ese",
+        "status": "draft-present"
+      },
+      {
+        "text": "eso",
+        "status": "draft-present"
+      },
+      {
+        "text": "español",
+        "status": "draft-present"
+      },
+      {
+        "text": "esta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Esta",
+        "status": "draft-present"
+      },
+      {
+        "text": "está",
+        "status": "draft-present"
+      },
+      {
+        "text": "Está",
+        "status": "draft-present"
+      },
+      {
+        "text": "estación",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "están",
+        "status": "draft-present"
+      },
+      {
+        "text": "Están",
+        "status": "draft-present"
+      },
+      {
+        "text": "estar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estar",
+        "status": "draft-present"
+      },
+      {
+        "text": "estas",
+        "status": "draft-present"
+      },
+      {
+        "text": "estás",
+        "status": "draft-present"
+      },
+      {
+        "text": "este",
+        "status": "draft-present"
+      },
+      {
+        "text": "Este",
+        "status": "draft-present"
+      },
+      {
+        "text": "estos",
+        "status": "draft-present"
+      },
+      {
+        "text": "estoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "estudiar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Estudio",
+        "status": "draft-present"
+      },
+      {
+        "text": "farmacia",
+        "status": "draft-present"
+      },
+      {
+        "text": "favor",
+        "status": "draft-present"
+      },
+      {
+        "text": "frente",
+        "status": "draft-present"
+      },
+      {
+        "text": "fue",
+        "status": "draft-present"
+      },
+      {
+        "text": "fui",
+        "status": "draft-present"
+      },
+      {
+        "text": "Fui",
+        "status": "draft-present"
+      },
+      {
+        "text": "gracias",
+        "status": "draft-present"
+      },
+      {
+        "text": "Gracias",
+        "status": "draft-present"
+      },
+      {
+        "text": "grande",
+        "status": "draft-present"
+      },
+      {
+        "text": "gusta",
+        "status": "draft-present"
+      },
+      {
+        "text": "gustan",
+        "status": "draft-present"
+      },
+      {
+        "text": "Gustan",
+        "status": "draft-present"
+      },
+      {
+        "text": "gustar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hasta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hay",
+        "status": "draft-present"
+      },
+      {
+        "text": "hermana",
+        "status": "draft-present"
+      },
+      {
+        "text": "hermano",
+        "status": "draft-present"
+      },
+      {
+        "text": "herramienta",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hola",
+        "status": "draft-present"
+      },
+      {
+        "text": "hora",
+        "status": "draft-present"
+      },
+      {
+        "text": "hoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Hoy",
+        "status": "draft-present"
+      },
+      {
+        "text": "iba",
+        "status": "draft-present"
+      },
+      {
+        "text": "Iba",
+        "status": "draft-present"
+      },
+      {
+        "text": "idea",
+        "status": "draft-present"
+      },
+      {
+        "text": "ir",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ir",
+        "status": "draft-present"
+      },
+      {
+        "text": "jueves",
+        "status": "draft-present"
+      },
+      {
+        "text": "la",
+        "status": "draft-present"
+      },
+      {
+        "text": "La",
+        "status": "draft-present"
+      },
+      {
+        "text": "lado",
+        "status": "draft-present"
+      },
+      {
+        "text": "las",
+        "status": "draft-present"
+      },
+      {
+        "text": "Las",
+        "status": "draft-present"
+      },
+      {
+        "text": "leer",
+        "status": "draft-present"
+      },
+      {
+        "text": "Leo",
+        "status": "draft-present"
+      },
+      {
+        "text": "leyendo",
+        "status": "draft-present"
+      },
+      {
+        "text": "libro",
+        "status": "draft-present"
+      },
+      {
+        "text": "Libro",
+        "status": "draft-present"
+      },
+      {
+        "text": "libros",
+        "status": "draft-present"
+      },
+      {
+        "text": "llamar",
+        "status": "draft-present"
+      },
+      {
+        "text": "llamarme",
+        "status": "draft-present"
+      },
+      {
+        "text": "llamarte",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llamarte",
+        "status": "draft-present"
+      },
+      {
+        "text": "llave",
+        "status": "draft-present"
+      },
+      {
+        "text": "llaves",
+        "status": "draft-present"
+      },
+      {
+        "text": "llegas",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llegas",
+        "status": "draft-present"
+      },
+      {
+        "text": "llego",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llego",
+        "status": "draft-present"
+      },
+      {
+        "text": "llevo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llevo",
+        "status": "draft-present"
+      },
+      {
+        "text": "llover",
+        "status": "draft-present"
+      },
+      {
+        "text": "llueva",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llueva",
+        "status": "draft-present"
+      },
+      {
+        "text": "llueve",
+        "status": "draft-present"
+      },
+      {
+        "text": "Llueve",
+        "status": "draft-present"
+      },
+      {
+        "text": "Lo",
+        "status": "draft-present"
+      },
+      {
+        "text": "los",
+        "status": "draft-present"
+      },
+      {
+        "text": "luego",
+        "status": "draft-present"
+      },
+      {
+        "text": "Luis",
+        "status": "draft-present"
+      },
+      {
+        "text": "luz",
+        "status": "draft-present"
+      },
+      {
+        "text": "mala",
+        "status": "draft-present"
+      },
+      {
+        "text": "mañana",
+        "status": "draft-present"
+      },
+      {
+        "text": "Mañana",
+        "status": "draft-present"
+      },
+      {
+        "text": "Marta",
+        "status": "draft-present"
+      },
+      {
+        "text": "martes",
+        "status": "draft-present"
+      },
+      {
+        "text": "más",
+        "status": "draft-present"
+      },
+      {
+        "text": "me",
+        "status": "draft-present"
+      },
+      {
+        "text": "Me",
+        "status": "draft-present"
+      },
+      {
+        "text": "menos",
+        "status": "draft-present"
+      },
+      {
+        "text": "mercado",
+        "status": "draft-present"
+      },
+      {
+        "text": "mesa",
+        "status": "draft-present"
+      },
+      {
+        "text": "mi",
+        "status": "draft-present"
+      },
+      {
+        "text": "Mi",
+        "status": "draft-present"
+      },
+      {
+        "text": "mis",
+        "status": "draft-present"
+      },
+      {
+        "text": "mochila",
+        "status": "draft-present"
+      },
+      {
+        "text": "nadar",
+        "status": "draft-present"
+      },
+      {
+        "text": "Nadar",
+        "status": "draft-present"
+      },
+      {
+        "text": "no",
+        "status": "draft-present"
+      },
+      {
+        "text": "No",
+        "status": "draft-present"
+      },
+      {
+        "text": "Nos",
+        "status": "draft-present"
+      },
+      {
+        "text": "nueve",
+        "status": "draft-present"
+      },
+      {
+        "text": "ocho",
+        "status": "draft-present"
+      },
+      {
+        "text": "palabra",
+        "status": "draft-present"
+      },
+      {
+        "text": "paraguas",
+        "status": "draft-present"
+      },
+      {
+        "text": "parque",
+        "status": "draft-present"
+      },
+      {
+        "text": "pasear",
+        "status": "draft-present"
+      },
+      {
+        "text": "películas",
+        "status": "draft-present"
+      },
+      {
+        "text": "pero",
+        "status": "draft-present"
+      },
+      {
+        "text": "Pero",
+        "status": "draft-present"
+      },
+      {
+        "text": "persona",
+        "status": "draft-present"
+      },
+      {
+        "text": "plan",
+        "status": "draft-present"
+      },
+      {
+        "text": "podemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Podemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "poder",
+        "status": "draft-present"
+      },
+      {
+        "text": "Podría",
+        "status": "draft-present"
+      },
+      {
+        "text": "por",
+        "status": "draft-present"
+      },
+      {
+        "text": "Por",
+        "status": "draft-present"
+      },
+      {
+        "text": "porque",
+        "status": "draft-present"
+      },
+      {
+        "text": "Porque",
+        "status": "draft-present"
+      },
+      {
+        "text": "primero",
+        "status": "draft-present"
+      },
+      {
+        "text": "Primero",
+        "status": "draft-present"
+      },
+      {
+        "text": "prometo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Prometo",
+        "status": "draft-present"
+      },
+      {
+        "text": "puede",
+        "status": "draft-present"
+      },
+      {
+        "text": "Puede",
+        "status": "draft-present"
+      },
+      {
+        "text": "puedes",
+        "status": "draft-present"
+      },
+      {
+        "text": "Puedes",
+        "status": "draft-present"
+      },
+      {
+        "text": "puedo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Puedo",
+        "status": "draft-present"
+      },
+      {
+        "text": "puerta",
+        "status": "draft-present"
+      },
+      {
+        "text": "puertas",
+        "status": "draft-present"
+      },
+      {
+        "text": "que",
+        "status": "draft-present"
+      },
+      {
+        "text": "Que",
+        "status": "draft-present"
+      },
+      {
+        "text": "qué",
+        "status": "draft-present"
+      },
+      {
+        "text": "Qué",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Quedamos",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedarse",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedas",
+        "status": "draft-present"
+      },
+      {
+        "text": "quedo",
+        "status": "draft-present"
+      },
+      {
+        "text": "querer",
+        "status": "draft-present"
+      },
+      {
+        "text": "Querer",
+        "status": "draft-present"
+      },
+      {
+        "text": "quiere",
+        "status": "draft-present"
+      },
+      {
+        "text": "quieres",
+        "status": "draft-present"
+      },
+      {
+        "text": "Quieres",
+        "status": "draft-present"
+      },
+      {
+        "text": "quiero",
+        "status": "draft-present"
+      },
+      {
+        "text": "Quiero",
+        "status": "draft-present"
+      },
+      {
+        "text": "refiero",
+        "status": "draft-present"
+      },
+      {
+        "text": "repetirlo",
+        "status": "draft-present"
+      },
+      {
+        "text": "sabe",
+        "status": "draft-present"
+      },
+      {
+        "text": "saber",
+        "status": "draft-present"
+      },
+      {
+        "text": "salgo",
+        "status": "draft-present"
+      },
+      {
+        "text": "salimos",
+        "status": "draft-present"
+      },
+      {
+        "text": "salir",
+        "status": "draft-present"
+      },
+      {
+        "text": "se",
+        "status": "draft-present"
+      },
+      {
+        "text": "sé",
+        "status": "draft-present"
+      },
+      {
+        "text": "Sé",
+        "status": "draft-present"
+      },
+      {
+        "text": "sea",
+        "status": "draft-present"
+      },
+      {
+        "text": "segura",
+        "status": "draft-present"
+      },
+      {
+        "text": "seguro",
+        "status": "draft-present"
+      },
+      {
+        "text": "Seguro",
+        "status": "draft-present"
+      },
+      {
+        "text": "seis",
+        "status": "draft-present"
+      },
+      {
+        "text": "semana",
+        "status": "draft-present"
+      },
+      {
+        "text": "ser",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ser",
+        "status": "draft-present"
+      },
+      {
+        "text": "si",
+        "status": "draft-present"
+      },
+      {
+        "text": "Si",
+        "status": "draft-present"
+      },
+      {
+        "text": "sí",
+        "status": "draft-present"
+      },
+      {
+        "text": "Sí",
+        "status": "draft-present"
+      },
+      {
+        "text": "siento",
+        "status": "draft-present"
+      },
+      {
+        "text": "siete",
+        "status": "draft-present"
+      },
+      {
+        "text": "significa",
+        "status": "draft-present"
+      },
+      {
+        "text": "silla",
+        "status": "draft-present"
+      },
+      {
+        "text": "Son",
+        "status": "draft-present"
+      },
+      {
+        "text": "soy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Soy",
+        "status": "draft-present"
+      },
+      {
+        "text": "su",
+        "status": "draft-present"
+      },
+      {
+        "text": "te",
+        "status": "draft-present"
+      },
+      {
+        "text": "Te",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tenemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "tener",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tener",
+        "status": "draft-present"
+      },
+      {
+        "text": "tengo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tengo",
+        "status": "draft-present"
+      },
+      {
+        "text": "terminé",
+        "status": "draft-present"
+      },
+      {
+        "text": "tiene",
+        "status": "draft-present"
+      },
+      {
+        "text": "todos",
+        "status": "draft-present"
+      },
+      {
+        "text": "Todos",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabaja",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabajando",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabajar",
+        "status": "draft-present"
+      },
+      {
+        "text": "trabajo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Trabajo",
+        "status": "draft-present"
+      },
+      {
+        "text": "triste",
+        "status": "draft-present"
+      },
+      {
+        "text": "tu",
+        "status": "draft-present"
+      },
+      {
+        "text": "Tu",
+        "status": "draft-present"
+      },
+      {
+        "text": "una",
+        "status": "draft-present"
+      },
+      {
+        "text": "usar",
+        "status": "draft-present"
+      },
+      {
+        "text": "usted",
+        "status": "draft-present"
+      },
+      {
+        "text": "útil",
+        "status": "draft-present"
+      },
+      {
+        "text": "Útil",
+        "status": "draft-present"
+      },
+      {
+        "text": "va",
+        "status": "draft-present"
+      },
+      {
+        "text": "veces",
+        "status": "draft-present"
+      },
+      {
+        "text": "vemos",
+        "status": "draft-present"
+      },
+      {
+        "text": "venir",
+        "status": "draft-present"
+      },
+      {
+        "text": "ventana",
+        "status": "draft-present"
+      },
+      {
+        "text": "viernes",
+        "status": "draft-present"
+      },
+      {
+        "text": "voy",
+        "status": "draft-present"
+      },
+      {
+        "text": "Voy",
+        "status": "draft-present"
+      },
+      {
+        "text": "y",
+        "status": "draft-present"
+      },
+      {
+        "text": "Y",
+        "status": "draft-present"
+      },
+      {
+        "text": "Ya",
+        "status": "draft-present"
+      },
+      {
+        "text": "yo",
+        "status": "draft-present"
+      },
+      {
+        "text": "Yo",
+        "status": "draft-present"
+      }
+    ]
+  }
+}

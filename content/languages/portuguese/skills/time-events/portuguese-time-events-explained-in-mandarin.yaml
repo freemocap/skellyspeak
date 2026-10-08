@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: time_events
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 有人问你现在在厨房做什么。`Estou preparando a massa do pão` 表示一项正在进行的活动：`estou` 是 `estar`
+      的第一人称现在时，`preparando` 是 `preparar` 的动名词，`a massa do pão` 是面包面团，其中 `do` 由 `de` 和 `o` 合成。`Preparo pão toda
+      semana` 则描述习惯。进行式把重点放在眼下的过程。
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: 我正在准备面包面团。
+        note: 说你现在正在烤面包。`Estou assando o pão.` 是完整的进行中事件句；`assando` 取代 `preparando`，指出目前正在做的事。
+  - subskill_id: past_events
+    explanation: 朋友问你昨天对自行车做了什么。`Ontem troquei o pneu da bicicleta` 报告已完成的过去动作：`ontem` 把时间定在昨天，`troquei` 意为我更换了，`o
+      pneu da bicicleta` 指出自行车轮胎。`Troquei` 是 `trocar` 的第一人称简单过去式；`qu` 的拼写在 `ei`
+      前保留了较硬的辅音读音。表达这件已完成的事，葡语不需要相当于英语 have 的助动词。
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: 昨天我换了自行车轮胎。
+        note: 报告昨天换了自行车链条。`Ontem troquei a corrente da bicicleta.` 说出完整的过去事件；`troquei` 仍表示已完成的动作，`a corrente` 改变了动作对象。
+  - subskill_id: future_events
+    explanation: 你在计划明天去图书馆。`Amanhã vou levar os livros à biblioteca` 用 `amanhã` 和 `vou levar` 把行动放在之后：`vou` 是
+      `ir` 对应“我”的现在时，`levar` 保持不定式。`À biblioteca` 意为去图书馆；`à` 由表示方向的 `a` 和阴性冠词 `a` 合成。`Hoje levo os livros`
+      则可能表示今天的安排。对未来的打算不一定是对别人的承诺。
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: 明天我打算把书带去图书馆。
+        note: 计划明天把箱子带到图书馆。`Amanhã vou levar as caixas à biblioteca.` 是完整句子；`vou levar` 标明计划中的稍后行动，`as caixas` 说出新的对象。
+  - subskill_id: duration_frequency
+    explanation: 有人问你在这里工作多久了。`Trabalho aqui há seis meses` 表示工作从六个月前开始，到现在仍在继续：`trabalho` 是现在时，`aqui` 是这里，`há
+      seis meses` 衡量已经过去的时长。葡语的复合形式 `tenho trabalhado` 往往暗示近期重复或持续的活动，不能机械对应每一个英语 have been working
+      句子。相比之下，`Trabalho aqui toda sexta-feira` 说明的是频率，不是持续时间。
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: 我在这里工作六个月了。
+        note: 说你在这里工作两年了。`Trabalho aqui há dois anos.` 是完整表达；现在时动词表明情况仍在持续，`há dois anos` 给出持续时长。
+  - subskill_id: event_sequence
+    explanation: 你在讲解食谱步骤。`Primeiro misturo a farinha, depois acrescento a água` 清楚地标出顺序：`primeiro` 是首先，`misturo`
+      意为我搅拌，`depois` 是然后，`acrescento` 意为我加入。两个动词都用现在时来说明操作步骤。`Depois` 只说明一个动作在另一个之后，本身不解释为什么要做这些动作。
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: 我先拌面粉，然后加水。
+        note: 说明合理的蔬菜准备顺序。`Primeiro lavo os legumes, depois corto os legumes.` 是完整回答：`primeiro` 把清洗放在切菜之前，`depois`
+          引出下一步。
+  - subskill_id: event_phase
+    explanation: 有人问你那本书读完没有。`Já terminei a leitura do livro` 表示已经到达终点：`já` 是已经，`terminei` 意为我完成了，`a leitura do
+      livro` 指读这本书。即使英语可能说 I have finished，葡语这里仍用简单过去式。若阅读还在继续，`Ainda estou lendo o livro` 则给出另一阶段：`ainda`
+      意为仍然，`estou lendo` 表示活动正在进行。两种回答描述同一任务的相反阶段。
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: 我已经读完这本书了。
+        note: 说你已经读完那篇文章。`Já terminei a leitura do artigo.` 是完整的完成陈述；`do artigo` 取代 `do livro`，而 `já terminei`
+          标明已达到终点。
+      - text: Ainda estou lendo o livro.
+        meaning: 我还在读这本书。
+        note: 说你还在读那篇文章。`Ainda estou lendo o artigo.` 是描述尚未完成活动的完整句子；`ainda` 和 `estou lendo` 表明阅读仍在继续，而不是已经完成。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_future_subj2026
+        - ut_pt_perfect2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: possibilities_constraints
+language: spanish
+explanation_language: french
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-french.yaml
+sections:
+  - subskill_id: ability
+    explanation: L’espagnol distingue savoir faire quelque chose de pouvoir le faire dans une situation donnée.
+      Pour une compétence acquise, comme nager ou cuisiner, `saber` suivi d’un infinitif signifie « savoir
+      faire ». L’infinitif est la forme de dictionnaire du verbe, comme `nadar`. L’exemple décrit une
+      compétence apprise par la personne qui parle.
+    examples:
+      - text: Sé nadar.
+        meaning: "**Fonctionnement.** La phrase signifie « je sais nager ». `Sé` identifie déjà la personne qui parle
+          ; `yo` est donc facultatif. `Nadar` reste à l’infinitif. Gardez l’accent écrit de `sé` ; sans
+          accent, `se` est un autre mot."
+        note: >-
+          **Comparez.** `Puedo nadar hoy` signifie que je peux nager aujourd’hui : les circonstances le
+          permettent. On peut savoir nager sans pouvoir le faire aujourd’hui. Pour la négation, placez `no`
+          avant le premier verbe : `No sé nadar`.
+
+
+          **À vous.** Dites qu’elle sait cuisiner avec `cocinar`. Réponse : `Ella sabe cocinar`. Changez le
+          premier verbe ; laissez l’activité à l’infinitif.
+  - subskill_id: permission
+    explanation: Lorsqu’une action requiert l’accord d’une autre personne, une question avec `poder` peut demander
+      la permission. `¿Puedo…?` demande si je peux agir ; c’est un modèle courant à une porte, dans un espace
+      partagé ou avant d’emprunter un objet. L’action suit à l’infinitif, par exemple `entrar`, entrer.
+    examples:
+      - text: ¿Puedo entrar?
+        meaning: "**Fonctionnement.** « Puis-je entrer ? » combine `puedo`, qui demande si cela m’est permis, et
+          `entrar`, entrer. À une porte, l’interlocuteur peut autoriser ou refuser l’entrée. La question ne
+          comporte pas de mot supplémentaire correspondant au « do » anglais."
+        note: >-
+          **Changez de personne.** `¿Puedes entrar?` demande si tu peux entrer ; la permission ne concerne
+          plus la personne qui parle. `¿Podría entrar?` est une manière plus prudente de demander pour soi. Le
+          ton et la relation comptent toujours.
+
+
+          **À vous.** Demandez la permission d’utiliser une chaise avec `usar esta silla`. Réponse : `¿Puedo
+          usar esta silla?` Une réponse possible est `Sí, claro` : oui, bien sûr.
+  - subskill_id: obligation
+    explanation: Une obligation est une action qu’une personne doit accomplir ou qu’on attend d’elle. L’espagnol
+      l’exprime souvent avec `tener que` suivi d’un infinitif. Dans l’exemple, la personne qui parle doit
+      partir. La phrase exprime cette nécessité ; la conversation peut en donner la raison, comme un
+      rendez-vous ou une heure de fermeture.
+    examples:
+      - text: Tengo que salir.
+        meaning: "**Fonctionnement.** « Je dois partir » emploie `tengo` pour « je ». Pour parler d’une autre
+          personne, changez ce mot : `Ella tiene que salir`. Gardez `que salir` inchangé. La phrase énonce
+          l’obligation ; le contexte explique pourquoi le départ est nécessaire."
+        note: >-
+          **Comparez.** `Hay que salir` dit qu’il faut partir sans nommer une personne précise. `No tengo que
+          salir` signifie normalement que je ne suis pas obligé de partir, et non qu’il m’est interdit de
+          partir.
+
+
+          **À vous.** Dites que vous devez rendre la clé avec `devolver la llave`. Réponse : `Tengo que
+          devolver la llave`. N’omettez pas `que` entre les deux verbes.
+  - subskill_id: possibility
+    explanation: "Vous pouvez évoquer un résultat sans affirmer qu’il se réalisera. L’espagnol emploie `puede que`
+      pour cette possibilité. Le verbe suivant prend le subjonctif, forme exigée par cette construction. La
+      météo en offre un exemple : la personne qui parle envisage la pluie sans en garantir l’arrivée."
+    examples:
+      - text: Puede que llueva.
+        meaning: "**Fonctionnement.** « Il se peut qu’il pleuve » emploie `llueva`, issu de `llover`, pleuvoir.
+          Comparez `Llueve`, « il pleut », et `Puede que llueva`, « il se peut qu’il pleuve ». L’espagnol n’a
+          pas besoin d’un sujet distinct correspondant au « it » météorologique anglais."
+        note: >-
+          **Changez la possibilité.** Placez `no` après `que` pour envisager l’absence de pluie : `Puede que
+          no llueva`. Le résultat reste incertain. Ajoutez `mañana` pour demain : `Puede que llueva mañana`.
+
+
+          **À vous.** Dites qu’il pourrait ne pas pleuvoir demain. Réponse : `Puede que no llueva mañana`.
+          Gardez `llueva` dans cette construction ; ne le remplacez pas par `llueve`.
+  - subskill_id: certainty
+    explanation: Vous pouvez avoir quelques informations sur une situation sans être prêt à les confirmer. `No
+      estoy seguro` ou `No estoy segura` exprime cette absence de certitude. Ces formules décrivent votre
+      degré de confiance, sans dire que l’affirmation est fausse. La terminaison de `seguro` ou `segura`
+      s’accorde avec la personne qui parle.
+    examples:
+      - text: No estoy seguro.
+        meaning: "**Fonctionnement.** « Je ne suis pas sûr » utilise la forme masculine. Une personne employant
+          l’accord féminin dit `No estoy segura`. L’adjectif décrit la personne qui parle, et non le genre
+          grammatical de la chose discutée. Aucune des deux formes ne dit que l’autre personne se trompe."
+        note: >-
+          **Précisez l’objet du doute.** `No estoy seguro de la hora` signifie que je ne suis pas sûr de
+          l’heure. `No sé` signifie plutôt que je ne sais pas ; c’est une réponse directe si l’information
+          vous manque.
+
+
+          **À vous.** Une femme ne peut pas confirmer l’heure. Une réponse possible : `No estoy segura de la
+          hora`. Gardez `estoy` pour « je » et changez seulement la terminaison de l’adjectif.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesSaberTeaching20261007
+    - raePoderTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

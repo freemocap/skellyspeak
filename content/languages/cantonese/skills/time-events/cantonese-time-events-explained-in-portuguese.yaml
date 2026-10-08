@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-portuguese-2026-10-07
+language: cantonese
+skill_id: time_events
+explanation_language: portuguese
+shared_explanation: skills/time-events/time-events-explained-in-portuguese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Alguém pergunta o que seu amigo está fazendo agora. `緊` depois da ação a apresenta em andamento,
+      adequado para descrever a leitura que você pode observar neste momento.
+    examples:
+      - text: 佢睇緊書。
+        meaning: Essa pessoa está lendo um livro. `佢` se refere a uma pessoa, `睇` significa ler ou olhar, e `書` pode
+          significar livro ou livros sem definir quantidade. `緊` fica entre `睇` e `書`. Descreve a atividade em
+          curso, não uma mudança do verbo conforme a pessoa.
+        note: "Experimente dizer que o amigo está comendo agora. Resposta: `佢食緊飯。` Troque `睇書` por `食飯`, mantendo `緊`
+          depois da ação. `佢噚日呢個時候睇緊書` descreve uma leitura em curso a esta hora ontem; uma expressão de tempo
+          passado pode acompanhar o mesmo marcador de aspecto."
+  - subskill_id: past_events
+    explanation: Depois de fazer compras, você relata a compra de um livro ontem. A palavra temporal situa o
+      evento no passado; `咗` apresenta a compra como realizada.
+    examples:
+      - text: 我噚日買咗本書。
+        meaning: Comprei um livro ontem. `我噚日` indica eu e ontem. `買咗` expressa a compra nesse contexto, com `咗`
+          depois de `買`; `本書` significa um livro com o classificador `本`. Uma expressão com classificador sem
+          número pode apresentar um item depois da ação.
+        note: "Experimente relatar a compra de dois livros ontem. Resposta: `我噚日買咗兩本書。` Coloque `兩` antes de `本`. Para
+          dizer que a compra não aconteceu, `我噚日冇買書` usa `冇` e omite o `咗` do evento realizado; acrescentar um
+          `唔` genérico não dá a negação comum desse evento passado."
+  - subskill_id: future_events
+    explanation: Você combinou uma visita à biblioteca para amanhã. Um dia futuro pode deixar o plano claro sem
+      mudar a forma do verbo de movimento nem exigir um marcador de futuro.
+    examples:
+      - text: 我聽日去圖書館。
+        meaning: Vou à biblioteca amanhã. `我` é eu, `聽日` amanhã, e `去圖書館` significa ir à biblioteca. O dia vem antes
+          de `去`. O destino segue o verbo de movimento sem uma palavra extra equivalente ao « to » do inglês.
+        note: "Experimente passar a visita para sábado. Resposta: `我星期六去圖書館。` Mude apenas o dia. `我聽日會去圖書館` também
+          pode expressar futuro com `會`; ele está disponível, mas não é obrigatório só porque a visita é
+          amanhã."
+  - subskill_id: duration_frequency
+    explanation: Um amigo pergunta com que frequência você vai à biblioteca. Um intervalo regular antes da ação e
+      uma contagem depois dela dão a frequência; a biblioteca já discutida pode ficar subentendida.
+    examples:
+      - text: 我每個星期去兩次。
+        meaning: Vou duas vezes por semana. `每個星期` significa toda semana, com `每` antes da expressão semanal. `去兩次`
+          significa ir duas vezes; `次` conta ocasiões e `兩` dá o número dois. Isso não informa quanto tempo
+          cada visita dura.
+        note: "Experimente dizer que vai três vezes por semana. Resposta: `我每個星期去三次。` Troque `兩` por `三`. Para
+          informar a duração, `我每次去兩個鐘` diz que cada visita dura duas horas: `每次` marca cada ocasião, e `兩個鐘`
+          mede o tempo."
+  - subskill_id: event_sequence
+    explanation: Antes de sair de casa, o grupo pretende terminar a refeição. A construção liga o fim de uma
+      atividade à próxima ação, tornando a ordem clara sem repetir quem as realiza.
+    examples:
+      - text: 食完飯先出門。
+        meaning: "Saia depois de terminar de comer. `食完飯` significa terminar uma refeição: `完` segue a ação `食` e
+          marca sua conclusão. `先出門` significa só então sair. Aqui `先` vem antes da segunda ação e a faz
+          esperar a primeira terminar."
+        note: "Experimente terminar de tomar chá antes de sair. Resposta: `飲完茶先出門。` Troque `食飯` por `飲茶`, mantendo `完`
+          depois da primeira ação. `我哋先食飯，跟住出門` também apresenta comer primeiro e sair depois; a posição de
+          `先` muda nessa formulação com duas orações."
+  - subskill_id: event_phase
+    explanation: Alguém pergunta se você já fez uma refeição. `仲未` diz que essa ação esperada ainda não ocorreu
+      até agora, deixando aberta a possibilidade de que aconteça depois.
+    examples:
+      - text: 我仲未食飯。
+        meaning: Ainda não comi. `我` identifica a pessoa; `仲` significa ainda e `未` significa não ainda. Juntos,
+          precedem `食飯`, fazer uma refeição. A frase descreve a fase atual, sem recusar-se a comer nem negar
+          um hábito.
+        note: "Experimente dizer que todo o grupo ainda não comeu. Resposta: `我哋仲未食飯。` Troque a pessoa sem mudar a
+          atividade. `我已經食咗飯` dá a versão concluída; usa `已經` e `咗`, em vez de acrescentar `咗` à oração de
+          ainda não."
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

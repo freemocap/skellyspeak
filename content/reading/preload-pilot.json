@@ -1,0 +1,1716 @@
+{
+  "schemaVersion": 1,
+  "id": "four-language-reading-pilot",
+  "version": "3",
+  "license": "AGPL-3.0-or-later",
+  "review": "source_checked",
+  "sources": [
+    "https://dictionary.cambridge.org/us/dictionary/english-spanish/water",
+    "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+    "https://dictionary.cambridge.org/us/dictionary/english-french/water",
+    "https://dictionary.cambridge.org/us/dictionary/english-spanish/house",
+    "https://dictionary.cambridge.org/us/dictionary/english-french/house",
+    "https://dictionary.cambridge.org/us/dictionary/english-spanish/book",
+    "https://www.collinsdictionary.com/dictionary/english-french/book",
+    "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow",
+    "https://www.collinsdictionary.com/dictionary/english-french/tomorrow",
+    "https://www.collinsdictionary.com/us/dictionary/english-spanish/here",
+    "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here",
+    "https://dictionary.cambridge.org/us/dictionary/english-spanish/big",
+    "https://www.collinsdictionary.com/dictionary/english-french/big",
+    "https://dictionary.cambridge.org/us/grammar/british-grammar/can",
+    "https://www.spanishdict.com/conjugate/puede",
+    "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/",
+    "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense",
+    "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank",
+    "https://dictionary.cambridge.org/us/dictionary/english-french/bank"
+  ],
+  "entries": [
+    {
+      "id": "english-water-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "water",
+      "gloss": "agua",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/water"
+      ]
+    },
+    {
+      "id": "english-water-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "water",
+      "gloss": "ميّة",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-water-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "water",
+      "gloss": "eau",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/water"
+      ]
+    },
+    {
+      "id": "english-house-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "house",
+      "gloss": "casa",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/house"
+      ]
+    },
+    {
+      "id": "english-house-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "house",
+      "gloss": "بيت",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-house-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "house",
+      "gloss": "maison",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/house"
+      ]
+    },
+    {
+      "id": "english-book-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "book",
+      "gloss": "libro",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/book"
+      ]
+    },
+    {
+      "id": "english-book-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "book",
+      "gloss": "كتاب",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-book-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "book",
+      "gloss": "livre",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/book"
+      ]
+    },
+    {
+      "id": "english-tomorrow-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "tomorrow",
+      "gloss": "mañana",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow"
+      ]
+    },
+    {
+      "id": "english-tomorrow-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "tomorrow",
+      "gloss": "بكرا",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-tomorrow-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "tomorrow",
+      "gloss": "demain",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/tomorrow"
+      ]
+    },
+    {
+      "id": "english-here-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "here",
+      "gloss": "aquí",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://www.collinsdictionary.com/us/dictionary/english-spanish/here"
+      ]
+    },
+    {
+      "id": "english-here-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "here",
+      "gloss": "هون",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-here-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "here",
+      "gloss": "ici",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here"
+      ]
+    },
+    {
+      "id": "english-big-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "big",
+      "gloss": "grande",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/big"
+      ]
+    },
+    {
+      "id": "english-big-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "big",
+      "gloss": "كبير",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-big-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "big",
+      "gloss": "grand / gros",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/big"
+      ]
+    },
+    {
+      "id": "english-can-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "can",
+      "gloss": "poder",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; subject not specified",
+      "sources": [
+        "https://dictionary.cambridge.org/us/grammar/british-grammar/can",
+        "https://www.spanishdict.com/conjugate/puede"
+      ]
+    },
+    {
+      "id": "english-can-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "can",
+      "gloss": "بقدر / بتقدر / بيقدر",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; subject not specified",
+      "sources": [
+        "https://dictionary.cambridge.org/us/grammar/british-grammar/can",
+        "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/"
+      ]
+    },
+    {
+      "id": "english-can-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "can",
+      "gloss": "pouvoir",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; subject not specified",
+      "sources": [
+        "https://dictionary.cambridge.org/us/grammar/british-grammar/can",
+        "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense"
+      ]
+    },
+    {
+      "id": "english-bank-spanish",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "bank",
+      "gloss": "banco",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank"
+      ]
+    },
+    {
+      "id": "english-bank-arabic",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "bank",
+      "gloss": "بنك",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "english-bank-french",
+      "scope": {
+        "language": "english",
+        "variety": "english-united-states",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "bank",
+      "gloss": "banque",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/bank"
+      ]
+    },
+    {
+      "id": "spanish-water-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "agua",
+      "gloss": "water",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/water"
+      ]
+    },
+    {
+      "id": "spanish-water-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "agua",
+      "gloss": "ميّة",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/water",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-water-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "agua",
+      "gloss": "eau",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/water",
+        "https://dictionary.cambridge.org/us/dictionary/english-french/water"
+      ]
+    },
+    {
+      "id": "spanish-house-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "casa",
+      "gloss": "house",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/house"
+      ]
+    },
+    {
+      "id": "spanish-house-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "casa",
+      "gloss": "بيت",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/house",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-house-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "casa",
+      "gloss": "maison",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/house",
+        "https://dictionary.cambridge.org/us/dictionary/english-french/house"
+      ]
+    },
+    {
+      "id": "spanish-book-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "libro",
+      "gloss": "book",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/book"
+      ]
+    },
+    {
+      "id": "spanish-book-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "libro",
+      "gloss": "كتاب",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/book",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-book-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "libro",
+      "gloss": "livre",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/book",
+        "https://www.collinsdictionary.com/dictionary/english-french/book"
+      ]
+    },
+    {
+      "id": "spanish-tomorrow-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "mañana",
+      "gloss": "tomorrow",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow"
+      ]
+    },
+    {
+      "id": "spanish-tomorrow-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "mañana",
+      "gloss": "بكرا",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-tomorrow-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "mañana",
+      "gloss": "demain",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow",
+        "https://www.collinsdictionary.com/dictionary/english-french/tomorrow"
+      ]
+    },
+    {
+      "id": "spanish-here-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "aquí",
+      "gloss": "here",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://www.collinsdictionary.com/us/dictionary/english-spanish/here"
+      ]
+    },
+    {
+      "id": "spanish-here-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "aquí",
+      "gloss": "هون",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://www.collinsdictionary.com/us/dictionary/english-spanish/here",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-here-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "aquí",
+      "gloss": "ici",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://www.collinsdictionary.com/us/dictionary/english-spanish/here",
+        "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here"
+      ]
+    },
+    {
+      "id": "spanish-big-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "grande",
+      "gloss": "big",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/big"
+      ]
+    },
+    {
+      "id": "spanish-big-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "grande",
+      "gloss": "كبير",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/big",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-big-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "grande",
+      "gloss": "grand / gros",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/big",
+        "https://www.collinsdictionary.com/dictionary/english-french/big"
+      ]
+    },
+    {
+      "id": "spanish-can-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "puedo",
+      "gloss": "I can",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; first-person singular present",
+      "sources": [
+        "https://www.spanishdict.com/conjugate/puede",
+        "https://dictionary.cambridge.org/us/grammar/british-grammar/can"
+      ]
+    },
+    {
+      "id": "spanish-can-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "puedo",
+      "gloss": "أنا بقدر",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; first-person singular present",
+      "sources": [
+        "https://www.spanishdict.com/conjugate/puede",
+        "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/"
+      ]
+    },
+    {
+      "id": "spanish-can-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "puedo",
+      "gloss": "je peux",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; first-person singular present",
+      "sources": [
+        "https://www.spanishdict.com/conjugate/puede",
+        "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense"
+      ]
+    },
+    {
+      "id": "spanish-bank-english",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "banco",
+      "gloss": "bank",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank"
+      ]
+    },
+    {
+      "id": "spanish-bank-arabic",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "banco",
+      "gloss": "بنك",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "spanish-bank-french",
+      "scope": {
+        "language": "spanish",
+        "variety": "spanish-spain",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "banco",
+      "gloss": "banque",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank",
+        "https://dictionary.cambridge.org/us/dictionary/english-french/bank"
+      ]
+    },
+    {
+      "id": "arabic-water-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "ميّة",
+      "gloss": "water",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-water-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "ميّة",
+      "gloss": "agua",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/water"
+      ]
+    },
+    {
+      "id": "arabic-water-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "ميّة",
+      "gloss": "eau",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-french/water"
+      ]
+    },
+    {
+      "id": "arabic-house-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "بيت",
+      "gloss": "house",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-house-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "بيت",
+      "gloss": "casa",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/house"
+      ]
+    },
+    {
+      "id": "arabic-house-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "بيت",
+      "gloss": "maison",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-french/house"
+      ]
+    },
+    {
+      "id": "arabic-book-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "كتاب",
+      "gloss": "book",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-book-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "كتاب",
+      "gloss": "libro",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/book"
+      ]
+    },
+    {
+      "id": "arabic-book-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "كتاب",
+      "gloss": "livre",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://www.collinsdictionary.com/dictionary/english-french/book"
+      ]
+    },
+    {
+      "id": "arabic-tomorrow-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "بكرا",
+      "gloss": "tomorrow",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-tomorrow-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "بكرا",
+      "gloss": "mañana",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow"
+      ]
+    },
+    {
+      "id": "arabic-tomorrow-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "بكرا",
+      "gloss": "demain",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://www.collinsdictionary.com/dictionary/english-french/tomorrow"
+      ]
+    },
+    {
+      "id": "arabic-here-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "هون",
+      "gloss": "here",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-here-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "هون",
+      "gloss": "aquí",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://www.collinsdictionary.com/us/dictionary/english-spanish/here"
+      ]
+    },
+    {
+      "id": "arabic-here-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "هون",
+      "gloss": "ici",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here"
+      ]
+    },
+    {
+      "id": "arabic-big-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "كبير",
+      "gloss": "big",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size; masculine singular",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-big-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "كبير",
+      "gloss": "grande",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size; masculine singular",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/big"
+      ]
+    },
+    {
+      "id": "arabic-big-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "كبير",
+      "gloss": "grand / gros",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size; masculine singular",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://www.collinsdictionary.com/dictionary/english-french/big"
+      ]
+    },
+    {
+      "id": "arabic-can-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "بقدر",
+      "gloss": "I can / he can",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; bare spelling can be first-person singular or third-person masculine singular depending on dialect and context",
+      "sources": [
+        "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/",
+        "https://dictionary.cambridge.org/us/grammar/british-grammar/can"
+      ]
+    },
+    {
+      "id": "arabic-can-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "بقدر",
+      "gloss": "puedo / puede él",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; bare spelling can be first-person singular or third-person masculine singular depending on dialect and context",
+      "sources": [
+        "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/",
+        "https://www.spanishdict.com/conjugate/puede"
+      ]
+    },
+    {
+      "id": "arabic-can-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "بقدر",
+      "gloss": "je peux / il peut",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; bare spelling can be first-person singular or third-person masculine singular depending on dialect and context",
+      "sources": [
+        "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/",
+        "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense"
+      ]
+    },
+    {
+      "id": "arabic-bank-english",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "بنك",
+      "gloss": "bank",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "arabic-bank-spanish",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "بنك",
+      "gloss": "banco",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank"
+      ]
+    },
+    {
+      "id": "arabic-bank-french",
+      "scope": {
+        "language": "arabic",
+        "variety": "arabic-levantine",
+        "explanation": "french",
+        "explanationVariety": "french-france"
+      },
+      "text": "بنك",
+      "gloss": "banque",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf",
+        "https://dictionary.cambridge.org/us/dictionary/english-french/bank"
+      ]
+    },
+    {
+      "id": "french-water-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "eau",
+      "gloss": "water",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/water"
+      ]
+    },
+    {
+      "id": "french-water-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "eau",
+      "gloss": "agua",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/water",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/water"
+      ]
+    },
+    {
+      "id": "french-water-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "eau",
+      "gloss": "ميّة",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "water as a liquid for drinking",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/water",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "french-house-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "maison",
+      "gloss": "house",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/house"
+      ]
+    },
+    {
+      "id": "french-house-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "maison",
+      "gloss": "casa",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/house",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/house"
+      ]
+    },
+    {
+      "id": "french-house-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "maison",
+      "gloss": "بيت",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "house as a home building",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/house",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "french-book-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "livre",
+      "gloss": "book",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/book"
+      ]
+    },
+    {
+      "id": "french-book-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "livre",
+      "gloss": "libro",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/book",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/book"
+      ]
+    },
+    {
+      "id": "french-book-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "livre",
+      "gloss": "كتاب",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "book as a printed volume",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/book",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "french-tomorrow-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "demain",
+      "gloss": "tomorrow",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/tomorrow"
+      ]
+    },
+    {
+      "id": "french-tomorrow-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "demain",
+      "gloss": "mañana",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/tomorrow",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/tomorrow"
+      ]
+    },
+    {
+      "id": "french-tomorrow-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "demain",
+      "gloss": "بكرا",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "tomorrow as the next day",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/tomorrow",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "french-here-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "ici",
+      "gloss": "here",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here"
+      ]
+    },
+    {
+      "id": "french-here-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "ici",
+      "gloss": "aquí",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here",
+        "https://www.collinsdictionary.com/us/dictionary/english-spanish/here"
+      ]
+    },
+    {
+      "id": "french-here-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "ici",
+      "gloss": "هون",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "here as this place",
+      "sources": [
+        "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/here",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "french-big-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "grand",
+      "gloss": "big",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size; masculine singular",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/big"
+      ]
+    },
+    {
+      "id": "french-big-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "grand",
+      "gloss": "grande",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size; masculine singular",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/big",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/big"
+      ]
+    },
+    {
+      "id": "french-big-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "grand",
+      "gloss": "كبير",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "big as physical size; masculine singular",
+      "sources": [
+        "https://www.collinsdictionary.com/dictionary/english-french/big",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    },
+    {
+      "id": "french-can-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "peux",
+      "gloss": "I can / you can",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; first- or second-person singular present",
+      "sources": [
+        "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense",
+        "https://dictionary.cambridge.org/us/grammar/british-grammar/can"
+      ]
+    },
+    {
+      "id": "french-can-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "peux",
+      "gloss": "puedo / puedes",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; first- or second-person singular present",
+      "sources": [
+        "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense",
+        "https://www.spanishdict.com/conjugate/puede"
+      ]
+    },
+    {
+      "id": "french-can-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "peux",
+      "gloss": "أنا بقدر / إنت بتقدر أو بتقدري",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "can as ability, not permission; first- or second-person singular present",
+      "sources": [
+        "https://progress.lawlessfrench.com/revision/grammar/conjugate-pouvoir-in-le-present-present-tense",
+        "https://thelevantongue.com/levantine-arabic/ability-inability-levantine-arabic/"
+      ]
+    },
+    {
+      "id": "french-bank-english",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "english",
+        "explanationVariety": "english-united-states"
+      },
+      "text": "banque",
+      "gloss": "bank",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/bank"
+      ]
+    },
+    {
+      "id": "french-bank-spanish",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "spanish",
+        "explanationVariety": "spanish-spain"
+      },
+      "text": "banque",
+      "gloss": "banco",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/bank",
+        "https://dictionary.cambridge.org/us/dictionary/english-spanish/bank"
+      ]
+    },
+    {
+      "id": "french-bank-arabic",
+      "scope": {
+        "language": "french",
+        "variety": "french-france",
+        "explanation": "arabic",
+        "explanationVariety": "arabic-levantine"
+      },
+      "text": "banque",
+      "gloss": "بنك",
+      "romanization": null,
+      "pronunciation": null,
+      "sense": "bank as a financial institution",
+      "sources": [
+        "https://dictionary.cambridge.org/us/dictionary/english-french/bank",
+        "https://resources.lingualism.com/wp-content/uploads/Mido-in-Levantine-Arabic-Glossary-Lingualism.pdf"
+      ]
+    }
+  ]
+}

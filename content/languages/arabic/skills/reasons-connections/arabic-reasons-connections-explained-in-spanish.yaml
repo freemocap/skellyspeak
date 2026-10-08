@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: reasons_connections
+explanation_language: spanish
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-spanish.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Si te preguntan por qué te quedaste en casa, mencionar una enfermedad relaciona tu
+      decisión con su motivo. Aquí habla una mujer.
+    examples:
+      - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
+        meaning: "**El ejemplo.** Me quedé en casa porque estaba enferma. `بَقِيتُ` significa me quedé, `فِي
+          الْبَيْتِ` es en casa y `لِأَنَّنِي`, porque yo. `مَرِيضَةٌ` significa enferma en
+          femenino. El verbo pasado sitúa la permanencia antes; la otra parte explica por qué
+          ocurrió."
+        note: "Un hombre usa `مَرِيضٌ`; la forma de me quedé no cambia. La causa sigue a porque, sin
+          presentarse como segundo suceso sin relación. **Practica:** ¿qué parte responde por qué?
+          Respuesta: `لِأَنَّنِي مَرِيضَةٌ`, que conecta enfermedad y permanencia en casa."
+  - subskill_id: consequences
+    explanation: Llegas a una tienda cerrada y decides regresar mañana. Una expresión de resultado
+      permite entender cómo el nuevo plan surge de lo que encontraste.
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
+        meaning: "**El ejemplo.** La tienda está cerrada, así que volveremos mañana. `الْمَحَلُّ مُغْلَقٌ`
+          dice que la tienda está cerrada. `لِذٰلِكَ` significa por eso. `سَنَعُودُ` es volveremos y
+          `غَدًا`, mañana. La primera afirmación presenta la situación; la segunda, la respuesta."
+        note: "El prefijo de futuro `سَـ` se une a la forma de nosotros `نَعُودُ`. Una simple y no
+          necesariamente explicaría el regreso. **Practica:** ¿qué expresión vincula explícitamente
+          el cierre con el plan? Respuesta: `لِذٰلِكَ`, que remite a la tienda cerrada como motivo."
+  - subskill_id: conditions
+    explanation: Das instrucciones de llegada, pero no sabes si la otra persona llegará temprano. Una
+      cláusula con si limita la espera a esa situación.
+    examples:
+      - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
+        meaning: "**El ejemplo.** Si llegas temprano, espera aquí. `إِذَا` introduce si; `وَصَلْتَ` tiene
+          forma de llegaste y se dirige a un hombre. Aquí describe una llegada futura posible, no un
+          hecho pasado. `مُبَكِّرًا` es temprano; `فَانْتَظِرْ هُنَا` le indica entonces que espere
+          aquí."
+        note: "El `فَـ` unido enlaza la condición con la orden. No interpretes automáticamente como pasado
+          un verbo de forma perfecta tras `إِذَا`. **Practica:** ¿debe esperar aunque no llegue
+          temprano? Respuesta: esta frase solo da la orden bajo la condición de llegar temprano."
+  - subskill_id: contrast
+    explanation: Una caja pequeña puede parecer fácil de levantar y, sin embargo, ser pesada. Pero une
+      las dos descripciones verdaderas y muestra por qué la segunda sorprende.
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
+        meaning: "**El ejemplo.** Esta caja es pequeña, pero pesada. `هٰذَا الصُّنْدُوقُ` es esta caja;
+          `صَغِيرٌ` significa pequeña. `وَلٰكِنَّهُ` significa pero ese objeto, con un sufijo que remite
+          al nombre masculino de caja en árabe. `ثَقِيلٌ` significa pesada. El contraste no niega su
+          tamaño pequeño."
+        note: "El sufijo de `وَلٰكِنَّهُ` concuerda con el nombre masculino de caja. Otro referente puede
+          necesitar sufijo y adjetivos distintos. **Practica:** ¿qué dos propiedades siguen siendo
+          ciertas? Respuesta: pequeña y pesada; pero contrasta la expectativa, no los hechos."
+  - subskill_id: supporting_claims
+    explanation: Si recomiendas una ruta por ser más corta, alguien puede preguntarte cómo lo sabes. Una
+      medición aporta un fundamento concreto en lugar de repetir tu preferencia.
+    examples:
+      - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
+        meaning: "**El ejemplo.** Este camino es más corto porque medimos la distancia. `هٰذَا الطَّرِيقُ
+          أَقْصَرُ` afirma que este camino es más corto. `لِأَنَّنَا` significa porque nosotros;
+          `قِسْنَا` es medimos y `الْمَسَافَةَ`, la distancia. El sufijo de nosotros en el verbo
+          pasado indica quién hizo la medición."
+        note: "La medición solo sirve de prueba si se refiere a los caminos comparados. En otros contextos,
+          una cláusula con porque puede dar un motivo personal; aquí fundamenta el conocimiento.
+          **Practica:** ¿qué palabras identifican la prueba? Respuesta: `قِسْنَا الْمَسَافَةَ`, que
+          informa de la medición detrás de la afirmación."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahVerbFormsTeaching20261007
+    - madinahNominalTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: causes_reasons
+      explanation: Si te preguntan por qué te quedaste en casa, mencionar una enfermedad relaciona tu
+        decisión con su motivo. Aquí habla una mujer.
+      examples:
+        - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+          meaning: "**El ejemplo.** Me quedé en casa porque estaba enferma. `ضَلِّيتْ` significa me quedé en
+            este contexto. `بِالْبَيْتْ` es en casa; `لِأَنِّي`, porque yo, y `مَرِيضَة`, enferma en
+            femenino. La permanencia pasada y la enfermedad se relacionan como acción y motivo."
+          note: "Un hombre cambia el adjetivo a `مَرِيضْ`. La expresión causal explica por qué, mientras que
+            una simple y solo uniría datos. **Practica:** ¿es la enfermedad consecuencia de quedarse
+            en casa? Respuesta: no; se presenta como motivo para quedarse."
+    - subskill_id: consequences
+      explanation: Llegas a una tienda cerrada y decides regresar mañana. Una expresión de resultado
+        permite entender cómo el nuevo plan surge de lo que encontraste.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+          meaning: "**El ejemplo.** La tienda está cerrada, así que volveremos mañana. `الْمَحَلّ مْسَكَّرْ`
+            significa que la tienda está cerrada. `عَشَانْ هَيْكْ` significa por eso. `رَحْ
+            نِرْجَعْ` es volveremos; `بُكْرَا`, mañana. Tras `رَحْ`, la acción no lleva el prefijo b
+            habitual."
+          note: "El estado de la tienda se expresa con `مْسَكَّرْ`; no es una orden de cerrarla. **Practica:**
+            ¿qué parte expresa la consecuencia? Respuesta: `رَحْ نِرْجَعْ بُكْرَا`, el nuevo plan
+            motivado por el cierre."
+    - subskill_id: conditions
+      explanation: Das instrucciones de llegada, pero no sabes si la otra persona llegará temprano. Una
+        cláusula con si limita la espera a esa situación.
+      examples:
+        - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+          meaning: "**El ejemplo.** Si llegas temprano, espera aquí. `إِذَا` significa si, `وِصِلْتْ` es
+            llegas en este contexto condicional y `بَكِّيرْ`, temprano. `اِسْتَنَّى` ordena esperar
+            a un hombre; `هُونْ` significa aquí. La primera parte plantea la situación y la segunda
+            da la instrucción."
+          note: "La forma de llegada puede parecer pasada, pero el contexto con si la convierte aquí en
+            posibilidad abierta. La instrucción condicional no dice que ya haya llegado.
+            **Practica:** ¿qué palabra condiciona la espera? Respuesta: `إِذَا`; sin esa estructura,
+            la orden no tendría el mismo límite."
+    - subskill_id: contrast
+      explanation: Una caja pequeña puede parecer fácil de levantar y, sin embargo, ser pesada. Pero une
+        las dos descripciones verdaderas y muestra por qué la segunda sorprende.
+      examples:
+        - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+          meaning: "**El ejemplo.** Esta caja es pequeña, pero pesada. `هَادْ الصُّنْدُوقْ` es esta caja;
+            `صْغِيرْ` significa pequeña. `بَسّ` significa pero aquí y `تْقِيلْ`, pesada. La misma
+            caja tiene ambas propiedades; no hace falta un es presente separado."
+          note: "En otros contextos, `بَسّ` puede significar solo; interpreta la oración completa. Aquí enlaza
+            dos descripciones y expresa sorpresa. **Practica:** ¿la segunda sustituye a la primera?
+            Respuesta: no; la caja sigue siendo pequeña y también es pesada."
+    - subskill_id: supporting_claims
+      explanation: Si recomiendas una ruta por ser más corta, alguien puede preguntarte cómo lo sabes. Una
+        medición aporta un fundamento concreto en lugar de repetir tu preferencia.
+      examples:
+        - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+          meaning: "**El ejemplo.** Este camino es más corto porque medimos la distancia. `هَادْ الطَّرِيقْ
+            أَقْصَرْ` significa que este camino es más corto. Aquí `لِأَنُّه` funciona como porque
+            antes de `إِحْنَا قِسْنَا الْمَسَافَة`, medimos la distancia. `إِحْنَا` nombra
+            expresamente a nosotros y `قِسْنَا` también lleva su terminación."
+          note: "No traduzcas mecánicamente el conector como porque él: la cláusula posterior de nosotros da
+            la razón. La medición debe respaldar la comparación. **Practica:** ¿quién midió?
+            Respuesta: nosotros, indicado por `إِحْنَا` y la terminación de `قِسْنَا`, no por el
+            sonido final del conector."

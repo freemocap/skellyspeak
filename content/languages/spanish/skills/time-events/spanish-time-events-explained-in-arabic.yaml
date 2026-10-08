@@ -1,0 +1,162 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: time_events
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/time-events/time-events-explained-in-arabic.yaml
+sections:
+  - subskill_id: present_events
+    explanation: عندما يسألك شخص عن وظيفتك، يمكن للمضارع وصف وضع عملك الحالي. ولا يلزم أن يعني أنك تعمل
+      في هذه الثانية بالذات. يساعد المكان وسياق الحديث المستمع على فهم الوضع المقصود.
+    examples:
+      - text: Trabajo aquí.
+        meaning: «أعمل هنا.» `Trabajo` هي صيغة المتحدث الحاضرة من `trabajar`؛ وتعني `aquí` «هنا». تحدد
+          النهاية المتكلم أصلًا، فيجوز حذف `yo`. وفي التعريف بمكان العمل، تصف الجملة أين تعمل.
+        note: >-
+          **عدّلها.** تجعل `Ella trabaja aquí` العاملةَ هي. وتؤكد `Estoy trabajando` أن العمل جارٍ.
+          تستطيع الإسبانية أيضًا استعمال المضارع البسيط للأفعال الجارية؛ لذا لا تفرض صيغة -ing
+          الإنجليزية استعمال المضارع المستمر تلقائيًا.
+
+
+          **جرّب.** قل إنك تعمل في المنزل. الإجابة: `Trabajo en casa`. بدّل المكان وأبقِ `trabajo`
+          للمتكلم.
+  - subskill_id: past_events
+    explanation: تعرض رواية رحلة تسوق الأمس حدثًا مكتملًا. تستعمل الإسبانية الماضي البسيط (pretérito) لهذه النظرة
+      إلى الرحلة. ويمكن لصيغ ماضية أخرى عرض عادة أو خلفية، لذا تتوقف الصيغة على كيفية روايتك الحدث.
+    examples:
+      - text: Ayer fui al mercado.
+        meaning: «ذهبتُ أمس إلى السوق.» تضع `Ayer` الحدث في الأمس؛ و`fui` صيغة المتكلم في الماضي البسيط من
+          `ir`. تحدد `Al mercado` الوجهة، وفيها تجمع `al` بين `a` و`el`. تصف الكلمات معًا رحلة واحدة
+          مكتملة.
+        note: >-
+          **قارن.** تصف `Iba al mercado todos los días` عادةً ماضية باستعمال الماضي الناقص `iba`. قد
+          تكون `Fui` أيضًا صيغة من `ser`، لكن الوجهة هنا توضح معنى الذهاب.
+
+
+          **جرّب.** قل إنها ذهبت إلى السوق أمس. الإجابة: `Ayer fue al mercado`. غيّر `fui` إلى `fue`
+          لصيغة الغائبة، وأبقِ الوقت والوجهة.
+  - subskill_id: future_events
+    explanation: تشير خطة للغد إلى فعل لم يحدث بعد. `Ir a` متبوعةً بالمصدر طريقة شائعة للتعبير عن مثل
+      هذه الخطة. تحدد صيغة `ir` صاحب الخطة.
+    examples:
+      - text: Mañana voy a cocinar.
+        meaning: «غدًا سأطبخ.» تحدد `Mañana` الغد؛ وتحدد `voy` المتحدث. وتذكر `A cocinar` الفعل المخطط له.
+          `voy a` هنا تركيب مستقبلي، لا ادعاء بأن المتحدث يسافر إلى مكان.
+        note: >-
+          **عدّلها.** تغيّر `Ella va a cocinar` الشخص، بينما تبقى `cocinar` في المصدر. تعبّر
+          `Cocinaré mañana` أيضًا عن المستقبل. لا تحذف `a` بين `voy` والنشاط.
+
+
+          **جرّب.** قل إنك ستدرس غدًا باستعمال `estudiar`. الإجابة: `Mañana voy a estudiar`. أبقِ
+          `voy a` وبدّل النشاط.
+  - subskill_id: duration_frequency
+    explanation: "يمكن وصف عادة الدراسة بعدد مرات الممارسة أو بمدة كل جلسة. يجيب هذان عن سؤالين مختلفين.
+      تحدد `Todos los días` التكرار: يحدث النشاط كل يوم، من غير تحديد عدد الدقائق."
+    examples:
+      - text: Estudio español todos los días.
+        meaning: «أدرس الإسبانية كل يوم.» تحدد `Estudio` نشاط المتحدث؛ وتسمّي `español` المادة المدروسة.
+          تعني `Todos los días` «كل يوم». يُكتب اسم اللغة هنا بحرف أول صغير.
+        note: >-
+          **قارن.** تحدد `Estudio español durante una hora` مدة جلسة، لا تكرارها. وتعني `Dos veces
+          por semana` مرتين في الأسبوع. أبقِ `los` في التعبير اليومي `todos los días`.
+
+
+          **جرّب.** قل إنك تدرس الإسبانية مرتين في الأسبوع. الإجابة: `Estudio español dos veces por
+          semana`. غيّر عبارة التكرار ولا تغيّر النشاط.
+  - subskill_id: event_sequence
+    explanation: عند رواية أحداث أمسية، يساعد ترتيبها المستمع على متابعة القصة. تسمّي `Primero` الخطوة
+      الأولى، وتقدّم `después` خطوةً لاحقة. تبين هاتان العبارتان الترتيب من غير القول إن أحد الحدثين
+      سبب الآخر.
+    examples:
+      - text: Primero cenamos y después salimos.
+        meaning: "في قصة عن الليلة الماضية: «تعشّينا أولًا ثم خرجنا.» تذكر `Primero cenamos` الحدث الأول؛
+          وتضيف `y después salimos` التالي. يمكن أن تكون `Cenamos` و`salimos` صيغتي حاضر أو ماضٍ
+          بسيط؛ وتوفر القصة المحيطة القراءة الماضية."
+        note: >-
+          **قارن.** في خطة لهذه الليلة، يمكن للصيغ نفسها أن تكون حاضرة ذات إحالة مستقبلية. أضف
+          `anoche` لتوضيح أن الأمسية ماضية. وتعبّر `Por eso` عن نتيجة بدل التسلسل البسيط.
+
+
+          **جرّب.** قل إنكم تعشيتم أولًا الليلة الماضية ثم خرجتم. الإجابة: `Anoche primero cenamos y
+          después salimos`. تجعل `Anoche` السياق الماضي واضحًا.
+  - subskill_id: event_phase
+    explanation: إذا قاطعك شخص والكتاب مفتوح أمامك، يمكنك القول إن القراءة جارية. تركز `Estar` مع صيغة
+      gerundio الإسبانية على نشاط جارٍ. ومن أمثلتها هنا `leyendo` المشتقة من `leer`.
+    examples:
+      - text: Estoy leyendo.
+        meaning: «أنا أقرأ.» تحدد `Estoy` المتحدث وتربط النشاط بالحاضر؛ وتذكر `leyendo` الفعل الجاري. لا
+          تتغير صيغة النشاط هذه بحسب الجنس أو العدد. وتغيّر `Estamos leyendo` الفعل الأول وحده إلى
+          صيغة «نحن».
+        note: >-
+          **قارن.** تصف `Leo todos los días` عادةً. وتقول `Ya terminé de leer` إن القراءة انتهت. لا
+          تضع المصدر `leer` مباشرة بعد `estoy` لهذا المعنى الجاري.
+
+
+          **جرّب.** قل إنها تقرأ الآن. الإجابة: `Ella está leyendo`. غيّر `estoy` إلى `está` وأبقِ
+          `leyendo` دون تغيير.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

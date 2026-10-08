@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: people_places
+language: french
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: "Vous présentez un voisin, puis indiquez son métier. `C’est mon voisin` l’identifie : `c’est`
+      introduit la personne et `mon voisin` précise votre relation. `Il est vétérinaire` donne sa profession.
+      Après `il est`, un nom de métier sans qualificatif n’a généralement pas d’article ; `C’est un
+      vétérinaire` identifie quelqu’un comme tel et prend `un`. Pour une femme, `C’est ma voisine. Elle est
+      vétérinaire.` change la relation et le pronom ; `vétérinaire` garde ici la même forme."
+    examples:
+      - text: C’est mon voisin. Il est vétérinaire.
+        meaning: C’est mon voisin. Il est vétérinaire.
+        note: "Présentez une voisine vétérinaire. `C’est ma voisine. Elle est vétérinaire.` convient : `ma voisine` et
+          `elle` l’identifient, et la profession n’a toujours pas d’article après `elle est`."
+  - subskill_id: qualities_states
+    explanation: "Vous décrivez une cuisine dans un appartement, à la fois sa taille et sa lumière. `La petite
+      cuisine` désigne une cuisine de petite taille ; `est lumineuse` indique qu’elle reçoit de la lumière.
+      `petite` et `lumineuse` s’accordent tous deux avec `cuisine` au féminin singulier. L’adjectif courant de
+      taille `petite` précède ici le nom, tandis que la luminosité suit `est`. Avec le masculin `salon`, on
+      obtient `Le petit salon est lumineux.` Tous les adjectifs français n’occupent pas la même place : il
+      faut tenir compte du nom et de la tournure."
+    examples:
+      - text: La petite cuisine est lumineuse.
+        meaning: La petite cuisine est lumineuse.
+        note: Décrivez un petit salon lumineux. `Le petit salon est lumineux.` convient parce que l’article et les
+          deux adjectifs prennent le masculin singulier pour `salon`.
+  - subskill_id: location_movement
+    explanation: "Un groupe se dirige vers un musée ; la gare aide à préciser lequel. `Nous allons` exprime le
+      déplacement, `au musée` donne la destination et `près de la gare` situe le musée. `Au` réunit `à` et
+      `le` ; devant un nom féminin, les mots restent séparés, comme dans `à la gare`. La phrase décrit un
+      mouvement vers un lieu. `Nous sommes au musée` indique au contraire où se trouve déjà le groupe. Une
+      même expression de lieu peut accompagner plusieurs verbes : c’est le verbe qui porte cette différence."
+    examples:
+      - text: Nous allons au musée près de la gare.
+        meaning: Nous allons au musée près de la gare.
+        note: "Dites que vous êtes déjà au musée. `Nous sommes au musée près de la gare.` convient : `sommes` décrit
+          la position plutôt que le trajet."
+  - subskill_id: possession_relations
+    explanation: "Vous identifiez une personne par son lien avec un collègue. `C’est la sœur` présente la
+      personne, et `de mon collègue` indique de qui elle est la sœur. Le français relie ces noms avec `de`,
+      sans ajouter de terminaison possessive anglaise. Ici, `Mon` s’accorde avec `collègue` au masculin
+      singulier ; pour une collègue, on peut dire `de ma collègue`. Les possessifs s’accordent avec le nom
+      qu’ils introduisent : `sa sœur` peut être la sœur d’un homme ou d’une femme, puisque `sœur` est féminin
+      quel que soit le genre de l’autre personne."
+    examples:
+      - text: C’est la sœur de mon collègue.
+        meaning: C’est la sœur de mon collègue.
+        note: "Identifiez le frère de votre collègue. `C’est le frère de mon collègue.` convient : la relation devient
+          le masculin `le frère`, tandis que le groupe avec `de` désigne toujours le collègue."
+  - subskill_id: quantity_comparison
+    explanation: Vous comparez deux bagages avant de les porter. `Cette valise` désigne la valise ; `plus légère
+      que mon sac` indique qu’elle pèse moins que votre sac. `Plus` forme la comparaison et `que` introduit
+      l’autre objet. `Légère` s’accorde avec `valise` au féminin ; `Ce sac est plus léger que ma valise`
+      décrit au contraire `sac` au masculin. Pour une égalité de poids, `aussi légère que` signifie aussi
+      légère. Un nombre comme `deux valises` indique une quantité sans comparer leur poids.
+    examples:
+      - text: Cette valise est plus légère que mon sac.
+        meaning: Cette valise est plus légère que mon sac.
+        note: "Dites que votre sac est plus léger que votre valise. `Mon sac est plus léger que ma valise.` convient :
+          `léger` s’accorde avec le sac décrit, et non avec l’objet après `que`."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+    - texAdjectivesTeaching20261007
+    - texComparativesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

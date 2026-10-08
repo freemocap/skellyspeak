@@ -412,6 +412,11 @@ var ReportTable = class {
         const active = column.key === this.sortKey;
         th.setAttribute("aria-sort", active ? this.descending ? "descending" : "ascending" : "none");
         const control = element("button", `${column.label} ${active ? this.descending ? "\u2193" : "\u2191" : "\u2195"}`);
+        if (column.headerLines) {
+          const first = element("span", column.headerLines[0]), second = element("span", `${column.headerLines[1]} ${active ? this.descending ? "\u2193" : "\u2191" : "\u2195"}`);
+          first.className = second.className = "column-heading-line";
+          control.replaceChildren(first, document.createTextNode(" "), second);
+        }
         control.type = "button";
         control.className = "sort-button";
         control.dataset.sortKey = column.key;
@@ -519,12 +524,14 @@ function accountIdentity(user, field2 = "email") {
 var accountTable = new ReportTable([
   { key: "identity", label: "Account", required: true, value: (u) => u.email_label ?? u.id, render: (u) => accountIdentity(u) },
   { key: "id", label: "User ID", value: (u) => u.id, render: (u) => accountIdentity(u, "user ID") },
-  { key: "inference", label: "Last inference request (UTC)", value: (u) => timestamp(u.last_inference_at), render: (u) => dateTime(u.last_inference_at) },
-  { key: "seen", label: "Last sign-in (UTC)", value: (u) => timestamp(u.last_seen), render: (u) => dateTime(u.last_seen) },
-  { key: "used", label: "Allowance used today (USD)", numeric: true, value: (u) => u.usage.micros, render: (u) => money(u.usage.micros) },
-  { key: "history", label: "Allowance used \xB7 90 days (USD)", numeric: true, value: (u) => u.usage_90_days_micros, render: (u) => money(u.usage_90_days_micros) },
-  { key: "requests", label: "Inference admissions today", numeric: true, value: (u) => number(u.admission.requests), render: (u) => count(u.admission.requests) },
-  { key: "limit", label: "Daily allowance (USD)", numeric: true, value: (u) => limitsEnforced ? u.effective_limit_micros : null, render: (u) => limitsEnforced ? money(u.effective_limit_micros) : "Disabled" },
+  { key: "inference", label: "Last inference request (UTC)", headerLines: ["Last inference", "request (UTC)"], value: (u) => timestamp(u.last_inference_at), render: (u) => dateTime(u.last_inference_at) },
+  { key: "seen", label: "Last sign-in (UTC)", headerLines: ["Last sign-in", "(UTC)"], value: (u) => timestamp(u.last_seen), render: (u) => dateTime(u.last_seen) },
+  { key: "used", label: "Allowance used \xB7 UTC day (USD)", headerLines: ["Allowance used", "UTC day (USD)"], numeric: true, value: (u) => u.usage.micros, render: (u) => money(u.usage.micros) },
+  { key: "rolling-day", label: "Allowance used \xB7 past 24 hours (USD)", headerLines: ["Allowance used", "Past 24h (USD)"], numeric: true, value: (u) => u.usage_24_hours_micros, render: (u) => u.usage_24_hours_micros == null ? "Unknown" : money(u.usage_24_hours_micros) },
+  { key: "rolling-week", label: "Allowance used \xB7 past 7 days (USD)", headerLines: ["Allowance used", "Past 7 days (USD)"], numeric: true, value: (u) => u.usage_7_days_micros, render: (u) => u.usage_7_days_micros == null ? "Unknown" : money(u.usage_7_days_micros) },
+  { key: "history", label: "Allowance used \xB7 90 days (USD)", headerLines: ["Allowance used", "90 UTC days (USD)"], numeric: true, value: (u) => u.usage_90_days_micros, render: (u) => money(u.usage_90_days_micros) },
+  { key: "requests", label: "Inference admissions today", headerLines: ["Inference admissions", "UTC day"], numeric: true, value: (u) => number(u.admission.requests), render: (u) => count(u.admission.requests) },
+  { key: "limit", label: "Daily allowance (USD)", headerLines: ["Daily allowance", "(USD)"], numeric: true, value: (u) => limitsEnforced ? u.effective_limit_micros : null, render: (u) => limitsEnforced ? money(u.effective_limit_micros) : "Disabled" },
   { key: "source", label: "Limit source", value: (u) => u.daily_limit_micros == null ? "Default" : "Custom", render: (u) => badge(u.daily_limit_micros == null ? "Default" : "Custom") },
   { key: "checks", label: "Account checks today", numeric: true, hidden: true, value: (u) => number(u.admission.diagnostics_requests), render: (u) => count(u.admission.diagnostics_requests) },
   { key: "check-credit", label: "Restored account checks", numeric: true, hidden: true, value: (u) => number(u.admission.diagnostics_requests_credit), render: (u) => count(u.admission.diagnostics_requests_credit) },
@@ -536,7 +543,7 @@ var accountTable = new ReportTable([
   { key: "inspect", label: "Details", required: true, render: (u) => button("Inspect account", () => void run(() => inspectUser(u))) }
 ], {
   label: "Accounts",
-  scope: "Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. Admissions include restored credit; usage includes holds and estimates.",
+  scope: "Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. The allowance day resets at 00:00 UTC; past 24h and 7 days roll with report time. Unknown means incomplete reservation coverage (10,000-record read limit or missing amounts). Admissions include restored credit; usage includes holds and estimates.",
   sort: "inference",
   descending: true,
   search: { label: "Search masked email or account ID", text: (u) => `${u.email_label ?? ""} ${u.id}` }

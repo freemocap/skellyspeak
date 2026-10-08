@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: managing_conversation
+explanation_language: arabic
+title: إدارة المحادثة
+introduction: ابدأ المحادثات وأنهِها، وتبادل الأدوار في الكلام، ووضّح ما لم تفهمه.
+sections:
+  - subskill_id: opening_closing
+    title: البدء والختام
+    concept: ابدأ محادثة أو اختمها.
+  - subskill_id: acknowledging
+    title: الإقرار والرد
+    concept: أظهر أنك سمعت ما قاله شخص ما، وردّ بما يناسب.
+  - subskill_id: clarification
+    title: طلب التوضيح
+    concept: اطلب المساعدة بشأن شيء لم تسمعه أو لم تفهمه.
+  - subskill_id: rephrasing
+    title: إعادة الصياغة
+    concept: عبّر عن الفكرة بطريقة أخرى لتصبح أوضح.
+  - subskill_id: correcting_misunderstanding
+    title: تصحيح سوء الفهم
+    concept: وضّح ما قصدته عندما يفهمه شخص آخر على نحو مختلف.
+  - subskill_id: turns_topics
+    title: إدارة الأدوار والموضوعات
+    concept: تبادل الأدوار في الكلام، وساعد في الانتقال بين موضوعات المحادثة.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

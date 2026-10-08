@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: possibilities_constraints
+language: french
+explanation_language: french
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-french.yaml
+sections:
+  - subskill_id: ability
+    explanation: Un vélo a besoin d’une réparation, et vous avez appris à la réaliser. `Je sais` indique un
+      savoir-faire ; `réparer une roue de vélo` nomme l’action. `Savoir` suivi d’un infinitif exprime une
+      compétence apprise ; ici, le verbe d’action n’est pas précédé de `de`. `Je peux réparer la roue` peut
+      plutôt dire que les circonstances actuelles le permettent, par exemple parce que vous avez les outils et
+      le temps. `Nous savons réparer` attribue la compétence à « nous » en gardant l’infinitif.
+    examples:
+      - text: Je sais réparer une roue de vélo.
+        meaning: Je sais réparer une roue de vélo.
+        note: "Dites que votre groupe sait réparer un vélo. `Nous savons réparer un vélo.` convient : `savons`
+          s’accorde avec `nous`, et `réparer` nomme toujours le savoir-faire appris."
+  - subskill_id: permission
+    explanation: "Il fait chaud dans une pièce, mais ouvrir la fenêtre concerne les autres personnes présentes :
+      vous demandez donc la permission. `Est-ce que` introduit la question ; `je peux` exprime « puis-je » et
+      `ouvrir la fenêtre` nomme l’action proposée. Le contexte fait de cette question une demande de
+      permission, pas un test de force physique. `Vous pouvez ouvrir la fenêtre` peut accorder la permission.
+      La réponse négative `Vous ne pouvez pas ouvrir la fenêtre` la refuse ; `ne` et `pas` encadrent le verbe
+      conjugué."
+    examples:
+      - text: Est-ce que je peux ouvrir la fenêtre ?
+        meaning: Est-ce que je peux ouvrir la fenêtre ?
+        note: "Demandez la permission de fermer la porte. `Est-ce que je peux fermer la porte ?` convient : la forme
+          de demande reste, et le groupe à l’infinitif donne la nouvelle action."
+  - subskill_id: obligation
+    explanation: Vous quittez une chambre louée et devez rendre les clés avant midi. `Nous devons` exprime
+      l’obligation ; `rendre les clés` nomme l’action et `avant midi` fixe la limite. `Devons` s’accorde avec
+      `nous`, tandis que `rendre` reste à l’infinitif. `Nous ne devons pas garder les clés` interdit de les
+      garder. Cela ne veut pas dire qu’il n’est pas nécessaire de les garder ; cette absence de nécessité peut
+      s’exprimer avec `Nous n’avons pas besoin de garder les clés.`
+    examples:
+      - text: Nous devons rendre les clés avant midi.
+        meaning: Nous devons rendre les clés avant midi.
+        note: "Donnez cette obligation à une personne à qui vous dites `vous`. `Vous devez rendre les clés avant
+          midi.` convient : seuls le sujet et la forme correspondante de `devoir` changent."
+  - subskill_id: possibility
+    explanation: "Les prévisions sont incertaines ; vous indiquez qu’il pourrait neiger cette nuit. `Il va neiger`
+      annonce la neige ; le sujet météorologique `il` ne désigne personne. `Peut-être` signifie qu’un autre
+      résultat est possible. `Cette nuit` situe l’événement. La phrase peut aussi commencer par `Peut-être
+      qu’il va neiger cette nuit.` Sans `peut-être`, `Il va neiger cette nuit` présente une prévision plus
+      ferme. Ce mot d’incertitude s’écrit avec un trait d’union : ce n’est pas la suite de deux mots qui
+      signifierait « peut être »."
+    examples:
+      - text: Il va peut-être neiger cette nuit.
+        meaning: Il se peut qu’il neige cette nuit.
+        note: "Faites la même prévision incertaine pour la pluie. `Il va peut-être pleuvoir cette nuit.` convient :
+          `pleuvoir` remplace l’événement météorologique et reste à l’infinitif après `va`."
+  - subskill_id: certainty
+    explanation: Vous venez de vérifier le guichet ; vous affirmez donc avec assurance qu’il est fermé. `Je suis
+      certaine que` exprime la certitude et `le guichet est fermé` donne le fait. `Je viens de vérifier`
+      indique une vérification toute récente et justifie cette assurance. `Certaine` décrit la personne qui
+      parle au féminin ; la forme masculine est `certain`. `Fermé` s’accorde avec `guichet` au masculin, et
+      non avec la personne. `Je pense que` marquerait moins explicitement la certitude.
+    examples:
+      - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
+        meaning: Je suis certaine que le guichet est fermé ; je viens de vérifier.
+        note: "Gardez le même fait vérifié pour une personne employant l’accord masculin. `Je suis certain que le
+          guichet est fermé : je viens de vérifier.` convient : seul `certain` change ; le guichet et la
+          vérification restent les mêmes."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - tex_modals2026
+    - tex_conditional2026
+    - texRecentPastTeaching20261007
+    - texNearFutureTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

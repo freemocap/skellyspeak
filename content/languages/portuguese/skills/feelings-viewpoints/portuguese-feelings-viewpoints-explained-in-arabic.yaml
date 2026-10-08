@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: feelings_viewpoints
+explanation_language: arabic
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-arabic.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: "تريد تعلم مهارة جديدة في المطبخ. تتضمن `Quero aprender a fazer pão` فعلين: تخبر
+      `quero` بما تريده، وتعني `aprender a fazer` تعلم الصنع. تنتمي `a` إلى تركيب `aprender a` قبل
+      مصدر آخر. المتكلم هو فاعل `quero` المفهوم من صيغته. وتستخدم `Quero aprender a nadar` التركيب
+      نفسه لتعلم السباحة. ولا تعني الرغبة وحدها وعدًا بأنك ستلتحق بدرس فعلًا."
+    examples:
+      - text: Quero aprender a fazer pão.
+        meaning: أريد أن أتعلم صنع الخبز.
+        note: "قل إنك تريد تعلم صنع الحساء. الإجابة: `Quero aprender a fazer sopa.` تحتفظ بـ`quero aprender
+          a fazer` وتغيّر المصنوع إلى `sopa`."
+  - subskill_id: preferences
+    explanation: تحب الطبخ عمومًا، لكنك تختار صنع الخبز حين تتاح لك الخيارات. تجمع `Gosto de cozinhar,
+      mas prefiro fazer pão` بين الإعجاب والتفضيل. يتبع `Gostar` حرف `de` قبل ما يعجبك، وهنا المصدر
+      `cozinhar`؛ وتتفق صيغة `gosto` مع الشخص الذي يحب. وتعني `Prefiro` «أفضل» وتقدم `fazer pão`
+      مباشرة من دون `de`. وتبيّن `Mas` التباين بين الاستمتاع العام والنشاط المفضل. ويتبع `Gosto de
+      ler, mas prefiro escrever` النمط نفسه.
+    examples:
+      - text: Gosto de cozinhar, mas prefiro fazer pão.
+        meaning: أحب الطبخ، لكنني أفضل صنع الخبز.
+        note: "فضّل صنع الحساء مع استمرار حبك للطبخ. الإجابة الكاملة: `Gosto de cozinhar, mas prefiro fazer
+          sopa.` تبقى `de` بعد `gosto`، بينما تسبق `prefiro` المصدر `fazer` مباشرة."
+  - subskill_id: emotions
+    explanation: رأيت للتو نتيجة مشروع وتشعر بالسرور. تستخدم `Estou contente com o resultado` صيغة
+      المتكلم المضارعة `estou` من `estar` للتعبير عن حالتك الحالية. تعني `Contente` مسرورًا أو
+      مسرورةً ولها الصيغة نفسها للمتكلم المفرد من أي جنس؛ وتسمّي `com o resultado` ما يتعلق به
+      الشعور. تخبر الجملة عن عاطفة، لا تصدر حكمًا موضوعيًا بجودة النتيجة. وتغيّر `Estou preocupado
+      com o resultado` الشعور إلى القلق؛ وقد تتغير تلك الصفة بحسب المتكلم.
+    examples:
+      - text: Estou contente com o resultado.
+        meaning: أنا مسرور بالنتيجة.
+        note: "قل إنك مسرور بالخبر. الإجابة: `Estou contente com a notícia.` وهي تذكر شعورًا كاملًا وما
+          يتعلق به؛ وتحل `com a notícia` محل `com o resultado`."
+  - subskill_id: opinions
+    explanation: "تعتقد في نقاش عن المكتبة أن زيادة الطاولات ستفيد. تقدم `Acho que a biblioteca precisa
+      de mais mesas` رأيك بـ`acho que`، أي أعتقد أن. وتعرض العبارة بعد `que` الحكم: `a biblioteca`
+      هي الفاعل، وتعني `precisa de` تحتاج إلى، و`mais mesas` طاولات أكثر. تنتمي `de` إلى تركيب
+      `precisar de` قبل الشيء المطلوب. هذا رأيك، لا طلب لإعادة كلام غير واضح."
+    examples:
+      - text: Acho que a biblioteca precisa de mais mesas.
+        meaning: أعتقد أن المكتبة تحتاج إلى طاولات أكثر.
+        note: "قل إن المكتبة تحتاج إلى كراسٍ أكثر. الإجابة: `Acho que a biblioteca precisa de mais
+          cadeiras.` تبقي إطار الرأي و`de` اللازمة وتستبدل الطاولات بالكراسي."
+  - subskill_id: agreement_disagreement
+    explanation: يقترح شخص إغلاق المكتبة أيام السبت، فتعترض. تضع `Não concordo com essa ideia` كلمة
+      `não` قبل `concordo` لنفي الموافقة؛ وتحدد `com essa ideia` الاقتراح المرفوض. يمكن لتركيب
+      `Concordar com` ربط الموافقة بشخص أو فكرة. والسياق مهم لأن `essa ideia` تعود إلى فكرة طُرحت
+      بالفعل.
+    examples:
+      - text: Não concordo com essa ideia.
+        meaning: لا أوافق على تلك الفكرة.
+        note: "وافق على الاقتراح بدلًا من رفضه. الإجابة: `Concordo com essa ideia.` وهي رد كامل على الفكرة
+          المعروفة؛ فحذف `não` يعكس الموقف، بينما تبقى `com` رابطةً له بالاقتراح."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

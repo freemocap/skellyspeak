@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: time_events
+explanation_language: french
+title: Temps et événements
+introduction: Parler du moment où les choses se produisent, de leur durée et de l’enchaînement des événements.
+sections:
+  - subskill_id: present_events
+    title: Situations présentes
+    concept: Parler des situations, des activités et des habitudes actuelles.
+  - subskill_id: past_events
+    title: Événements passés
+    concept: Parler de ce qui s’est produit auparavant.
+  - subskill_id: future_events
+    title: Événements futurs
+    concept: Parler de ce qui se produira ou pourrait se produire plus tard.
+  - subskill_id: duration_frequency
+    title: Durée et fréquence
+    concept: Dire combien de temps dure une chose ou à quelle fréquence elle se produit.
+  - subskill_id: event_sequence
+    title: Enchaînement
+    concept: Préciser ce qui se produit d’abord, ensuite et enfin.
+  - subskill_id: event_phase
+    title: Déroulement et achèvement
+    concept: Dire si une action commence, se poursuit ou se termine.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

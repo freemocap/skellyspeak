@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: information_exchange
+language: english
+explanation_language: arabic
+shared_explanation: skills/information-exchange/information-exchange-explained-in-arabic.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: يساعد السؤال عن معلومة الطرفَ الآخر على معرفة ما تريد اكتشافه. تشير كلمات مثل `where`
+      و`when` و`what` إلى التفصيل الناقص. ويتوقف ترتيب بقية السؤال على فعله؛ لذا يساعدك تعلّم المثال
+      كاملًا على استخدام النمط مع تفصيل مختلف.
+    examples:
+      - text: Where does your sister work?
+        meaning: "**كيف تعمل الصيغة.** تسأل `Where` عن مكان. تأتي `Does` قبل `your sister`، ويبقى `work` في
+          صورته الأساسية. قارن بالجملة الخبرية `Your sister works at the library`. في السؤال تحمل
+          `does` التغيير النحوي، فلا تضف `-s` إلى `work` أيضًا."
+        note: >-
+          **قارن.** يسأل `When does your sister work?` عن الوقت بدلًا من المكان. ويختلف النمط عندما
+          تسأل عمن يقوم بالفعل: `Who works at the library?`؛ فـ`who` نفسها تشير إلى الشخص المجهول،
+          ولذلك لا تحتاج إلى `do` أو `does`. ومع `be` اسأل `Where is your sister?`
+
+
+          **جرّب.** اسأل عن مكان سكنهم. الإجابة: `Where do they live?` استعمل `do` مع `they`، وأبقِ
+          `live` في صورته الأساسية.
+  - subskill_id: answering_information
+    explanation: غالبًا ما تكفي إجابة قصيرة. إذا سألك شخص تعرّفت إليه حديثًا أين تعمل، فاذكر المكان؛
+      ويمكنك إضافة جملة كاملة إذا لم يكن السياق واضحًا. يوفّر السؤال المعلومات التي لا تحتاج إلى
+      تكرارها.
+    examples:
+      - text: At the library.
+        meaning: تقدّم `At` مكان العمل، وتسمّيه `the library`. بعد سؤال `Where do you work?` تكفي إجابة `At
+          the library`. والصيغة الكاملة هي `I work at the library`.
+        note: >-
+          قدّم نوع التفصيل المطلوب: تجيب `At seven` عن سؤال الوقت، بينما تجيب `At the library` عن
+          سؤال المكان. ويحتاج سؤال نعم/لا إلى جواب مختلف: يمكن الرد على `Do you work at the
+          library?` بعبارة `Yes, I do`.
+
+
+          **جرّب.** يسألك شخص `Where do you study?` وأنت تدرس في المنزل. الإجابة: `At home`. المكان
+          يجيب عن السؤال؛ ولا حاجة إلى تكرار `I study`.
+  - subskill_id: checking_facts
+    explanation: يساعدك التحقق من معلومة على تجنّب التصرف بناءً على تفصيل خاطئ. قبل التسوّق، ربما سمعت
+      أن المتجر يغلق الساعة السابعة وتريد التأكد. يعرض سؤال نعم/لا هذه المعلومة المقترحة على
+      المخاطَب ليتحقق منها.
+    examples:
+      - text: Does the shop close at seven?
+        meaning: "تبدأ `Does` السؤال لأن `the shop` مفرد. ويأتي `Close` في صورة الفعل الأساسية؛ وتحدّد `at
+          seven` الوقت الذي تتحقق منه. قارن بالجملة الخبرية `The shop closes at seven`: يستعمل
+          السؤال `does`، لذا يفقد `close` اللاحقة `-s`."
+        note: >-
+          يمكن أن يؤكد الرد المفيد المعلومة أو يصححها: `Yes, it does` أو `No, it closes at six`. إذا
+          لم يكن لديك وقت مقترح، فاسأل `What time does the shop close?` بدلًا من ذلك.
+
+
+          **جرّب.** تحقّق من العبارة `The buses stop here`. الإجابة: `Do the buses stop here?`
+          استعمل `do` مع الجمع `the buses`، وأبقِ `stop` دون تغيير.
+  - subskill_id: useful_detail
+    explanation: تجعل التفاصيل المفيدة الإرشادات أسهل اتباعًا. يحتاج من يبحث عن مدخل إلى تحديد مكانه،
+      وربما إلى علامة واضحة يراها. ابدأ بالإجابة الأساسية، ثم أضف التفصيل الذي يساعده على تمييز
+      المكان الصحيح.
+    examples:
+      - text: The entrance is on the left, beside the blue sign.
+        meaning: "تحدّد `The entrance` الشيء المراد العثور عليه. تعطي `On the left` موقعه، وتضيف `beside the
+          blue sign` علامةً بارزة: فالمدخل بجوار تلك اللافتة. تصف العبارتان المدخل نفسه."
+        note: >-
+          اختر علامةً يستطيع المخاطَب العثور عليها. تعني `Beside` «بجوار»، أما `behind` فستضع المدخل
+          في الجهة الأخرى من اللافتة. لا تفيد الكلمات الإضافية إلا إذا جعلت الموقع أوضح.
+
+
+          **جرّب.** أضف علامةً إلى `The lift is on the right`. إجابة ممكنة: `The lift is on the
+          right, beside reception`. يساعد مكتب الاستقبال المخاطَب على تحديد المصعد.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: ترجمة عربية تعليمية من صياغة Codex مستندة إلى دليل اللغة الإنجليزية الحالي. أمثلة اللغة
+        المستهدفة وفروع التنوع محفوظة؛ لا توجد مراجعة لغوية مستقلة.
+      sources:
+        - bc_questions2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcPresentSimpleTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

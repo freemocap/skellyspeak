@@ -1,0 +1,171 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-french-2026-10-07
+language: arabic
+skill_id: information_exchange
+explanation_language: french
+shared_explanation: skills/information-exchange/information-exchange-explained-in-french.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: "Quand vous savez qu’un événement a lieu sans connaître son heure, il vous faut une question
+      ciblant ce détail manquant. `فِي أَيِّ سَاعَةٍ` signifie « à quelle heure ». L’exemple demande quand
+      ferme un magasin : une réponse utile donne donc une heure, pas seulement oui ou non."
+    examples:
+      - text: فِي أَيِّ سَاعَةٍ يُغْلِقُ الْمَحَلُّ؟
+        meaning: "**L’exemple.** « À quelle heure ferme le magasin ? » `فِي أَيِّ سَاعَةٍ` demande l’heure ;
+          `يُغْلِقُ` signifie « ferme » et `الْمَحَلُّ` désigne le magasin. La préposition `فِي` commence
+          l’expression de temps ; dans cet exemple, le verbe précède le magasin."
+        note: >-
+          **Construisez une réponse.** `فِي السَّاعَةِ الْخَامِسَةِ` signifie « à cinq heures ». Cette seule
+          expression de temps peut répondre, puisque la question donne déjà le magasin et l’action.
+
+
+          **À vous.** Quelle expression la réponse doit-elle remplacer ? Réponse : `فِي أَيِّ سَاعَةٍ`.
+  - subskill_id: answering_information
+    explanation: Quand quelqu’un demande l’heure de fermeture d’un magasin, il manque seulement l’heure. Une
+      expression horaire suffit comme réponse dans la conversation, puisque la question nomme déjà le magasin
+      et l’action.
+    examples:
+      - text: فِي السَّاعَةِ الْخَامِسَةِ.
+        meaning: "**L’exemple.** À cinq heures. `فِي` signifie ici « à ». `السَّاعَةِ` désigne l’heure et
+          `الْخَامِسَةِ` est l’ordinal « cinquième », ce qui donne cinq heures. L’expression horaire emploie
+          un adjectif ordinal accordé avec le nom féminin désignant l’heure."
+        note: "Pour six heures, employez `فِي السَّاعَةِ السَّادِسَةِ`. Ne confondez pas un moment à cinq heures avec
+          une durée de cinq heures. Essayez : répondez « six heures » à une question sur la fermeture. Réponse
+          : `فِي السَّاعَةِ السَّادِسَةِ` ; l’ordinal change, mais le cadre horaire reste."
+  - subskill_id: checking_facts
+    explanation: Vous pensez que le magasin est fermé aujourd’hui, mais voulez le confirmer avant de faire des
+      projets. Énoncez l’information supposée et ajoutez une courte question permettant à l’autre personne de
+      la confirmer ou de la corriger.
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
+        meaning: "**L’exemple.** Le magasin est fermé aujourd’hui, n’est-ce pas ? `الْمَحَلُّ مُغْلَقٌ` dit que le
+          magasin est fermé ; `الْيَوْمَ` signifie aujourd’hui. `أَلَيْسَ كَذٰلِكَ؟` demande si c’est bien le
+          cas. La phrase énonce le fait supposé et la question finale le vérifie."
+        note: "Remplacer `الْيَوْمَ` par `غَدًا` vérifierait la fermeture de demain. Ce n’est pas une question ouverte
+          sur l’heure de fermeture : un fait précis est proposé. Essayez : sur quoi doit porter une correction
+          utile ? Réponse : sur le fait que le magasin soit fermé aujourd’hui ou non, plutôt que sur une heure
+          d’ouverture sans rapport."
+  - subskill_id: useful_detail
+    explanation: Une personne cherche une entrée. Nommer un repère voisin lui permet de distinguer cette entrée
+      d’autres lieux ; le détail sert directement son déplacement suivant.
+    examples:
+      - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
+        meaning: "**L’exemple.** L’entrée est à côté de la boulangerie. `الْمَدْخَلُ` désigne l’entrée. `بِجَانِبِ`
+          signifie « à côté de » et `الْمَخْبَزِ` la boulangerie. L’expression de lieu situe l’entrée par
+          rapport à ce repère, sans verbe « être » distinct au présent."
+        note: "Vous pouvez remplacer le repère par `الْمَكْتَبِ`, le bureau : `الْمَدْخَلُ بِجَانِبِ الْمَكْتَبِ`. « À
+          côté » ne signifie pas « à l’intérieur ». Essayez : où la personne doit-elle chercher ? Réponse :
+          près de la boulangerie, pas dedans ; l’expression relationnelle marque cette différence."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: asking_information
+      explanation: "Une question sur l’heure vous aide à préparer une action, par exemple arriver au magasin avant
+        sa fermeture. `أَيّ سَاعَة` demande « à quelle heure ». Le reste de la question nomme l’événement
+        concerné : ici, la fermeture du magasin."
+      examples:
+        - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
+          meaning: "**L’exemple.** « À quelle heure ferme le magasin ? » `أَيّ سَاعَة` demande l’heure ; `بِيْسَكِّرْ`
+            signifie « ferme » dans ce modèle parlé ; `الْمَحَلّ` désigne le magasin. Remarquez le préfixe b-
+            du verbe au présent ordinaire."
+          note: >-
+            **Construisez une réponse.** `عَ السَّاعَة خَمْسِة` signifie « à cinq heures » dans ce modèle
+            parlé. Cette seule expression horaire peut répondre à la question.
+
+
+            **À vous.** Un simple oui répondrait-il ? Non : il faut donner l’heure de fermeture. Les mots
+            interrogatifs indiquent l’information manquante.
+    - subskill_id: answering_information
+      explanation: Quand quelqu’un demande l’heure de fermeture d’un magasin, il manque seulement l’heure. Une
+        expression horaire suffit comme réponse dans la conversation, puisque la question nomme déjà le
+        magasin et l’action.
+      examples:
+        - text: عَ السَّاعَة خَمْسِة.
+          meaning: "**L’exemple.** À cinq heures. `عَ` introduit l’heure ; `السَّاعَة` désigne l’heure et `خَمْسِة`
+            signifie cinq. Ensemble, ils donnent le moment de cinq heures. Ce modèle oral emploie ici le
+            nombre ; la réponse n’a pas besoin de répéter le verbe « fermer »."
+          note: "Pour six heures, employez `عَ السَّاعَة سِتِّة`. Précisez le matin ou le soir si l’heure peut prêter à
+            confusion. Essayez : cette expression signifie-t-elle que le magasin reste ouvert pendant cinq
+            heures ? Réponse : non ; elle donne l’heure sur l’horloge, pas une durée."
+    - subskill_id: checking_facts
+      explanation: Vous pensez que le magasin est fermé aujourd’hui, mais voulez le confirmer avant de faire des
+        projets. Énoncez l’information supposée et ajoutez une courte question permettant à l’autre personne
+        de la confirmer ou de la corriger.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
+          meaning: "**L’exemple.** Le magasin est fermé aujourd’hui, c’est bien ça ? `الْمَحَلّ مْسَكَّرْ` exprime la
+            fermeture ; `الْيَوْمْ` signifie aujourd’hui. Le `صَحّ؟` final demande confirmation de ce qui
+            précède, et non des informations sur un nouveau sujet."
+          note: "Sans `صَحّ؟`, la phrase pourrait simplement annoncer la fermeture. Une intonation interrogative laisse
+            place à une correction. Essayez : remplacez aujourd’hui par demain. Réponse : `الْمَحَلّ مْسَكَّرْ
+            بُكْرَا، صَحّ؟` ; le jour change, mais la demande de confirmation reste."
+    - subskill_id: useful_detail
+      explanation: Une personne cherche une entrée. Nommer un repère voisin lui permet de distinguer cette entrée
+        d’autres lieux ; le détail sert directement son déplacement suivant.
+      examples:
+        - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
+          meaning: "**L’exemple.** L’entrée est à côté de la boulangerie. `الْمَدْخَلْ` désigne l’entrée, `جَنْبْ`
+            signifie « à côté de » et `الْمَخْبَزْ` la boulangerie. Le repère suit le mot de relation.
+            L’ensemble indique où chercher, plutôt que de simplement énumérer deux lieux."
+          note: "Pour un bureau comme repère, employez `الْمَدْخَلْ جَنْبْ الْمَكْتَبْ`. Gardez le mot de relation afin
+            que le nouveau repère reste utile. Essayez : que perd-on en nommant seulement la boulangerie ?
+            Réponse : son lien spatial avec l’entrée ; `جَنْبْ` fournit ce lien."

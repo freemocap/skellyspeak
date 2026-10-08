@@ -8,6 +8,20 @@ const source = (text: string, gloss: string, start = 0, end = text.length): Save
   segments: [{ start, end, kind: 'gloss', gloss }],
 })
 
+it('marks dictionary coverage partial even when every word has a dictionary meaning', () => {
+  const result = savedReadingResult('playa', [{...source('playa','beach'),dictionary:true}])!
+  expect(result.dictionaryAnchors).toEqual([{start:0,end:5}])
+  expect(result.gloss?.coverage).toBe('partial')
+  expect(result.receipt).toMatchObject({providerExecution:false,consultedSources:[{dictionary:true}]})
+})
+
+it('retains package metadata but omits dictionary source text and URLs from diagnostic receipts', () => {
+  const result = savedReadingResult('playa', [{...source('playa','beach'),dictionary:true,provenance:{packageId:'pilot',version:'1',review:'reviewed',sense:'shore beside the sea',sources:['https://example.org/private-reference']}}])!
+  expect(result.receipt).toMatchObject({consultedSources:[{provenance:{packageId:'pilot',version:'1',review:'reviewed'}}]})
+  expect(JSON.stringify(result.receipt)).not.toContain('shore beside the sea')
+  expect(JSON.stringify(result.receipt)).not.toContain('https://')
+})
+
 it('projects alternatives with original receipt IDs, keeping source content out of the lookup receipt', () => {
   const result = savedReadingResult('Otra playa.', [source('La playa.', 'beach', 3, 8), source('playa', 'shore')])!
   expect(result.gloss).toEqual({ coverage: 'partial', segments: [{ start: 5, end: 10, kind: 'gloss', gloss: 'beach / shore', romanization: undefined, pronunciation: undefined }] })

@@ -2,28 +2,20 @@ use super::*;
 use crate::application::test_server::structured_server;
 
 #[tokio::test]
-async fn english_with_spanish_interface_and_explanations_opens_and_translates() {
+async fn english_with_spanish_interface_and_explanations_opens_without_inference() {
     let dir = tempfile::tempdir().unwrap();
     let state = Application::start(&dir.path().join("english.sqlite3"), None);
-    let (base, worker) = structured_server(|source| {
-        let data: serde_json::Value = serde_json::from_str(source).unwrap();
-        assert_eq!(data["explanationLanguage"], "spanish");
-        let texts: Vec<_> = data["fields"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|_| "Texto de prueba")
-            .collect();
-        json!({"texts":texts}).to_string()
-    });
     {
         let store = state.lock().unwrap();
-        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
+        store
+            .connection
+            .execute("UPDATE ai_config SET paused=1", [])
+            .unwrap();
         store.connection.execute("UPDATE learner SET preferences=json_set(preferences,'$.interfaceLocale','spanish','$.explanationLanguage','spanish','$.explanationVarietyId','spanish-mexico')", []).unwrap();
         let snapshot = crate::learning::learner::progression::snapshot(&store, "english").unwrap();
         assert_eq!(snapshot["guide_explanation_language"], "spanish");
         assert_eq!(snapshot["guides"].as_array().unwrap().len(), 2);
-        assert!(snapshot["guides"][0]["skills"]["coordinating_action"].is_null());
+        assert!(snapshot["guides"][0]["skills"]["coordinating_action"].is_string());
     }
     let guide = load(
         &state,
@@ -35,14 +27,25 @@ async fn english_with_spanish_interface_and_explanations_opens_and_translates() 
     )
     .await
     .unwrap();
-    worker.join().unwrap();
-    assert!(guide.generated);
-    assert!(guide.markdown.contains("Texto de prueba"));
+    assert!(!guide.generated);
+    assert_eq!(guide.explanation_language, "spanish");
+    assert_eq!(guide.context.unwrap().reference.edition_language, "spanish");
     assert!(
         guide
             .markdown
             .contains("> Could you hold this box for a moment?")
     );
+    let count: i64 = state
+        .lock()
+        .unwrap()
+        .connection
+        .query_row(
+            "SELECT count(*) FROM inference_executions WHERE task='guide_translation'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(count, 0);
 }
 
 #[tokio::test]
@@ -50,6 +53,15 @@ async fn translation_is_shared_cached_and_survives_restart_without_credit() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("guide.sqlite3");
     let state = Application::start(&path, None);
+    assert!(
+        state
+            .lock()
+            .unwrap()
+            .config
+            .guide_edition("spanish", "german", "time_events")
+            .unwrap()
+            .is_none()
+    );
     let (base, worker) = structured_server(|source| {
         let data: serde_json::Value = serde_json::from_str(source).unwrap();
         let texts: Vec<_> = data["fields"]
@@ -67,7 +79,7 @@ async fn translation_is_shared_cached_and_survives_restart_without_credit() {
             "spanish",
             "spanish-spain",
             "time_events",
-            "arabic",
+            "german",
             false
         ),
         load(
@@ -75,7 +87,7 @@ async fn translation_is_shared_cached_and_survives_restart_without_credit() {
             "spanish",
             "spanish-spain",
             "time_events",
-            "arabic",
+            "german",
             false
         )
     );
@@ -141,7 +153,7 @@ async fn translation_is_shared_cached_and_survives_restart_without_credit() {
         "spanish",
         "spanish-spain",
         "time_events",
-        "arabic",
+        "german",
         false,
     )
     .await
@@ -165,6 +177,15 @@ async fn translation_is_shared_cached_and_survives_restart_without_credit() {
 async fn invalid_translation_has_metadata_and_requires_explicit_retry() {
     let dir = tempfile::tempdir().unwrap();
     let state = Application::start(&dir.path().join("guide.sqlite3"), None);
+    assert!(
+        state
+            .lock()
+            .unwrap()
+            .config
+            .guide_edition("spanish", "german", "time_events")
+            .unwrap()
+            .is_none()
+    );
     let (base, worker) = structured_server(|_| json!({"texts":[]}).to_string());
     state.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
     let first = load(
@@ -172,7 +193,7 @@ async fn invalid_translation_has_metadata_and_requires_explicit_retry() {
         "spanish",
         "spanish-spain",
         "time_events",
-        "arabic",
+        "german",
         false,
     )
     .await
@@ -184,7 +205,7 @@ async fn invalid_translation_has_metadata_and_requires_explicit_retry() {
         "spanish",
         "spanish-spain",
         "time_events",
-        "arabic",
+        "german",
         false,
     )
     .await

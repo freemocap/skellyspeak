@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-portuguese-2026-10-07
+language: portuguese
+skill_id: coordinating_action
+explanation_language: portuguese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-portuguese.yaml
+sections:
+  - subskill_id: requests
+    explanation: Você está entregando livros a um colega e precisa que ele os guarde. `Você pode guardar
+      estes livros, por favor?` usa `você` para se dirigir à pessoa, `pode` para expressar
+      possibilidade e o infinitivo `guardar` para indicar a ação pedida. `Estes livros` identifica
+      os livros próximos de quem fala. Nessa situação, a pergunta funciona como um pedido educado,
+      embora `poder` também possa expressar capacidade. A mesma estrutura com outro infinitivo,
+      `Você pode fechar a porta, por favor?`, pede que a pessoa feche a porta.
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: Você pode guardar estes livros, por favor?
+        note: Peça ao colega que guarde estas caixas. `Você pode guardar estas caixas, por favor?` é um
+          pedido completo. `Estas caixas` substitui `estes livros`; o demonstrativo passa ao
+          feminino plural para concordar com `caixas`.
+  - subskill_id: offers_invitations
+    explanation: Você tem pão fresco e pode oferecer um pedaço a alguém. `Quer uma fatia de pão?`
+      pergunta se a pessoa gostaria de uma fatia. `Quer` é a forma do presente de `querer` usada
+      para a pessoa a quem você se dirige; `uma fatia` indica a porção e `de pão` diz do que ela é.
+      Com o pão disponível, a pergunta convida a aceitar uma oferta. Sem esse contexto, as mesmas
+      palavras poderiam apenas perguntar por uma preferência. `Quer um pouco de água?` reutiliza a
+      oferta para água.
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: Você gostaria de uma fatia de pão?
+        note: Ofereça um copo de água. `Quer um copo de água?` é uma oferta completa quando você pode
+          servi-lo; `um copo de` apresenta a quantidade e o conteúdo.
+  - subskill_id: suggestions
+    explanation: "O grupo está escolhendo um dia para uma troca de livros. `Vamos organizar a troca de
+      livros no sábado?` propõe fazer isso em conjunto: `vamos` inclui quem fala na proposta,
+      `organizar` permanece no infinitivo e `no sábado` indica o dia (`em` + `o`). A entonação de
+      pergunta convida os outros a considerar o plano. `Vamos organizar ...` também pode descrever
+      uma intenção; a conversa sobre os planos mostra que se trata de uma sugestão. `Vamos organizar
+      a troca no domingo?` propõe outro dia."
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: Que tal organizarmos a troca de livros no sábado?
+        note: Sugira o domingo. `Vamos organizar a troca de livros no domingo?` mantém a estrutura de ação
+          conjunta e muda `no sábado` para `no domingo`.
+  - subskill_id: commitments
+    explanation: "O grupo precisa de alguém para levar caixas. Ao dizer `Eu levo as caixas amanhã`, você
+      assume essa tarefa: `eu` nomeia explicitamente a pessoa responsável, `levo` é uma forma do
+      presente de `levar` e `amanhã` situa a ação no dia seguinte. O português pode usar o presente
+      para um acordo futuro já definido. Fora de um plano compartilhado, as mesmas palavras poderiam
+      apenas informar uma programação; aqui elas respondem quem fará a tarefa."
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: Eu me encarrego de levar as caixas amanhã.
+        note: Comprometa-se a levar os livros amanhã. `Eu levo os livros amanhã.` funciona porque `eu levo`
+          assume a tarefa e `amanhã` define quando ela será feita.
+  - subskill_id: accepting_declining
+    explanation: "Alguém convida você para ajudar na troca hoje, mas você não pode ir. `Não posso ir
+      hoje` recusa o convite de forma pertinente: `não` vem antes do verbo conjugado `posso`, `ir` é
+      a ação que você não pode realizar e `hoje` limita a recusa a este dia. O convite já indica o
+      destino, então não é preciso repeti-lo. Uma resposta curta como `Posso, sim` poderia, em vez
+      disso, aceitar uma tarefa conhecida."
+    examples:
+      - text: Não posso ir hoje.
+        meaning: Hoje não tenho como ir.
+        note: Recuse o convite para amanhã em vez de hoje. `Não posso ir amanhã.` é uma resposta completa ao
+          convite; mudar `hoje` para `amanhã` muda o dia em que você não pode comparecer.
+  - subskill_id: negotiating_plans
+    explanation: Um amigo propõe sexta-feira, mas esse dia não funciona para você. `Na sexta não posso.
+      Podemos combinar no sábado?` primeiro apresenta a limitação e depois oferece uma alternativa.
+      `Na sexta` indica a sexta-feira (`em` + `a`); `não posso` deixa subentendido o encontro já
+      mencionado. `Podemos` inclui as pessoas na possibilidade, e `combinar` propõe marcar o
+      encontro; `no sábado` sugere o sábado. É uma negociação porque responde a um plano existente.
+      A alternativa passa a ser domingo em `Podemos combinar no domingo?`
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: Sexta-feira não dá para mim. Podemos marcar para sábado?
+        note: "Mantenha a sexta-feira como problema e proponha domingo. `Na sexta não posso. Podemos
+          combinar no domingo?` é uma resposta completa: a primeira frase rejeita o horário proposto
+          e a segunda oferece uma alternativa viável."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; sources support original guidance, not independent validation
+      of this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

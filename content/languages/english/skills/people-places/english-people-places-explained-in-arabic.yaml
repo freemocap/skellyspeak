@@ -1,0 +1,187 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: people_places
+language: english
+explanation_language: arabic
+shared_explanation: skills/people-places/people-places-explained-in-arabic.yaml
+sections:
+  - subskill_id: identification
+    explanation: يساعد التعريفُ المستمعَ على معرفة من تشير إليه أو ما تشير إليه. إذا رأيت شخصًا انتقل
+      حديثًا إلى جوارك، يمكنك ربط الشخص الذي تراه بعلاقته بك. يحتاج المستمع إلى سياق مشترك كافٍ
+      ليعرف من تقصد.
+    examples:
+      - text: That is our new neighbour.
+        meaning: تشير `That` إلى الشخص المرئي. وتربط `Is` بينه وبين `our new neighbour`؛ وتصل `our` الشخص
+          بأسرتك أو مجموعتك، بينما تصف `new` انتقاله الحديث. ولعدة أشخاص قل `Those are our new
+          neighbours`.
+        note: >-
+          تعرّف `That is our new neighbour` بشخص؛ بينما تصفه `Our neighbour is friendly`. استعمل
+          `this` لمن يكون أقرب في الموقف.
+
+
+          **جرّب.** عرّف بزميل يقف بجوارك. الإجابة: `This is my colleague`. تشير `This` إلى الشخص
+          القريب، وتحدد `my colleague` علاقتك به.
+  - subskill_id: qualities_states
+    explanation: يساعد الوصفُ شخصًا على تصور مكان أو تحديد هل يناسبه. إذا احتاج صديق مكانًا للقراءة،
+      يمكنك إخباره بأن ضجيج الغرفة قليل. تربط الإنجليزية الشيء الموصوف بصفته بصيغة من `be`.
+    examples:
+      - text: The room is quiet.
+        meaning: تسمّي `The room` المكان، وتربط `is` بينه وبين الوصف، وتبيّن `quiet` انخفاض مستوى الضجيج.
+          ومع عدة غرف استعمل `The rooms are quiet`. تبقى كلمة الوصف `quiet` دون تغيير.
+        note: >-
+          يمكنك أيضًا وضع كلمة الوصف قبل الاسم: `a quiet room`. في جملة تامة، أبقِ فعل الربط: `The
+          room is quiet`، لا الصيغة الخاطئة `The room quiet`. قد تكون الصفة مؤقتة أو دائمة؛ والسياق
+          يبين ذلك.
+
+
+          **جرّب.** صف غرفتين بأنهما دافئتان. الإجابة: `The rooms are warm`. يحتاج الجمع `rooms` إلى
+          `are`؛ ولا تحتاج `warm` إلى علامة جمع.
+  - subskill_id: location_movement
+    explanation: تساعد كلمات المكان شخصًا على العثور على غرض نسبةً إلى معلم واضح. إذا لم ير صديق دراجتك،
+      فقد يفيده وصف موقعها بالنسبة إلى المخزن. يحدد تعبير الموقع أين يوجد الشيء؛ ويحدد تعبير الحركة
+      إلى أين يتجه.
+    examples:
+      - text: The bicycle is behind the shed.
+        meaning: تسمّي `The bicycle is` الغرض وتمهّد لموقعه. تضعه `Behind the shed` في الجهة الأخرى من
+          المخزن بحسب وجهة النظر المعنية. تحتاج `Behind` هنا إلى معلم يعرف المستمع ما يقع الغرض
+          خلفه.
+        note: >-
+          تعني `Beside the shed` أن الغرض بجوار المخزن. وللحركة، قارن بـ`I moved the bicycle into
+          the shed`: تحدد `into` وجهةً إلى الداخل. أما `In the shed` فتصف موضع الدراجة بعد وصولها.
+
+
+          **جرّب.** أخبر شخصًا بأن حقيبة بجوار الباب. الإجابة: `The bag is beside the door`. تربط
+          `Beside` موضع الحقيبة بالباب بوصفه معلمًا.
+  - subskill_id: possession_relations
+    explanation: توضح الملكية للشخص أي غرض تقصد؛ وتربط صيغ قريبة منها بين الناس أيضًا. إذا سأل زائر عن
+      دراجة، يمكنك تحديد صاحبها بعلاقتك الأسرية به. يمنع ذلك الخلط بين دراجتك ودراجة أخيك.
+    examples:
+      - text: This is my brother’s bicycle.
+        meaning: "تشير `This is` إلى الدراجة. وتسمّي `My brother` الشخص من خلال علاقته بك. وتربط اللاحقة في
+          `brother’s` بينه وبين `bicycle`: الدراجة له. وتشكّل الفاصلة العليا جزءًا من كتابة صيغة
+          الملكية هذه."
+        note: >-
+          قارن بين `my bicycle` التي تخصك و`my brother’s bicycle` التي تخص أخاك. إذا كان المالك
+          جمعًا منتظمًا، فضع الفاصلة العليا بعد علامة الجمع: `my parents’ house`.
+
+
+          **جرّب.** عرّف بحقيبة تخص أختك. الإجابة: `This is my sister’s bag`. تتصل علامة الملكية
+          بـ`sister` لأنها صاحبة الحقيبة.
+  - subskill_id: quantity_comparison
+    explanation: تساعد المقارنة على الاختيار بين شيئين. عند تجهيز الأمتعة، قد تريد الحقيبة الأقل وزنًا.
+      تصف صيغة المقارنة كيف يختلف غرض عن الآخر؛ أما كلمة الكمية فتبين المقدار أو العدد.
+    examples:
+      - text: This bag is lighter than that one.
+        meaning: "`This bag` هي الحقيبة الموصوفة. وتعني `Lighter` أنها أقل وزنًا؛ وتذكر `than that one`
+          الحقيبة الأخرى. تمنع `One` تكرار `bag`. كثيرًا ما تُضاف `-er` إلى كلمات الوصف القصيرة، كما
+          تتحول `light` إلى `lighter`."
+        note: >-
+          تستعمل بعض الصفات الأطول `more`: `This bag is more expensive than that one`. لا تجمع
+          الطريقتين في الصيغة الخاطئة `more lighter`. وللكمية استعمل عبارة مثل `two bags` أو `less
+          luggage` بدل مقارنة الوزن.
+
+
+          **جرّب.** قارن صندوقًا صغيرًا بآخر أكبر. الإجابة: `This box is smaller than that one`.
+          تعطي `Smaller` مقارنة الحجم، وتقدّم `than` الصندوق الثاني.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: identification
+      explanation: يساعد التعريفُ المستمعَ على معرفة من تشير إليه أو ما تشير إليه. إذا رأيت شخصًا انتقل
+        حديثًا إلى جوارك، يمكنك ربط الشخص الذي تراه بعلاقته بك. يحتاج المستمع إلى سياق مشترك كافٍ
+        ليعرف من تقصد.
+      examples:
+        - text: That is our new neighbor.
+          meaning: تشير `That` إلى الشخص المرئي. وتربط `Is` بينه وبين `our new neighbor`؛ وتصل `our` الشخص
+            بأسرتك أو مجموعتك، بينما تصف `new` انتقاله الحديث. ولعدة أشخاص قل `Those are our new
+            neighbors`.
+          note: >-
+            تعرّف `That is our new neighbor` بشخص؛ بينما تصفه `Our neighbor is friendly`. استعمل
+            `this` لمن يكون أقرب في الموقف.
+
+
+            **جرّب.** عرّف بزميل يقف بجوارك. الإجابة: `This is my colleague`. تشير `This` إلى الشخص
+            القريب، وتحدد `my colleague` علاقتك به.
+    - subskill_id: qualities_states
+      explanation: يساعد الوصفُ شخصًا على تصور مكان أو تحديد هل يناسبه. إذا احتاج صديق مكانًا للقراءة،
+        يمكنك إخباره بأن ضجيج الغرفة قليل. تربط الإنجليزية الشيء الموصوف بصفته بصيغة من `be`.
+      examples:
+        - text: The room is quiet.
+          meaning: تسمّي `The room` المكان، وتربط `is` بينه وبين الوصف، وتبيّن `quiet` انخفاض مستوى الضجيج.
+            ومع عدة غرف استعمل `The rooms are quiet`. تبقى كلمة الوصف `quiet` دون تغيير.
+          note: >-
+            يمكنك أيضًا وضع كلمة الوصف قبل الاسم: `a quiet room`. في جملة تامة، أبقِ فعل الربط: `The
+            room is quiet`، لا الصيغة الخاطئة `The room quiet`. قد تكون الصفة مؤقتة أو دائمة؛
+            والسياق يبين ذلك.
+
+
+            **جرّب.** صف غرفتين بأنهما دافئتان. الإجابة: `The rooms are warm`. يحتاج الجمع `rooms`
+            إلى `are`؛ ولا تحتاج `warm` إلى علامة جمع.
+    - subskill_id: location_movement
+      explanation: تساعد كلمات المكان شخصًا على العثور على غرض نسبةً إلى معلم واضح. إذا لم ير صديق دراجتك،
+        فقد يفيده وصف موقعها بالنسبة إلى المخزن. يحدد تعبير الموقع أين يوجد الشيء؛ ويحدد تعبير
+        الحركة إلى أين يتجه.
+      examples:
+        - text: The bicycle is behind the shed.
+          meaning: تسمّي `The bicycle is` الغرض وتمهّد لموقعه. تضعه `Behind the shed` في الجهة الأخرى من
+            المخزن بحسب وجهة النظر المعنية. تحتاج `Behind` هنا إلى معلم يعرف المستمع ما يقع الغرض
+            خلفه.
+          note: >-
+            تعني `Beside the shed` أن الغرض بجوار المخزن. وللحركة، قارن بـ`I moved the bicycle into
+            the shed`: تحدد `into` وجهةً إلى الداخل. أما `In the shed` فتصف موضع الدراجة بعد وصولها.
+
+
+            **جرّب.** أخبر شخصًا بأن حقيبة بجوار الباب. الإجابة: `The bag is beside the door`. تربط
+            `Beside` موضع الحقيبة بالباب بوصفه معلمًا.
+    - subskill_id: possession_relations
+      explanation: توضح الملكية للشخص أي غرض تقصد؛ وتربط صيغ قريبة منها بين الناس أيضًا. إذا سأل زائر عن
+        دراجة، يمكنك تحديد صاحبها بعلاقتك الأسرية به. يمنع ذلك الخلط بين دراجتك ودراجة أخيك.
+      examples:
+        - text: This is my brother’s bicycle.
+          meaning: "تشير `This is` إلى الدراجة. وتسمّي `My brother` الشخص من خلال علاقته بك. وتربط اللاحقة في
+            `brother’s` بينه وبين `bicycle`: الدراجة له. وتشكّل الفاصلة العليا جزءًا من كتابة صيغة
+            الملكية هذه."
+          note: >-
+            قارن بين `my bicycle` التي تخصك و`my brother’s bicycle` التي تخص أخاك. إذا كان المالك
+            جمعًا منتظمًا، فضع الفاصلة العليا بعد علامة الجمع: `my parents’ house`.
+
+
+            **جرّب.** عرّف بحقيبة تخص أختك. الإجابة: `This is my sister’s bag`. تتصل علامة الملكية
+            بـ`sister` لأنها صاحبة الحقيبة.
+    - subskill_id: quantity_comparison
+      explanation: تساعد المقارنة على الاختيار بين شيئين. عند تجهيز الأمتعة، قد تريد الحقيبة الأقل وزنًا.
+        تصف صيغة المقارنة كيف يختلف غرض عن الآخر؛ أما كلمة الكمية فتبين المقدار أو العدد.
+      examples:
+        - text: This bag is lighter than that one.
+          meaning: "`This bag` هي الحقيبة الموصوفة. وتعني `Lighter` أنها أقل وزنًا؛ وتذكر `than that one`
+            الحقيبة الأخرى. تمنع `One` تكرار `bag`. كثيرًا ما تُضاف `-er` إلى كلمات الوصف القصيرة،
+            كما تتحول `light` إلى `lighter`."
+          note: >-
+            تستعمل بعض الصفات الأطول `more`: `This bag is more expensive than that one`. لا تجمع
+            الطريقتين في الصيغة الخاطئة `more lighter`. وللكمية استعمل عبارة مثل `two bags` أو `less
+            luggage` بدل مقارنة الوزن.
+
+
+            **جرّب.** قارن صندوقًا صغيرًا بآخر أكبر. الإجابة: `This box is smaller than that one`.
+            تعطي `Smaller` مقارنة الحجم، وتقدّم `than` الصندوق الثاني.

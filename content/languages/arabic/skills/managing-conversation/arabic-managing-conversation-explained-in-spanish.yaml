@@ -1,0 +1,219 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: managing_conversation
+explanation_language: spanish
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Un saludo matinal permite iniciar una conversación con alguien que encuentras. La
+      respuesta puede usar otra fórmula habitual sin repetir literalmente el saludo.
+    examples:
+      - text: صَبَاحُ الْخَيْرِ!
+        meaning: "**El ejemplo.** ¡Buenos días! `صَبَاحُ` significa mañana y `الْخَيْرِ`, bondad. Juntas
+          forman el saludo habitual. Aprende la expresión como saludo, sin buscar una palabra árabe
+          independiente para cada palabra española."
+        note: "Una respuesta tradicional es `صَبَاحُ النُّورِ`, literalmente mañana de luz. Para saludar por
+          la tarde o noche, usa `مَسَاءُ الْخَيْرِ`. **Practica:** saluda al anochecer. Respuesta:
+          `مَسَاءُ الْخَيْرِ`; cambia el nombre del momento del día y se mantiene el patrón."
+  - subskill_id: acknowledging
+    explanation: Después de que alguien explique una tarea, puedes indicar que has comprendido. Decirlo
+      no significa necesariamente que aceptes el plan.
+    examples:
+      - text: حَسَنًا، فَهِمْتُ.
+        meaning: "**El ejemplo.** De acuerdo, entiendo. `حَسَنًا` significa bien o de acuerdo; `فَهِمْتُ`
+          significa comprendí. La forma pasada presenta la comprensión como lograda y, en esta
+          respuesta, equivale naturalmente a entiendo. Su terminación identifica a quien habla."
+        note: "Para un grupo, `حَسَنًا، فَهِمْنَا` significa bien, hemos entendido. Distingue comprender de
+          manifestar acuerdo cuando no sean lo mismo. **Practica:** reconoce la explicación por tu
+          grupo. Respuesta: `حَسَنًا، فَهِمْنَا`; la terminación pasa de yo a nosotros."
+  - subskill_id: clarification
+    explanation: Oír una frase no siempre implica comprender lo que la otra persona quiere decir.
+      `مَاذَا تَقْصِدُ بِهٰذَا؟` pide que explique su intención. El ejemplo se dirige a un hombre y
+      remite a algo que acaba de decir.
+    examples:
+      - text: مَاذَا تَقْصِدُ بِهٰذَا؟
+        meaning: "**El ejemplo.** ¿Qué quieres decir con eso? `مَاذَا` pregunta qué; `تَقْصِدُ` significa
+          quieres decir aquí. `بِهٰذَا` une la preposición `بِـ` con `هٰذَا`, esto, y señala lo
+          dicho antes."
+        note: >-
+          **Cambia la persona oyente.** Para una mujer, usa `مَاذَا تَقْصِدِينَ بِهٰذَا؟`. La forma
+          verbal cambia para marcar a quién preguntas.
+
+
+          **Practica.** ¿Qué parte identifica la expresión que quieres aclarar? Respuesta:
+          `بِهٰذَا`.
+  - subskill_id: rephrasing
+    explanation: Una explicación de reservas quizá resulte complicada. Reformular conserva el sentido
+      práctico, pero expresa más sencillamente el requisito principal sin añadir otra instrucción.
+    examples:
+      - text: بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ نَحْجِزَ مُسْبَقًا.
+        meaning: "**El ejemplo.** Dicho más sencillamente, tenemos que reservar con antelación. `بِعِبَارَةٍ
+          أَبْسَطَ` significa con una expresión más sencilla. `يَجِبُ أَنْ` introduce la obligación;
+          `نَحْجِزَ` significa reservamos en la forma que sigue a `أَنْ`. `مُسْبَقًا` indica con
+          antelación. El comienzo anuncia que se repite la misma idea."
+        note: "Para mi propia reserva, usa `يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`. La persona se marca en el verbo
+          reservar. **Practica:** expresa el mismo requisito solo para ti. Respuesta: `بِعِبَارَةٍ
+          أَبْسَطَ، يَجِبُ أَنْ أَحْجِزَ مُسْبَقًا`; cambia nosotros por yo y se conserva la
+          obligación."
+  - subskill_id: correcting_misunderstanding
+    explanation: La otra persona entendió hoy, pero querías decir mañana. Una corrección nombra primero
+      el dato pretendido y rechaza expresamente el equivocado.
+    examples:
+      - text: أَقْصِدُ غَدًا، وَلَيْسَ الْيَوْمَ.
+        meaning: "**El ejemplo.** Quiero decir mañana, no hoy. `أَقْصِدُ` significa quiero decir. `غَدًا` es
+          mañana; `وَلَيْسَ الْيَوْمَ` significa y no hoy. Las dos expresiones temporales precisan
+          qué debe sustituir la otra persona."
+        note: "Invierte los días para la corrección contraria: `أَقْصِدُ الْيَوْمَ، وَلَيْسَ غَدًا`.
+          Corregir un dato no equivale a rechazar toda la reunión. **Practica:** corrige a quien
+          entendió mañana cuando querías decir hoy. Respuesta: usa esa oración invertida; el tiempo
+          pretendido va primero."
+  - subskill_id: turns_topics
+    explanation: La conversación se ha alejado de una cita, pero aún necesitas acordar su hora. Nombrar
+      el tema antes de preguntar ayuda a seguir el cambio.
+    examples:
+      - text: بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي صَبَاحًا؟
+        meaning: "**El ejemplo.** Sobre la cita, ¿nos reunimos por la mañana? `بِخُصُوصِ الْمَوْعِدِ`
+          significa respecto de la cita. `هَلْ` introduce una pregunta de sí o no; `نَلْتَقِي`
+          significa nos reunimos y `صَبَاحًا`, por la mañana. La frase inicial sitúa el tema, sin
+          responder la pregunta."
+        note: "Usa `مَسَاءً` para por la tarde o noche. **Practica:** vuelve a la cita y propone ese
+          horario. Respuesta: `بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي مَسَاءً؟`; el tema y la acción
+          común permanecen, cambia el momento."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: opening_closing
+      explanation: Un saludo matinal permite iniciar una conversación con alguien que encuentras. La
+        respuesta puede usar otra fórmula habitual sin repetir literalmente el saludo.
+      examples:
+        - text: صَبَاحْ الْخَيْرْ!
+          meaning: "**El ejemplo.** ¡Buenos días! `صَبَاحْ` significa mañana y `الْخَيْرْ`, bondad. La
+            expresión completa abre un intercambio hablado; es un saludo convencional, no un informe
+            sobre lo sucedido esta mañana."
+          note: "Una respuesta conocida es `صَبَاحْ النُّورْ`, literalmente mañana de luz. Para el anochecer
+            se usa `مَسَا الْخَيْرْ`. **Practica:** responde al saludo matinal. Respuesta: `صَبَاحْ
+            النُّورْ`; reconoces el saludo con su contestación convencional."
+    - subskill_id: acknowledging
+      explanation: Después de que alguien explique una tarea, puedes indicar que has comprendido. Decirlo
+        no significa necesariamente que aceptes el plan.
+      examples:
+        - text: طَيِّبْ، فِهِمْتْ.
+          meaning: "**El ejemplo.** De acuerdo, entiendo. `طَيِّبْ` significa bien en esta respuesta;
+            `فِهِمْتْ` significa comprendí. Basta una contestación breve para mostrar que la
+            explicación ya está clara. El pasado enfoca el momento de llegar a entender, no una
+            historia larga anterior."
+          note: "`طَيِّبْ، فِهِمْنَا` da la respuesta de nosotros. Si además deseas aceptar la propuesta, usa
+            una expresión de acuerdo aparte. **Practica:** responde por dos o más personas.
+            Respuesta: `طَيِّبْ، فِهِمْنَا`; la terminación plural hace explícito el grupo."
+    - subskill_id: clarification
+      explanation: A veces las palabras se oyen claramente, pero no se entiende la intención. `شُو
+        قَصْدَكْ بِهَادْ؟` pide que alguien explique lo que acaba de decir. El ejemplo se dirige a
+        un hombre. Un tono tranquilo ayuda a distinguir la petición de una objeción.
+      examples:
+        - text: شُو قَصْدَكْ بِهَادْ؟
+          meaning: "**El ejemplo.** ¿Qué quieres decir con eso? `شُو` significa qué. `قَصْدَكْ` usa un
+            sustantivo de intención o significado más un sufijo de tu dirigido aquí a un hombre.
+            `بِهَادْ` remite a esa expresión. El sufijo indica de quién es la intención."
+          note: >-
+            **Elige la reparación adecuada.** Se pide una explicación; repetir las mismas palabras
+            quizá no resuelva la duda. Puedes señalar la palabra concreta que no entendiste.
+
+
+            **Practica.** Identifica la parte que significa tu intención. Respuesta: `قَصْدَكْ`.
+            Aprende la palabra completa como unidad.
+    - subskill_id: rephrasing
+      explanation: Una explicación de reservas quizá resulte complicada. Reformular conserva el sentido
+        práctico, pero expresa más sencillamente el requisito principal sin añadir otra instrucción.
+      examples:
+        - text: بِكَلَامْ أَبْسَطْ، لَازِمْ نِحْجِزْ مِنْ قَبْلْ.
+          meaning: "**El ejemplo.** Dicho más sencillamente, tenemos que reservar antes. `بِكَلَامْ أَبْسَطْ`
+            significa con palabras más sencillas. `لَازِمْ` expresa necesidad; `نِحْجِزْ` significa
+            reservamos y `مِنْ قَبْلْ`, con antelación aquí. La acción de reservar después de
+            `لَازِمْ` no lleva el prefijo b habitual."
+          note: "Para expresar que yo debo reservar, usa `لَازِمْ أَحْجِزْ مِنْ قَبْلْ`. Una reformulación
+            debe conservar el requisito anterior, no cambiar a escondidas su día o persona.
+            **Practica:** expresa el mismo requisito para ti. Respuesta: `بِكَلَامْ أَبْسَطْ،
+            لَازِمْ أَحْجِزْ مِنْ قَبْلْ`; la nueva forma de yo es explícita."
+    - subskill_id: correcting_misunderstanding
+      explanation: La otra persona entendió hoy, pero querías decir mañana. Una corrección nombra primero
+        el dato pretendido y rechaza expresamente el equivocado.
+      examples:
+        - text: قَصْدِي بُكْرَا، مِشْ الْيَوْمْ.
+          meaning: "**El ejemplo.** Quiero decir mañana, no hoy. `قَصْدِي` significa mi intención o lo que
+            quiero decir. `بُكْرَا` es mañana; `مِشْ الْيَوْمْ` significa no hoy. El sufijo de mi
+            convierte la corrección en aclaración de tu propio mensaje."
+          note: "Para la corrección contraria, di `قَصْدِي الْيَوْمْ، مِشْ بُكْرَا`. El dato rechazado sigue a
+            la negación. **Practica:** corrige mañana por hoy. Respuesta: `قَصْدِي الْيَوْمْ، مِشْ
+            بُكْرَا`; ahora el día pretendido va antes del rechazado."
+    - subskill_id: turns_topics
+      explanation: La conversación se ha alejado de una cita, pero aún necesitas acordar su hora. Nombrar
+        el tema antes de preguntar ayuda a seguir el cambio.
+      examples:
+        - text: بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي الصُّبْحْ؟
+          meaning: "**El ejemplo.** Sobre la cita, ¿nos reunimos por la mañana? `بِالنِّسْبِة لِلْمَوْعِدْ`
+            significa respecto de la cita. `نِلْتَقِي` es nos reunimos y `الصُّبْحْ` significa por
+            la mañana. La entonación interrogativa plantea la hora para buscar acuerdo y la frase
+            inicial guía el cambio de tema."
+          note: "Para proponer la tarde o noche, usa `بِالْمَسَا`. **Practica:** pregunta si podéis veros
+            entonces. Respuesta: `بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي بِالْمَسَا؟`; conserva la
+            referencia a la cita y cambia toda la expresión temporal."

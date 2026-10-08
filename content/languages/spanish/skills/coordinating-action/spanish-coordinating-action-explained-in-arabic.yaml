@@ -1,0 +1,157 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: coordinating_action
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-arabic.yaml
+sections:
+  - subskill_id: requests
+    explanation: إذا كانت غرفة باردة، فقد تطلب من شخص آخر إغلاق الباب. والسؤال مع `poder` طريقة مألوفة
+      لطلب فعل. في هذا الموقف تريد منه أن يفعل شيئًا؛ ولا تختبر قدرته البدنية.
+    examples:
+      - text: ¿Puedes cerrar la puerta, por favor?
+        meaning: «هل يمكنك إغلاق الباب، من فضلك؟» تخاطب `Puedes` شخصًا واحدًا بأسلوب غير رسمي، وتسمّي
+          `cerrar` الفعل، وتسمّي `la puerta` مفعوله. تضيف `Por favor` معنى «من فضلك». يبقى الفعل في
+          المصدر بعد `puedes`.
+        note: >-
+          **عدّلها.** تخاطب `¿Puede cerrar la puerta, por favor?` شخصًا واحدًا بصيغة `usted`. وتسأل
+          `¿Puedes abrir la puerta?` عن الفعل المعاكس. تعتمد المجاملة أيضًا على النبرة والموقف.
+
+
+          **جرّب.** اطلب من شخص بأسلوب غير رسمي أن يفتح النافذة، مستعملًا `abrir la ventana`.
+          الإجابة: `¿Puedes abrir la ventana, por favor?`. أبقِ الفعل في صيغة المصدر.
+  - subskill_id: offers_invitations
+    explanation: تتيح دعوة شخص إلى العشاء له فرصة الانضمام إليك. يسأل السؤال مع `querer` هل يريد
+      المشاركة. يجعل السياقُ السؤالَ عن الرغبة دعوةً، ويترك مجالًا للقبول أو الرفض.
+    examples:
+      - text: ¿Quieres venir a cenar?
+        meaning: "«هل تود المجيء للعشاء؟» تسأل `Quieres` هل يريد المخاطَب ذلك، وتعني `venir` المجيء، وتحدد
+          `a cenar` الغرض: تناول العشاء. تخاطب الدعوة شخصًا واحدًا بأسلوب غير رسمي."
+        note: >-
+          **عدّلها.** تدعو `¿Quieres venir a comer?` شخصًا إلى وجبة باستعمال `comer`. وتسأل
+          `¿Quieres cenar?` هل يريد العشاء من غير دعوته صراحةً إلى المجيء إلى مكان.
+
+
+          **جرّب.** ادعُ شخصًا إلى المجيء للتنزه مشيًا باستعمال `pasear`. الإجابة: `¿Quieres venir a
+          pasear?`. أبقِ `venir a` وغيّر النشاط.
+  - subskill_id: suggestions
+    explanation: أثناء التخطيط للخروج، قد تريد طرح خيار للنقاش. يمكن أن تقترح `Podemos` متبوعةً بنشاط
+      شيئًا تستطيعون فعله معًا. تعرض خطة ممكنة، لا أمرًا ولا اتفاقًا نهائيًا.
+    examples:
+      - text: Podemos ir mañana.
+        meaning: «يمكننا الذهاب غدًا.» تشمل `Podemos` المتحدث ضمن «نحن»؛ وتعني `ir` الذهاب، وتحدد `mañana`
+          اليوم. في حديث التخطيط تطرح هذه الصيغة الغد خيارًا.
+        note: >-
+          **قارن.** تقول `Tenemos que ir mañana` إن عليكم الذهاب غدًا، فتضيف إلزامًا. وتحافظ
+          `Podemos ir hoy` على الاقتراح مع تغيير اليوم.
+
+
+          **جرّب.** اقترح الأكل هنا مستعملًا `comer aquí`. الإجابة: `Podemos comer aquí`. غيّر
+          النشاط بعد `podemos` وأبقِه في صيغة المصدر.
+  - subskill_id: commitments
+    explanation: عندما يحتاج شخص إلى الاعتماد عليك، يجعل الوعد الصريح مسؤوليتك واضحة. قد يصف قولك ما
+      سيحدث مستقبلًا خطةً فحسب؛ أما `prometo` فتُعلم المستمع بأنك تتعهد بالفعل.
+    examples:
+      - text: Te prometo que voy a llamarte.
+        meaning: «أعدك أنني سأتصل بك.» تسمّي `Te` المخاطَب متلقي الوعد. تقدّم `Prometo que` ما تعِد به؛
+          وتعني `voy a llamarte` أنني سأتصل بك. وتحدد اللاحقة `te` في `llamarte` الشخص الذي ستتصل
+          به.
+        note: >-
+          **عدّلها.** تذكر `Voy a llamarte` خطةً من غير وعد صريح. ويمكن التعبير عن الاتصال نفسه
+          بـ`Te voy a llamar`: يجوز أن يسبق ضمير المفعول الفعل المصرف بدلًا من ذلك.
+
+
+          **جرّب.** تعهّد بالاتصال غدًا. الإجابة: `Te prometo que voy a llamarte mañana`. أضف الوقت
+          دون تغيير صاحب الوعد أو متلقيه.
+  - subskill_id: accepting_declining
+    explanation: لا تحتاج الدعوة إلى رد طويل. إذا لم تستطع المشاركة، فإن اعتذارًا موجزًا يتبعه رفض يوضح
+      جوابك دون كشف تفاصيل خاصة. تحدد الدعوة النشاط الذي لا تعيد ذكره في الرد.
+    examples:
+      - text: Lo siento, no puedo.
+        meaning: «آسف، لا أستطيع.» `Lo siento` عبارة اعتذار مألوفة؛ وتقول `no puedo` إنك لا تستطيع القيام
+          بالنشاط المقترح. بعد دعوة إلى العشاء، يفهم المخاطَب أن العشاء هو ما لا تستطيع حضوره.
+        note: >-
+          **قارن.** تقبل `Sí, gracias` الدعوة. وتقول `No quiero` إنك لا تريد، وهو سبب مختلف عن عدم
+          الاستطاعة. ويمكن التصريح بالرفض عبر `No puedo ir`.
+
+
+          **جرّب.** ارفض دعوة وقل إنك لا تستطيع الذهاب اليوم. الإجابة: `Lo siento, hoy no puedo ir`.
+          تحدد `Hoy` الوقت، وتسمّي `ir` النشاط المحذوف.
+  - subskill_id: negotiating_plans
+    explanation: إذا لم يناسبك وقت مقترح، فإن طرح وقت آخر يدفع الحوار نحو اتفاق. يمكنك أولًا ذكر العائق
+      ثم تقديم بديل ممكن. يبيّن الجزآن ما ينبغي تغييره.
+    examples:
+      - text: A las seis no puedo; ¿quedamos a las siete?
+        meaning: «لا أستطيع في السادسة؛ هل نلتقي في السابعة؟» تسمّي `A las seis` الوقت غير المناسب، وتشرح
+          `no puedo` العائق. تقترح `¿Quedamos a las siete?` اللقاء في السابعة؛ وتشمل `quedamos`
+          الشخصين.
+        note: >-
+          **عدّلها.** تقترح `¿Nos vemos a las siete?` أيضًا أن يلتقي الشخصان في السابعة. وترفض `No
+          puedo` وحدها الوقت من غير تقديم بديل. يبقى السؤال اقتراحًا حتى يوافق الآخر.
+
+
+          **جرّب.** لا تستطيع في السابعة؛ فاقترح الثامنة. الإجابة: `A las siete no puedo; ¿quedamos
+          a las ocho?`. ضع الوقت المرفوض أولًا، والوقت الجديد في السؤال.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

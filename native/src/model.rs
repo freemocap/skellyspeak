@@ -814,6 +814,7 @@ pub fn bindings() -> String {
         crate::speech::alignment::CharacterAlignment::decl(&config),
         crate::language::reading::saved::SavedGlossQuery::decl(&config),
         crate::language::reading::saved::SavedGlossSource::decl(&config),
+        crate::language::reading::saved::SavedGlossProvenance::decl(&config),
         crate::ai::results::CacheSettings::decl(&config),
         AppError::decl(&config),
     ];

@@ -4,6 +4,8 @@ import { useI18n } from '../localization/i18n'
 import { Fragment, type ReactNode } from 'react'
 import { Markdown } from '../reading/Markdown'
 import { TargetPassage } from '../reading/TargetPassage'
+import { useReadingScope } from '../reading/ReadingContext'
+import { languageFor } from '../../platform/ipc/tauri'
 
 /** One `###` subskill section of a guide while its blocks are collected. */
 interface Section { key: number; heading: string; subskill: string | undefined; body: ReactNode[] }
@@ -15,6 +17,11 @@ interface Section { key: number; heading: string; subskill: string | undefined; 
  * renderer independent. */
 export function GuideDocument({ text, context }: { text: string; context?: GuideContext | null }) {
   const tr = useI18n()
+  const scope = useReadingScope()
+  // Translated guides retain the source edition in their action reference.
+  // The reading scope describes the explanation actually shown to the learner.
+  const explanation = scope?.explanation ?? context?.reference.editionLanguage
+  const definition = scope && explanation ? languageFor(explanation) : null
   const [lesson, editorial] = text.split('\n\n## Editorial notes\n\n')
   const blocks = lesson.trim().split(/\n\n+/)
   let sectionIndex = 0
@@ -54,7 +61,7 @@ export function GuideDocument({ text, context }: { text: string; context?: Guide
     {item.body}
     {context && item.subskill && <div className="skill-guide-actions"><GuideActions guide={context.reference} subskill={item.subskill} /></div>}
   </section>
-  return <article className="skill-guide-document">
+  return <article className="skill-guide-document" lang={definition?.languageTag} dir={definition?.direction ?? 'auto'}>
     {top}
     {editorial && <details className="skill-guide-editorial"><summary>{tr('Editorial notes')}</summary><Markdown text={editorial} /></details>}
   </article>

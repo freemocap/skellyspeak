@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: coordinating_action
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 你双手拿满东西，需要别人开门。`唔該` 引出一个礼貌的帮忙请求。即使不明说“你”，听话人也能从情境中明白；句子直接指出动作，而不是用问句提出。
+    examples:
+      - text: 唔該，幫我開門。
+        meaning: 请帮我开门。`幫我` 意为帮我或替我做，后接 `開門` 这个动作。`我` 是受益的人，不是被要求开门的人。动作跟在帮忙短语后面。
+        note: 试一试：改为请对方关门。答案：`唔該，幫我閂門。` 把 `開` 换成表示关闭的 `閂`。`我幫你開門` 则是主动提出自己帮对方；调换两个人会改变谁帮谁。
+  - subskill_id: offers_invitations
+    explanation: 朋友正在决定接下来做什么，你邀请对方一起吃饭。`一齊` 表示一起；句末用 `好唔好` 征求对方同意，而不是宣布已经安排妥当。
+    examples:
+      - text: 一齊去食飯，好唔好？
+        meaning: 我们一起去吃饭，好吗？`去食飯` 表示去吃一顿饭；`食飯` 不一定只指吃米饭。`好唔好` 把好与不好两种选择并列，询问这个提议可不可行。邀请情境已经表明是谁一起参加。
+        note: 试一试：改邀朋友去饮茶。答案：`一齊去飲茶，好唔好？` 活动换成 `飲茶`，邀请仍留给对方选择。回答 `好呀，一齊去。` 是接受；`唔好意思，我唔得閒。` 是礼貌拒绝。
+  - subskill_id: suggestions
+    explanation: 大家在讨论一次探访，但今天未必人人方便。`不如` 引出值得考虑的替代方案。因为目的地已是话题，简短建议可以省略它。
+    examples:
+      - text: 不如聽日去。
+        meaning: 不如明天去？`聽日` 表示明天，放在 `去` 前面。说未来时间时，动作词本身不用改变。提议让大家考虑改日，并没有说所有人都已同意。
+        note: 试一试：提议星期六去。答案：`不如星期六去。` 替换日期，保留建议的表达。`我聽日去` 陈述自己的安排；`不如聽日去` 提供一个选项。若加 `先`，说成 `不如聽日先去`，则明确建议等到明天再去。
+  - subskill_id: commitments
+    explanation: 朋友需要那本书，你决定负责带来。`我答應你` 明确向对方作出承诺。后面的分句说出你承担什么事、何时完成。
+    examples:
+      - text: 我答應你，聽日會帶本書嚟。
+        meaning: 我答应你明天带书来。`聽日` 指明天，`會帶` 表示会带，`本書` 用量词 `本` 指语境中那本书。句末的 `嚟` 表明带向会面处或听话人所在的相关地点。
+        note: 试一试：承诺星期五把书带来。答案：`我答應你，星期五會帶本書嚟。` 只改变日期。`我可能會帶本書嚟` 表示可能性；`可能` 让行动仍不确定，不能代替明确承诺。
+  - subskill_id: accepting_declining
+    explanation: 有人邀你明天参加，但你没有空。简短道歉后说明自己不方便，对方就能理解你无法加入。
+    examples:
+      - text: 唔好意思，我聽日唔得閒。
+        meaning: 抱歉，我明天没空。`唔好意思` 缓和拒绝的语气。`我聽日` 指说话人明天的安排，`唔得閒` 意为没空。`唔` 否定有空的 `得閒`，并不是说你不喜欢这份邀请。
+        note: 试一试：婉拒星期六的邀请。答案：`唔好意思，我星期六唔得閒。` 替换日期。接受时可以说 `好呀，我聽日得閒。` 在邀请对话里，有空与能否参加有关；离开这个情境，它也可以只是报告日程。
+  - subskill_id: negotiating_plans
+    explanation: 三点见面与你另一个约定冲突。先否定这个时间，再问四点是否可行，就给对方一个具体的替代选择。
+    examples:
+      - text: 三點唔得，四點得唔得？
+        meaning: 三点不行；四点可以吗？`三點` 和 `四點` 都是钟点。`唔得` 排除原安排。`得唔得` 把表示可行的 `得` 与其否定形式连用，询问第二个时间是否合适。见面这件事不必重复。
+        note: 试一试：仍然不能三点见，改提五点。答案：`三點唔得，五點得唔得？` 只改变所提议的时间。`五點得` 直接说五点可行；`五點得唔得` 则征求听话人的确认，没有替对方作决定。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

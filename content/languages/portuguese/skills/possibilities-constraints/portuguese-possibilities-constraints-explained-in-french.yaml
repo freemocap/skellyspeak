@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: possibilities_constraints
+explanation_language: french
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-french.yaml
+sections:
+  - subskill_id: ability
+    explanation: "Un voisin demande si vous pouvez réparer un vélo. `Sei consertar uma bicicleta` dit que vous
+      savez le faire : `sei` est la première personne du présent de `saber` et l’infinitif `consertar` nomme
+      l’action maîtrisée. `Uma bicicleta` désigne l’objet que vous savez réparer. `Sei onde está a bicicleta`
+      dirait plutôt que vous connaissez un fait sur sa position."
+    examples:
+      - text: Sei consertar uma bicicleta.
+        meaning: Je sais réparer un vélo.
+        note: Dites que vous savez réparer une radio. `Sei consertar um rádio.` exprime complètement la compétence ;
+          l’infinitif après `sei` indique ce que vous savez faire.
+  - subskill_id: permission
+    explanation: Dans un espace de travail partagé, vous demandez l’accès à une table à la personne responsable.
+      `Posso usar esta mesa?` emploie `posso`, première personne du présent de `poder`, suivi de l’infinitif
+      `usar` pour demander la permission. `Esta mesa` désigne cette table. Ici, la personne interrogée peut
+      autoriser ou refuser l’usage, donc la question porte sur la permission ; dans un autre contexte, le même
+      modal pourrait viser la possibilité pratique.
+    examples:
+      - text: Posso usar esta mesa?
+        meaning: Puis-je utiliser cette table ?
+        note: Demandez la permission d’utiliser cette chaise. `Posso usar esta cadeira?` est complet si la personne
+          interrogée en contrôle l’usage ; `cadeira` remplace `mesa` et `esta` s’accorde toujours avec un nom
+          féminin.
+  - subskill_id: obligation
+    explanation: "Les livres empruntés doivent être rendus aujourd’hui. `Tenho que devolver os livros hoje`
+      exprime l’obligation : `tenho` signifie « j’ai », `que` le relie à l’infinitif `devolver` et `hoje`
+      donne l’échéance. Les livres ne sont pas nécessairement déjà rendus. `Não preciso devolver hoje`
+      signifie que ce n’est pas nécessaire aujourd’hui, sans interdire le retour. Le mot `que` appartient à
+      cette construction `ter que`."
+    examples:
+      - text: Tenho que devolver os livros hoje.
+        meaning: Je dois rendre les livres aujourd’hui.
+        note: Dites que vous devez les rendre demain. `Tenho que devolver os livros amanhã.` exprime l’obligation
+          entière ; `amanhã` change l’échéance et `tenho que devolver` reste groupé.
+  - subskill_id: possibility
+    explanation: Vous préparez une activité dehors alors que la pluie est incertaine. `É possível que chova
+      amanhã` signifie qu’il pourrait pleuvoir demain. `É possível que` introduit l’événement incertain ;
+      `chova` est le subjonctif présent de `chover` dans cette construction, et `amanhã` situe l’événement
+      dans le futur. `Está chovendo` rapporterait une pluie actuelle, pas une possibilité.
+    examples:
+      - text: É possível que chova amanhã.
+        meaning: Il pourrait pleuvoir demain.
+        note: Dites que la bibliothèque pourrait fermer demain. `É possível que a biblioteca feche amanhã.` exprime
+          une possibilité complète ; `feche` suit `é possível que` pour cette fermeture incertaine.
+  - subskill_id: certainty
+    explanation: "Avant un déplacement, vous ignorez si la bibliothèque est ouverte. `Não sei se a biblioteca está
+      aberta` précise cette limite de connaissance : `não sei` signifie « je ne sais pas », `se` « si » dans
+      une question indirecte et `está aberta` décrit l’état ouvert. La question reste sans réponse ; vous
+      n’affirmez pas qu’elle est fermée. Ce `se` diffère d’une condition future comme `Se chover, fico em
+      casa`."
+    examples:
+      - text: Não sei se a biblioteca está aberta.
+        meaning: Je ne sais pas si la bibliothèque est ouverte.
+        note: Dites que vous ignorez si la bibliothèque est fermée. `Não sei se a biblioteca está fechada.` exprime
+          l’incertitude entière ; `fechada` change l’état interrogé.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

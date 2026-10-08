@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: information_exchange
+explanation_language: french
+shared_explanation: skills/information-exchange/information-exchange-explained-in-french.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Avant d’aller au magasin, vous avez besoin de connaître son heure de fermeture. `幾點` demande
+      l’heure manquante à la place d’une expression horaire ; le magasin reste en début de phrase.
+    examples:
+      - text: 間舖頭幾點閂門？
+        meaning: À quelle heure le magasin ferme-t-il ? `間舖頭` désigne le magasin ; le classificateur `間` peut
+          identifier ce lieu déjà connu dans l’échange. `幾點` demande l’heure, et `閂門` signifie ici fermer les
+          portes ou fermer le commerce. La question ne propose aucune heure.
+        note: "Essayez : demandez l’heure d’ouverture. Réponse : `間舖頭幾點開門？` Remplacez `閂門` par `開門`. Une réponse
+          possible est `六點` ou `六點開門` ; l’heure remplit la place de `幾點` sans changer l’ordre de la question."
+  - subskill_id: answering_information
+    explanation: L’autre personne vient de demander l’heure de fermeture du magasin. Le magasin et l’action étant
+      connus, l’heure seule constitue une réponse complète dans cet échange.
+    examples:
+      - text: 六點。
+        meaning: À six heures. `六` signifie « six » et `點` marque l’heure. Une réponse plus développée serait
+          `間舖頭六點閂門`. Sans précision sur le matin ou le soir, le contexte indique de quel six heures il s’agit.
+        note: "Essayez : donnez 6 h 30 comme heure de fermeture. Réponse : `六點半。` `半` ajoute une demi-heure. Pour
+          préciser, `下晝六點半` indique l’après-midi. Une durée telle que `六個鐘` signifie « six heures de temps »
+          et ne fournit pas l’heure demandée."
+  - subskill_id: checking_facts
+    explanation: Vous pensez que le magasin ferme à six heures et demandez confirmation. L’énoncé présente votre
+      heure supposée ; la question finale `係咪呀` invite l’autre personne à confirmer ou corriger.
+    examples:
+      - text: 間舖頭六點閂門，係咪呀？
+        meaning: Le magasin ferme à six heures, c’est bien ça ? `間舖頭六點閂門` place le magasin connu avant l’heure et
+          l’action proposées. `係咪` est une forme courte courante de `係唔係`, « est-ce ou non » ; le `呀` final
+          convient à cette question orale.
+        note: "Essayez : vérifiez une fermeture à sept heures. Réponse : `間舖頭七點閂門，係咪呀？` Ne changez que l’heure
+          proposée. Une correction peut répondre `唔係，六點閂門。` : elle écarte le fait proposé et donne la bonne
+          heure."
+  - subskill_id: useful_detail
+    explanation: Plusieurs tables sont disponibles ; désigner celle près de la fenêtre rend la consigne
+      utilisable. La description du lieu précède l’expression qui sélectionne cette table précise.
+    examples:
+      - text: 用窗口旁邊嗰張枱。
+        meaning: Utilisez la table près de la fenêtre. `用` signifie « utiliser », `窗口旁邊` « à côté de la fenêtre » et
+          `嗰張枱` « cette table-là ». `張` classe ici les tables. Le lieu et le démonstratif la distinguent
+          ensemble des autres.
+        note: "Essayez : choisissez plutôt la table près de la porte. Réponse : `用門口旁邊嗰張枱。` Remplacez le repère par
+          `門口`. `嗰張枱` sélectionne une table ; `嗰啲枱` désigne ces tables au pluriel, avec `啲` pour le groupe."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

@@ -1,0 +1,173 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: managing_conversation
+language: spanish
+explanation_language: french
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-french.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: À la fin d’une conversation amicale, une formule d’adieu rend la clôture claire. `Hasta luego`
+      est une manière courante de prendre congé. Elle suggère que l’on reverra la personne plus tard, sans
+      exiger qu’une heure précise ait été fixée.
+    examples:
+      - text: Hasta luego.
+        meaning: « À plus tard. » `Hasta` signifie « jusqu’à » et `luego` « plus tard ». Ensemble, ils forment une
+          formule de départ conventionnelle ; traduire chaque mot séparément ne rend pas sa fonction dans la
+          conversation.
+        note: >-
+          **Adaptez.** `Hasta mañana` signifie « à demain » lorsque demain est pertinent. `Hola` sert au
+          contraire à ouvrir une conversation. Une formule d’adieu ne fixe pas à elle seule la prochaine
+          rencontre.
+
+
+          **À vous.** Terminez une conversation avant de revoir la personne demain. Réponse : `Hasta mañana`.
+          Remplacez `luego` par le jour prévu.
+  - subskill_id: acknowledging
+    explanation: Si quelqu’un vous prévient d’un changement de projet, le remercier montre que vous avez reçu son
+      message et que vous l’appréciez. En espagnol, `gracias por` peut remercier pour une action précise. Ici,
+      l’action après `por` est à l’infinitif.
+    examples:
+      - text: Gracias por avisarme.
+        meaning: "« Merci de m’avoir prévenu. » `Gracias` exprime le remerciement ; `por avisarme` en donne la raison.
+          `Avisar` signifie prévenir, et le `me` attaché indique qui a été prévenu : la personne qui parle."
+        note: >-
+          **Adaptez.** `Gracias por ayudarme` remercie quelqu’un de vous avoir aidé. `Entendido` indique
+          simplement que vous avez compris, sans remerciement. Ne remplacez pas l’action par un verbe conjugué
+          directement après `por`.
+
+
+          **À vous.** Remerciez quelqu’un de vous avoir appelé avec `llamarme`. Réponse : `Gracias por
+          llamarme`. Le `me` attaché indique la personne appelée.
+  - subskill_id: clarification
+    explanation: Il arrive que vous entendiez tous les mots sans comprendre l’intention de l’autre personne. Une
+      question de clarification lui demande d’expliquer son sens. Elle permet de réparer l’échange avant de
+      répondre sur une supposition erronée.
+    examples:
+      - text: ¿Qué quieres decir?
+        meaning: « Que veux-tu dire ? » `Qué` demande quoi, `quieres` renvoie à l’interlocuteur et `decir` signifie
+          dire. Ici, l’expression entière `querer decir` interroge le sens, et non simplement l’envie de
+          parler.
+        note: >-
+          **Comparez.** `¿Puedes repetirlo?` demande de répéter ; c’est utile si vous n’avez pas entendu.
+          `¿Qué significa esta palabra?` demande le sens d’un mot. Gardez l’accent du mot interrogatif `qué`.
+
+
+          **À vous.** Vous avez entendu une phrase, mais n’en comprenez pas l’intention. Demandez `¿Qué
+          quieres decir?`. Cette question sollicite une explication, pas seulement les mêmes mots répétés.
+  - subskill_id: rephrasing
+    explanation: Si votre première explication était obscure, vous pouvez exprimer plus clairement le message
+      voulu. `Quiero decir que` introduit ce que vous voulez dire. La proposition suivante doit lever la
+      confusion en donnant le détail important.
+    examples:
+      - text: Quiero decir que llego después de las ocho.
+        meaning: « Je veux dire que j’arrive après huit heures. » `Quiero decir que` introduit l’explication ; `llego`
+          signifie « j’arrive ». `Después de las ocho` situe l’arrivée après huit heures, et non exactement à
+          huit heures.
+        note: >-
+          **Comparez.** `Llego a las ocho` fixe l’arrivée à huit heures. `Llego antes de las ocho` la situe
+          avant huit heures. Après `después`, gardez `de` avant l’heure.
+
+
+          **À vous.** Précisez que vous arrivez avant neuf heures. Réponse : `Quiero decir que llego antes de
+          las nueve`. Changez l’expression de temps en gardant la formule explicative.
+  - subskill_id: correcting_misunderstanding
+    explanation: Si quelqu’un a confondu deux jours, une correction utile nomme le jour voulu et celui qu’il a
+      compris par erreur. `Me refiero a` introduit ce que vous vouliez dire. La correction devient précise, au
+      lieu de laisser l’interlocuteur deviner après un simple non.
+    examples:
+      - text: No, me refiero al martes, no al jueves.
+        meaning: « Non, je parle de mardi, pas de jeudi. » `No` rejette l’interprétation erronée. `Me refiero al
+          martes` désigne mardi comme jour voulu ; `no al jueves` exclut jeudi. `Al` réunit `a` et `el`.
+        note: >-
+          **Adaptez.** `Me refiero a Ana, no a Luis` corrige l’identité d’une personne. La préposition `a`
+          reste, mais ces noms ne prennent pas l’article utilisé avec les jours.
+
+
+          **À vous.** Corrigez jeudi en vendredi. Réponse : `No, me refiero al viernes, no al jueves`. Nommez
+          d’abord le jour voulu, puis celui qui a été compris par erreur.
+  - subskill_id: turns_topics
+    explanation: Une conversation peut bifurquer vers une idée connexe qui vient de vous traverser l’esprit. `Por
+      cierto` signale ce changement pour que l’interlocuteur puisse le suivre. Ici, la personne qui parle
+      quitte le sujet précédent pour demander des nouvelles de la sœur de l’autre.
+    examples:
+      - text: Por cierto, ¿cómo está tu hermana?
+        meaning: « Au fait, comment va ta sœur ? » `Por cierto` introduit ce sujet secondaire ; `cómo está` demande
+          comment elle va. `Tu hermana` désigne la personne. Le mot interrogatif `Cómo` porte un accent,
+          contrairement au possessif `tu`.
+        note: >-
+          **Comparez.** `¿Dónde está tu hermana?` demande où se trouve la sœur, et non comment elle va. `Por
+          cierto` signale un nouveau point ; ce n’est pas un mot qui exprime la cause.
+
+
+          **À vous.** Demandez des nouvelles du frère de l’interlocuteur avec `tu hermano`. Réponse : `Por
+          cierto, ¿cómo está tu hermano?`. Changez la personne tout en gardant le signal de changement de
+          sujet et la question.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

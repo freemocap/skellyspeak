@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-french-2026-10-07
+language: mandarin
+skill_id: time_events
+explanation_language: french
+shared_explanation: skills/time-events/time-events-explained-in-french.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Quelqu’un demande ce que vous faites pendant que vous préparez un itinéraire. `正在` devant
+      l’action la présente comme en cours. Dans cet échange, elle se déroule maintenant ; un autre repère
+      temporel pourrait situer ailleurs une action en cours.
+    examples:
+      - text: 我正在画地图。
+        meaning: "**L’exemple.** Je dessine une carte. `我` signifie « je », `正在` « être en train de », `画` « dessiner
+          » et `地图` « carte ». Le marqueur de progression précède l’action ; l’objet dessiné la suit. `画` ne
+          change pas selon la personne."
+        note: "Essayez : dites que votre groupe dessine la carte. Réponse : `我们正在画地图。` Remplacez `我` par `我们` et
+          gardez `正在画`. `我每周画地图` décrit plutôt une habitude hebdomadaire, sans présenter explicitement
+          l’activité actuelle."
+  - subskill_id: past_events
+    explanation: Après une réparation, vous pouvez dire quand elle a eu lieu. `昨天` situe l’événement hier et le
+      `了` après `修` le rapporte comme événement survenu. Le verbe ne prend pas de terminaison passée.
+    examples:
+      - text: 昨天我修了自行车。
+        meaning: "**L’exemple.** Hier, j’ai réparé le vélo. `昨天` signifie « hier », `我` « je » et `修自行车` « réparer le
+          vélo ». Dans `修了自行车`, le marqueur d’événement suit le verbe et précède son objet. Il rapporte la
+          réparation sans préciser à lui seul que chaque étape a été menée à bien."
+        note: "Essayez : dites que vous ne l’avez pas réparé hier. Réponse : `昨天我没修自行车。` Mettez `没` avant `修` et
+          retirez le `了` d’événement. `修好了自行车` dirait explicitement que le vélo a été réparé avec succès ;
+          l’exemple initial ne contient pas ce mot de résultat."
+  - subskill_id: future_events
+    explanation: Une course prévue peut être située demain en nommant simplement le jour. `明天` fixe le moment où
+      vous comptez partir ; l’action suivante indique ce que vous irez chercher.
+    examples:
+      - text: 明天我去取零件。
+        meaning: "**L’exemple.** Demain, j’irai chercher les pièces. `明天` signifie « demain », `我` « je », `去` « aller
+          », `取` « récupérer » et `零件` « pièces ». `去取` associe le déplacement à son but. Aucun des deux
+          verbes ne prend de terminaison future."
+        note: "Essayez : déplacez la course à après-demain. Réponse : `后天我去取零件。` Remplacez `明天` par `后天`. `我会修自行车`
+          peut exprimer une compétence acquise en réparation ; ajouter `会` n’est pas nécessaire pour situer
+          cette course dans le futur."
+  - subskill_id: duration_frequency
+    explanation: Pour parler d’une activité physique régulière, la fréquence dit combien de fois elle a lieu. `每周`
+      donne l’intervalle hebdomadaire ; `两次` après l’activité compte les séances dans cet intervalle.
+    examples:
+      - text: 我每周游泳两次。
+        meaning: "**L’exemple.** Je nage deux fois par semaine. `我` signifie « je », `每` « chaque », `周` « semaine »
+          et `游泳` « nager ». `两次` signifie « deux fois », avec `次` qui compte les occasions. L’intervalle
+          précède la nage, et le nombre de séances la suit."
+        note: "Essayez : dites que vous nagez trois fois par semaine. Réponse : `我每周游泳三次。` Remplacez `两次` par `三次`.
+          `我每次游泳半小时` indique plutôt la durée de chaque séance : `每次` signifie « chaque fois » et `半小时` « une
+          demi-heure »."
+  - subskill_id: event_sequence
+    explanation: Une préparation culinaire demande des étapes dans le bon ordre. `先` introduit la première action,
+      et `再` celle qui suit. La personne chargée de la procédure peut rester implicite.
+    examples:
+      - text: 先洗手，再准备食材。
+        meaning: "**L’exemple.** Lavez-vous d’abord les mains, puis préparez les ingrédients. `洗手` signifie « se laver
+          les mains » et `准备食材` « préparer les ingrédients ». Chaque mot d’ordre précède l’action
+          correspondante. `食材` désigne les ingrédients utilisés pour cuisiner."
+        note: "Essayez : faites de la préparation des outils la seconde étape. Réponse : `先洗手，再准备工具。` Remplacez `食材`
+          par `工具`, « outils ». Ici, `再` introduit l’action suivante ; `所以` annoncerait une conséquence, pas
+          le même ordre procédural."
+  - subskill_id: event_phase
+    explanation: Quelqu’un veut savoir si vous devez encore lire la notice. `看完` indique explicitement que la
+      lecture a atteint sa fin ; `已经` situe cet accomplissement avant le moment présent.
+    examples:
+      - text: 我已经看完说明书了。
+        meaning: "**L’exemple.** J’ai fini de lire le mode d’emploi. `我已经` signifie « j’ai déjà », `看` ici « lire » et
+          `完` après lui « terminer ». `说明书` désigne le mode d’emploi. Le `了` final présente la lecture
+          terminée comme la situation actuelle."
+        note: "Essayez : dites que vous n’avez pas encore fini. Réponse : `我还没看完说明书。` Remplacez `已经` par `还没` et
+          omettez le `了` final. Gardez `完`, car la question porte toujours sur l’achèvement. `我看了说明书` rapporte
+          une lecture sans affirmer explicitement que tout le manuel est terminé."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

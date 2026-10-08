@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: feelings_viewpoints
+explanation_language: french
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-french.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Un cours de boulangerie vous tente et vous décrivez la compétence que vous aimeriez apprendre.
+      `想` introduit le souhait avant l’activité ; `學` indique l’apprentissage, sans prétendre que vous savez
+      déjà faire.
+    examples:
+      - text: 我想學整麵包。
+        meaning: Je veux apprendre à faire du pain. `我` signifie « je », `想學` « vouloir apprendre » et `整麵包` « faire
+          du pain ». Ces mots enchaînent souhait, apprentissage et fabrication ; une même personne est
+          comprise comme sujet de chaque action.
+        note: "Essayez : dites que vous voulez apprendre à cuisiner. Réponse : `我想學煮飯。` Remplacez l’activité par `煮飯`,
+          « cuisiner un repas ». `我識整麵包` dit que vous savez déjà faire du pain ; `我想學整麵包` exprime seulement le
+          souhait d’apprendre, sans inscription ni promesse."
+  - subskill_id: preferences
+    explanation: Quand il faut choisir une boisson, vous pouvez comparer votre goût pour les deux activités. `鍾意`
+      exprime le fait d’aimer ; `多過` place l’activité préférée avant l’autre.
+    examples:
+      - text: 我鍾意飲茶多過飲咖啡。
+        meaning: Je préfère boire du thé plutôt que du café. `我鍾意` signifie « j’aime », `飲茶` « boire du thé » et `飲咖啡`
+          « boire du café ». Ici, `多過` signifie « plus que » et compare les goûts, car les deux activités
+          relèvent de `鍾意` ; il ne compte pas des tasses.
+        note: "Essayez : préférez plutôt le café. Réponse : `我鍾意飲咖啡多過飲茶。` Inversez les deux activités. `我鍾意飲茶` indique
+          que vous aimez le thé sans le classer par rapport au café ; la comparaison demande l’autre choix
+          après `多過`."
+  - subskill_id: emotions
+    explanation: Une bonne nouvelle rend cette journée heureuse. Une émotion telle que `開心` peut décrire
+      directement la personne ; `好` en indique le degré sans mot distinct pour « être ».
+    examples:
+      - text: 我今日好開心。
+        meaning: Je suis heureux aujourd’hui. `我` désigne la personne, `今日` situe la journée et `好開心` exprime le
+          bonheur. Le temps vient avant l’émotion. `好` soutient souvent une description positive naturelle ;
+          son intensité dépend du contexte et de l’accentuation.
+        note: "Essayez : dites que votre groupe est heureux aujourd’hui. Réponse : `我哋今日好開心。` Remplacez `我` par `我哋` ;
+          le mot de sentiment n’a pas de terminaison de personne ou de pluriel. `我今日唔開心` exprime la tristesse
+          avec `唔` devant `開心`, sans garder le `好` positif."
+  - subskill_id: opinions
+    explanation: Des personnes comparent des solutions ; vous donnez votre appréciation de l’une d’elles. `我覺得`
+      introduit votre avis, suivi de la propriété qui fonde votre jugement.
+    examples:
+      - text: 我覺得呢個辦法幾好。
+        meaning: "Je trouve cette méthode plutôt bonne. `呢個辦法` désigne cette méthode : `呢` la montre et `個` est son
+          classificateur. `幾好` signifie « plutôt bonne » ; `幾` indique ici un degré. Il ne demande pas «
+          combien », puisqu’il modifie la qualité `好` dans cette appréciation."
+        note: "Essayez : trouvez la méthode plutôt utile. Réponse : `我覺得呢個辦法幾有用。` Remplacez `好` par `有用`, « utile ».
+          `呢個辦法有三個步驟` rapporte seulement trois étapes ; le cadre d’opinion permet de dire comment vous
+          l’évaluez."
+  - subskill_id: agreement_disagreement
+    explanation: Vous avez compris une proposition mais ne la soutenez pas. La réponse peut reconnaître son sens,
+      puis formuler le désaccord, en gardant ces deux réactions distinctes.
+    examples:
+      - text: 我明你嘅意思，不過我唔同意。
+        meaning: Je comprends ce que tu veux dire, mais je ne suis pas d’accord. `我明` signifie « je comprends » ;
+          `你嘅意思` désigne ton idée, avec `嘅` qui relie la personne à cette idée. `不過` introduit « mais » et
+          `唔同意` place la négation devant `同意`, « être d’accord ».
+        note: "Essayez : exprimez le désaccord au nom du groupe. Réponse : `我哋明你嘅意思，不過我哋唔同意。` Remplacez les deux
+          sujets par `我哋`. Pour accepter, `我明你嘅意思，我同意。` retire le refus et n’a pas besoin du contraste `不過`."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

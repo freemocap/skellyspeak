@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: managing_conversation
+language: french
+explanation_language: mandarin
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-mandarin.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 你得结束谈话离开，预计明天再见。`Je dois partir` 给出结束交谈的理由：我必须走。`À demain !` 以明天见收尾。`Dois` 是 `devoir` 与 `je`
+      搭配的形式，`partir` 保持不定式。若下次见面没定，`À bientôt !` 表示回头见，不承诺明天。`Bonjour !` 这类问候用于开始见面，不能承担同样的结束作用。
+    examples:
+      - text: Je dois partir. À demain !
+        meaning: 我得走了。明天见！
+        note: 改用星期一见来道别。`Je dois partir. À lundi !` 可用：`à` 后接日期，指出预计下次见面的日子。
+  - subskill_id: acknowledging
+    explanation: 有人解释自己的想法，你表示现在听懂了。`Ah` 标出领会的时刻。`Je vois` 字面上是我看见，这里也可表示我明白；`ce que tu veux dire`
+      意为你想表达的意思。这个回应表示理解，不一定赞同。`Je suis d’accord` 还会表达同意。使用礼貌称呼或对多人说话时，可用 `Je vois ce que vous voulez dire`
+      保持相同的回应。
+    examples:
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: 哦，我明白你的意思了。
+        note: 对称为 `vous` 的人表示理解。`Ah, je vois ce que vous voulez dire.` 可用：把 `tu veux` 改成 `vous voulez`
+          只改变称呼方式，不改变你是否赞同。
+  - subskill_id: clarification
+    explanation: 你听见了“暂时”这个词，却不清楚对方具体指什么。`Qu’est-ce que` 问什么；`tu veux dire` 意为你想表达，`par « provisoire »`
+      单独指出需要解释的词。引号表明你在讨论一个词，而不是自己拿这个词描述事物。`Qu’est-ce que tu veux dire par « urgent » ?` 改问另一个不清楚的词。这不同于 `Tu
+      peux répéter ?`，后者只是请对方重复，意义仍可能不明白。
+    examples:
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: 你说的“暂时”是什么意思？
+        note: 问对方所说的“重要”是什么意思。`Qu’est-ce que tu veux dire par « important » ?` 可用，因为引号里的词准确指出你不明白哪一点。
+  - subskill_id: rephrasing
+    explanation: 预订规则已经详细解释过，你现在重述它实际要求做什么。`Autrement dit` 表示换句话说。`Nous devons réserver` 意为我们必须预订；`avant de payer`
+      意为付款前。同一批人做两件事时，`avant de` 可以引出不定式 `payer`。`Avant de` 只表示顺序，不说明为什么必须预订。这个开头表示等义改述，因此应保留原规则，而不是悄悄增加新条件。
+    examples:
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: 换句话说，我们得先预订，再付款。
+        note: 重述必须在离开前预订的规则。`Autrement dit, nous devons réserver avant de partir.` 可用：只改变第二个动作，`partir` 仍是不定式。
+  - subskill_id: correcting_misunderstanding
+    explanation: 听话人写了星期四，而你原意是星期二。`Je voulais dire` 意为我本来想说；未完成过去式 `voulais` 回指当时的本意。`Mardi, pas jeudi`
+      用正确日子取代误听的日子。这样聚焦于修正你传达的信息，而不是责怪听话人。`Je veux dire mardi` 可以在说话过程中自我纠正；`je voulais dire` 更自然地回指已经说过的话。
+    examples:
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: 我说的是星期二，不是星期四。
+        note: 把误听的星期五纠正为星期六。`Je voulais dire samedi, pas vendredi.` 可用，因为原定日子先说，被否定的日子跟在 `pas` 后。
+  - subskill_id: turns_topics
+    explanation: 讨论快要进入下一话题，但你还需要问价格细节。`Avant de changer de sujet` 意为换话题前。`Puis-je` 是正式礼貌的“我可以吗”问句，后接不定式
+      `poser`。`Poser une question sur le prix` 意为问一个关于价格的问题。日常交谈中，`Est-ce que je peux poser une question ?`
+      是较不正式的说法。开头解释你只是短暂留在当前话题，而不是无关地插话。
+    examples:
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: 换话题前，我能问一个有关价格的问题吗？
+        note: 暂时留在这个话题，改问日期。`Avant de changer de sujet, puis-je poser une question sur la date ?` 可用：`sur la date`
+          点明尚未解决的细节。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - dingemanse2015_communication_repair
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - dingemanse2015_communication_repair
+        - oqlf_questions2026
+        - texQuestionsTeaching20261007
+        - tex_conditional2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - dingemanse2015_communication_repair
+        - oqlf_questions2026
+        - texQuestionsTeaching20261007
+        - tex_conditional2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.

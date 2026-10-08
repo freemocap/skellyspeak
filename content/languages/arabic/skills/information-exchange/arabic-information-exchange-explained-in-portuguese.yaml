@@ -1,0 +1,169 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-portuguese-2026-10-07
+language: arabic
+skill_id: information_exchange
+explanation_language: portuguese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-portuguese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Quando você sabe que um acontecimento ocorrerá, mas não sabe a hora, precisa perguntar pelo
+      detalhe ausente. `فِي أَيِّ سَاعَةٍ` significa em que horário. O exemplo pergunta a hora de fechamento
+      de uma loja; uma resposta útil fornece uma hora, não apenas sim ou não.
+    examples:
+      - text: فِي أَيِّ سَاعَةٍ يُغْلِقُ الْمَحَلُّ؟
+        meaning: "**O exemplo.** A que horas a loja fecha? `فِي أَيِّ سَاعَةٍ` significa em qual hora. `يُغْلِقُ`
+          significa fecha e `الْمَحَلُّ` é a loja. A preposição `فِي` inicia a expressão temporal; neste
+          exemplo, o verbo precede a loja."
+        note: >-
+          **Forme uma resposta.** `فِي السَّاعَةِ الْخَامِسَةِ` significa às cinco. Essa expressão de horário
+          pode responder sozinha porque a pergunta já indica a loja e a ação.
+
+
+          **Experimente.** Que parte a resposta deve substituir? Resposta: `فِي أَيِّ سَاعَةٍ`.
+  - subskill_id: answering_information
+    explanation: Quando alguém pergunta a hora de fechamento de uma loja, a informação ausente é a hora. A
+      expressão temporal sozinha pode ser uma resposta completa na conversa porque a pergunta já nomeia a loja
+      e a ação.
+    examples:
+      - text: فِي السَّاعَةِ الْخَامِسَةِ.
+        meaning: "**O exemplo.** Às cinco. `فِي` significa aqui em ou às. `السَّاعَةِ` é a hora e `الْخَامِسَةِ` é
+          quinta, formando cinco horas. A expressão usa um adjetivo ordinal que concorda com a palavra
+          feminina para hora."
+        note: "Para seis horas, use `فِي السَّاعَةِ السَّادِسَةِ`. Não confunda « às cinco » com uma duração de cinco
+          horas. Experimente responder a uma pergunta sobre fechamento com seis. Resposta: `فِي السَّاعَةِ
+          السَّادِسَةِ`; o ordinal muda, enquanto a estrutura horária permanece."
+  - subskill_id: checking_facts
+    explanation: Você pensa que a loja está fechada hoje, mas quer confirmar antes de fazer planos. Apresente a
+      informação que acredita ser verdadeira e acrescente uma pergunta curta que permita confirmação ou
+      correção.
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
+        meaning: "**O exemplo.** A loja está fechada hoje, certo? `الْمَحَلُّ مُغْلَقٌ` diz que a loja está fechada;
+          `الْيَوْمَ` significa hoje. `أَلَيْسَ كَذٰلِكَ؟` significa não é assim? A afirmação apresenta o fato
+          proposto e a pergunta final o verifica."
+        note: "Substituir `الْيَوْمَ` por `غَدًا` verifica o fechamento de amanhã. Esta não é uma pergunta aberta
+          sobre horário de fechamento; propõe um fato específico. Experimente: o que uma correção útil deve
+          abordar? Resposta: se a loja está fechada hoje, em vez de apenas mencionar uma hora de abertura sem
+          relação."
+  - subskill_id: useful_detail
+    explanation: A outra pessoa tenta encontrar uma entrada. Nomear um ponto de referência próximo a ajuda a
+      distinguir essa entrada de outros lugares; o detalhe serve diretamente à sua próxima ação.
+    examples:
+      - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
+        meaning: "**O exemplo.** A entrada fica ao lado da padaria. `الْمَدْخَلُ` é a entrada. `بِجَانِبِ` significa
+          ao lado de, e `الْمَخْبَزِ` é a padaria. A expressão de lugar situa a entrada em relação ao marco,
+          sem um verbo separado para « ser » no presente."
+        note: "É possível trocar o marco por `الْمَكْتَبِ`, o escritório: `الْمَدْخَلُ بِجَانِبِ الْمَكْتَبِ`. Ao lado
+          não significa dentro. Experimente: onde a pessoa deve procurar? Resposta: ao lado da padaria, não
+          dentro dela; a expressão relacional traz essa distinção."
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: asking_information
+      explanation: "Perguntar a hora ajuda a planejar uma ação, como chegar à loja antes de ela fechar. `أَيّ
+        سَاعَة` pergunta qual hora. O restante da pergunta identifica o acontecimento que orienta seu plano:
+        aqui, o fechamento da loja."
+      examples:
+        - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
+          meaning: "**O exemplo.** A que horas a loja fecha? `أَيّ سَاعَة` pergunta a hora; `بِيْسَكِّرْ` significa
+            fecha nesse padrão falado; `الْمَحَلّ` nomeia a loja. Observe o prefixo b- nesse verbo comum do
+            presente."
+          note: >-
+            **Forme uma resposta.** `عَ السَّاعَة خَمْسِة` significa às cinco nesse modelo falado. A expressão
+            de horário pode responder sozinha.
+
+
+            **Experimente.** Um simples sim responderia à pergunta? Não: é preciso dar a hora de fechamento.
+            As palavras interrogativas mostram qual informação falta.
+    - subskill_id: answering_information
+      explanation: Quando alguém pergunta a hora de fechamento de uma loja, falta a hora. Uma expressão temporal
+        sozinha pode dar uma resposta conversacional completa porque loja e ação já foram nomeadas.
+      examples:
+        - text: عَ السَّاعَة خَمْسِة.
+          meaning: "**O exemplo.** Às cinco. `عَ` introduz o horário; `السَّاعَة` significa a hora e `خَمْسِة` é cinco.
+            Juntas, as palavras indicam cinco horas. O padrão falado usa o número aqui, sem precisar repetir o
+            verbo fechar."
+          note: "Para seis, use `عَ السَّاعَة سِتِّة`. Acrescente contexto de manhã ou noite se a hora for ambígua.
+            Experimente: a expressão diz que a loja fica aberta por cinco horas? Resposta: não; ela fornece a
+            hora no relógio, não uma duração."
+    - subskill_id: checking_facts
+      explanation: Você acha que a loja está fechada hoje, mas quer confirmação antes de planejar. Diga o que
+        acredita e acrescente uma pergunta curta que permita corrigir ou confirmar o fato.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
+          meaning: "**O exemplo.** A loja está fechada hoje, certo? `الْمَحَلّ مْسَكَّرْ` significa que a loja está
+            fechada; `الْيَوْمْ` é hoje. O `صَحّ؟` final significa certo? Ele pede confirmação da afirmação
+            anterior, em vez de iniciar outro assunto."
+          note: "Sem `صَحّ؟`, as palavras podem simplesmente anunciar o fechamento. A entonação de pergunta mantém a
+            informação aberta a correção. Experimente trocar hoje por amanhã. Resposta: `الْمَحَلّ مْسَكَّرْ
+            بُكْرَا، صَحّ؟`; o dia muda, mas o pedido de confirmação permanece."
+    - subskill_id: useful_detail
+      explanation: A outra pessoa procura uma entrada. Nomear um marco próximo ajuda a distingui-la de outros
+        lugares e serve diretamente à ação de encontrá-la.
+      examples:
+        - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
+          meaning: "**O exemplo.** A entrada fica ao lado da padaria. `الْمَدْخَلْ` é a entrada, `جَنْبْ` significa ao
+            lado e `الْمَخْبَزْ` é a padaria. O marco vem depois da palavra de localização. A frase inteira
+            indica onde procurar, em vez de apenas enumerar dois lugares."
+          note: "Com um escritório como marco, use `الْمَدْخَلْ جَنْبْ الْمَكْتَبْ`. Mantenha a palavra de relação para
+            que o novo marco seja útil. Experimente: o que se perde se você só disser « a padaria »? Resposta:
+            a relação entre ela e a entrada; `جَنْبْ` fornece essa relação."

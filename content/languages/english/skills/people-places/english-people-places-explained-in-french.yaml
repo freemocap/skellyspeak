@@ -1,0 +1,199 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-french-2026-10-07
+skill_id: people_places
+language: english
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: Identifier une personne ou une chose permet à votre interlocuteur de savoir qui ou quoi vous
+      montrez. Si vous voyez une personne récemment arrivée dans le voisinage, vous pouvez relier cette
+      personne visible à son lien avec vous. Il faut assez de contexte partagé pour que l’interlocuteur sache
+      qui vous désignez.
+    examples:
+      - text: That is our new neighbour.
+        meaning: "`That` montre la personne en vue. `Is` la relie à `our new neighbour` ; `our` indique son lien avec
+          votre foyer ou votre groupe, et `new` sa récente arrivée. Pour plusieurs personnes, dites `Those are
+          our new neighbours`."
+        note: >-
+          `That is our new neighbour` identifie quelqu’un ; `Our neighbour is friendly` le décrit. Employez
+          `this` pour une personne ou une chose plus proche dans la situation.
+
+
+          **À vous.** Présentez un collègue qui se tient près de vous. Réponse : `This is my colleague`.
+          `This` désigne la personne proche et `my colleague` précise votre relation.
+  - subskill_id: qualities_states
+    explanation: Une description aide quelqu’un à imaginer un lieu ou à décider s’il lui convient. Si un ami
+      cherche un endroit où lire, vous pouvez lui dire qu’une pièce est peu bruyante. En anglais, une forme de
+      `be` relie la chose décrite à sa qualité.
+    examples:
+      - text: The room is quiet.
+        meaning: "`The room` désigne le lieu, `is` le relie à une description, et `quiet` évoque le peu de bruit. Pour
+          plusieurs pièces, dites `The rooms are quiet`. Le mot descriptif `quiet` reste inchangé."
+        note: >-
+          Le mot descriptif peut aussi précéder le nom : `a quiet room`. Dans une phrase complète, gardez le
+          verbe de liaison : `The room is quiet`, et non la forme incorrecte `The room quiet`. Une qualité
+          peut être temporaire ou durable ; le contexte le précise.
+
+
+          **À vous.** Décrivez deux pièces comme chaudes. Réponse : `The rooms are warm`. Le pluriel `rooms`
+          demande `are` ; `warm` ne prend pas de marque du pluriel.
+  - subskill_id: location_movement
+    explanation: Les mots de lieu aident à trouver un objet par rapport à un repère. Si un ami ne voit pas votre
+      vélo, le situer par rapport à la remise peut l’aider. Une indication de position dit où se trouve une
+      chose ; une expression de mouvement dit où elle va.
+    examples:
+      - text: The bicycle is behind the shed.
+        meaning: "`The bicycle is` désigne l’objet et introduit sa position. `Behind the shed` le place de l’autre
+          côté de la remise, du point de vue pertinent. Ici, `Behind` a besoin d’un repère : l’interlocuteur
+          doit savoir derrière quoi se trouve le vélo."
+        note: >-
+          `Beside the shed` voudrait dire à côté de la remise. Pour le mouvement, comparez `I moved the
+          bicycle into the shed` : `into` donne une destination à l’intérieur. `In the shed` décrit la
+          position une fois le vélo arrivé.
+
+
+          **À vous.** Dites qu’un sac se trouve à côté de la porte. Réponse : `The bag is beside the door`.
+          `Beside` situe le sac par rapport à la porte.
+  - subskill_id: possession_relations
+    explanation: La possession indique à qui appartient l’objet évoqué ; des formes apparentées relient aussi des
+      personnes. Si un visiteur demande à qui est un vélo, vous pouvez identifier son propriétaire par votre
+      lien familial. Cela évite de confondre votre vélo avec celui de votre frère.
+    examples:
+      - text: This is my brother’s bicycle.
+        meaning: "`This is` désigne le vélo. `My brother` identifie la personne par son lien avec vous. La terminaison
+          de `brother’s` relie cette personne à `bicycle` : le vélo lui appartient. L’apostrophe fait partie
+          de la forme possessive écrite."
+        note: >-
+          Comparez `my bicycle`, qui vous appartient, et `my brother’s bicycle`, qui appartient à votre frère.
+          Avec un possesseur pluriel régulier, placez l’apostrophe après la marque du pluriel : `my parents’
+          house`.
+
+
+          **À vous.** Identifiez un sac appartenant à votre sœur. Réponse : `This is my sister’s bag`. La
+          marque possessive s’ajoute à `sister`, car c’est elle qui possède le sac.
+  - subskill_id: quantity_comparison
+    explanation: Une comparaison aide à choisir entre deux objets. Pour faire des bagages, vous pourriez préférer
+      le sac le moins lourd. Un mot descriptif au comparatif indique en quoi un objet diffère de l’autre ; un
+      mot de quantité indique combien il y en a.
+    examples:
+      - text: This bag is lighter than that one.
+        meaning: "`This bag` est l’objet décrit. `Lighter` signifie moins lourd ; `than that one` présente l’autre
+          sac. `One` évite de répéter `bag`. Les mots descriptifs courts prennent souvent `-er`, comme `light`
+          qui devient `lighter`."
+        note: >-
+          Certains mots plus longs emploient `more` : `This bag is more expensive than that one`. Ne combinez
+          pas les deux procédés dans la forme incorrecte `more lighter`. Pour une quantité, dites par exemple
+          `two bags` ou `less luggage`, plutôt que de comparer le poids.
+
+
+          **À vous.** Comparez une petite boîte à une plus grande. Réponse : `This box is smaller than that
+          one`. `Smaller` donne la comparaison de taille, et `than` introduit la seconde boîte.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: identification
+      explanation: Identifier une personne ou une chose permet à votre interlocuteur de savoir qui ou quoi vous
+        montrez. Si vous voyez une personne récemment arrivée dans le voisinage, vous pouvez relier cette
+        personne visible à son lien avec vous. Il faut assez de contexte partagé pour que l’interlocuteur
+        sache qui vous désignez.
+      examples:
+        - text: That is our new neighbor.
+          meaning: "`That` montre la personne en vue. `Is` la relie à `our new neighbor` ; `our` indique son lien avec
+            votre foyer ou votre groupe, et `new` sa récente arrivée. Pour plusieurs personnes, dites `Those
+            are our new neighbors`."
+          note: >-
+            `That is our new neighbor` identifie quelqu’un ; `Our neighbor is friendly` le décrit. Employez
+            `this` pour une personne ou une chose plus proche dans la situation.
+
+
+            **À vous.** Présentez un collègue qui se tient près de vous. Réponse : `This is my colleague`.
+            `This` désigne la personne proche et `my colleague` précise votre relation.
+    - subskill_id: qualities_states
+      explanation: Une description aide quelqu’un à imaginer un lieu ou à décider s’il lui convient. Si un ami
+        cherche un endroit où lire, vous pouvez lui dire qu’une pièce est peu bruyante. En anglais, une forme
+        de `be` relie la chose décrite à sa qualité.
+      examples:
+        - text: The room is quiet.
+          meaning: "`The room` désigne le lieu, `is` le relie à une description, et `quiet` évoque le peu de bruit. Pour
+            plusieurs pièces, dites `The rooms are quiet`. Le mot descriptif `quiet` reste inchangé."
+          note: >-
+            Le mot descriptif peut aussi précéder le nom : `a quiet room`. Dans une phrase complète, gardez le
+            verbe de liaison : `The room is quiet`, et non la forme incorrecte `The room quiet`. Une qualité
+            peut être temporaire ou durable ; le contexte le précise.
+
+
+            **À vous.** Décrivez deux pièces comme chaudes. Réponse : `The rooms are warm`. Le pluriel `rooms`
+            demande `are` ; `warm` ne prend pas de marque du pluriel.
+    - subskill_id: location_movement
+      explanation: Les mots de lieu aident à trouver un objet par rapport à un repère. Si un ami ne voit pas votre
+        vélo, le situer par rapport à la remise peut l’aider. Une indication de position dit où se trouve une
+        chose ; une expression de mouvement dit où elle va.
+      examples:
+        - text: The bicycle is behind the shed.
+          meaning: "`The bicycle is` désigne l’objet et introduit sa position. `Behind the shed` le place de l’autre
+            côté de la remise, du point de vue pertinent. Ici, `Behind` a besoin d’un repère : l’interlocuteur
+            doit savoir derrière quoi se trouve le vélo."
+          note: >-
+            `Beside the shed` voudrait dire à côté de la remise. Pour le mouvement, comparez `I moved the
+            bicycle into the shed` : `into` donne une destination à l’intérieur. `In the shed` décrit la
+            position une fois le vélo arrivé.
+
+
+            **À vous.** Dites qu’un sac se trouve à côté de la porte. Réponse : `The bag is beside the door`.
+            `Beside` situe le sac par rapport à la porte.
+    - subskill_id: possession_relations
+      explanation: La possession indique à qui appartient l’objet évoqué ; des formes apparentées relient aussi des
+        personnes. Si un visiteur demande à qui est un vélo, vous pouvez identifier son propriétaire par votre
+        lien familial. Cela évite de confondre votre vélo avec celui de votre frère.
+      examples:
+        - text: This is my brother’s bicycle.
+          meaning: "`This is` désigne le vélo. `My brother` identifie la personne par son lien avec vous. La terminaison
+            de `brother’s` relie cette personne à `bicycle` : le vélo lui appartient. L’apostrophe fait partie
+            de la forme possessive écrite."
+          note: >-
+            Comparez `my bicycle`, qui vous appartient, et `my brother’s bicycle`, qui appartient à votre
+            frère. Avec un possesseur pluriel régulier, placez l’apostrophe après la marque du pluriel : `my
+            parents’ house`.
+
+
+            **À vous.** Identifiez un sac appartenant à votre sœur. Réponse : `This is my sister’s bag`. La
+            marque possessive s’ajoute à `sister`, car c’est elle qui possède le sac.
+    - subskill_id: quantity_comparison
+      explanation: Une comparaison aide à choisir entre deux objets. Pour faire des bagages, vous pourriez préférer
+        le sac le moins lourd. Un mot descriptif au comparatif indique en quoi un objet diffère de l’autre ;
+        un mot de quantité indique combien il y en a.
+      examples:
+        - text: This bag is lighter than that one.
+          meaning: "`This bag` est l’objet décrit. `Lighter` signifie moins lourd ; `than that one` présente l’autre
+            sac. `One` évite de répéter `bag`. Les mots descriptifs courts prennent souvent `-er`, comme
+            `light` qui devient `lighter`."
+          note: >-
+            Certains mots plus longs emploient `more` : `This bag is more expensive than that one`. Ne
+            combinez pas les deux procédés dans la forme incorrecte `more lighter`. Pour une quantité, dites
+            par exemple `two bags` ou `less luggage`, plutôt que de comparer le poids.
+
+
+            **À vous.** Comparez une petite boîte à une plus grande. Réponse : `This box is smaller than that
+            one`. `Smaller` donne la comparaison de taille, et `than` introduit la seconde boîte.

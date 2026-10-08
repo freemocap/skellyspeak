@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: feelings_viewpoints
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 忙了一天后，你可能更想休息，而不是再做别的活动。`Querer` 后面接不定式，表达你自己想做什么。它说的是愿望；仅凭这句话，并不能断定你保证一定会做到。
+    examples:
+      - text: Quiero descansar.
+        meaning: “我想休息。” `Quiero` 表明说话人的愿望，`descansar` 说出活动。只有第一个动词随人称变化；活动动词保留不定式。
+        note: |-
+          **变换用法。** `Ella quiere descansar` 描述她的愿望。`Voy a descansar` 则把休息说成计划。不要把两个动词都变位成 `quiero descanso`。
+
+          **练一练。** 用 `comer` 说你想吃东西。答案：`Quiero comer`。保留对应“我”的 `quiero`，替换不定式。
+  - subskill_id: preferences
+    explanation: 谈谈自己喜欢的书，可以让别人了解你的口味。使用 `gustar` 时，西语以令人喜欢的东西组织句子，用代词指出喜欢它的人。动词与被喜欢的东西保持一致。
+    examples:
+      - text: Me gustan estos libros.
+        meaning: “我喜欢这些书。” `Me` 指出喜欢书的人是我。因为 `estos libros`（这些书）是复数，动词用复数 `Gustan`。语法主语是书，尽管中文译句从“我”说起。
+        note: >-
+          **变换用法。** `Me gusta este libro` 只说一本书，因此动词用单数。`Me gusta leer` 表示喜欢阅读；不定式所指的活动也搭配单数 `gusta`。
+
+
+          **练一练。** 用 `estas películas` 说你喜欢这些电影。答案：`Me gustan estas películas`。让 `gustan` 与复数电影一致，而不是与 `me`
+          一致。
+  - subskill_id: emotions
+    explanation: 朋友问你感觉如何时，可以用 `estar` 加形容词说出情绪状态。形容词要与具有这种感受的人一致。这里说话人感到高兴。
+    examples:
+      - text: Estoy contenta.
+        meaning: “我很高兴。” `Estoy` 指说话人现在的状态。`Contenta` 是阴性单数形容词；使用阳性一致形式的说话人说 `contento`。词尾描述的是说话人，而不是让人高兴的原因。
+        note: |-
+          **比较。** `Estoy triste` 表示悲伤；`triste` 的阴阳性形式相同。`Soy una persona alegre` 描述一个人性格开朗，而不只是报告眼下的心情。
+
+          **练一练。** 用阳性一致形式说你很高兴。答案：`Estoy contento`。改变形容词词尾，保留 `estoy`。
+  - subskill_id: opinions
+    explanation: 讨论计划时，你可以表达自己的判断，而不把它说成所有人的意见。`Creo que` 引出你认为的内容。后面的从句才是观点本身，例如你觉得提议是否妥当。
+    examples:
+      - text: Creo que es una buena idea.
+        meaning: “我认为这是个好主意。” `Creo` 是我认为，`que` 把它与观点连起来，`es una buena idea` 对提议作出评价。`Buena` 与阴性名词 `idea` 一致。
+        note: >-
+          **变换用法。** `Creo que es una mala idea` 改变评价。如果要表达怀疑而不是相信，可说 `No creo que sea una buena
+          idea`。在这个表达怀疑的句式里，使用虚拟式 `sea`，而不是 `es`。
+
+
+          **练一练。** 用 `útil` 说你认为它有用。答案：`Creo que es útil`。保留 `que` 来连接表达观点的从句。
+  - subskill_id: agreement_disagreement
+    explanation: 两个人即使都听懂了提议，也可能意见不同。`Estar de acuerdo` 表示赞同；在动词前加 `no` 则表示不赞同。这个短语回应正在讨论的看法。
+    examples:
+      - text: No estoy de acuerdo.
+        meaning: “我不同意。” `No` 否定 `estoy`，后者指说话人的状态。`De acuerdo` 是表示赞同的表达。这个短语说明立场不同，但本身没有给出原因。
+        note: >-
+          **变换用法。** `Estoy de acuerdo contigo` 意为我赞同你。`No estoy de acuerdo con el plan` 点出你反对的计划。表达中保留 `de`，用
+          `con` 引出赞同或反对的人或提议。
+
+
+          **练一练。** 用 `el plan` 表示赞同这个计划。答案：`Estoy de acuerdo con el plan`。去掉 `no`，加上赞同的对象。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

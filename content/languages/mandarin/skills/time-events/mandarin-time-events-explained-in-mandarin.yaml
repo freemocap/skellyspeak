@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: time_events
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 你正在准备指路信息，有人问你在做什么。动作前的 `正在` 表示动作进行中。在这段对话里，它发生在此刻；如果另有时间背景，进行中的动作也可以发生在别的时刻。
+    examples:
+      - text: 我正在画地图。
+        meaning: "**例句。** 我正在画地图。`我` 指说话人，`正在` 表示正处于过程中，`画` 是绘制，`地图` 是所画的东西。进行标记放在动作前，对象跟在后面；`画` 不会随做事的人改变形式。"
+        note: 试着说你们这组人正在画地图。答案：`我们正在画地图。` 把 `我` 换成 `我们`，`正在画` 不变。`我每周画地图` 则描述每周的习惯，没有明确表示眼下正在进行。
+  - subskill_id: past_events
+    explanation: 修理后，你可以说出是什么时候做的。`昨天` 把事件放在前一天，`修` 后面的 `了` 把修理报告为已发生的事件。动词本身没有过去时词尾。
+    examples:
+      - text: 昨天我修了自行车。
+        meaning: "**例句。** 昨天我修了自行车。`昨天` 指前一天，`我` 是做事的人，`修自行车` 是修理这辆车。在 `修了自行车`
+          中，事件标记放在动词后、对象前。它报告做过修理，但没有明确说所有修理步骤都已成功完成。"
+        note: 试着说昨天没有修车。答案：`昨天我没修自行车。` 把 `没` 放在 `修` 前，去掉表示事件发生的 `了`。`修好了自行车` 会明确说车已修好；原句没有表示这个结果的词。
+  - subskill_id: future_events
+    explanation: 计划中的差事，只要说出明天这个日期，就能放到未来。`明天` 确定打算何时去，后面的动作说明要取什么。
+    examples:
+      - text: 明天我去取零件。
+        meaning: "**例句。** 明天我去取零件。`明天` 给出日期，`我` 指说话人，`去` 是前往，`取` 是领取，`零件` 是要取的部件。`去取` 把前往与领取的目的连起来，两个动词都不需要将来时词尾。"
+        note: 试着把差事改到后天。答案：`后天我去取零件。` 把 `明天` 换成 `后天`。`我会修自行车` 可以表示掌握修车技能；原来这件差事有未来时间，不需要再加 `会`。
+  - subskill_id: duration_frequency
+    explanation: 讨论规律的运动习惯时，频率说明多久做一次。`每周` 给出以周为单位的间隔，动作后的 `两次` 数出这一周内发生几回。
+    examples:
+      - text: 我每周游泳两次。
+        meaning: "**例句。** 我每周游泳两次。`我` 是说话人，`每` 表示每一，`周` 是星期，`游泳` 是活动。`两次` 表示两回，`次` 计量发生的次数。时间间隔放在游泳前，次数放在后面。"
+        note: 试着说每周游泳三次。答案：`我每周游泳三次。` 把 `两次` 换成 `三次`。`我每次游泳半小时` 则说每次游泳持续半小时：`每次` 指每回活动，`半小时` 是其时长。
+  - subskill_id: event_sequence
+    explanation: 准备食物的流程需要按正确顺序完成。`先` 引出第一个动作，`再` 引出后续动作。照着步骤做的人可以不明说。
+    examples:
+      - text: 先洗手，再准备食材。
+        meaning: "**例句。** 先洗手，再准备食材。`洗手` 是清洗双手，`准备食材` 是备好做饭用的材料。两个表示顺序的词都放在各自动作前。`食材` 指烹饪所用的材料。"
+        note: 试着把第二步改成准备工具。答案：`先洗手，再准备工具。` 把 `食材` 换成 `工具`。这里的 `再` 指接下来要做的动作；`所以` 引出结果，不能表达同样单纯的步骤顺序。
+  - subskill_id: event_phase
+    explanation: 有人想知道说明书是否还有没读的部分。`看完` 明确表示阅读已到终点，`已经` 表示这个结果在现在之前就达到了。
+    examples:
+      - text: 我已经看完说明书了。
+        meaning: "**例句。** 我已经看完说明书了。`我已经` 表示我早已达到这个状态，`看` 在这里是阅读，后面的 `完` 表示完成。`说明书` 是操作手册。句末的 `了` 把已经读完呈现为目前的情况。"
+        note: 试着说你还没读完。答案：`我还没看完说明书。` 把 `已经` 换成 `还没`，去掉句末的 `了`。保留 `完`，因为是否达到终点仍是所讨论的问题。`我看了说明书` 报告读过，但没有明确说整本已经读完。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

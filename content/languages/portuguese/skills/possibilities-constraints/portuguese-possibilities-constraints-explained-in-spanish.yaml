@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: possibilities_constraints
+explanation_language: spanish
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
+sections:
+  - subskill_id: ability
+    explanation: "Un vecino pregunta si sabes reparar una bicicleta. `Sei consertar uma bicicleta` dice
+      que sabes hacerlo: `sei` es la primera persona del presente de `saber` y el infinitivo
+      `consertar` nombra la acción aprendida. `Uma bicicleta` es lo que sabes reparar. En cambio,
+      `Sei onde está a bicicleta` significaría que conoces un dato sobre su ubicación."
+    examples:
+      - text: Sei consertar uma bicicleta.
+        meaning: Sé reparar una bicicleta.
+        note: Afirma que sabes reparar una radio. `Sei consertar um rádio.` expresa la capacidad de forma
+          completa; el infinitivo después de `sei` nombra lo que sabes hacer.
+  - subskill_id: permission
+    explanation: Estás en un espacio de trabajo compartido y preguntas a la persona responsable por una
+      mesa. `Posso usar esta mesa?` usa `posso`, primera persona del presente de `poder`, más el
+      infinitivo `usar` para preguntar si puedes usarla. `Esta mesa` señala esta mesa. Aquí la otra
+      persona puede conceder o denegar el acceso, por lo que la pregunta pide permiso. En otro
+      contexto, el mismo verbo modal podría preguntar por una posibilidad práctica.
+    examples:
+      - text: Posso usar esta mesa?
+        meaning: ¿Puedo usar esta mesa?
+        note: Pide permiso para usar esta silla. `Posso usar esta cadeira?` es una pregunta completa
+          dirigida a quien puede autorizarlo; `cadeira` sustituye a `mesa` y `esta` sigue
+          concordando con un sustantivo femenino.
+  - subskill_id: obligation
+    explanation: "Los libros de la biblioteca deben devolverse hoy. `Tenho que devolver os livros hoje`
+      expresa una obligación: `tenho` significa tengo, `que` lo vincula con el infinitivo `devolver`
+      y `hoje` indica el plazo. Esto no significa que ya se hayan devuelto los libros. `Não preciso
+      devolver hoje` dice que hoy no es necesario; no prohíbe devolverlos. El enlace `que` forma
+      parte de esta construcción con `ter que`."
+    examples:
+      - text: Tenho que devolver os livros hoje.
+        meaning: Tengo que devolver los libros hoy.
+        note: Expresa que debes devolver los libros mañana. `Tenho que devolver os livros amanhã.` es una
+          obligación completa; `amanhã` cambia el plazo, mientras que `tenho que devolver` se
+          mantiene unido.
+  - subskill_id: possibility
+    explanation: Estás organizando una actividad al aire libre y no es seguro que vaya a llover. `É
+      possível que chova amanhã` significa que es posible que llueva mañana. `É possível que`
+      introduce el suceso incierto y `chova` es el presente de subjuntivo de `chover` en esta
+      construcción; `amanhã` sitúa el suceso en el futuro. `Está chovendo` informaría de que está
+      lloviendo ahora, no de una posibilidad.
+    examples:
+      - text: É possível que chova amanhã.
+        meaning: Puede que llueva mañana.
+        note: Di que es posible que la biblioteca cierre mañana. `É possível que a biblioteca feche amanhã.`
+          expresa una posibilidad completa; `feche` se usa después de `é possível que` para el
+          cierre incierto.
+  - subskill_id: certainty
+    explanation: "Antes de desplazarte, no sabes si la biblioteca está abierta. `Não sei se a biblioteca
+      está aberta` expresa ese límite de conocimiento: `não sei` significa no sé, `se` introduce una
+      pregunta indirecta de sí o no y `está aberta` describe el estado de apertura. La cuestión
+      sigue sin resolverse, de modo que quien habla no afirma que esté cerrada. Este `se` se
+      distingue del de una condición futura como `Se chover, fico em casa`."
+    examples:
+      - text: Não sei se a biblioteca está aberta.
+        meaning: No sé si la biblioteca está abierta.
+        note: Di que no sabes si la biblioteca está cerrada. `Não sei se a biblioteca está fechada.` expresa
+          la incertidumbre de forma completa; `fechada` cambia el estado sobre el que preguntas.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

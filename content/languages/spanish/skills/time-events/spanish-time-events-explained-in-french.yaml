@@ -1,0 +1,173 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: time_events
+language: spanish
+explanation_language: french
+shared_explanation: skills/time-events/time-events-explained-in-french.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Quand quelqu’un vous demande quel est votre emploi, le présent peut décrire votre situation
+      professionnelle actuelle. Cela ne signifie pas forcément que vous travaillez à cet instant précis. Le
+      lieu et le contexte de l’échange éclairent le sens voulu.
+    examples:
+      - text: Trabajo aquí.
+        meaning: « Je travaille ici. » `Trabajo` est la forme présente de `trabajar` pour la personne qui parle ;
+          `aquí` signifie ici. La terminaison indique déjà « je », donc `yo` peut être omis. Dans une
+          présentation au travail, la phrase indique votre lieu de travail.
+        note: >-
+          **Adaptez.** `Ella trabaja aquí` parle d’une autre personne. `Estoy trabajando` met l’accent sur
+          l’activité en cours. L’espagnol peut aussi employer le présent simple pour une action en cours : le
+          -ing anglais n’impose pas automatiquement la forme progressive.
+
+
+          **À vous.** Dites que vous travaillez chez vous. Réponse : `Trabajo en casa`. Changez le lieu en
+          gardant `trabajo` pour « je ».
+  - subskill_id: past_events
+    explanation: Raconter les courses d’hier présente le déplacement comme un événement achevé. L’espagnol emploie
+      le prétérit pour cette manière de voir le trajet. D’autres formes du passé peuvent présenter une
+      habitude ou un arrière-plan ; le choix dépend donc de la façon de raconter.
+    examples:
+      - text: Ayer fui al mercado.
+        meaning: « Hier, je suis allé au marché. » `Ayer` situe l’événement hier ; `fui` est le prétérit de `ir` pour
+          la personne qui parle. `Al mercado` donne la destination ; `al` réunit `a` et `el`. L’ensemble
+          décrit un trajet achevé.
+        note: >-
+          **Comparez.** `Iba al mercado todos los días` décrit une ancienne habitude avec l’imparfait `iba`.
+          `Fui` peut aussi être une forme de `ser`, mais la destination rend ici le sens « aller » clair.
+
+
+          **À vous.** Dites qu’elle est allée au marché hier. Réponse : `Ayer fue al mercado`. Remplacez `fui`
+          par `fue` pour « elle » ; gardez le moment et la destination.
+  - subskill_id: future_events
+    explanation: Un projet pour demain vise une action qui n’a pas encore eu lieu. `Ir a` suivi d’un infinitif est
+      une façon courante d’exprimer un tel projet. La forme de `ir` indique de qui il s’agit.
+    examples:
+      - text: Mañana voy a cocinar.
+        meaning: « Demain, je vais cuisiner. » `Mañana` signifie demain ; `voy` désigne la personne qui parle. `A
+          cocinar` donne l’action prévue. Ici, `voy a` est une construction du futur, et non l’affirmation
+          d’un déplacement physique.
+        note: >-
+          **Adaptez.** `Ella va a cocinar` change la personne, tandis que `cocinar` reste à l’infinitif.
+          `Cocinaré mañana` exprime aussi l’avenir. N’omettez pas `a` entre `voy` et l’activité.
+
+
+          **À vous.** Dites que vous allez étudier demain avec `estudiar`. Réponse : `Mañana voy a estudiar`.
+          Gardez `voy a` et changez l’activité.
+  - subskill_id: duration_frequency
+    explanation: "Une routine d’étude peut être décrite par la fréquence des séances ou par leur durée. Ces deux
+      indications répondent à des questions différentes. `Todos los días` donne la fréquence : l’activité se
+      produit chaque jour, sans préciser son nombre de minutes."
+    examples:
+      - text: Estudio español todos los días.
+        meaning: « J’étudie l’espagnol tous les jours. » `Estudio` indique l’activité de la personne qui parle ;
+          `español` nomme la matière étudiée. `Todos los días` signifie chaque jour. Dans cet emploi, le nom
+          de la langue commence par une minuscule.
+        note: >-
+          **Comparez.** `Estudio español durante una hora` donne la durée d’une séance, pas sa fréquence. `Dos
+          veces por semana` signifie deux fois par semaine. Gardez `los` dans l’expression courante `todos los
+          días`.
+
+
+          **À vous.** Dites que vous étudiez l’espagnol deux fois par semaine. Réponse : `Estudio español dos
+          veces por semana`. Remplacez l’expression de fréquence sans changer l’activité.
+  - subskill_id: event_sequence
+    explanation: Dans le récit d’une soirée, ordonner les événements aide l’autre personne à suivre l’histoire.
+      `Primero` nomme la première étape et `después` introduit une étape ultérieure. Ces expressions indiquent
+      l’ordre sans dire qu’un événement a causé l’autre.
+    examples:
+      - text: Primero cenamos y después salimos.
+        meaning: "Dans un récit d’hier soir : « Nous avons d’abord dîné, puis nous sommes sortis. » `Primero cenamos`
+          donne le premier événement ; `y después salimos` ajoute le suivant. `Cenamos` et `salimos` peuvent
+          être des formes présentes ou prétérites ; c’est le récit environnant qui leur donne ici une lecture
+          passée."
+        note: >-
+          **Comparez.** Dans un projet pour ce soir, ces mêmes formes peuvent recevoir une lecture présente
+          avec référence future. Ajoutez `anoche` pour préciser qu’il s’agit d’une soirée passée. `Por eso`
+          exprimerait une conséquence plutôt qu’un simple ordre.
+
+
+          **À vous.** Dites qu’hier soir vous avez d’abord dîné, puis êtes sortis. Réponse : `Anoche primero
+          cenamos y después salimos`. `Anoche` rend le contexte passé explicite.
+  - subskill_id: event_phase
+    explanation: Si quelqu’un vous interrompt alors que vous avez un livre ouvert, vous pouvez dire que la lecture
+      est en cours. `Estar` avec un gérondif met l’accent sur une activité qui se déroule. Le gérondif est ici
+      la forme d’action, comme `leyendo` issu de `leer`.
+    examples:
+      - text: Estoy leyendo.
+        meaning: « Je suis en train de lire. » `Estoy` désigne la personne qui parle et situe l’activité dans le
+          présent ; `leyendo` exprime l’action en cours. Le gérondif ne varie ni selon le genre ni selon le
+          nombre. `Estamos leyendo` change seulement le premier verbe pour « nous ».
+        note: >-
+          **Comparez.** `Leo todos los días` décrit une habitude. `Ya terminé de leer` dit que la lecture est
+          terminée. Pour exprimer l’activité en cours, ne placez pas directement l’infinitif `leer` après
+          `estoy`.
+
+
+          **À vous.** Dites qu’elle est en train de lire. Réponse : `Ella está leyendo`. Remplacez `estoy` par
+          `está` et gardez `leyendo` inchangé.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

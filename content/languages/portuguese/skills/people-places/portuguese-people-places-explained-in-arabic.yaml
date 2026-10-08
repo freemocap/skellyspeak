@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: people_places
+explanation_language: arabic
+shared_explanation: skills/people-places/people-places-explained-in-arabic.yaml
+sections:
+  - subskill_id: identification
+    explanation: "تقدم آنا إلى شخص لا يعرفها. تعرّف `Esta é minha colega Ana` بها: تشير `esta` إلى شخص
+      مؤنث قريب من المتكلم، و`é` مضارع `ser`، وتتفق `minha` مع الاسم المؤنث `colega`. وقد يصف
+      `Colega` رجلًا أو امرأة؛ وتوضح الكلمات المحيطة المقصود هنا. أما وصف حالة مثل `Ana está
+      cansada` فيخبر كيف تشعر آنا اليوم، ولا يعرّف هويتها."
+    examples:
+      - text: Esta é minha colega Ana.
+        meaning: هذه زميلتي آنا.
+        note: "قدّم بياتريس زميلةً لك. الإجابة: `Esta é minha colega Beatriz.` وهي صيغة تقديم كاملة؛ وتتفق
+          `esta` و`minha` مع الشخص المؤنث المشار إليه."
+  - subskill_id: qualities_states
+    explanation: "تفحص نباتات تحتاج إلى الماء. تصف `As plantas estão secas` حالتها الراهنة: `as plantas`
+      جمع مؤنث، و`estão` صيغة الجمع الموافقة من `estar`، و`secas` صفة في جمع المؤنث. تهم هذه
+      النهايات لأن الحالة تعود إلى نباتات عدة. يخبر `estar` هنا كيف هي الآن، لا عن هويتها أو تصنيفها
+      الثابت."
+    examples:
+      - text: As plantas estão secas.
+        meaning: النباتات جافة.
+        note: "صف نبتة واحدة بأنها جافة. الإجابة الكاملة: `A planta está seca.` يأخذ المفرد `a planta` الفعل
+          `está` والصفة المفردة `seca`."
+  - subskill_id: location_movement
+    explanation: "يسأل زائر عن مكان المكتبة. تحدد `A biblioteca fica perto da praça` موقعها: `fica`
+      استعمال مكاني لـ`ficar`، وتعني `perto de` بالقرب من، وتجمع `da` بين `de` و`a` المؤنثة قبل
+      `praça`. تخبر الجملة بموقع المبنى، لا بأنه أصبح مكتبة. أما جملة حركة مثل `Vou à biblioteca`
+      فتحدد وجهتك."
+    examples:
+      - text: A biblioteca fica perto da praça.
+        meaning: المكتبة قرب الساحة.
+        note: "حدد موقع المكتبة قرب الحديقة. الإجابة: `A biblioteca fica perto do parque.` وهي كاملة؛ وتحل
+          `do` محل `da` لأن `parque` يأخذ أداة المذكر `o`."
+  - subskill_id: possession_relations
+    explanation: "تحدث شخصًا عن عائلتك وعن شيء يملكه أخوك. تجمع `Meu irmão tem uma bicicleta` علاقتين:
+      تحدد `meu irmão` أخاك، وتقول `tem uma bicicleta` إن لديه دراجة. تأتي `Meu` مذكّرة لأن `irmão`
+      مذكر، بصرف النظر عن جنس المتكلم؛ و`tem` صيغة الغائب المضارعة من `ter` توافق الأخ. تخبر الجملة
+      بامتلاك شيء، لا بمقارنة عدد الدراجات."
+    examples:
+      - text: Meu irmão tem uma bicicleta.
+        meaning: أخي لديه دراجة.
+        note: "قل إن أختك لديها دراجة. الإجابة الكاملة: `Minha irmã tem uma bicicleta.` تتفق `minha` مع
+          `irmã` المؤنثة، وتبقى `tem` مبيّنةً ما يملكه الشخص."
+  - subskill_id: quantity_comparison
+    explanation: لديكم ثلاثة صناديق وتحتاجون إلى اختيار واحد لحمله. تعدّ `Temos três caixas. Esta caixa
+      é mais leve que as outras` الصناديق أولًا، ثم تقارن أوزانها. تعني `Temos` لدينا، وتعطي `três`
+      العدد، وتعني `mais leve que` أخف من. تشير `Esta` إلى صندوق واحد، وتحل `as outras` محل الصناديق
+      الأخرى بصيغة جمع مؤنث. تتحدد مقارنة الوزن بالصفة بعد `mais`؛ وتعني `mais pesada` أثقل، بينما
+      تعني `mais leve` أخف.
+    examples:
+      - text: Temos três caixas. Esta caixa é mais leve que as outras.
+        meaning: لدينا ثلاثة صناديق. هذا الصندوق أخف من الصندوقين الآخرين.
+        note: "قل إن هذا الصندوق أثقل من الصناديق الأخرى. الإجابة: `Temos três caixas. Esta caixa é mais
+          pesada que as outras.` تحفظ العدد وتركيب المقارنة؛ وتغيّر `pesada` الصفة المقارَنة وتتفق
+          مع `caixa`."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: people_places
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 初次见面时，简短自我介绍能让对方知道你是谁。西语用 `ser` 表示身份；`soy` 意为“我是”。动词已经标明说话人，因此自我介绍可以不用加 `yo`。
+    examples:
+      - text: Soy Ana.
+        meaning: “我是安娜。” `Soy` 引出说话人，`Ana` 给出姓名。这种介绍中，姓名前不加冠词。
+        note: |-
+          **变换用法。** `Soy Luis` 介绍路易斯本人；`Ella es Ana` 则辨认另一人。主语是“她”时，把 `soy` 改为 `es`。`Estoy Ana` 不能用来表达这种身份。
+
+          **练一练。** 自我介绍说你叫玛尔塔。答案：`Soy Marta`。保留 `soy`，替换名字。
+  - subskill_id: qualities_states
+    explanation: 进房间前，你可能需要说明门是否开着。`Estar` 描述你看到的状态。`Ser` 和 `estar` 所作的描述不同；只问某种性质是不是永久的，并不能可靠地选出该用哪个。
+    examples:
+      - text: La puerta está abierta.
+        meaning: “门开着。” `La puerta` 指这扇门，`está` 描述它的状态，`abierta` 意为开着。`abierta` 的词尾与阴性单数名词 `puerta` 一致。
+        note: |-
+          **变换用法。** `Las puertas están abiertas` 描述好几扇门：动词和形容词都要变化。`La puerta es grande` 则描述门的大小这一性质。
+
+          **练一练。** 用 `cerrada` 说门关着。答案：`La puerta está cerrada`。状态改变，主语和动词不变。
+  - subskill_id: location_movement
+    explanation: 有人在找书时，说明位置可以帮助对方找到。`Estar` 用于说明人或物在哪里，后接地点短语才能给出有用的答案。这里书放在桌上。
+    examples:
+      - text: El libro está en la mesa.
+        meaning: “书在桌上。” `El libro` 指这本书，`está` 说明位置，`en la mesa` 给出地点。`En` 可以译作在里面或在上面；具体物体之间的关系决定这里的意思。
+        note: |-
+          **比较。** `Voy a la mesa` 描述朝桌子移动，而不是静态位置。在 `El libro está aquí` 中，`aquí` 取代整个地点短语。
+
+          **练一练。** 用 `la mochila` 说明书在背包里。答案：`El libro está en la mochila`。表示位置用 `en`，不用表示移动方向的 `a`。
+  - subskill_id: possession_relations
+    explanation: 两个人的书相似时，点出主人有助于区分。西语可以在东西后面用 `de`，再说出拥有者。`mi` 这样的物主词也能表明关系：这里说明是哪一个人的姐姐或妹妹。
+    examples:
+      - text: Es el libro de mi hermana.
+        meaning: “这是我姐姐或妹妹的书。” `Es` 辨认正在谈的书；`el libro` 说出东西。`De mi hermana` 表示书属于我的姐妹。`Mi` 说明姐妹与说话人的关系，而不是描述书。
+        note: |-
+          **变换用法。** `Es mi libro` 表示书是我的。`Son mis libros` 描述多本书：`mis` 与书的数量一致，而不是与主人的人数一致。西语在这里不使用英语的所有格撇号。
+
+          **练一练。** 用 `mi hermano` 说这是你兄弟的书。答案：`Es el libro de mi hermano`。在主人前保留 `de`。
+  - subskill_id: quantity_comparison
+    explanation: 要选箱子时，和另一个箱子比较会更容易判断。西语在性质前用 `más`，在比较对象前用 `que`。这句话比较的是大小，不是在数有多少个箱子。
+    examples:
+      - text: Esta caja es más grande que esa.
+        meaning: “这个箱子比那个大。” `Esta caja` 指较近的箱子；`es más grande` 表示它更大。`Que esa` 指另一个箱子，不再重复 `caja`。`Esta` 和 `esa`
+          都与阴性名词一致。
+        note: >-
+          **变换用法。** `Esta caja es menos grande que esa` 把比较方向反过来。`Tengo más cajas` 则表示箱子的数量更多。指出比较对象时，要保留
+          `que`。
+
+
+          **练一练。** 用 `este libro` 和 `ese` 比较两本书。答案：`Este libro es más grande que ese`。因为 `libro`
+          是阳性名词，指示词也改成阳性。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

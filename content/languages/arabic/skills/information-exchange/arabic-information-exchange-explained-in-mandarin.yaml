@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: information_exchange
+explanation_language: mandarin
+shared_explanation: skills/information-exchange/information-exchange-explained-in-mandarin.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 如果你知道一件事会发生，却不知道何时发生，就需要询问缺少的时间。`فِي أَيِّ سَاعَةٍ` 意为在几点。例句问商店的关门时间，因此有用的回答应给出钟点，而不只是是或否。
+    examples:
+      - text: فِي أَيِّ سَاعَةٍ يُغْلِقُ الْمَحَلُّ؟
+        meaning: "**例句。** “商店几点关门？” `فِي أَيِّ سَاعَةٍ` 意为在哪个小时。`يُغْلِقُ` 是关门，`الْمَحَلُّ` 是商店。介词 `فِي`
+          开始时间短语；这个例子里，动词在商店前面。"
+        note: |-
+          **组成回答。** `فِي السَّاعَةِ الْخَامِسَةِ` 意为五点钟。因为问句已经说出商店和关门动作，只用这个时间短语就能回答。
+
+          **练一练。** 回答要替换问句中的哪一段？答案：`فِي أَيِّ سَاعَةٍ`。
+  - subskill_id: answering_information
+    explanation: 别人问商店几点关门，缺少的就是时刻。因为问句已经说明商店和动作，一个时间短语就能成为完整的对话回答。
+    examples:
+      - text: فِي السَّاعَةِ الْخَامِسَةِ.
+        meaning: "**例句。** 五点钟。`فِي` 在这里表示在某个时刻。`السَّاعَةِ` 是小时，`الْخَامِسَةِ` 是第五，合起来表示五点。钟点表达使用与阴性“小时”一词一致的序数形容词。"
+        note: 六点用 `فِي السَّاعَةِ السَّادِسَةِ`。不要把五点这个时刻与持续五小时混淆。试一试：回答关门时间为六点。答案：`فِي السَّاعَةِ
+          السَّادِسَةِ`；序数改变，时间表达框架不变。
+  - subskill_id: checking_facts
+    explanation: 你认为商店今天关门，但安排计划前想确认。先说出你相信的信息，再加一个简短问题，听话人便能确认或纠正。
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
+        meaning: "**例句。** 商店今天关门，对吗？`الْمَحَلُّ مُغْلَقٌ` 表示商店关着；`الْيَوْمَ` 是今天。`أَلَيْسَ كَذٰلِكَ؟`
+          意为难道不是这样吗？陈述说出待核实的事实，最后的问句负责确认。"
+        note: 把 `الْيَوْمَ` 换成
+          `غَدًا`，就改为核实明天是否关门。这不是开放地询问几点关门，而是在提出一个具体事实。试一试：有用的纠正应该回应什么？答案：商店今天是否关门，而不是只报一个无关的开门钟点。
+  - subskill_id: useful_detail
+    explanation: 听话人正在找入口。说出附近的地标，能帮对方把这个入口与别处区分开，因此细节直接服务于接下来的找路行动。
+    examples:
+      - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
+        meaning: "**例句。** 入口在面包店旁边。`الْمَدْخَلُ` 是入口。`بِجَانِبِ` 意为旁边，`الْمَخْبَزِ` 是面包店。地点短语以地标说明入口位置，不用另加现在时的“是”。"
+        note: 可以把地标换成表示办公室的 `الْمَكْتَبِ`：`الْمَدْخَلُ بِجَانِبِ
+          الْمَكْتَبِ`。旁边不等于里面。试一试：听话人应往哪里找？答案：面包店旁边，不是里面；关系短语说明了这一区别。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+    - madinahNominalTeaching20261007
+    - madinahPossessiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+        - madinahNominalTeaching20261007
+        - madinahPossessiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: asking_information
+      explanation: 询问时刻有助于安排行动，例如在商店关门前赶到。`أَيّ سَاعَة` 意为几点。问句其余部分指出你需要据此安排的事件。这里问的是商店何时关门。
+      examples:
+        - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
+          meaning: "**例句。** “商店几点关门？” `أَيّ سَاعَة` 问哪个小时；在这个口语句式里，`بِيْسَكِّرْ` 意为关门；`الْمَحَلّ` 是商店。注意这个普通现在时动词带 b-
+            前缀。"
+          note: |-
+            **组成回答。** 在这个口语范例中，`عَ السَّاعَة خَمْسِة` 意为五点。单说时间短语就能回答。
+
+            **练一练。** 只回答“是”够吗？不够；要给关门时刻。疑问词已经告诉你缺少哪种信息。
+    - subskill_id: answering_information
+      explanation: 别人问商店几点关门，缺少的就是时刻。因为问句已经说明商店和动作，一个时间短语就能成为完整的对话回答。
+      examples:
+        - text: عَ السَّاعَة خَمْسِة.
+          meaning: "**例句。** 五点钟。`عَ` 引出时刻；`السَّاعَة` 意为小时，`خَمْسِة` 是五。整个短语给出五点。在这个口语钟点句式里用这个数字，回答不必重复“关门”。"
+          note: 六点用 `عَ السَّاعَة سِتِّة`。若钟点有歧义，可补上上午或晚上的背景。试一试：这个短语表示商店营业持续五小时吗？答案：不是；它给出钟面上的时刻，不是时长。
+    - subskill_id: checking_facts
+      explanation: 你认为商店今天关门，但安排计划前想确认。先说出你相信的信息，再加一个简短问题，听话人便能确认或纠正。
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
+          meaning: "**例句。** 商店今天关门，对吗？`الْمَحَلّ مْسَكَّرْ` 意为商店关着；`الْيَوْمْ` 是今天。结尾的 `صَحّ؟`
+            意为对吧？它邀请对方确认前面的陈述，而不是要求开启一个新话题。"
+          note: 若没有 `صَحّ؟`，这些词可能只是宣布商店关门。疑问语调使信息仍可被纠正。试一试：把今天改成明天。答案：`الْمَحَلّ مْسَكَّرْ بُكْرَا، صَحّ؟`；日期改变，确认请求仍在。
+    - subskill_id: useful_detail
+      explanation: 听话人正在找入口。说出附近的地标，能帮对方把这个入口与别处区分开，因此细节直接服务于接下来的找路行动。
+      examples:
+        - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
+          meaning: "**例句。** 入口在面包店旁边。`الْمَدْخَلْ` 是入口，`جَنْبْ` 意为旁边，`الْمَخْبَزْ`
+            是面包店。地标跟在位置词后面。整句告诉听话人该去哪里找，而不只是列出两处地点。"
+          note: 若地标是办公室，用 `الْمَدْخَلْ جَنْبْ الْمَكْتَبْ`。保留关系词，新地标才有用。试一试：如果只说面包店，会缺少什么？答案：面包店与入口的相对关系；`جَنْبْ`
+            正是提供这种关系的词。

@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-portuguese-2026-10-07
+skill_id: coordinating_action
+language: english
+explanation_language: portuguese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-portuguese.yaml
+sections:
+  - subskill_id: requests
+    explanation: Um pedido solicita que outra pessoa faça algo. Quando você está com as mãos ocupadas,
+      pode precisar que alguém segure uma caixa por pouco tempo. A pergunta com `Could you` torna o
+      pedido menos direto que uma instrução como `Hold this box`.
+    examples:
+      - text: Could you hold this box for a moment?
+        meaning: "`Could you` se dirige à pessoa que ajudará; `hold this box` indica a ação. `For a moment`
+          mostra que a ajuda será breve. Depois de `could`, use a forma básica `hold`, sem `to`."
+        note: "`Could you hold this box?` pede que a outra pessoa aja. `Could I put this box here?` pede
+          permissão para uma ação sua. Uma resposta possível é `Sure`, seguida de pegar a caixa.
+          **Pratique.** Peça educadamente que alguém feche uma porta. Resposta: `Could you close the
+          door, please?` A pessoa é `you`, e `close` permanece na forma básica."
+  - subskill_id: offers_invitations
+    explanation: Um convite dá a alguém a escolha de participar de uma atividade. Se o seu grupo vai
+      almoçar, `Would you like to` acolhe outra pessoa sem presumir que ela irá. A mesma abertura
+      pode oferecer algo que a pessoa talvez queira.
+    examples:
+      - text: Would you like to join us for lunch?
+        meaning: "`Would you like to` introduz a ação proposta. `Join us` significa participar com o nosso
+          grupo; `for lunch` indica a ocasião. Mantenha `to` antes de `join` nessa expressão."
+        note: "Compare com `Would you like some tea?`: depois de `like` vem uma coisa, portanto não há verbo
+          de ação nem `to`. Para oferecer sua própria ajuda, use `Shall I carry that?`; agora você
+          faria a ação. **Pratique.** Convide um amigo para uma caminhada. Resposta: `Would you like
+          to go for a walk?` Use `to go` porque caminhar é a atividade proposta. `Yes, thanks`
+          aceita; `Sorry, I cannot today` recusa."
+  - subskill_id: suggestions
+    explanation: Uma sugestão apresenta uma opção para uma decisão conjunta. Ao escolher um caminho,
+      você pode mencionar uma rota mais tranquila sem insistir nela. `We could` apresenta uma
+      possibilidade para o grupo considerar.
+    examples:
+      - text: We could take the quieter route.
+        meaning: "`We` inclui quem fala e seus acompanhantes. `Could take` propõe uma ação possível; `the
+          quieter route` identifica uma rota menos barulhenta que outra. Depois de `could`, o verbo
+          da ação é `take`, não `to take`."
+        note: "`We should take the quieter route` recomenda essa escolha com mais força. `We will take it`
+          pode anunciar uma decisão. Uma sugestão ainda permite uma resposta como `Good idea` ou
+          `That takes too long`. **Pratique.** Sugira ir de ônibus sem anunciar uma decisão.
+          Resposta: `We could take the bus`. `Could` mantém a ideia como opção para discutir."
+  - subskill_id: commitments
+    explanation: Um compromisso informa a outra pessoa sobre uma ação com a qual pode contar. Se um
+      amigo precisa de um endereço, dizer que você o enviará hoje à noite pode definir quem cuidará
+      da tarefa. `I will` pode expressar essa decisão ou promessa.
+    examples:
+      - text: I will send you the address tonight.
+        meaning: "`I` identifica quem assume a responsabilidade. `Will send` expressa o compromisso nesta
+          conversa; `you` é o destinatário, `the address` é o que será enviado e `tonight` indica
+          quando. A contração cotidiana é `I’ll`."
+        note: "O contexto distingue compromisso de previsão. `It will rain tonight` prevê o tempo; não
+          promete uma ação. Um compromisso útil identifica uma tarefa e um prazo que você pode
+          cumprir. **Pratique.** Um amigo pede que você ligue amanhã, e você concorda. Resposta:
+          `I’ll call you tomorrow`. Depois de `Will`, use a forma básica `call`; `tomorrow` deixa o
+          prazo claro."
+  - subskill_id: accepting_declining
+    explanation: Uma resposta clara permite que a outra pessoa saiba se deve incluir você no plano.
+      Quando convidado para jantar, você pode agradecer ao anfitrião e dizer que não pode ficar. Uma
+      justificativa breve é opcional; não é preciso dar uma longa desculpa.
+    examples:
+      - text: Thanks, but I cannot stay for dinner.
+        meaning: "`Thanks` reconhece o convite cordialmente. `But` introduz a limitação; `cannot stay` diz
+          que você não pode permanecer, e `for dinner` identifica o convite recusado. Na fala
+          cotidiana, `can’t` é comum."
+        note: "`Thanks, I’d love to` aceita um convite. `Maybe` deixa a resposta em aberto; evite-o se você
+          já sabe que não pode ir. Você pode propor uma alternativa: `Could we have lunch tomorrow?`
+          **Pratique.** Recuse o convite para ficar e tomar café. Uma resposta: `Thanks, but I can’t
+          stay for coffee`. Ela mantém o agradecimento e declara a recusa diretamente."
+  - subskill_id: negotiating_plans
+    explanation: Negociar um plano é encontrar uma opção que funcione para as duas pessoas. Se cinco
+      horas é cedo demais, proponha seis sem mudar o encontro. Uma alternativa específica é mais
+      fácil de responder do que apenas dizer que o plano não funciona.
+    examples:
+      - text: Could we meet at six instead of five?
+        meaning: "`Could we meet` pede ao grupo que considere uma mudança. `At six` propõe o horário novo;
+          `instead of five` identifica o horário substituído. Depois de `could`, `meet` permanece na
+          forma básica."
+        note: "`At six or five?` apresenta uma escolha sem propor claramente a substituição. `Instead of`
+          torna explícita a mudança pretendida. A outra pessoa pode aceitar ou responder `Six is too
+          late. How about half past five?` **Pratique.** Mantenha a atividade, mas passe o encontro
+          de segunda para quarta-feira. Resposta: `Could we meet on Wednesday instead of Monday?`
+          Use `on` com dias e `at` com horas."
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+        - bcCanCouldTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

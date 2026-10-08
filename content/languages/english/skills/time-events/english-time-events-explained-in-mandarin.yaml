@@ -1,0 +1,200 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: time_events
+language: english
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 现在相关的事件既包括经常发生的情况，也包括此刻正在发生的事。描述别人的工作时，通常是说她平时在哪里上班，即使她今天待在家里。一般现在时适合表达这种常态。
+    examples:
+      - text: She works at the museum.
+        meaning: "`She` 指做事的人。`Works` 带有对应 `she` 的词尾；`at the museum` 说明工作地点。主语换成 `I` 或 `they` 时用 `work`：`They work at
+          the museum`。这并不是说他们此刻正在工作。"
+        note: >-
+          `She is working at the museum today` 突出今天这个时段正在进行的活动。若否定常规工作，说 `She doesn’t work at the
+          museum`；`doesn’t` 后的 `work` 保持原形。
+
+
+          **练一练。** 描述你兄弟平时在图书馆工作。答案：`He works at the library`。`He` 搭配 `works`，即使说的是职业，而非眼下正在做的动作。
+  - subskill_id: past_events
+    explanation: 过去事件告诉别人较早时候发生了什么。讲昨天的出行时，时间短语和动词形式都帮助把行程定位在过去。只加一个过去时间词，通常不能让动词仍保持现在形式。
+    examples:
+      - text: Yesterday we went to the harbour.
+        meaning: "`Yesterday` 给出时间。`We` 指出行的人；`went` 是 `go` 的过去式，`to the harbour` 给出目的地。主语换了，`Went` 仍一样：`I went`、`she
+          went`、`they went`。"
+        note: |-
+          有些过去式加 `-ed`，例如 `walked`；`go` 则是不规则的 `went`。问句中由 `did` 承担过去时间：`Did you go?`，不用错误的 `Did you went?`。
+
+          **练一练。** 描述你昨天去市场。答案：`Yesterday I went to the market`。已完成的过去行程用 `went`。
+  - subskill_id: future_events
+    explanation: 谈未来时，可以说约定、打算或预测。如果已经约好明天在哪里见面，现在进行时可以呈现这个确定的安排。未来时间短语表明见面不是正在发生。
+    examples:
+      - text: We are meeting at the station tomorrow.
+        meaning: "`We are meeting` 由 `are` 和 `meeting` 组成。`At the station` 给出地点，`tomorrow`
+          把安排放在未来。若主语换成一个人，连接形式也要变：`She is meeting us tomorrow`。"
+        note: |-
+          `We are going to meet` 可以描述打算。`I’ll meet you there` 可以表达说话当下做出的决定。这些形式有重叠之处，具体情境帮助选择；并非任何句子都能互换。
+
+          **练一练。** 描述已安排的明日晚餐。答案：`We are having dinner tomorrow`。`Are having` 呈现安排，`tomorrow` 给出未来时间。
+  - subskill_id: duration_frequency
+    explanation: 持续时长回答活动进行了多久，频率回答活动发生得多经常。描述练习习惯时，两种信息可能都需要。听话人才能区分每天短练与偶尔长练。
+    examples:
+      - text: I practise for twenty minutes every evening.
+        meaning: "`I practise` 说出常规活动。`For twenty minutes` 给出每次时长，`every evening` 说明每晚都做。两个短语可以各自替换：`for ten minutes
+          every morning` 描述另一种安排。"
+        note: >-
+          `For` 引出一段时长。`Since Monday` 则给出起点，例如 `I have practised every day since Monday`。不能把 `for twenty
+          minutes` 错换成 `since twenty minutes`。
+
+
+          **练一练。** 描述每天阅读半小时。答案：`I read for thirty minutes every day`。`For thirty minutes` 回答多久，`every day`
+          回答多常。
+  - subskill_id: event_sequence
+    explanation: 先后顺序能帮助听话人重构发生的事，或依次完成步骤。讲旅行时，说明先做什么，才能避免误以为出租车到来时行李还没准备好。
+    examples:
+      - text: First we packed, then we called a taxi.
+        meaning: "`First` 标出打包是第一个动作。`Packed` 表示已完成的过去动作；`then` 引出下一步 `called a
+          taxi`。两个动词都有规则过去式词尾。句子说明顺序，没有说前一件事导致后一件。"
+        note: >-
+          也可以用 `After we packed, we called a taxi` 表达同样顺序。`Before we packed, we called a taxi`
+          则把顺序颠倒。若是发指令，动词用原形：`First pack, then call a taxi`。
+
+
+          **练一练。** 排列两件过去的事：先吃，后来离开。答案：`First I ate, then I left`。过去式标明较早发生，`first` 和 `then` 排列先后。
+  - subskill_id: event_phase
+    explanation: 事件可以从进行中观看，也可以当作整体来看。解释停电时，你可能想说当时正在做什么；持续中的活动为突然发生的事提供背景。
+    examples:
+      - text: I was cooking when the lights went out.
+        meaning: "`I was cooking` 把做饭放在相关的过去时刻，表明当时正在进行。`Was` 与 `I` 搭配；`cooking` 是持续中的动作。`When the lights went out`
+          引出其间发生的事；这里 `went out` 指灯不再发光。"
+        note: |-
+          `I cooked dinner` 把做饭呈现为整体的过去事件。单说 `I was cooking` 并不能说明饭已做完。若有好几个人，用 `We were cooking`。
+
+          **练一练。** 电话响时你正在读书。答案：`I was reading when the phone rang`。`Was reading` 给出持续的背景，`rang` 标出期间发生的事件。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_present2026
+        - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_present2026
+        - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - bc_present2026
+    - bc_past2026
+    - bcPresentSimpleTeaching20261007
+    - bcPastContinuousTeaching20261007
+    - bcFutureTeaching20261007
+    - bcDurationTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.
+variety_sections:
+  english-united-states:
+    - subskill_id: present_events
+      explanation: 现在相关的事件既包括经常发生的情况，也包括此刻正在发生的事。描述别人的工作时，通常是说她平时在哪里上班，即使她今天待在家里。一般现在时适合表达这种常态。
+      examples:
+        - text: She works at the museum.
+          meaning: "`She` 指做事的人。`Works` 带有对应 `she` 的词尾；`at the museum` 说明工作地点。主语换成 `I` 或 `they` 时用 `work`：`They work at
+            the museum`。这并不是说他们此刻正在工作。"
+          note: >-
+            `She is working at the museum today` 突出今天这个时段正在进行的活动。若否定常规工作，说 `She doesn’t work at the
+            museum`；`doesn’t` 后的 `work` 保持原形。
+
+
+            **练一练。** 描述你兄弟平时在图书馆工作。答案：`He works at the library`。`He` 搭配 `works`，即使说的是职业，而非眼下正在做的动作。
+    - subskill_id: past_events
+      explanation: 过去事件告诉别人较早时候发生了什么。讲昨天的出行时，时间短语和动词形式都帮助把行程定位在过去。只加一个过去时间词，通常不能让动词仍保持现在形式。
+      examples:
+        - text: Yesterday we went to the harbor.
+          meaning: "`Yesterday` 给出时间。`We` 指出行的人；`went` 是 `go` 的过去式，`to the harbor` 给出目的地。主语换了，`Went` 仍一样：`I went`、`she
+            went`、`they went`。"
+          note: |-
+            有些过去式加 `-ed`，例如 `walked`；`go` 则是不规则的 `went`。问句中由 `did` 承担过去时间：`Did you go?`，不用错误的 `Did you went?`。
+
+            **练一练。** 描述你昨天去市场。答案：`Yesterday I went to the market`。已完成的过去行程用 `went`。
+    - subskill_id: future_events
+      explanation: 谈未来时，可以说约定、打算或预测。如果已经约好明天在哪里见面，现在进行时可以呈现这个确定的安排。未来时间短语表明见面不是正在发生。
+      examples:
+        - text: We are meeting at the station tomorrow.
+          meaning: "`We are meeting` 由 `are` 和 `meeting` 组成。`At the station` 给出地点，`tomorrow`
+            把安排放在未来。若主语换成一个人，连接形式也要变：`She is meeting us tomorrow`。"
+          note: |-
+            `We are going to meet` 可以描述打算。`I’ll meet you there` 可以表达说话当下做出的决定。这些形式有重叠之处，具体情境帮助选择；并非任何句子都能互换。
+
+            **练一练。** 描述已安排的明日晚餐。答案：`We are having dinner tomorrow`。`Are having` 呈现安排，`tomorrow` 给出未来时间。
+    - subskill_id: duration_frequency
+      explanation: 持续时长回答活动进行了多久，频率回答活动发生得多经常。描述练习习惯时，两种信息可能都需要。听话人才能区分每天短练与偶尔长练。
+      examples:
+        - text: I practice for twenty minutes every evening.
+          meaning: "`I practice` 说出常规活动。`For twenty minutes` 给出每次时长，`every evening` 说明每晚都做。两个短语可以各自替换：`for ten minutes
+            every morning` 描述另一种安排。"
+          note: >-
+            `For` 引出一段时长。`Since Monday` 则给出起点，例如 `I have practiced every day since Monday`。不能把 `for twenty
+            minutes` 错换成 `since twenty minutes`。
+
+
+            **练一练。** 描述每天阅读半小时。答案：`I read for thirty minutes every day`。`For thirty minutes` 回答多久，`every day`
+            回答多常。
+    - subskill_id: event_sequence
+      explanation: 先后顺序能帮助听话人重构发生的事，或依次完成步骤。讲旅行时，说明先做什么，才能避免误以为出租车到来时行李还没准备好。
+      examples:
+        - text: First we packed, then we called a taxi.
+          meaning: "`First` 标出打包是第一个动作。`Packed` 表示已完成的过去动作；`then` 引出下一步 `called a
+            taxi`。两个动词都有规则过去式词尾。句子说明顺序，没有说前一件事导致后一件。"
+          note: >-
+            也可以用 `After we packed, we called a taxi` 表达同样顺序。`Before we packed, we called a taxi`
+            则把顺序颠倒。若是发指令，动词用原形：`First pack, then call a taxi`。
+
+
+            **练一练。** 排列两件过去的事：先吃，后来离开。答案：`First I ate, then I left`。过去式标明较早发生，`first` 和 `then` 排列先后。
+    - subskill_id: event_phase
+      explanation: 事件可以从进行中观看，也可以当作整体来看。解释停电时，你可能想说当时正在做什么；持续中的活动为突然发生的事提供背景。
+      examples:
+        - text: I was cooking when the lights went out.
+          meaning: "`I was cooking` 把做饭放在相关的过去时刻，表明当时正在进行。`Was` 与 `I` 搭配；`cooking` 是持续中的动作。`When the lights went out`
+            引出其间发生的事；这里 `went out` 指灯不再发光。"
+          note: |-
+            `I cooked dinner` 把做饭呈现为整体的过去事件。单说 `I was cooking` 并不能说明饭已做完。若有好几个人，用 `We were cooking`。
+
+            **练一练。** 电话响时你正在读书。答案：`I was reading when the phone rang`。`Was reading` 给出持续的背景，`rang` 标出期间发生的事件。

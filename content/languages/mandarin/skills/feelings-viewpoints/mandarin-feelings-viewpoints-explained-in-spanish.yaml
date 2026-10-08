@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: feelings_viewpoints
+explanation_language: spanish
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-spanish.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Reparar una bicicleta puede ser una habilidad que quieras aprender antes de saber
+      hacerlo. `想` delante de una actividad expresa ese deseo; `学` introduce lo que quieres
+      aprender.
+    examples:
+      - text: 我想学修自行车。
+        meaning: "**El ejemplo.** Quiero aprender a reparar bicicletas. `我想` significa quiero, `学`,
+          aprender, y `修自行车`, reparar bicicletas. Toda la actividad de reparación sigue a `学`; `想`
+          se aplica a aprenderla."
+        note: "Prueba a decir que el grupo quiere aprender esta habilidad. Respuesta: `我们想学修自行车。` Cambia `我`
+          por `我们` sin cambiar ninguna terminación verbal. `我会修自行车` dice que ya sabes hacerlo; `我想学`
+          expresa el deseo de adquirir la habilidad."
+  - subskill_id: preferences
+    explanation: Al elegir una bebida, puedes nombrar primero las alternativas y después expresar tu
+      preferencia. `更喜欢` identifica la opción que te gusta más, no una diferencia de precio o de
+      tamaño.
+    examples:
+      - text: 咖啡和红茶，我更喜欢红茶。
+        meaning: "**El ejemplo.** Entre el café y el té negro, prefiero el té negro. `咖啡和红茶` presenta el
+          café y el té negro; `和` une las dos opciones. `我更喜欢红茶` dice que te gusta más el té negro.
+          `更` va antes de `喜欢` y la bebida preferida va después."
+        note: "Prueba a preferir el café. Respuesta: `咖啡和红茶，我更喜欢咖啡。` Cambia solo la bebida después de `更喜欢`.
+          `我喜欢红茶` expresa que te gusta el té negro, pero por sí sola no lo compara con el café."
+  - subskill_id: emotions
+    explanation: Una buena noticia puede provocar una emoción que quieras compartir. Primero se menciona
+      haberla oído y después tu reacción emocional. `高兴` expresa alegría directamente, sin necesitar
+      otro verbo que vincule el sujeto con el adjetivo.
+    examples:
+      - text: 听到这个消息，我很高兴。
+        meaning: "**El ejemplo.** Me alegra oír esta noticia. `听到` significa oír, con `到` marcando que la
+          noticia llega a ti. `这个消息` significa esta noticia. Después de la coma, `我很高兴` presenta la
+          reacción: estoy contento. Aquí `很` no necesariamente enfatiza mucho la alegría."
+        note: "Prueba a expresar la alegría del grupo. Respuesta: `听到这个消息，我们很高兴。` Cambia la persona que
+          siente la emoción por `我们`; la expresión sobre oír la noticia se mantiene. `我听到这个消息` solo
+          informa de haber oído la noticia y no expresa el sentimiento."
+  - subskill_id: opinions
+    explanation: Después de hablar de una forma de resolver un problema, puedes dar tu propia
+      valoración. `我觉得` presenta lo que sigue como tu juicio y `不错` expresa una evaluación positiva.
+    examples:
+      - text: 我觉得这个办法不错。
+        meaning: "**El ejemplo.** Creo que este método está bastante bien. `这个办法` significa este método o
+          esta forma de abordar el problema. `不错` contiene literalmente no y equivocado, pero aquí
+          es la valoración positiva habitual no está mal. `觉得` introduce esa evaluación y no se
+          refiere al tacto."
+        note: "Prueba a evaluar otro método. Respuesta: `我觉得那个办法不错。` Sustituye `这个` por `那个`. `这个办法很贵` dice
+          que el método es caro; añadir `我觉得` presenta esa evaluación como tu propio juicio."
+  - subskill_id: agreement_disagreement
+    explanation: Alguien ha opinado sobre un método y tú compartes su punto de vista. `也` te añade a las
+      personas que lo piensan; `这么` remite a la opinión ya expresada.
+    examples:
+      - text: 我也这么想。
+        meaning: "**El ejemplo.** Yo también lo pienso. `我` significa yo, `也`, también, `这么`, así, y `想`
+          significa pensar aquí. El orden coloca `也` antes de la expresión de pensamiento. La otra
+          persona necesita la opinión anterior para saber con qué estás de acuerdo."
+        note: "Prueba a expresar desacuerdo. Respuesta: `我不这么想。` Sustituye `也` por `不`; ya no compartes la
+          opinión. `我明白了` dice que ahora entiendes la explicación, lo cual puede ser cierto aunque
+          no estés de acuerdo."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

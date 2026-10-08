@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: coordinating_action
+explanation_language: spanish
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-spanish.yaml
+sections:
+  - subskill_id: requests
+    explanation: Cuando una caja bloquea la zona de trabajo, una petición puede indicar exactamente
+      adónde debe ir. `请` da cortesía a una petición directa y `把` coloca el objeto conocido antes
+      de la acción y su destino.
+    examples:
+      - text: 请把这个箱子搬到门口。
+        meaning: "**El ejemplo.** Lleva esta caja hasta la entrada, por favor. `这个箱子` significa esta caja,
+          introducida por `把`. `搬` significa mover o transportar un objeto voluminoso, `到` introduce
+          su destino y `门口` significa la entrada. `搬到门口` dice qué debe hacerse con la caja."
+        note: "Prueba a pedir que lleven otra caja al mismo destino. Respuesta: `请把那个箱子搬到门口。` Sustituye `这个`
+          por `那个`; conserva la acción y el destino completos. `请搬箱子` solo pide mover cajas, sin
+          identificar esta caja ni dónde debe quedar."
+  - subskill_id: offers_invitations
+    explanation: Un acompañante tiene herramientas que llevar y puedes ofrecer ayuda. `要不要` pregunta si
+      quiere la ayuda propuesta. Quien ayuda es explícitamente `我`, así que ofreces actuar tú en vez
+      de pedir que actúe la otra persona.
+    examples:
+      - text: 要不要我帮你拿工具？
+        meaning: "**El ejemplo.** ¿Quieres que te ayude a llevar las herramientas? `要不要` plantea querer o no
+          querer. `我帮你` significa yo te ayudo y `拿工具`, llevar o tomar las herramientas. Los papeles
+          quedan claros: yo ayudo, tú recibes ayuda y se transportan las herramientas."
+        note: "Prueba a ofrecer ayuda para llevar una bolsa. Respuesta: `要不要我帮你拿包？` Sustituye `工具` por `包`.
+          `你能帮我拿工具吗？` invierte los papeles y pide a la otra persona que te ayude."
+  - subskill_id: suggestions
+    explanation: Después de caminar un rato, el grupo puede necesitar un descanso breve. `我们` te incluye
+      en la actividad propuesta. El `吧` final presenta el descanso como una sugerencia que el grupo
+      puede aceptar.
+    examples:
+      - text: 我们在这里休息一下吧。
+        meaning: "**El ejemplo.** Descansemos aquí un momento. `在这里` significa aquí y precede a `休息`,
+          descansar. `一下` hace que el descanso se presente como breve, mientras que `吧` da a la
+          propuesta su tono conversacional. La oración no informa de que el grupo ya esté
+          descansando."
+        note: "Prueba a sugerir un descanso allí. Respuesta: `我们在那里休息一下吧。` Sustituye `这里` por `那里` y
+          conserva el lugar antes de la acción. `我们在这里休息` puede afirmar dónde descansa el grupo;
+          aquí el `吧` final hace explícita la propuesta."
+  - subskill_id: commitments
+    explanation: Al repartir las tareas de mañana, ofrecerte a llevar herramientas aclara quién asume
+      esa responsabilidad. `我来` te asigna la tarea en este contexto de planificación. Aquí `来` no
+      exige un desplazamiento aparte hacia la otra persona.
+    examples:
+      - text: 明天我来带工具。
+        meaning: "**El ejemplo.** Yo llevaré las herramientas mañana. `明天` significa mañana, `我来` indica que
+          te haces cargo y `带工具` significa llevar las herramientas. Primero se expresa el momento y
+          después la persona que se ofrece y la tarea. No se añade una terminación verbal de
+          futuro."
+        note: "Prueba a ofrecerte a llevar agua. Respuesta: `明天我来带水。` Sustituye `工具` por `水`; conserva `我来`
+          en la conversación de reparto de tareas. `明天可能下雨` pronostica un suceso posible y no ofrece
+          a nadie para asumir una responsabilidad."
+  - subskill_id: accepting_declining
+    explanation: Puede que no puedas aceptar una invitación para esta noche. Una disculpa breve seguida
+      del problema para asistir deja clara la negativa. `来不了` expresa que no puedes ir.
+    examples:
+      - text: 不好意思，我今晚来不了。
+        meaning: "**El ejemplo.** Perdona, no puedo ir esta noche. `不好意思` abre con una disculpa, `我今晚` sitúa
+          a quien habla esta noche y `来不了` significa no poder ir o venir. En esta expresión, `了` se
+          lee `liǎo`, no como la partícula oracional `le`; toda la terminación expresa la
+          imposibilidad de realizar la acción."
+        note: "Prueba a rechazar una invitación para mañana por la noche. Respuesta: `不好意思，我明晚来不了。`
+          Sustituye `今晚` por `明晚`. `我今晚不来` dice que no vas a ir, sin expresar el mismo impedimento o
+          imposibilidad que `来不了`."
+  - subskill_id: negotiating_plans
+    explanation: Alguien propone quedar el viernes, pero ese día no te viene bien. Nombrar una
+      alternativa mantiene abierto el plan. `怎么样` después del día nuevo pregunta qué le parece esa
+      opción a la otra persona.
+    examples:
+      - text: 周五不行，周六怎么样？
+        meaning: "**El ejemplo.** El viernes no me viene bien. ¿Qué tal el sábado? `周五` significa viernes y
+          `不行` lo descarta. `周六` significa sábado, seguido de `怎么样`, qué tal. La reunión puede
+          quedar implícita porque ya se está hablando de ella."
+        note: "Prueba a proponer el domingo. Respuesta: `周五不行，周日怎么样？` Cambia solo el día alternativo. `周六可以`
+          dice que el sábado viene bien; `周六怎么样` invita a la otra persona a responder antes de
+          decidirlo."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

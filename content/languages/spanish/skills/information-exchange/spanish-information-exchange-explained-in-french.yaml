@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: information_exchange
+language: spanish
+explanation_language: french
+shared_explanation: skills/information-exchange/information-exchange-explained-in-french.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Une question d’information précise ce que vous cherchez à apprendre. L’espagnol emploie `dónde`
+      pour un lieu, `cuándo` pour un moment et `qué` pour une chose ou une explication. Dans l’exemple,
+      l’information manquante est la position de la gare. Les questions sur le lieu où se trouve une personne
+      ou un objet utilisent une forme de `estar`.
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: "**Fonctionnement.** « Où est la gare ? » comporte trois éléments : `dónde` demande le lieu, `está`
+          est le verbe au singulier et `la estación` désigne l’endroit cherché. Gardez les accents de `dónde`
+          et de `está`, ainsi que les deux points d’interrogation."
+        note: >-
+          **Changez le nombre.** `¿Dónde están las llaves?` demande où sont les clés. `están` et `las llaves`
+          sont tous deux au pluriel. Une réponse peut donner seulement le lieu : `En la mesa`, sur la table.
+
+
+          **À vous.** Demandez où sont les toilettes en utilisant `el baño`. Réponse : `¿Dónde está el baño?`
+          Employez `está` au singulier, car vous demandez où se trouve un seul endroit.
+  - subskill_id: answering_information
+    explanation: Quand quelqu’un vous demande où vous êtes, une courte indication de lieu peut fournir toute
+      l’information nécessaire. La question donne déjà la personne et le verbe ; la réponse peut donc
+      simplement nommer le lieu. C’est une réponse naturelle dans une conversation.
+    examples:
+      - text: En casa.
+        meaning: « À la maison. » `En` introduit le lieu et `casa` signifie ici le domicile. Après `¿Dónde estás?`, la
+          formule répond à la question du lieu où se trouve la personne qui répond. Dans cette expression
+          courante, `En casa` ne comporte pas d’article.
+        note: >-
+          **Comparez.** `En la casa de Ana` désigne une maison précise : celle d’Ana. Une réponse de lieu ne
+          répondrait pas à `¿Cuándo llegas?`, qui demande quand vous arrivez.
+
+
+          **À vous.** Répondez à `¿Dónde estás?` par « au parc » avec `el parque`. Réponse : `En el parque`.
+          Gardez l’article de ce groupe nominal.
+  - subskill_id: checking_facts
+    explanation: Si vous pensez qu’un visiteur arrive à huit heures, vous pouvez vérifier ce détail plutôt que
+      poser une question entièrement ouverte. En espagnol, l’intonation et les points d’interrogation écrits
+      peuvent transformer une affirmation ordinaire en question fermée.
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: « Tu arrives à huit heures ? » `Llegas` signifie « tu arrives » et `a las ocho` donne l’heure. Ici,
+          le présent évoque une arrivée prévue. Il n’y a pas de verbe interrogatif supplémentaire
+          correspondant au « do » anglais.
+        note: >-
+          **Comparez.** `¿A qué hora llegas?` demande l’heure sans proposer huit heures. Une correction utile
+          est `No, a las nueve`. Pour une heure, l’expression est `a la una`, avec un article au singulier.
+
+
+          **À vous.** Vérifiez si l’arrivée est à neuf heures. Réponse : `¿Llegas a las nueve?`. Remplacez
+          uniquement l’heure.
+  - subskill_id: useful_detail
+    explanation: Dans des indications d’itinéraire, un seul repère peut laisser planer un doute sur le lieu visé.
+      Un second repère peut préciser sa position. En espagnol, on peut combiner des expressions de lieu pour
+      décrire le même endroit à partir de deux points de référence utiles.
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: « C’est à côté de la banque, en face du parc. » `Está` renvoie au lieu déjà évoqué. `Al lado del
+          banco` signifie à côté de la banque ; `frente al parque` signifie en face du parc. `Del` réunit `de`
+          et `el` ; `al` réunit `a` et `el`.
+        note: >-
+          **Adaptez.** `Está al lado de la farmacia` remplace le repère par la pharmacie. `De la` reste séparé
+          : seule la rencontre de `de el` se contracte en `del`. Choisissez des repères que votre
+          interlocuteur peut trouver.
+
+
+          **À vous.** Dites que l’endroit est en face de la banque. Réponse : `Está frente al banco`.
+          L’expression emploie `a`, qui se combine avec `el`.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

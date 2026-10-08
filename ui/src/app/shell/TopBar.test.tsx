@@ -7,8 +7,15 @@ import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
 import type { Settings } from '../../types'
+import type { EffortAward } from '../../generated/contracts'
+import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
+import { skillDemo } from '../../domain/learning/catalog/skillDemo'
+import { EffortProgressContext } from '../../state/learning/EffortProgressContext'
+import { playRewardSound } from '../../platform/audio/reward-sounds'
 
-vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
+const evidence = vi.hoisted(() => ({ snapshot: null as SkillSnapshot | null }))
+vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => evidence }))
+vi.mock('../../platform/audio/reward-sounds', () => ({ playRewardSound: vi.fn() }))
 vi.mock('../../platform/ipc/skill-evidence', () => ({ getLanguageTotals: vi.fn(async () => [
   { target: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: 12, conversations: 2, partnerUnderstood: 1, explorations: 0, bot: 0, revisionsSent: 0, practiceAttempts: 3 },
   { target: 'french', name: 'French', nativeName: 'Français', languageTag: 'fr', xp: 30, conversations: 1, partnerUnderstood: 0, explorations: 0, bot: 0, revisionsSent: 0, practiceAttempts: 0 },
@@ -17,6 +24,7 @@ vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
   {code:'spanish',base:'spanish',name:'Spanish',endonym:'Español',defaultVariety:'spanish-mexico',varieties:[{id:'spanish-mexico',label:'Mexico'}]}, {code:'french',base:'french',name:'French',endonym:'Français',defaultVariety:'french-france',varieties:[{id:'french-france',label:'France'}]}
 ] }))
 beforeEach(() => {
+  evidence.snapshot = null
   useConnectionHealth.setState({ routes: {} })
   useNavigationStore.setState(useNavigationStore.getInitialState())
   useSessionStore.setState(useSessionStore.getInitialState())
@@ -115,4 +123,65 @@ it('shows the total across languages behind a globe, and every language with its
   const card = screen.getByRole('dialog', { name: 'All languages' })
   expect(within(card).getAllByRole('row').slice(1).map(row => within(row).getByRole('rowheader').textContent)).toEqual(['FRFrench', 'ESSpanish', 'Total'])
   expect(within(card).getByRole('button', { name: 'Practice' })).toBeVisible()
+})
+
+/// jsdom has no layout. In this model the language's own name needs 60px; its
+/// box has `room` pixels while the XP number shows, and 40px more once the pill
+/// folds to the skill level. A folded XP button has no boxes, as under display: none.
+function measureBar(room: () => number) {
+  const resized: Array<() => void> = []
+  vi.stubGlobal('ResizeObserver', class {
+    constructor(callback: () => void) { resized.push(callback) }
+    observe() {} unobserve() {} disconnect() {}
+  })
+  const folded = (element: Element) => element.closest('.topbar')?.getAttribute('data-fit') === 'compact-progress'
+  const spies = [
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      return { width: this.matches('.learning-picker-endonym') ? 60 : 0, height: 0, top: 0, left: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON() {} } as DOMRect
+    }),
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
+      return this.matches('.learning-picker-identity > span:first-child') ? room() + (folded(this) ? 40 : 0) : 0
+    }),
+    vi.spyOn(Element.prototype, 'getClientRects').mockImplementation(function (this: Element) {
+      return (this.matches('.profile-trigger') && folded(this) ? [] : [{}]) as unknown as DOMRectList
+    }),
+  ]
+  return {
+    resize: () => act(() => resized.forEach(callback => callback())),
+    restore: () => { spies.forEach(spy => spy.mockRestore()); vi.unstubAllGlobals() },
+  }
+}
+
+it('folds the progress pill to the skill level while the language’s own name would be cut off, and unfolds it when the bar has room', () => {
+  evidence.snapshot = { ...skillDemo, target: 'spanish' }
+  let room = 40
+  const bar = measureBar(() => room)
+  try {
+    render(<TopBar />)
+    const row = document.querySelector('.topbar')!
+    expect(row).toHaveAttribute('data-fit', 'compact-progress')
+    expect(screen.getByRole('button', { name: 'Skill level 0' })).toBeInTheDocument()
+    room = 80
+    bar.resize()
+    expect(row).toHaveAttribute('data-fit', 'full')
+  } finally {
+    bar.restore()
+  }
+})
+
+it('plays the reward pop on the pill while its XP number is folded away, and on the XP number otherwise', () => {
+  evidence.snapshot = { ...skillDemo, target: 'spanish' }
+  const award: EffortAward = { id: 'award', dimension: 'revisions_sent', sourceId: 'source', language: 'spanish', variety: '', conversationId: null, policy: 'policy', createdAt: '2026-10-07', claimed: false }
+  const effort = { target: 'spanish', value: { target: 'spanish', partnerUnderstood: 0, revisionsSent: 1, practiceAttempts: 0, explorations: 0, bot: 0, recent: [award] }, error: null, arrived: ['award'], effects: true }
+  for (const [room, target] of [[40, '.progress-anchor'], [80, '.profile-trigger']] as const) {
+    vi.mocked(playRewardSound).mockClear()
+    const bar = measureBar(() => room)
+    try {
+      const view = render(<EffortProgressContext value={effort}><TopBar /></EffortProgressContext>)
+      expect(playRewardSound).toHaveBeenCalledExactlyOnceWith({ kind: 'pop' }, document.querySelector(`.topbar ${target}`))
+      view.unmount()
+    } finally {
+      bar.restore()
+    }
+  }
 })

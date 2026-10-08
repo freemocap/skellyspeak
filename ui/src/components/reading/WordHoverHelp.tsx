@@ -60,7 +60,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     request.current?.abort()
     request.current = null
     setResult(null); setFailure(null)
-    if (!blank && known.current.length) return
+    if (!blank && known.current.length && attempt === 0) return
     const controller = new AbortController()
     request.current = controller
     void lookup({ ...selection.scope, text: selection.text, aid }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
@@ -87,7 +87,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
       if (card.isConnected && card.hasAttribute('popover')) card.hidePopover()
     }
   }, [anchor, onClose, layer.popover])
-  const parts = localParts.length ? localParts : result?.gloss?.segments.filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss') ?? []
+  const parts = localParts.length && attempt === 0 ? localParts : result?.gloss?.segments.filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss') ?? []
   const content = <div ref={helper} dir={direction} popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr(blank ? 'Suggested replies' : 'Word help')} data-reading-tools
     onPointerEnter={onEnter} onPointerLeave={() => { if (!pinned) onLeave() }} onClick={event => event.stopPropagation()}>
     <AskCoachButton compact question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${selection.scope.language} passage: “${selection.text}”.`} onClose={onClose} />

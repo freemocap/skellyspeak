@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: information_exchange
+explanation_language: mandarin
+shared_explanation: skills/information-exchange/information-exchange-explained-in-mandarin.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 去商店前，知道它几点关门，才能及时到达。`几点` 用来询问具体时刻，放在回答里的 `五点` 所在的位置。商店仍放在句首。
+    examples:
+      - text: 商店几点关门？
+        meaning: "**例句。** 商店几点关门？`商店` 是营业场所，`几点` 问时刻，`关门` 指结束营业。语序是商店、未知时间、关门动作；疑问词已经使这句话成为问句，末尾不需要 `吗`。"
+        note: 试着问商店几点开门。答案：`商店几点开门？` 把 `关门` 换成 `开门`，意思变为开始营业。`商店五点关门吗？` 则是先提出五点，再用句末 `吗` 询问是否确实如此。
+  - subskill_id: answering_information
+    explanation: 问句已经说明是在问关门时间，因此事件本身很清楚。直接说一个钟点就可以作答。数字后的 `点` 标出时刻，而不是在数物品。
+    examples:
+      - text: 五点。
+        meaning: "**例句。** 五点。`五` 是数字五，`点` 表示钟点。这个简短答案正好补出 `商店几点关门？` 中缺少的时间，不必重复商店和关门动作。"
+        note: 试着回答六点。答案：`六点。` 更换数字，保留 `点`。较完整的回答是 `商店六点关门。` 在询问关门时间后，两种说法都可以；`六个` 是数六件东西，并不是钟点。
+  - subskill_id: checking_facts
+    explanation: 你听说商店五点关门，出门前想确认。`对吗` 跟在待核实的信息之后，询问它是否正确。这样听话人就有一个具体事实可以确认或纠正。
+    examples:
+      - text: 商店五点关门，对吗？
+        meaning: "**例句。** 商店五点关门，对吗？`商店五点关门` 说出商店、时刻和关门这件事。`对` 表示正确，`吗` 构成简短的确认问句。逗号把核实部分与所提出的事实分开。"
+        note: 试着核实六点关门。答案：`商店六点关门，对吗？` 改变待确认的时刻。如果完全不知道时间，`商店几点关门？` 是开放式询问，并没有先给出一个答案请人核实。
+  - subskill_id: useful_detail
+    explanation: 有人问该用哪张桌子时，附近的地标可以区分目标。`靠窗的` 放在名词前描述桌子，`那张` 指向那一张特定的桌子。
+    examples:
+      - text: 请用靠窗的那张桌子。
+        meaning: "**例句。** 请用靠窗的那张桌子。`请用` 是礼貌地请人使用，`靠窗` 表示窗边，`的` 把这个描述连接到 `桌子`。`那` 指那边的，`张` 是这里用于桌子的量词。整段识别桌子的短语跟在 `用`
+          后面。"
+        note: 试着指定门边的桌子。答案：`请用靠门的那张桌子。` 在描述里把 `窗` 换成 `门`。`请用桌子` 只说用桌子，失去了在多张桌子中选出正确一张的线索。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

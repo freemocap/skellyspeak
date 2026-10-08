@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: coordinating_action
+explanation_language: french
+title: Coordonner les actions
+introduction: Demander de l’aide, proposer des idées et convenir ensemble de ce qu’il faut faire.
+sections:
+  - subskill_id: requests
+    title: Demandes
+    concept: Demander à quelqu’un de faire quelque chose ou de cesser de le faire.
+  - subskill_id: offers_invitations
+    title: Offres et invitations
+    concept: Proposer son aide ou inviter quelqu’un à participer.
+  - subskill_id: suggestions
+    title: Suggestions
+    concept: Proposer une action à examiner.
+  - subskill_id: commitments
+    title: Engagements
+    concept: Dire de quelle action on assume la responsabilité.
+  - subskill_id: accepting_declining
+    title: Accepter et refuser
+    concept: Accepter ou décliner une demande, une offre, une invitation ou une suggestion.
+  - subskill_id: negotiating_plans
+    title: Négocier un projet
+    concept: Adapter un projet aux personnes concernées.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

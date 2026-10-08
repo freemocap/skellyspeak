@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: cantonese
+skill_id: information_exchange
+explanation_language: spanish
+shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Antes de visitar la tienda necesitas saber su hora de cierre. `幾點` ocupa el lugar de la
+      hora desconocida en la pregunta; la tienda permanece al principio.
+    examples:
+      - text: 間舖頭幾點閂門？
+        meaning: ¿A qué hora cierra la tienda? `間舖頭` significa la tienda; el clasificador `間` puede señalar
+          el local ya conocido. `幾點` pregunta la hora y `閂門` significa cerrar para el público aquí.
+          La pregunta no propone una hora.
+        note: "**Practica:** pregunta cuándo abre. Respuesta: `間舖頭幾點開門？` Sustituye `閂門` por `開門`. Se puede
+          contestar `六點` o `六點開門`: la hora llena el lugar de `幾點` sin cambiar a otro orden
+          interrogativo."
+  - subskill_id: answering_information
+    explanation: La otra persona acaba de preguntar cuándo cierra la tienda. Como ya conocéis la tienda
+      y la acción, una hora sola puede responder por completo.
+    examples:
+      - text: 六點。
+        meaning: A las seis. `六` es seis y `點` marca la hora del reloj. La respuesta más completa es
+          `間舖頭六點閂門`. Sin una expresión de mañana o tarde, la conversación determina a cuáles seis se
+          refiere.
+        note: "**Practica:** da las seis y media como hora de cierre. Respuesta: `六點半。` `半` añade media
+          hora. Para precisar, `下晝六點半` indica la tarde. Una duración como `六個鐘` son seis horas y no
+          responde con la hora del reloj."
+  - subskill_id: checking_facts
+    explanation: Recuerdas que la tienda cierra a las seis y buscas confirmación. La afirmación presenta
+      la hora que crees saber; la coletilla `係咪呀` invita a confirmarla o corregirla.
+    examples:
+      - text: 間舖頭六點閂門，係咪呀？
+        meaning: La tienda cierra a las seis, ¿verdad? `間舖頭六點閂門` sitúa la tienda antes de la hora y la
+          acción propuestas. `係咪` es una forma abreviada habitual de `係唔係`, ¿es o no es?; el `呀`
+          final encaja con la pregunta conversacional.
+        note: "**Practica:** comprueba un cierre a las siete. Respuesta: `間舖頭七點閂門，係咪呀？` Cambia solo la hora
+          propuesta. Una corrección puede ser `唔係，六點閂門。`: rechaza la hora planteada y da la
+          correcta."
+  - subskill_id: useful_detail
+    explanation: Hay varias mesas, así que especificar la que está junto a la ventana hace útil la
+      indicación. La descripción del lugar precede a la expresión que selecciona esa mesa.
+    examples:
+      - text: 用窗口旁邊嗰張枱。
+        meaning: Usa la mesa junto a la ventana. `用` significa usar, `窗口旁邊` indica junto a la ventana y
+          `嗰張枱`, esa mesa. `張` es el clasificador de mesa. Lugar y demostrativo la distinguen de las
+          demás.
+        note: "**Practica:** elige la mesa junto a la puerta. Respuesta: `用門口旁邊嗰張枱。` Sustituye la referencia
+          por `門口`. `嗰張枱` selecciona una mesa; `嗰啲枱` selecciona aquellas mesas con `啲` para el grupo
+          plural."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original cantonese constructions, not independent translation validation.

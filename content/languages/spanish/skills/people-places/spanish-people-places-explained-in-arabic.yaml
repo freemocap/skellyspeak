@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: people_places
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/people-places/people-places-explained-in-arabic.yaml
+sections:
+  - subskill_id: identification
+    explanation: عندما تقابل شخصًا، يخبره تقديم قصير بهويتك. تستعمل الإسبانية `ser` للهوية؛ وتعني `soy`
+      «أنا». يحدد الفعل المتحدث أصلًا، فيمكنك التعريف بنفسك من غير إضافة `yo`.
+    examples:
+      - text: Soy Ana.
+        meaning: «أنا آنا.» تقدّم `Soy` المتحدثة، ويذكر `Ana` الاسم. لا تأتي أداة تعريف قبل الاسم في هذا
+          التعريف.
+        note: >-
+          **عدّلها.** تقدّم `Soy Luis` لويس؛ وتحدد `Ella es Ana` شخصًا آخر. غيّر `soy` إلى `es`
+          عندما يكون الفاعل «هي». لا تعبّر `Estoy Ana` عن هذه الهوية.
+
+
+          **جرّب.** عرّف بنفسك باسم مارتا. الإجابة: `Soy Marta`. أبقِ `soy` وغيّر الاسم.
+  - subskill_id: qualities_states
+    explanation: قبل دخول غرفة، قد تحتاج إلى القول هل بابها مفتوح. تصف `Estar` الحالة التي تجده عليها.
+      يعطي `Ser` و`estar` نوعين مختلفين من الوصف؛ ولا يكفي السؤال عما إذا كانت الصفة دائمة للاختيار
+      بينهما على نحو موثوق.
+    examples:
+      - text: La puerta está abierta.
+        meaning: «الباب مفتوح.» تسمّي `La puerta` الباب، وتصف `está` حالته، وتعني `abierta` مفتوحةً. تطابق
+          نهاية `abierta` الاسم المؤنث المفرد `puerta`.
+        note: >-
+          **عدّلها.** تصف `Las puertas están abiertas` عدة أبواب: يتغير الفعل والصفة معًا. أما `La
+          puerta es grande` فتصف صفةً للباب، وهي حجمه.
+
+
+          **جرّب.** قل إن الباب مغلق باستعمال `cerrada`. الإجابة: `La puerta está cerrada`. تتغير
+          الحالة؛ ويبقى الفاعل والفعل كما هما.
+  - subskill_id: location_movement
+    explanation: إذا كان شخص يبحث عن كتاب، يبيّن تحديد مكانه أين يجده. تحدد `Estar` موضع شخص أو غرض،
+      وتجعل عبارة المكان التالية الجواب مفيدًا. الكتاب هنا موضوع على طاولة.
+    examples:
+      - text: El libro está en la mesa.
+        meaning: «الكتاب على الطاولة.» تسمّي `El libro` الكتاب، وتحدد `está` موضعه، وتقدّم `en la mesa`
+          المكان. قد تعني `En` «في» أو «على»؛ والعلاقة بين الشيئين تحدد المعنى المقصود.
+        note: >-
+          **قارن.** تصف `Voy a la mesa` حركةً نحو الطاولة لا موقعًا ثابتًا. وفي `El libro está aquí`
+          تحل `aquí` محل عبارة المكان كلها.
+
+
+          **جرّب.** حدّد مكان الكتاب داخل حقيبة ظهر باستعمال `la mochila`. الإجابة: `El libro está
+          en la mochila`. استعمل `en` لموقعه، لا حرف الحركة `a`.
+  - subskill_id: possession_relations
+    explanation: "إذا كان لدى شخصين كتابان متشابهان، فإن تسمية المالك تميّز بينهما. يمكن للإسبانية وضع
+      `de` بعد الشيء ثم ذكر مالكه. ويمكن لضمير ملكية مثل `mi` أن يحدد علاقةً أيضًا: هنا يبين أخت من
+      المقصودة."
+    examples:
+      - text: Es el libro de mi hermana.
+        meaning: «إنه كتاب أختي.» تحدد `Es` الكتاب الجاري الحديث عنه؛ وتسمّي `el libro` الشيء. وتقول `De mi
+          hermana` إنه لأختي. تربط `Mi` الأختَ بالمتحدث، ولا تصف الكتاب.
+        note: >-
+          **عدّلها.** تقول `Es mi libro` إن الكتاب لي. وتصف `Son mis libros` عدة كتب: تطابق `mis`
+          الكتب، لا عدد المالكين. لا تستعمل الإسبانية هنا فاصلة الملكية العليا الإنجليزية.
+
+
+          **جرّب.** قل إنه كتاب أخيك باستعمال `mi hermano`. الإجابة: `Es el libro de mi hermano`.
+          أبقِ `de` قبل المالك.
+  - subskill_id: quantity_comparison
+    explanation: يسهل اختيار صندوق عندما تقارنه بآخر. تستعمل الإسبانية `más` قبل الصفة و`que` قبل الشيء
+      الذي تُقارنه به. تقارن هذه الجملة الحجم، ولا تذكر عدد الصناديق.
+    examples:
+      - text: Esta caja es más grande que esa.
+        meaning: «هذا الصندوق أكبر من ذاك.» تحدد `Esta caja` الصندوق القريب؛ وتقول `es más grande` إنه أكبر.
+          تسمّي `Que esa` الصندوق الآخر من غير تكرار `caja`. تطابق `Esta` و`esa` الاسم المؤنث.
+        note: >-
+          **عدّلها.** تعكس `Esta caja es menos grande que esa` المقارنة. أما `Tengo más cajas` فتصف
+          عددًا أكبر من الصناديق. أبقِ `que` عندما تسمّي الشيء المقارن به.
+
+
+          **جرّب.** قارن كتابين باستعمال `este libro` و`ese`. الإجابة: `Este libro es más grande que
+          ese`. تتحول كلمتا الإشارة إلى التذكير لأن `libro` مذكر.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: feelings_viewpoints
+language: french
+explanation_language: french
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-french.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: "Une promenade après le repas de midi semble agréable, mais la personne exprime un désir plutôt
+      qu’un rendez-vous fixé. `J’ai envie de` signifie que l’on souhaite faire quelque chose ; `marcher un
+      peu` désigne une courte marche, et `après le déjeuner` situe l’action. La formule contient `avoir` et
+      change donc selon la personne : `Nous avons envie de marcher.` Après `de`, l’action reste à l’infinitif.
+      `Je vais marcher` exprime plus directement une intention ; un désir ne suffit pas à établir un projet."
+    examples:
+      - text: J’ai envie de marcher un peu après le déjeuner.
+        meaning: J’ai envie de marcher un peu après le repas de midi.
+        note: "Exprimez plutôt le désir de vous reposer. `J’ai envie de me reposer un peu après le déjeuner.` convient
+          : `me reposer` signifie se reposer et contient le pronom réfléchi `me` de la personne qui parle."
+  - subskill_id: preferences
+    explanation: "Deux moyens de transport sont possibles, et la personne préfère le train pour ce voyage. `Je
+      préfère` énonce le choix ; dans `le train à l’avion`, l’option préférée vient en premier et l’autre suit
+      `à`. `Pour ce trajet` limite la préférence à ce voyage : elle n’est pas nécessairement valable pour
+      tous. `L’avion` prend une apostrophe parce que `avion` commence par une voyelle. Dire simplement `J’aime
+      le train` n’établit pas de comparaison explicite."
+    examples:
+      - text: Je préfère le train à l’avion pour ce trajet.
+        meaning: Pour ce trajet, je préfère le train à l’avion.
+        note: "Inversez la préférence. `Je préfère l’avion au train pour ce trajet.` convient : `au` réunit `à` et
+          `le`, et l’option préférée passe au début."
+  - subskill_id: emotions
+    explanation: Vous recevez une bonne nouvelle et décrivez son effet sur vous. `Cette nouvelle` désigne
+      l’information reçue ; `me fait plaisir` dit qu’elle vous réjouit. `Me` identifie la personne qui ressent
+      l’émotion, tandis que `fait` s’accorde avec la nouvelle au singulier. `Cette nouvelle nous fait plaisir`
+      change les personnes concernées sans modifier `fait`. Dans `Je suis contente`, l’adjectif décrit plutôt
+      la personne qui parle et prend la forme féminine ; `Je suis content` présente l’accord masculin.
+    examples:
+      - text: Cette nouvelle me fait plaisir.
+        meaning: Cette nouvelle me fait plaisir.
+        note: "Dites que la nouvelle réjouit votre groupe. La réponse est `Cette nouvelle nous fait plaisir.` : `nous`
+          remplace `me`, tandis que le sujet singulier garde `fait`."
+  - subskill_id: opinions
+    explanation: Un chemin étroit peut ne pas convenir aux vélos, et la personne présente cette idée comme son
+      jugement. `À mon avis` introduit le point de vue. `Ce chemin` désigne le chemin ; `trop étroit` signifie
+      que sa largeur est insuffisante, et pas seulement qu’il est très étroit ; `pour les vélos` précise pour
+      quoi il ne convient pas. `Étroit` s’accorde avec `chemin` au masculin ; pour une rue, on dirait `Cette
+      rue est trop étroite.` L’introduction marque un avis, qu’une raison comme le manque de place pourrait
+      étayer.
+    examples:
+      - text: À mon avis, ce chemin est trop étroit pour les vélos.
+        meaning: À mon avis, ce chemin est trop étroit pour les vélos.
+        note: "Évaluez une rue plutôt qu’un chemin. `À mon avis, cette rue est trop étroite pour les vélos.` convient
+          : `cette` et `étroite` s’accordent avec le nom féminin `rue`."
+  - subskill_id: agreement_disagreement
+    explanation: Vous acceptez le prix d’un arrangement, mais sa date reste à discuter. `Je suis d’accord` exprime
+      l’accord, et `sur le prix` en précise l’objet. `Mais pas sur la date` omet les mots déjà dits, tout en
+      exprimant clairement le désaccord. `D’accord avec vous` nomme la personne avec qui vous êtes d’accord ;
+      `d’accord sur la date` nomme le sujet. Un accord partiel ne laisse pas entendre que l’ensemble du projet
+      est accepté.
+    examples:
+      - text: Je suis d’accord sur le prix, mais pas sur la date.
+        meaning: Je suis d’accord sur le prix, mais pas sur la date.
+        note: "Acceptez la date, mais pas le prix. `Je suis d’accord sur la date, mais pas sur le prix.` convient :
+          échanger les deux sujets inverse la portée de l’accord."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - tex_modals2026
+    - waystage_language_functions
+    - texAdjectivesTeaching20261007
+    - texObjectPronounsTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: wants_intentions
+      explanation: "Une promenade après le repas du matin semble agréable, mais la personne exprime un désir plutôt
+        qu’un rendez-vous fixé. `J’ai envie de` signifie que l’on souhaite faire quelque chose ; `marcher un
+        peu` désigne une courte marche, et `après le déjeuner` situe l’action. La formule contient `avoir` et
+        change donc selon la personne : `Nous avons envie de marcher.` Après `de`, l’action reste à
+        l’infinitif. `Je vais marcher` exprime plus directement une intention ; un désir ne suffit pas à
+        établir un projet."
+      examples:
+        - text: J’ai envie de marcher un peu après le déjeuner.
+          meaning: J’ai envie de marcher un peu après le petit-déjeuner.
+          note: "Exprimez plutôt le désir de vous reposer. `J’ai envie de me reposer un peu après le déjeuner.` convient
+            : `me reposer` signifie se reposer et contient le pronom réfléchi `me` de la personne qui parle."
+    - subskill_id: preferences
+      explanation: "Deux moyens de transport sont possibles, et la personne préfère le train pour ce voyage. `Je
+        préfère` énonce le choix ; dans `le train à l’avion`, l’option préférée vient en premier et l’autre
+        suit `à`. `Pour ce trajet` limite la préférence à ce voyage : elle n’est pas nécessairement valable
+        pour tous. `L’avion` prend une apostrophe parce que `avion` commence par une voyelle. Dire simplement
+        `J’aime le train` n’établit pas de comparaison explicite."
+      examples:
+        - text: Je préfère le train à l’avion pour ce trajet.
+          meaning: Pour ce trajet, je préfère le train à l’avion.
+          note: "Inversez la préférence. `Je préfère l’avion au train pour ce trajet.` convient : `au` réunit `à` et
+            `le`, et l’option préférée passe au début."
+    - subskill_id: emotions
+      explanation: Vous recevez une bonne nouvelle et décrivez son effet sur vous. `Cette nouvelle` désigne
+        l’information reçue ; `me fait plaisir` dit qu’elle vous réjouit. `Me` identifie la personne qui
+        ressent l’émotion, tandis que `fait` s’accorde avec la nouvelle au singulier. `Cette nouvelle nous
+        fait plaisir` change les personnes concernées sans modifier `fait`. Dans `Je suis contente`,
+        l’adjectif décrit plutôt la personne qui parle et prend la forme féminine ; `Je suis content` présente
+        l’accord masculin.
+      examples:
+        - text: Cette nouvelle me fait plaisir.
+          meaning: Cette nouvelle me fait plaisir.
+          note: "Dites que la nouvelle réjouit votre groupe. La réponse est `Cette nouvelle nous fait plaisir.` : `nous`
+            remplace `me`, tandis que le sujet singulier garde `fait`."
+    - subskill_id: opinions
+      explanation: Un chemin étroit peut ne pas convenir aux vélos, et la personne présente cette idée comme son
+        jugement. `À mon avis` introduit le point de vue. `Ce chemin` désigne le chemin ; `trop étroit`
+        signifie que sa largeur est insuffisante, et pas seulement qu’il est très étroit ; `pour les vélos`
+        précise pour quoi il ne convient pas. `Étroit` s’accorde avec `chemin` au masculin ; pour une rue, on
+        dirait `Cette rue est trop étroite.` L’introduction marque un avis, qu’une raison comme le manque de
+        place pourrait étayer.
+      examples:
+        - text: À mon avis, ce chemin est trop étroit pour les vélos.
+          meaning: À mon avis, ce chemin est trop étroit pour les vélos.
+          note: "Évaluez une rue plutôt qu’un chemin. `À mon avis, cette rue est trop étroite pour les vélos.` convient
+            : `cette` et `étroite` s’accordent avec le nom féminin `rue`."
+    - subskill_id: agreement_disagreement
+      explanation: Vous acceptez le prix d’un arrangement, mais sa date reste à discuter. `Je suis d’accord` exprime
+        l’accord, et `sur le prix` en précise l’objet. `Mais pas sur la date` omet les mots déjà dits, tout en
+        exprimant clairement le désaccord. `D’accord avec vous` nomme la personne avec qui vous êtes d’accord
+        ; `d’accord sur la date` nomme le sujet. Un accord partiel ne laisse pas entendre que l’ensemble du
+        projet est accepté.
+      examples:
+        - text: Je suis d’accord sur le prix, mais pas sur la date.
+          meaning: Je suis d’accord sur le prix, mais pas sur la date.
+          note: "Acceptez la date, mais pas le prix. `Je suis d’accord sur la date, mais pas sur le prix.` convient :
+            échanger les deux sujets inverse la portée de l’accord."

@@ -1,0 +1,224 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: time_events
+language: english
+explanation_language: arabic
+shared_explanation: skills/time-events/time-events-explained-in-arabic.yaml
+sections:
+  - subskill_id: present_events
+    explanation: تشمل أحداث الحاضر الأوضاع المعتادة وكذلك ما يحدث الآن. عندما تصف وظيفة شخص، فغالبًا ما
+      تقصد مكان عمله المعتاد حتى لو كان في المنزل اليوم. يناسب المضارع البسيط هذا الوضع المنتظم.
+    examples:
+      - text: She works at the museum.
+        meaning: "تسمّي `She` الشخص. تحمل `Works` اللاحقة الخاصة بـ`she`؛ وتحدد `at the museum` مكان عملها.
+          ومع `I` أو `they` استعمل `work`: `They work at the museum`. لا تفيد هذه الجملة أنهم يعملون
+          في هذه اللحظة بالذات."
+        note: >-
+          تركز `She is working at the museum today` على نشاط يحدث حول الوقت الحاضر. ولنفي الوظيفة
+          المعتادة استعمل `She doesn’t work at the museum`؛ وبعد `doesn’t` أبقِ `work` بصيغته
+          الأساسية.
+
+
+          **جرّب.** صف مكان عمل أخيك المعتاد، وهو مكتبة. الإجابة: `He works at the library`. تأتي
+          `works` مع `He` حتى عندما تصف وظيفةً لا فعلًا يحدث الآن.
+  - subskill_id: past_events
+    explanation: يخبر الحدث الماضي شخصًا بما وقع من قبل. عند رواية نزهة الأمس، يساعد كل من تعبير الوقت
+      والفعل على وضع الرحلة في الماضي. إضافة كلمة تدل على الماضي لا تُبقي الفعل عادةً من دون تغيير.
+    examples:
+      - text: Yesterday we went to the harbour.
+        meaning: "تحدد `Yesterday` الوقت. تسمّي `We` المسافرين؛ و`went` هي صيغة الماضي من `go`، وتحدد `to
+          the harbour` الوجهة. تبقى `Went` كما هي مع أشخاص مختلفين: `I went`، `she went`، `they
+          went`."
+        note: >-
+          تأخذ بعض صيغ الماضي اللاحقة `-ed` مثل `walked`؛ لكن `go` لها الصيغة غير المنتظمة `went`.
+          في السؤال تحمل `did` دلالة الماضي: `Did you go?`، لا الصيغة الخاطئة `Did you went?`.
+
+
+          **جرّب.** صف رحلتك إلى السوق أمس. الإجابة: `Yesterday I went to the market`. استعمل `went`
+          للرحلة السابقة المكتملة.
+  - subskill_id: future_events
+    explanation: قد يصف الحديث عن المستقبل ترتيبًا أو نيةً أو توقعًا. إذا اتفقتما على مكان اللقاء غدًا،
+      يمكن للمضارع المستمر أن يعرض ذلك الترتيب المستقر. ويوضح تعبير الوقت المستقبلي أن اللقاء لا
+      يحدث الآن.
+    examples:
+      - text: We are meeting at the station tomorrow.
+        meaning: "تجمع `We are meeting` بين `are` و`meeting`. تحدد `At the station` المكان؛ وتضع `tomorrow`
+          الترتيب في المستقبل. ومع شخص واحد تتغير صيغة الربط: `She is meeting us tomorrow`."
+        note: >-
+          يمكن أن تصف `We are going to meet` نيةً. وقد تعبّر `I’ll meet you there` عن قرار تتخذه
+          أثناء الكلام. تتداخل هذه الصيغ، لذا يساعدك الموقف على الاختيار؛ وليست قابلة للاستبدال في
+          كل جملة.
+
+
+          **جرّب.** صف عشاءً مرتبًا له غدًا. الإجابة: `We are having dinner tomorrow`. تعرض `Are
+          having` الترتيب، وتحدد `tomorrow` وقته المستقبلي.
+  - subskill_id: duration_frequency
+    explanation: تحدد المدة كم يستمر النشاط، ويحدد التكرار عدد مرات حدوثه. عند وصف عادة تدريب، قد تحتاج
+      إلى الاثنين. عندئذ يستطيع المستمع تمييز جلسة يومية قصيرة من جلسة طويلة متباعدة.
+    examples:
+      - text: I practise for twenty minutes every evening.
+        meaning: "تسمّي `I practise` النشاط المعتاد. تحدد `For twenty minutes` طول كل جلسة، وتبين `every
+          evening` أنها تحدث كل مساء. يمكنك تغيير أي من العبارتين مستقلًا: تصف `for ten minutes
+          every morning` عادةً مختلفة."
+        note: >-
+          تقدّم `For` مدةً زمنية. أما `Since Monday` فتحدد نقطة بداية، كما في `I have practised
+          every day since Monday`. لا تستبدل `for twenty minutes` بالصيغة الخاطئة `since twenty
+          minutes`.
+
+
+          **جرّب.** صف قراءةً تستمر نصف ساعة كل يوم. الإجابة: `I read for thirty minutes every day`.
+          تجيب `For thirty minutes` عن سؤال «كم المدة؟»، وتجيب `every day` عن سؤال «كم مرة؟».
+  - subskill_id: event_sequence
+    explanation: يساعد التسلسل المستمع على إعادة تصور ما حدث أو اتباع خطوات. في حكاية سفر، يزيل تحديد
+      الفعل الأول الالتباس حول ما إذا وصلت سيارة الأجرة قبل تجهيز الحقائب.
+    examples:
+      - text: First we packed, then we called a taxi.
+        meaning: تجعل `First` توضيب الأمتعة الفعل الأول. وتصف `Packed` فعلًا ماضيًا مكتملًا؛ ثم تقدّم `then`
+          الفعل التالي `called a taxi`. يحمل الفعلان لاحقة الماضي المنتظمة. تحدد الجملة ترتيبهما من
+          غير القول إن أحدهما سبب الآخر.
+        note: >-
+          يمكنك بيان الترتيب نفسه بـ`After we packed, we called a taxi`. وتعكسه `Before we packed,
+          we called a taxi`. وفي التعليمات تأتي الأفعال بصيغتها الأساسية: `First pack, then call a
+          taxi`.
+
+
+          **جرّب.** رتّب فعلين سابقين: أكلت ثم غادرت. الإجابة: `First I ate, then I left`. تضع صيغتا
+          الماضي الحدثين في وقت سابق؛ وترتبهما `first` و`then`.
+  - subskill_id: event_phase
+    explanation: يمكن النظر إلى حدث أثناء جريانه أو إلى الحدث كاملًا. عند شرح انقطاع الكهرباء، قد تريد
+      ذكر ما كنت تفعله في تلك اللحظة. يشكّل النشاط الجاري خلفيةً للحدث المفاجئ.
+    examples:
+      - text: I was cooking when the lights went out.
+        meaning: تضع `I was cooking` الطبخَ في حالة استمرار في الوقت الماضي المعني. تأتي `Was` مع `I`،
+          وتسمّي `cooking` الفعل الجاري. وتقدّم `When the lights went out` الحدث الذي وقع أثناءه؛
+          وتعني `went out` هنا أن الأضواء توقفت عن الإضاءة.
+        note: >-
+          تعرض `I cooked dinner` الطبخَ حدثًا ماضيًا كاملًا. لا تفيد `I was cooking` وحدها أنك أنهيت
+          الوجبة. ومع عدة أشخاص استعمل `We were cooking`.
+
+
+          **جرّب.** كنت تقرأ عندما رن الهاتف. الإجابة: `I was reading when the phone rang`. تقدّم
+          `Was reading` الخلفية الجارية، وتحدد `rang` الحدث الذي وقع خلالها.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - bc_present2026
+        - bc_past2026
+        - bcPresentSimpleTeaching20261007
+        - bcPastContinuousTeaching20261007
+        - bcFutureTeaching20261007
+        - bcDurationTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1
+variety_sections:
+  english-united-states:
+    - subskill_id: present_events
+      explanation: تشمل أحداث الحاضر الأوضاع المعتادة وكذلك ما يحدث الآن. عندما تصف وظيفة شخص، فغالبًا ما
+        تقصد مكان عمله المعتاد حتى لو كان في المنزل اليوم. يناسب المضارع البسيط هذا الوضع المنتظم.
+      examples:
+        - text: She works at the museum.
+          meaning: "تسمّي `She` الشخص. تحمل `Works` اللاحقة الخاصة بـ`she`؛ وتحدد `at the museum` مكان عملها.
+            ومع `I` أو `they` استعمل `work`: `They work at the museum`. لا تفيد هذه الجملة أنهم
+            يعملون في هذه اللحظة بالذات."
+          note: >-
+            تركز `She is working at the museum today` على نشاط يحدث حول الوقت الحاضر. ولنفي الوظيفة
+            المعتادة استعمل `She doesn’t work at the museum`؛ وبعد `doesn’t` أبقِ `work` بصيغته
+            الأساسية.
+
+
+            **جرّب.** صف مكان عمل أخيك المعتاد، وهو مكتبة. الإجابة: `He works at the library`. تأتي
+            `works` مع `He` حتى عندما تصف وظيفةً لا فعلًا يحدث الآن.
+    - subskill_id: past_events
+      explanation: يخبر الحدث الماضي شخصًا بما وقع من قبل. عند رواية نزهة الأمس، يساعد كل من تعبير الوقت
+        والفعل على وضع الرحلة في الماضي. إضافة كلمة تدل على الماضي لا تُبقي الفعل عادةً من دون
+        تغيير.
+      examples:
+        - text: Yesterday we went to the harbor.
+          meaning: "تحدد `Yesterday` الوقت. تسمّي `We` المسافرين؛ و`went` هي صيغة الماضي من `go`، وتحدد `to
+            the harbor` الوجهة. تبقى `Went` كما هي مع أشخاص مختلفين: `I went`، `she went`، `they
+            went`."
+          note: >-
+            تأخذ بعض صيغ الماضي اللاحقة `-ed` مثل `walked`؛ لكن `go` لها الصيغة غير المنتظمة `went`.
+            في السؤال تحمل `did` دلالة الماضي: `Did you go?`، لا الصيغة الخاطئة `Did you went?`.
+
+
+            **جرّب.** صف رحلتك إلى السوق أمس. الإجابة: `Yesterday I went to the market`. استعمل
+            `went` للرحلة السابقة المكتملة.
+    - subskill_id: future_events
+      explanation: قد يصف الحديث عن المستقبل ترتيبًا أو نيةً أو توقعًا. إذا اتفقتما على مكان اللقاء غدًا،
+        يمكن للمضارع المستمر أن يعرض ذلك الترتيب المستقر. ويوضح تعبير الوقت المستقبلي أن اللقاء لا
+        يحدث الآن.
+      examples:
+        - text: We are meeting at the station tomorrow.
+          meaning: "تجمع `We are meeting` بين `are` و`meeting`. تحدد `At the station` المكان؛ وتضع `tomorrow`
+            الترتيب في المستقبل. ومع شخص واحد تتغير صيغة الربط: `She is meeting us tomorrow`."
+          note: >-
+            يمكن أن تصف `We are going to meet` نيةً. وقد تعبّر `I’ll meet you there` عن قرار تتخذه
+            أثناء الكلام. تتداخل هذه الصيغ، لذا يساعدك الموقف على الاختيار؛ وليست قابلة للاستبدال في
+            كل جملة.
+
+
+            **جرّب.** صف عشاءً مرتبًا له غدًا. الإجابة: `We are having dinner tomorrow`. تعرض `Are
+            having` الترتيب، وتحدد `tomorrow` وقته المستقبلي.
+    - subskill_id: duration_frequency
+      explanation: تحدد المدة كم يستمر النشاط، ويحدد التكرار عدد مرات حدوثه. عند وصف عادة تدريب، قد تحتاج
+        إلى الاثنين. عندئذ يستطيع المستمع تمييز جلسة يومية قصيرة من جلسة طويلة متباعدة.
+      examples:
+        - text: I practice for twenty minutes every evening.
+          meaning: "تسمّي `I practice` النشاط المعتاد. تحدد `For twenty minutes` طول كل جلسة، وتبين `every
+            evening` أنها تحدث كل مساء. يمكنك تغيير أي من العبارتين مستقلًا: تصف `for ten minutes
+            every morning` عادةً مختلفة."
+          note: >-
+            تقدّم `For` مدةً زمنية. أما `Since Monday` فتحدد نقطة بداية، كما في `I have practiced
+            every day since Monday`. لا تستبدل `for twenty minutes` بالصيغة الخاطئة `since twenty
+            minutes`.
+
+
+            **جرّب.** صف قراءةً تستمر نصف ساعة كل يوم. الإجابة: `I read for thirty minutes every
+            day`. تجيب `For thirty minutes` عن سؤال «كم المدة؟»، وتجيب `every day` عن سؤال «كم
+            مرة؟».
+    - subskill_id: event_sequence
+      explanation: يساعد التسلسل المستمع على إعادة تصور ما حدث أو اتباع خطوات. في حكاية سفر، يزيل تحديد
+        الفعل الأول الالتباس حول ما إذا وصلت سيارة الأجرة قبل تجهيز الحقائب.
+      examples:
+        - text: First we packed, then we called a taxi.
+          meaning: تجعل `First` توضيب الأمتعة الفعل الأول. وتصف `Packed` فعلًا ماضيًا مكتملًا؛ ثم تقدّم `then`
+            الفعل التالي `called a taxi`. يحمل الفعلان لاحقة الماضي المنتظمة. تحدد الجملة ترتيبهما
+            من غير القول إن أحدهما سبب الآخر.
+          note: >-
+            يمكنك بيان الترتيب نفسه بـ`After we packed, we called a taxi`. وتعكسه `Before we packed,
+            we called a taxi`. وفي التعليمات تأتي الأفعال بصيغتها الأساسية: `First pack, then call a
+            taxi`.
+
+
+            **جرّب.** رتّب فعلين سابقين: أكلت ثم غادرت. الإجابة: `First I ate, then I left`. تضع
+            صيغتا الماضي الحدثين في وقت سابق؛ وترتبهما `first` و`then`.
+    - subskill_id: event_phase
+      explanation: يمكن النظر إلى حدث أثناء جريانه أو إلى الحدث كاملًا. عند شرح انقطاع الكهرباء، قد تريد
+        ذكر ما كنت تفعله في تلك اللحظة. يشكّل النشاط الجاري خلفيةً للحدث المفاجئ.
+      examples:
+        - text: I was cooking when the lights went out.
+          meaning: تضع `I was cooking` الطبخَ في حالة استمرار في الوقت الماضي المعني. تأتي `Was` مع `I`،
+            وتسمّي `cooking` الفعل الجاري. وتقدّم `When the lights went out` الحدث الذي وقع أثناءه؛
+            وتعني `went out` هنا أن الأضواء توقفت عن الإضاءة.
+          note: >-
+            تعرض `I cooked dinner` الطبخَ حدثًا ماضيًا كاملًا. لا تفيد `I was cooking` وحدها أنك
+            أنهيت الوجبة. ومع عدة أشخاص استعمل `We were cooking`.
+
+
+            **جرّب.** كنت تقرأ عندما رن الهاتف. الإجابة: `I was reading when the phone rang`. تقدّم
+            `Was reading` الخلفية الجارية، وتحدد `rang` الحدث الذي وقع خلالها.

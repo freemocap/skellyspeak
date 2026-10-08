@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: coordinating_action
+explanation_language: arabic
+title: تنسيق العمل
+introduction: اطلب المساعدة، وقدّم أفكارًا، واتفق مع الآخرين على ما ستفعلونه معًا.
+sections:
+  - subskill_id: requests
+    title: الطلبات
+    concept: اطلب من شخص أن يفعل شيئًا أو أن يتوقف عن فعله.
+  - subskill_id: offers_invitations
+    title: العروض والدعوات
+    concept: اعرض المساعدة أو ادعُ شخصًا إلى المشاركة.
+  - subskill_id: suggestions
+    title: الاقتراحات
+    concept: اقترح فعلًا ليفكر فيه الآخرون.
+  - subskill_id: commitments
+    title: الالتزامات
+    concept: وضّح ما ستتحمل مسؤولية القيام به.
+  - subskill_id: accepting_declining
+    title: القبول والرفض
+    concept: اقبل طلبًا أو عرضًا أو دعوةً أو اقتراحًا، أو ارفضه.
+  - subskill_id: negotiating_plans
+    title: التفاوض على خطة
+    concept: عدّل خطةً بحيث تناسب الأشخاص المعنيين.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

@@ -39,9 +39,26 @@ impl SavedGlossQuery {
 #[serde(rename_all = "camelCase")]
 pub struct SavedGlossSource {
     pub source_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub dictionary: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub provenance: Option<SavedGlossProvenance>,
     pub operation_id: Option<String>,
     pub attempt_id: Option<String>,
     pub scope: ReadingScope,
     pub text: String,
     pub segments: Vec<GlossSegment>,
+}
+
+/// Authored imports never impersonate provider executions or learner evidence.
+#[derive(Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct SavedGlossProvenance {
+    pub package_id: String,
+    pub version: String,
+    pub sense: String,
+    pub sources: Vec<String>,
+    pub review: String,
 }

@@ -123,6 +123,17 @@ filters exact surface candidates and bounds input/output without silently
 truncating results. Generated glosses are a separate evictable projection from
 `language/reading/text_sources.rs`; accepted records keep their durable owners.
 
+`language/reading/preloaded.rs` imports the registered dictionary packages once per
+package version during workspace startup. Migration 55 adds indexed imported
+records and package provenance. Migration 56 preserves these records while
+allowing an explicit editorial-review status distinct from source checking.
+The same saved-gloss command queries these rows;
+hover and tap do not read package files. Dictionary entries survive inference
+cache eviction, create no provider executions or learner credit, and remain
+available without AI access. Contextual annotations take precedence in the UI.
+See [the package scope](../content/reading/READING_README.md) for supported exact
+forms, varieties, references and withheld pronunciation fields.
+
 Workspace execution preferences in `configuration/execution.rs` control assessment,
 reply briefs and reading support. Assessment defaults to Automatic; the other two
 default to On demand. Coaching feedback always runs automatically beside the reply. New turns capture the values and learner

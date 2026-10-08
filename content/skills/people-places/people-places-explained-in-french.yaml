@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: people_places
+explanation_language: french
+title: Personnes, objets et lieux
+introduction: Présenter des personnes et des objets, les décrire, les situer et expliquer leurs liens.
+sections:
+  - subskill_id: identification
+    title: Identifier
+    concept: Dire qui est une personne ou ce qu’est une chose.
+  - subskill_id: qualities_states
+    title: Qualités et états
+    concept: Décrire les caractéristiques ou l’état actuel d’une personne ou d’une chose.
+  - subskill_id: location_movement
+    title: Lieu et déplacement
+    concept: Dire où se trouve une personne ou une chose, ou vers où elle se dirige.
+  - subskill_id: possession_relations
+    title: Possession et relations
+    concept: Expliquer à qui appartient une chose ou quels liens unissent des personnes et des choses.
+  - subskill_id: quantity_comparison
+    title: Quantité et comparaison
+    concept: Parler de quantités et comparer des personnes ou des choses.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

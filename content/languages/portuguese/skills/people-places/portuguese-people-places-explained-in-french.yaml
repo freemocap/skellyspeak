@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: people_places
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: "Vous présentez Ana à une personne qui ne la connaît pas. `Esta é minha colega Ana` l’identifie :
+      `esta` désigne une personne féminine proche, `é` est le présent de `ser` et `minha` s’accorde avec le
+      nom féminin `colega`. `Colega` peut désigner un homme ou une femme ; les mots qui l’entourent précisent
+      ici le genre. `Ana está cansada` rapporterait plutôt son état du jour, sans l’identifier."
+    examples:
+      - text: Esta é minha colega Ana.
+        meaning: Voici ma collègue Ana.
+        note: Présentez Beatriz comme votre collègue. `Esta é minha colega Beatriz.` est une présentation complète ;
+          `esta` et `minha` s’accordent avec le référent féminin.
+  - subskill_id: qualities_states
+    explanation: "Vous examinez des plantes qui manquent d’eau. `As plantas estão secas` décrit leur état actuel :
+      `as plantas` est féminin pluriel, `estão` est la forme plurielle correspondante de `estar` et `secas`
+      est l’adjectif féminin pluriel. Les accords indiquent que l’état concerne plusieurs plantes. Ici,
+      `estar` décrit leur condition présente, pas leur identité ou une catégorie permanente."
+    examples:
+      - text: As plantas estão secas.
+        meaning: Les plantes sont sèches.
+        note: "Décrivez une seule plante sèche. `A planta está seca.` est une phrase complète : le singulier `a
+          planta` prend `está` et `seca` au singulier."
+  - subskill_id: location_movement
+    explanation: "Un visiteur demande où se trouve la bibliothèque. `A biblioteca fica perto da praça` la situe :
+      `fica` est un emploi localisateur de `ficar`, `perto de` signifie « près de » et `da` contracte `de`
+      avec l’article féminin `a` de `praça`. La phrase indique où est le bâtiment, pas qu’il est devenu une
+      bibliothèque. `Vou à biblioteca` exprimerait plutôt votre destination."
+    examples:
+      - text: A biblioteca fica perto da praça.
+        meaning: La bibliothèque est près de la place.
+        note: Situez la bibliothèque près du parc. `A biblioteca fica perto do parque.` est complet ; `do` remplace
+          `da` parce que `parque` prend l’article masculin `o`.
+  - subskill_id: possession_relations
+    explanation: "Vous parlez de votre famille et d’un objet appartenant à votre frère. `Meu irmão tem uma
+      bicicleta` réunit deux relations : `meu irmão` identifie votre frère et `tem uma bicicleta` dit qu’il
+      possède un vélo. `Meu` est masculin parce que `irmão` l’est, quel que soit le genre de la personne qui
+      parle ; `tem` est la troisième personne du présent de `ter` et s’accorde avec le frère. La phrase
+      exprime une possession, pas un comptage de vélos."
+    examples:
+      - text: Meu irmão tem uma bicicleta.
+        meaning: Mon frère a un vélo.
+        note: Dites que votre sœur a un vélo. `Minha irmã tem uma bicicleta.` est la phrase complète ; `minha`
+          s’accorde avec `irmã` au féminin, tandis que `tem` indique toujours ce que cette personne possède.
+  - subskill_id: quantity_comparison
+    explanation: "Vous avez trois boîtes et devez en choisir une à porter. `Temos três caixas. Esta caixa é mais
+      leve que as outras` compte d’abord les boîtes, puis compare leur poids. `Temos` signifie « nous avons »,
+      `três` donne le nombre et `mais leve que` « plus légère que ». `Esta` désigne une boîte ; `as outras`
+      remplace les autres boîtes au féminin pluriel. L’adjectif après `mais` détermine la propriété comparée :
+      `mais pesada` signifie plus lourde, `mais leve` plus légère."
+    examples:
+      - text: Temos três caixas. Esta caixa é mais leve que as outras.
+        meaning: Nous avons trois boîtes. Celle-ci est plus légère que les autres.
+        note: Dites que cette boîte est plus lourde que les autres. `Temos três caixas. Esta caixa é mais pesada que
+          as outras.` garde le nombre et la comparaison ; `pesada` change la propriété et s’accorde avec
+          `caixa`.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: time_events
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/time-events/time-events-explained-in-portuguese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Quando alguém pergunta sobre seu emprego, o presente pode descrever sua situação atual
+      de trabalho. Não precisa significar que você trabalha neste segundo. O lugar e o contexto da
+      conversa ajudam a entender a situação pretendida.
+    examples:
+      - text: Trabajo aquí.
+        meaning: “Trabalho aqui.” `Trabajo` é a forma de presente de `trabajar` para quem fala; `aquí`
+          significa aqui. A terminação já indica eu, portanto `yo` pode ser omitido. Numa
+          apresentação no trabalho, a frase descreve onde você trabalha.
+        note: "**Adapte.** `Ella trabaja aquí` muda quem trabalha para ela. `Estoy trabajando` enfatiza
+          trabalho em curso. O espanhol também pode usar o presente simples para ações em andamento;
+          a forma inglesa -ing não exige automaticamente o progressivo. **Pratique.** Diga que
+          trabalha em casa. Resposta: `Trabajo en casa`. Mude o lugar e mantenha `trabajo` para eu."
+  - subskill_id: past_events
+    explanation: Relatar as compras de ontem apresenta a viagem como evento concluído. O espanhol usa o
+      pretérito perfeito simples para essa perspectiva. Outras formas passadas podem descrever um
+      hábito ou um pano de fundo; a escolha depende de como se conta o evento.
+    examples:
+      - text: Ayer fui al mercado.
+        meaning: “Ontem fui ao mercado.” `Ayer` situa o evento em ontem; `fui` é o pretérito de `ir` para
+          quem fala. `Al mercado` dá o destino, e `al` junta `a` a `el`. Juntos descrevem uma viagem
+          concluída.
+        note: "**Compare.** `Iba al mercado todos los días` descreve rotina passada com o imperfeito `iba`.
+          `Fui` também pode ser forma de `ser`, mas o destino aqui esclarece que significa ir.
+          **Pratique.** Diga que ela foi ao mercado ontem. Resposta: `Ayer fue al mercado`. Troque
+          `fui` por `fue` para ela; mantenha tempo e destino."
+  - subskill_id: future_events
+    explanation: Um plano para amanhã trata de uma ação ainda não realizada. `Ir a` seguido de
+      infinitivo é uma forma comum de apresentar esse plano. A forma de `ir` indica de quem é o
+      plano.
+    examples:
+      - text: Mañana voy a cocinar.
+        meaning: “Amanhã vou cozinhar.” `Mañana` indica amanhã; `voy` identifica quem fala. `A cocinar`
+          apresenta a ação planejada. Aqui `voy a` é construção futura, não afirma que a pessoa se
+          desloca.
+        note: "**Adapte.** `Ella va a cocinar` muda a pessoa, enquanto `cocinar` continua no infinitivo.
+          `Cocinaré mañana` também expressa futuro. Não omita `a` entre `voy` e a atividade.
+          **Pratique.** Diga que vai estudar amanhã usando `estudiar`. Resposta: `Mañana voy a
+          estudiar`. Mantenha `voy a` e troque a atividade."
+  - subskill_id: duration_frequency
+    explanation: "Uma rotina de estudo pode ser descrita por sua frequência ou pela duração de cada
+      sessão. São perguntas distintas. `Todos los días` indica frequência: a atividade ocorre
+      diariamente, sem informar seus minutos."
+    examples:
+      - text: Estudio español todos los días.
+        meaning: “Estudo espanhol todos os dias.” `Estudio` identifica a atividade de quem fala; `español`
+          nomeia a matéria. `Todos los días` significa todos os dias. O nome da língua começa com
+          letra minúscula nesse uso.
+        note: "**Compare.** `Estudio español durante una hora` indica a duração de uma sessão, não a
+          frequência. `Dos veces por semana` significa duas vezes por semana. Mantenha `los` na
+          expressão cotidiana `todos los días`. **Pratique.** Diga que estuda espanhol duas vezes
+          por semana. Resposta: `Estudio español dos veces por semana`. Troque a expressão de
+          frequência, sem mudar a atividade."
+  - subskill_id: event_sequence
+    explanation: Ao contar uma noite, ordenar os eventos ajuda o ouvinte a seguir a história. `Primero`
+      marca o primeiro passo e `después` introduz o seguinte. Essas expressões mostram ordem sem
+      dizer que um fato causou o outro.
+    examples:
+      - text: Primero cenamos y después salimos.
+        meaning: "Num relato sobre ontem à noite: “Primeiro jantamos e depois saímos.” `Primero cenamos`
+          apresenta o primeiro evento; `y después salimos` acrescenta o próximo. `Cenamos` e
+          `salimos` podem ser formas presentes ou pretéritas; a história ao redor fornece a leitura
+          passada."
+        note: "**Compare.** Num plano para hoje à noite, as mesmas formas podem ter sentido futuro.
+          Acrescente `anoche` para explicitar uma noite passada. `Por eso` apresentaria
+          consequência, não mera sequência. **Pratique.** Diga que ontem à noite vocês primeiro
+          jantaram e depois saíram. Resposta: `Anoche primero cenamos y después salimos`. `Anoche`
+          deixa o passado claro."
+  - subskill_id: event_phase
+    explanation: Se alguém interrompe você com um livro aberto, é possível dizer que a leitura está em
+      andamento. `Estar` com gerúndio destaca uma atividade em curso. Aqui o gerúndio é uma forma
+      como `leyendo`, de `leer`.
+    examples:
+      - text: Estoy leyendo.
+        meaning: “Estou lendo.” `Estoy` identifica quem fala e situa a atividade no presente; `leyendo` dá a
+          ação em curso. O gerúndio não muda conforme gênero ou número. `Estamos leyendo` muda
+          apenas o primeiro verbo para nós.
+        note: "**Compare.** `Leo todos los días` descreve uma rotina. `Ya terminé de leer` informa que a
+          leitura terminou. Para expressar continuidade, não ponha o infinitivo `leer` diretamente
+          depois de `estoy`. **Pratique.** Diga que ela está lendo. Resposta: `Ella está leyendo`.
+          Troque `estoy` por `está` e mantenha `leyendo`."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

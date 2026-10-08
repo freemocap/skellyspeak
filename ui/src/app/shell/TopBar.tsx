@@ -19,6 +19,18 @@ import { SkillRadarGlyph } from '../../components/learning/SkillRadar'
 import { holdingBack, languageSkillLevels } from '../../domain/learning/statistics/skill-levels'
 import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { ThemeControls } from './ThemeControls'
+import { cutOff, useFitStage } from '../../components/layout/useFitStage'
+
+/// The bar's layouts, fullest first. The progress pill folds to the skill
+/// level (its radar and level) before the language's own name is cut off.
+const LAYOUTS = ['full', 'compact-progress'] as const
+
+/// A layout fits when the target language's own name shows whole and nothing runs past the bar.
+function languageCutOff(bar: HTMLElement) {
+  const name = bar.querySelector('.learning-picker-endonym')
+  const box = name?.parentElement
+  return cutOff(bar) || (!!name && !!box && name.getBoundingClientRect().width > box.clientWidth + 1)
+}
 
 /** The global bar: the wordmark, the language, then the Practice and Progress
  * destinations, the progress counters, Settings and More. The skill level
@@ -28,7 +40,9 @@ import { ThemeControls } from './ThemeControls'
  * wordmark returns to it. Controls that belong to a place live in that place
  * (Conversations in the chat header; the AI status in the chat composer, with
  * AI activity under More everywhere). The theme and palette sit here when the
- * bar has room, and always in Settings.
+ * bar has room, and always in Settings. The bar is one row at every width: when
+ * the language's own name would be cut off, the progress pill folds to the
+ * skill level, because the language matters more than the XP numbers.
  * The injected picker supports the local layout fixture; production selection
  * uses the shared settings writer. */
 export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker?: ReactNode }) {
@@ -37,8 +51,12 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const effort = useVisibleEffort()
   const counter = useRef<HTMLButtonElement>(null)
   const progressAnchor = useRef<HTMLDivElement>(null)
+  const bar = useRef<HTMLDivElement>(null)
+  useFitStage(bar, LAYOUTS, languageCutOff)
   useEffect(() => {
-    if (counter.current && effort.value?.recent.some(award => effort.arrived.includes(award.id) && award.dimension !== 'partner_understood')) playRewardSound({ kind: 'pop' }, counter.current)
+    // A folded pill has no XP number to sound from; the pill itself still shows.
+    const anchor = counter.current?.getClientRects().length ? counter.current : progressAnchor.current
+    if (anchor && effort.value?.recent.some(award => effort.arrived.includes(award.id) && award.dimension !== 'partner_understood')) playRewardSound({ kind: 'pop' }, anchor)
   }, [effort.arrived, effort.value])
   // A summary of the language profile: which language, and its XP. There is
   // nothing to show until evidence for the active language has landed.
@@ -55,7 +73,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const openProgress = useNavigationStore((state) => state.openProgress)
   const progressCard = useHoverCard(() => openProgress('xp'))
   return (
-    <div className="topbar">
+    <div ref={bar} className="topbar">
       <button type="button" className="wordmark app-home" aria-label={tr("SkellySpeak home — Chat")} onClick={goHome}>
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SkellySpeak</span>

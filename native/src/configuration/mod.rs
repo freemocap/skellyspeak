@@ -509,3 +509,6 @@ mod speech_tests;
 
 #[cfg(test)]
 mod guides_tests;
+
+#[cfg(test)]
+mod guide_grid_tests;

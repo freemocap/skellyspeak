@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: reasons_connections
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 朋友问你为什么没出门。`Fiquei em casa porque estava chovendo` 给出原因：`fiquei em casa` 说明你待在家里，`porque`
+      意为因为，`estava chovendo` 表示当时雨正下着。原因从句解释了这个决定，并非另一件无关的事。在“为什么”的问句中，葡语写作 `por que`；这里解释原因的 `porque` 则是一个词。
+    examples:
+      - text: Fiquei em casa porque estava chovendo.
+        meaning: 我待在家里，因为当时正在下雨。
+        note: 改用生病作为待在家里的原因。`Fiquei em casa porque estava doente.` 是完整的解释：`porque` 把行动与原因连起来，`estava doente` 给出那个原因。
+  - subskill_id: consequences
+    explanation: 途中自行车轮胎扎破了，所以你步行返回。`O pneu furou, por isso voltei a pé` 表达结果：`furou` 说明轮胎破了，`por isso`
+      意为因此或因为那件事，`voltei` 意为我回来了，`a pé` 意为步行。连接语指回轮胎破裂，说明为什么要走路。`O pneu furou, depois voltei a pé`
+      只是排列事件先后，除非因果关系另外说清楚。`Por isso` 则明确标出结果。
+    examples:
+      - text: O pneu furou, por isso voltei a pé.
+        meaning: 轮胎扎破了，所以我步行回来了。
+        note: 用公交车晚点解释为什么迟到。`O ônibus atrasou, por isso cheguei tarde.` 是完整的结果表达：`por isso` 把迟到与公交车晚点连起来。
+  - subskill_id: conditions
+    explanation: 你计划明天交换图书，地点取决于会不会下雨。`Se chover amanhã, vamos fazer a troca de livros na biblioteca` 包含条件和后果：`se`
+      意为如果，`chover` 是 `chover` 的将来虚拟式，`vamos fazer` 表示如果下雨就会采取的行动。这个规则动词的将来虚拟式形式恰好与不定式相同。换成不规则动词，差异就看得出来：`Se
+      tivermos tempo, vamos fazer a troca` 意为如果我们有时间，就来交换。两句都没有断言已经下雨或已有空闲时间。
+    examples:
+      - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
+        meaning: 如果明天下雨，我们就在图书馆交换图书。
+        note: 改用有没有时间作为条件。`Se tivermos tempo, vamos fazer a troca de livros na biblioteca.` 是完整的未来条件句；`tivermos` 是
+          `ter` 对应“我们”的将来虚拟式。
+  - subskill_id: contrast
+    explanation: 你想骑车去，但轮胎破了。`Quero ir de bicicleta, mas o pneu está furado` 对比意愿和障碍：`quero ir` 意为我想去，`de
+      bicicleta` 说明交通方式，`mas` 意为但是，`está furado` 说明轮胎目前的状态。第二分句之所以重要，是因为它妨碍第一分句的计划。在 `mas`
+      后接一件毫不相关的事，就构不成有用的对比。
+    examples:
+      - text: Quero ir de bicicleta, mas o pneu está furado.
+        meaning: 我想骑自行车去，但轮胎破了。
+        note: 对比想步行和正在下雨。`Quero ir a pé, mas está chovendo.` 是完整的对比；下雨使想进行的步行不太方便。
+  - subskill_id: supporting_claims
+    explanation: "你推荐两条路线中的一条。`Acho que este caminho é melhor: é mais curto` 先给出判断，再提供依据。`Acho que` 表明这是你的看法，`este
+      caminho` 指这条路线，`é melhor` 意为更好，`é mais curto` 解释说它更短。即使没有
+      `porque`，第二分句也是与判断相关的证据。一个主张加上一件无关的事，并不能支持那个主张。"
+    examples:
+      - text: "Acho que este caminho é melhor: é mais curto."
+        meaning: 我觉得这条路线更好：它更短。
+        note: "改用安全作为同一推荐的依据。`Acho que este caminho é melhor: é mais seguro.` 是完整表达；`é mais seguro` 给出与选择路线相关的理由。"
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_future_subj2026
+        - ut_pt_ficar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

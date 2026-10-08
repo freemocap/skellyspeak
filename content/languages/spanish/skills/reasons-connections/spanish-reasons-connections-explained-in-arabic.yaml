@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: reasons_connections
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-arabic.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: إذا سألك شخص لماذا تبقى، فإن ذكر السبب يجعل اختيارك مفهومًا. تربط `Porque` الفعل
+      بتفسيره. هنا يفسر التعب سبب بقاء المتحدثة بدل خروجها.
+    examples:
+      - text: Me quedo porque estoy cansada.
+        meaning: «أبقى لأنني متعبة.» تقول `Me quedo` إنني أبقى؛ والضمير جزء من `quedarse` بهذا المعنى. تقدّم
+          `Porque` السبب، وتسمّي `estoy cansada` حالة المتحدثة. تستعمل `Cansada` صيغة التأنيث.
+        note: >-
+          **قارن.** تسأل `¿Por qué te quedas?` عن السبب: تُكتب أداة السؤال كلمتين مع علامة نبرة. أما
+          `porque` في الجواب فكلمة واحدة من دونها. ومن يستعمل صيغة التذكير يقول `cansado`.
+
+
+          **جرّب.** أجب بأنك تبقى لأنك مريض، مستعملًا `estoy enfermo`. الإجابة: `Me quedo porque
+          estoy enfermo`. ضع السبب بعد `porque`.
+  - subskill_id: consequences
+    explanation: قد يفسر موقفٌ الفعلَ الذي تقوم به ردًا عليه. تشير `Por eso` إلى ذلك الموقف وتقدّم
+      نتيجته. هنا يفسر المطر حمل المتحدث مظلة.
+    examples:
+      - text: Llueve; por eso llevo paraguas.
+        meaning: "«تمطر؛ لذلك أحمل مظلة.» تذكر `Llueve` المطر؛ ولا تضيف الإسبانية ضمير فاعل للطقس. تعني `Por
+          eso` «لذلك السبب». وتذكر `Llevo paraguas` الاستجابة: أحمل مظلة."
+        note: >-
+          **قارن.** تبدأ `Llevo paraguas porque llueve` بالاستجابة ثم تفسرها. مع `por eso` يأتي
+          السبب أولًا ثم النتيجة. لا تستعملها لمجرد وصل حدثين غير مرتبطين.
+
+
+          **جرّب.** تمطر، لذلك تبقى في المنزل. الإجابة: `Llueve; por eso me quedo en casa`. يتبع
+          الجزء الثاني المطرَ نتيجةً له.
+  - subskill_id: conditions
+    explanation: تعتمد بعض الخطط على ما يحدث. تقدّم `Si` الشرط الذي ينبغي تحققه كي ينطبق الجزء الآخر من
+      الجملة. في المثال، البقاء في المنزل هو الخطة إذا أمطرت؛ ولا يقول المتحدث إن المطر مؤكد.
+    examples:
+      - text: Si llueve, me quedo en casa.
+        meaning: «إذا أمطرت، أبقى في المنزل.» تقدّم `Si llueve` الشرط بالفعل `llueve` في المضارع الخبري.
+          وتقدّم `Me quedo en casa` الخطة المعتمدة عليه. مع أن الفعلين في صيغة الحاضر، يمكن لسياق
+          التخطيط أن يشير إلى المستقبل.
+        note: >-
+          **قارن.** تجعل `Porque llueve, me quedo en casa` المطر سببًا واقعًا. يستعمل الشرط المفتوح
+          `si llueve`، لا `si llueva`. وتعني `Sí` بعلامة نبرة «نعم»؛ أما `si` الشرطية فلا تحملها.
+
+
+          **جرّب.** اجعل الخروج معتمدًا على عدم المطر. الإجابة: `Si no llueve, salgo`. تنفي `No`
+          الشرط، وتذكر `salgo` الخطة.
+  - subskill_id: contrast
+    explanation: قد يكون السعر عيبًا مع بقاء المنفعة ميزةً. تربط `Pero` حقيقتين تتباين مجموعتهما مع توقع
+      ما. يوازن المتحدث هنا بين تقييم سلبي وآخر إيجابي.
+    examples:
+      - text: Es caro, pero es útil.
+        meaning: «إنه غالٍ، لكنه مفيد.» تقدّم `Es caro` الحكم على السعر؛ وتدخل `pero` التباين. وتذكر `Es
+          útil` الميزة. يعود الوصفان على الشيء نفسه المذكور سابقًا في المحادثة.
+        note: >-
+          **عدّلها.** تصف `Es cara, pero es útil` اسمًا مؤنثًا مثل `la herramienta`. تبقى `Útil`
+          بصيغتها؛ وتتغير `caro` إلى `cara`. أما `Y` فتضيف حقيقةً فقط دون الإشارة إلى التباين.
+
+
+          **جرّب.** صف أداةً غالية لكنها مفيدة. الإجابة: `La herramienta es cara, pero es útil`.
+          طابق `cara` مع الاسم المؤنث.
+  - subskill_id: supporting_claims
+    explanation: عندما لا ترى مباشرةً هل شخص في المنزل، قد تدعم ملاحظةٌ تخمينَك. يمكنك تقديم الاستنتاج
+      بـ`creo que` ثم استعمال `porque` لتفسير الدليل. تدعم الملاحظة النتيجة دون إثباتها.
+    examples:
+      - text: Creo que está en casa porque la luz está encendida.
+        meaning: «أظن أنه في المنزل لأن الضوء مضاء.» تبيّن `Creo que` اعتقاد المتحدث؛ و`está en casa`
+          استنتاجًا بشأن شخص واحد. وتقدّم `Porque la luz está encendida` الملاحظة. تطابق `Encendida`
+          الاسم المؤنث `luz`.
+        note: >-
+          **قارن.** تكرار `Está en casa` وحده لا يقدّم دليلًا. وتدّعي `Sé que está en casa` المعرفة
+          بدل التخمين. قد يُترك الضوء مضاءً في غياب الشخص، لذا تترك الصياغة الأصلية مجالًا للخطأ.
+
+
+          **جرّب.** ادعم التخمين نفسه بـ`su coche está aquí`. الإجابة: `Creo que está en casa porque
+          su coche está aquí`. وجود السيارة ملاحظة، لا يقين.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

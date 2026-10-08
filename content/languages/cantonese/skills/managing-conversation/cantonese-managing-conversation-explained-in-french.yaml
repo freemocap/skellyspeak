@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: managing_conversation
+explanation_language: french
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-french.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Vous devez partir alors que les autres peuvent rester, et vous pensez les revoir demain. La
+      première proposition annonce le départ ; la seconde ajoute un au revoir lié à la prochaine rencontre.
+    examples:
+      - text: 我走先喇，聽日見。
+        meaning: Je pars maintenant ; à demain. `我走先` signifie que je pars avant les autres. Le `喇` final indique que
+          le départ devient maintenant pertinent. `聽日見` signifie « à demain » ; nul besoin de répéter les
+          personnes qui se reverront.
+        note: "Essayez : prévoyez de vous revoir lundi. Réponse : `我走先喇，星期一見。` Changez le jour de rencontre ; la
+          formule de départ reste. `我先走` place `先` avant le verbe pour souligner « d’abord », tandis que `我走先`
+          sert couramment de formule d’au revoir."
+  - subskill_id: acknowledging
+    explanation: Quelqu’un vient de vous donner une heure ou une consigne. Vous montrez que vous l’avez comprise
+      et consignée. La réponse confirme à la fois la compréhension et l’action accomplie.
+    examples:
+      - text: 明白，我記低咗。
+        meaning: Compris, je l’ai noté. `明白` suffit à signaler la compréhension. `記低` signifie « noter » ; `低`
+          appartient à cette expression. Le `咗` qui suit présente la notation comme accomplie. L’information
+          notée n’est pas répétée puisqu’elle est déjà connue.
+        note: "Essayez : dites que vous avez compris, mais pas encore noté. Réponse : `明白，我仲未記低。` Remplacez `記低咗`,
+          accompli, par `仲未記低`, « pas encore noté ». La compréhension reste, seul l’état de la prise de notes
+          change ; comprendre ne signifie pas nécessairement être d’accord."
+  - subskill_id: clarification
+    explanation: L’autre personne mentionne un magasin, mais plusieurs peuvent correspondre. Demander lequel
+      précise la référence incertaine sans demander de répéter des paroles que vous avez déjà entendues.
+    examples:
+      - text: 你講邊間舖頭呀？
+        meaning: "De quel magasin parles-tu ? `你講` signifie ici « tu parles de ». `邊間舖頭` demande quel magasin : `邊`
+          choisit son identité et `間` est son classificateur. `呀` termine cette question orale. La personne
+          précède le verbe ; le magasin incertain le suit."
+        note: "Essayez : demandez de quel livre il s’agit. Réponse : `你講邊本書呀？` Remplacez `間舖頭` par `本書` ; le
+          classificateur change avec l’objet. `你可唔可以再講一次？` demande une répétition, qui pourrait encore laisser
+          la référence imprécise."
+  - subskill_id: rephrasing
+    explanation: "Une discussion de trajet a établi que le départ initial serait trop tardif. Vous reformulez la
+      conséquence pratique : le groupe doit partir plus tôt. `即係話` introduit cette reformulation."
+    examples:
+      - text: 即係話，我哋要早啲出門。
+        meaning: Autrement dit, nous devons partir plus tôt. `我哋` signifie « nous », `要` exprime la nécessité et `早啲`
+          signifie « plus tôt ». Le `啲` après cette indication de temps forme un ajustement relatif. `出門`
+          signifie « quitter la maison » ou « se mettre en route ».
+        note: "Essayez : reformulez le besoin d’arriver plus tôt. Réponse : `即係話，我哋要早啲到。` Remplacez `出門` par `到`, «
+          arriver ». `遲啲到` signifierait arriver plus tard et changerait la conclusion pratique au lieu de
+          reformuler l’exigence d’avancer l’horaire."
+  - subskill_id: correcting_misunderstanding
+    explanation: L’autre personne a compris lundi, mais vous aviez dit mardi. Nommer le jour voulu et le jour à
+      exclure rend la correction assez précise pour modifier le rendez-vous.
+    examples:
+      - text: 我講星期二，唔係星期一。
+        meaning: J’ai dit mardi, pas lundi. `我講星期二` identifie le jour annoncé ; l’échange antérieur situe ce propos.
+          `唔係星期一` signifie « pas lundi » et exclut le jour mal compris. `唔係` nie l’identification, pas
+          l’action de parler.
+        note: "Essayez : corrigez jeudi en vendredi. Réponse : `我講星期五，唔係星期四。` Le jour voulu vient d’abord, puis le
+          jour mal compris. `我唔講星期一` signifie plutôt « je ne dis pas lundi » : il nie `講` sans apporter ce
+          remplacement précis."
+  - subskill_id: turns_topics
+    explanation: Une conversation sur la nourriture permet de passer à la cuisine. `講開` rattache la nouvelle
+      question au sujet déjà abordé et rend le changement facile à suivre.
+    examples:
+      - text: 講開食嘢，你鍾意煮咩呀？
+        meaning: En parlant de nourriture, qu’aimes-tu cuisiner ? `食嘢` désigne manger ou la nourriture dans cette
+          introduction de sujet. `你鍾意煮` signifie « tu aimes cuisiner » ; `咩` occupe la place de l’objet et
+          demande quoi. Le `呀` final convient à cette question orale.
+        note: "Essayez : reliez une conversation sur la lecture à une question sur les livres. Réponse :
+          `講開睇書，你鍾意睇咩書呀？` Le sujet initial et l’activité interrogée changent. `講開睇書` introduit le lien ; `咩書`
+          demande quels livres, avec l’objet inconnu après l’action."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

@@ -261,7 +261,7 @@ fn english_has_all_source_guides_and_assessments_for_both_varieties() {
                 registry
                     .guide_edition("english", "spanish", &skill.id)
                     .unwrap()
-                    .is_none()
+                    .is_some()
             );
         }
         assert_eq!(sections, 42);

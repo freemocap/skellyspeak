@@ -1,0 +1,226 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: arabic
+skill_id: possibilities_constraints
+explanation_language: spanish
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
+sections:
+  - subskill_id: ability
+    explanation: Describir una capacidad es decir qué puede hacer alguien. En árabe estándar moderno,
+      `أَسْتَطِيعُ` significa puedo. Puede ir seguido de `أَنْ` y un verbo que nombra la acción. El
+      ejemplo trata de la capacidad de nadar.
+    examples:
+      - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
+        meaning: "**El ejemplo.** Puedo nadar. `أَسْتَطِيعُ` significa puedo; `أَنْ` introduce la acción y
+          `أَسْبَحَ` significa que nado en esta construcción. Los dos verbos se refieren a la misma
+          primera persona, así que no hace falta añadir `أَنَا`, yo."
+        note: >-
+          **Observa la forma.** Después de `أَنْ`, este verbo termina en una a breve en la escritura
+          plenamente vocalizada: `أَسْبَحَ`. Sigue marcado para yo; no es una forma de diccionario
+          invariable.
+
+
+          **Practica.** Identifica la palabra que une capacidad y acción. Respuesta: `أَنْ`.
+  - subskill_id: permission
+    explanation: Antes de usar un lugar o una pertenencia ajena quizá necesites preguntar si te dejan
+      hacerlo. `هَلْ يُمْكِنُنِي` permite preguntar si puedo en árabe estándar moderno. En el
+      ejemplo, quien habla solicita permiso para sentarse aquí.
+    examples:
+      - text: هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَا؟
+        meaning: "**El ejemplo.** ¿Puedo sentarme aquí? `هَلْ` inicia una pregunta de sí o no. En
+          `يُمْكِنُنِي`, la terminación `نِي` se refiere a mí. `أَنْ أَجْلِسَ` indica la acción de
+          sentarse y `هُنَا` significa aquí."
+        note: >-
+          **Cambia el lugar.** Sustituye `هُنَا` por `هُنَاكَ` para allí. La estructura de permiso
+          se mantiene.
+
+
+          **Practica.** Pide sentarte allí. Respuesta: `هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَاكَ؟`
+          Conserva `أَنْ` antes del verbo de acción.
+  - subskill_id: obligation
+    explanation: Un plazo o un acuerdo puede hacer necesaria una acción. El árabe estándar moderno usa
+      `يَجِبُ أَنْ` seguido de un verbo para expresar un requisito. Ese verbo indica quién debe
+      actuar. Aquí devolver una llave corresponde a quien habla.
+    examples:
+      - text: يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ الْيَوْمَ.
+        meaning: "**El ejemplo.** Debo devolver la llave hoy. `يَجِبُ` expresa necesidad. `أَنْ أُعِيدَ`
+          nombra mi acción de devolver. `الْمِفْتَاحَ` es la llave y `الْيَوْمَ`, hoy. La marca de
+          primera persona está en `أُعِيدَ`, no en `يَجِبُ`."
+        note: >-
+          **Cambia el plazo.** Usa `غَدًا` para mañana.
+
+
+          **Practica.** Pasa el plazo a mañana. Respuesta: `يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ غَدًا`.
+          Mantén la misma acción y sustituye solo la expresión temporal.
+  - subskill_id: possibility
+    explanation: Si un resultado es incierto, puedes mencionarlo sin afirmarlo como hecho. `رُبَّمَا`
+      significa quizá e introduce esa posibilidad. El ejemplo contempla que el tren se retrase, pero
+      también deja abierta su puntualidad.
+    examples:
+      - text: رُبَّمَا يَتَأَخَّرُ الْقِطَارُ.
+        meaning: "**El ejemplo.** Puede que el tren llegue tarde. `رُبَّمَا` significa quizá. `يَتَأَخَّرُ`
+          nombra el retraso y `الْقِطَارُ` es el tren. Aquí el verbo precede al sujeto. `رُبَّمَا`
+          reduce la certeza sin decir que el retraso ocurrirá."
+        note: >-
+          **Compara.** Sin `رُبَّمَا`, `يَتَأَخَّرُ الْقِطَارُ` afirma que el tren se retrasa o
+          llega tarde, con la referencia temporal dada por el contexto.
+
+
+          **Practica.** ¿Qué palabra vuelve tentativa la afirmación inicial? Respuesta: `رُبَّمَا`.
+  - subskill_id: certainty
+    explanation: Puedes decir que todavía no puedes confirmar una afirmación. `لَسْتُ مُتَأَكِّدًا` o
+      `لَسْتُ مُتَأَكِّدَةً` significa no estoy seguro o segura. El adjetivo concuerda con quien
+      habla; el ejemplo usa femenino. Expresa incertidumbre, no desacuerdo.
+    examples:
+      - text: لَسْتُ مُتَأَكِّدَةً مِنْ ذٰلِكَ.
+        meaning: "**El ejemplo.** `لَسْتُ` significa no estoy. `مُتَأَكِّدَةً` es segura en femenino; `مِنْ
+          ذٰلِكَ` significa sobre eso. El adjetivo lleva acusativo después de `لَسْتُ` en el árabe
+          estándar plenamente vocalizado."
+        note: >-
+          **Cambia de hablante.** Con un hombre se usa `لَسْتُ مُتَأَكِّدًا مِنْ ذٰلِكَ`. `لَسْتُ`
+          sigue igual para yo.
+
+
+          **Practica.** ¿Qué parte remite a la afirmación anterior? Respuesta: `مِنْ ذٰلِكَ`. Dudar
+          no implica declarar que sea falsa.
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahNegationTeaching20261007
+    - madinahMoodsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original arabic constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current arabic guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original arabic constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: ability
+      explanation: Hablar de capacidad permite explicar qué puedes hacer, sea una destreza aprendida o
+        algo posible en esa situación. Una expresión levantina habitual para puedo es `بَقْدَرْ`,
+        seguida de un verbo que nombra la actividad. Aquí se trata de nadar.
+      examples:
+        - text: بَقْدَرْ أَسْبَحْ.
+          meaning: "**El ejemplo.** Puedo nadar. `بَقْدَرْ` significa puedo. `أَسْبَحْ` indica la acción sin
+            el prefijo b habitual del presente. Ambos verbos se unen directamente y se refieren a la
+            misma persona."
+          note: >-
+            **Conserva el patrón.** El prefijo de `بَقْدَرْ` no se copia al verbo siguiente. Hay
+            alternativas regionales, entre ellas la septentrional `فِينِي` para puedo.
+
+
+            **Practica.** ¿Qué parte nombra la actividad? Respuesta: `أَسْبَحْ`. La capacidad sola
+            no informa de lo que sabes hacer.
+    - subskill_id: permission
+      explanation: Para obtener el acuerdo de alguien antes de actuar, `مُمْكِنْ` puede introducir una
+        pregunta de permiso. Al hablar de un asiento libre, `مُمْكِنْ أَقْعُدْ هُونْ؟` pregunta si
+        puedes sentarte aquí. Conviene preguntar a alguien que pueda decidir sobre ese asiento.
+      examples:
+        - text: مُمْكِنْ أَقْعُدْ هُونْ؟
+          meaning: "**El ejemplo.** ¿Puedo sentarme aquí? `مُمْكِنْ` introduce el permiso; `أَقْعُدْ`
+            identifica mi acción de sentarme y `هُونْ` significa aquí. La entonación interrogativa y
+            esperar la respuesta hacen de la frase una petición."
+          note: >-
+            **Observa el segundo verbo.** Después de `مُمْكِنْ` en este patrón, la acción no lleva
+            el prefijo b habitual. El verbo identifica qué harías y la expresión de lugar, dónde.
+
+
+            **Practica.** ¿Qué palabra sitúa el asiento? Respuesta: `هُونْ`.
+    - subskill_id: obligation
+      explanation: Un objeto prestado puede tener que devolverse a una hora acordada. El árabe levantino
+        usa `لَازِمْ` más un verbo para indicar que una acción es necesaria. El verbo expresa quién
+        debe hacerla. Aquí quien habla tiene que devolver una llave hoy.
+      examples:
+        - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
+          meaning: "**El ejemplo.** Debo devolver la llave hoy. `لَازِمْ` expresa la obligación. `أَرَجِّعْ`
+            significa devuelvo aquí; después vienen `الْمِفْتَاحْ`, la llave, y `الْيَوْمْ`, hoy. La
+            consonante central duplicada de `أَرَجِّعْ` forma parte del verbo."
+          note: >-
+            **Conserva la construcción.** El verbo después de `لَازِمْ` no lleva aquí el prefijo b
+            habitual y sigue señalando a quien actúa. La expresión de obligación se une directamente
+            a la acción.
+
+
+            **Practica.** Quita el plazo. Respuesta: `لَازِمْ أَرَجِّعْ الْمِفْتَاحْ`. Sigue
+            existiendo la obligación, pero ya no se dice cuándo.
+    - subskill_id: possibility
+      explanation: Puede que oigas hablar de un retraso antes de que se confirme. En esta situación,
+        `يُمْكِنْ` significa quizá y permite mencionarlo sin presentarlo como seguro. El ejemplo
+        trata de lo que podría sucederle al tren.
+      examples:
+        - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
+          meaning: "**El ejemplo.** Puede que el tren llegue tarde. Aquí `يُمْكِنْ` funciona como quizá.
+            `الْقِطَارْ` aparece antes de `يِتْأَخَّرْ`, el retraso. Interpreta toda la frase como
+            posibilidad, no como capacidad del tren."
+          note: >-
+            **Usa el contexto.** Sirve para hablar de un retraso sin confirmar. No es una pregunta
+            que solicite permiso.
+
+
+            **Practica.** Alguien entiende que el retraso es seguro. ¿Qué palabra debes señalar?
+            Respuesta: `يُمْكِنْ`; quien habla dejó abierto el resultado.
+    - subskill_id: certainty
+      explanation: Si no puedes confirmar algo que han dicho, puedes expresar incertidumbre con `أَنَا
+        مِشْ مُتْأَكِّدِة`. Significa no estoy segura y el femenino concuerda con la hablante. Deja
+        abierta la cuestión sin declarar equivocada a la otra persona.
+      examples:
+        - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
+          meaning: "**El ejemplo.** `أَنَا` es yo, `مِشْ` niega el adjetivo y `مُتْأَكِّدِة` describe a la
+            hablante como segura en femenino. `مِنْ هَادْ` remite a ese asunto. Esta estructura
+            presente no tiene una palabra separada equivalente al estoy español."
+          note: >-
+            **Negación.** `مِشْ` niega el adjetivo. Sin esa palabra, la hablante dice que está
+            segura.
+
+
+            **Practica.** ¿Qué palabra quitarías para expresar certeza? Respuesta: `مِشْ`.

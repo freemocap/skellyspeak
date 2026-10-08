@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: people_places
+language: french
+explanation_language: spanish
+shared_explanation: skills/people-places/people-places-explained-in-spanish.yaml
+sections:
+  - subskill_id: identification
+    explanation: "Presentas a un vecino y luego cuentas su profesión. `C’est mon voisin` lo identifica:
+      `c’est` significa este es y `mon voisin`, mi vecino. `Il est vétérinaire` describe su
+      ocupación. Una profesión sin modificadores normalmente no lleva artículo después de `il est`;
+      `C’est un vétérinaire` identifica a alguien como veterinario y sí incluye `un`. Para una
+      mujer, `C’est ma voisine. Elle est vétérinaire.` cambia el vínculo y el pronombre; aquí
+      `vétérinaire` conserva la misma forma."
+    examples:
+      - text: C’est mon voisin. Il est vétérinaire.
+        meaning: Ese es mi vecino. Es veterinario.
+        note: "Presenta a una vecina veterinaria. `C’est ma voisine. Elle est vétérinaire.` funciona: `ma
+          voisine` y `elle` la identifican, y la profesión sigue sin artículo después de `elle
+          est`."
+  - subskill_id: qualities_states
+    explanation: Describes la cocina de un piso, su tamaño y la luz que recibe. `La petite cuisine`
+      significa la cocina pequeña; `est lumineuse` dice que es luminosa. `petite` y `lumineuse`
+      concuerdan con el femenino singular `cuisine`. El adjetivo de tamaño `petite` va aquí antes
+      del sustantivo, mientras la luminosidad aparece después de `est`. Con el masculino `salon`, se
+      obtiene `Le petit salon est lumineux.` Los adjetivos franceses no tienen todos la misma
+      posición; conviene aprender la combinación con el sustantivo.
+    examples:
+      - text: La petite cuisine est lumineuse.
+        meaning: La cocina pequeña es luminosa.
+        note: Describe un salón pequeño y luminoso. `Le petit salon est lumineux.` funciona porque el
+          artículo y ambos adjetivos llevan forma masculina singular por `salon`.
+  - subskill_id: location_movement
+    explanation: Un grupo va a un museo y la estación permite identificar cuál. `Nous allons` significa
+      vamos; `au musée` indica el destino y `près de la gare`, cerca de la estación. `Au` combina
+      `à` con `le`; ante un sustantivo femenino las palabras siguen separadas, como en `à la gare`.
+      Esta oración describe movimiento hacia un sitio. `Nous sommes au musée` dice, en cambio, dónde
+      está ya el grupo. El verbo marca esa diferencia aunque la expresión del lugar sea parecida.
+    examples:
+      - text: Nous allons au musée près de la gare.
+        meaning: Vamos al museo que está cerca de la estación.
+        note: "Di que ya estáis en el museo. `Nous sommes au musée près de la gare.` funciona: `sommes`
+          describe la ubicación en vez del trayecto."
+  - subskill_id: possession_relations
+    explanation: "Identificas a alguien mediante su vínculo con un colega. `C’est la sœur` significa
+      esta es la hermana y `de mon collègue` indica de quién es hermana. El francés relaciona estos
+      nombres con `de`, no con una terminación posesiva inglesa. Aquí `Mon` concuerda con el
+      masculino singular `collègue`; para una colega se puede decir `de ma collègue`. El posesivo
+      concuerda con el sustantivo que introduce: `sa sœur` puede ser la hermana de él o de ella
+      porque `sœur` es femenino, independientemente del género de la otra persona."
+    examples:
+      - text: C’est la sœur de mon collègue.
+        meaning: Esa es la hermana de mi colega.
+        note: "Identifica al hermano de tu colega. `C’est le frère de mon collègue.` funciona: la relación
+          pasa al masculino `le frère`, y la frase con `de` sigue identificando a tu colega."
+  - subskill_id: quantity_comparison
+    explanation: Comparas dos piezas de equipaje antes de cargarlas. `Cette valise` significa esta
+      maleta; `plus légère que mon sac`, más ligera que mi bolsa. `Plus` forma la comparación y
+      `que` introduce el segundo objeto. `Légère` concuerda con la femenina `valise`; `Ce sac est
+      plus léger que ma valise` describe, en cambio, el masculino `sac`. Para igualdad de peso,
+      `aussi légère que` significa tan ligera como. Una cantidad como `deux valises` cuenta maletas,
+      pero no compara su peso.
+    examples:
+      - text: Cette valise est plus légère que mon sac.
+        meaning: Esta maleta es más ligera que mi bolsa.
+        note: "Di que tu bolsa es más ligera que la maleta. `Mon sac est plus léger que ma valise.`
+          funciona: `léger` concuerda con la bolsa descrita, no con el objeto después de `que`."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of current french guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+    - texAdjectivesTeaching20261007
+    - texComparativesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original french constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

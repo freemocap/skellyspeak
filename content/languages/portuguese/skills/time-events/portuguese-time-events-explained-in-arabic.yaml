@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: time_events
+explanation_language: arabic
+shared_explanation: skills/time-events/time-events-explained-in-arabic.yaml
+sections:
+  - subskill_id: present_events
+    explanation: "يسألك شخص عمّا تفعله في المطبخ الآن. تعرض `Estou preparando a massa do pão` نشاطًا
+      جاريًا: `estou` مضارع المتكلم من `estar`، و`preparando` صيغة الفعل المستمر من `preparar`، و`a
+      massa do pão` عجين الخبز؛ تجمع `do` بين `de` و`o`. أما `Preparo pão toda semana` فتصف عادةً.
+      يركز التركيب المستمر على العملية الحالية."
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: أحضّر عجين الخبز الآن.
+        note: "قل إنك تخبز الخبز الآن. الإجابة: `Estou assando o pão.` وهي جملة كاملة عن حدث جارٍ؛ تحل
+          `assando` محل `preparando` بوصفها النشاط الجاري."
+  - subskill_id: past_events
+    explanation: "يسألك صديق عمّا فعلته بالدراجة أمس. تخبر `Ontem troquei o pneu da bicicleta` بفعل ماضٍ
+      مكتمل: تضعه `ontem` في الأمس، وتعني `troquei` غيّرت، وتحدد `o pneu da bicicleta` إطار الدراجة.
+      `Troquei` صيغة المتكلم في الماضي البسيط من `trocar`؛ ويحافظ رسم `qu` على صوت القاف الصلب قبل
+      `ei`. لا تحتاج البرتغالية إلى فعل مساعد بمعنى «have» لهذا الحدث المكتمل."
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: غيّرت إطار الدراجة أمس.
+        note: "أخبر بأنك غيّرت سلسلة الدراجة أمس. الإجابة: `Ontem troquei a corrente da bicicleta.` وهي حدث
+          ماضٍ كامل؛ تبقى `troquei` الفعل المكتمل وتتغير مفعوله إلى `a corrente`."
+  - subskill_id: future_events
+    explanation: "تخطط لرحلة إلى المكتبة غدًا. تضع `Amanhã vou levar os livros à biblioteca` الفعل
+      لاحقًا باستخدام `amanhã` و`vou levar`: `vou` مضارع `ir` للمتكلم، ويبقى `levar` في المصدر. تعني
+      `À biblioteca` إلى المكتبة؛ وتجمع `à` بين `a` الدالة على الاتجاه وأداة المؤنث `a`. وقد تعني
+      `Hoje levo os livros` ترتيبًا لهذا اليوم. ولا تصير النية المستقبلية وعدًا لشخص آخر تلقائيًا."
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: سآخذ الكتب إلى المكتبة غدًا.
+        note: "خطط لأخذ الصناديق إلى المكتبة غدًا. الإجابة: `Amanhã vou levar as caixas à biblioteca.` وهي
+          كاملة؛ وتحدد `vou levar` الفعل المخطط له لاحقًا، وتسمّي `as caixas` الشيء الجديد."
+  - subskill_id: duration_frequency
+    explanation: "يسألك شخص منذ متى تعمل في هذا المكان. تعني `Trabalho aqui há seis meses` أن العمل بدأ
+      قبل ستة أشهر وما زال مستمرًا: `trabalho` مضارع، و`aqui` هنا، وتقيس `há seis meses` المدة
+      المنقضية. كثيرًا ما توحي صيغة `tenho trabalhado` البرتغالية بنشاط متكرر أو مستمر حديثًا؛ ولا
+      تقابل آليًا كل جملة إنجليزية من نوع «have been working». وعلى خلاف ذلك تحدد `Trabalho aqui
+      toda sexta-feira` عدد المرات، لا طول المدة."
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: أعمل هنا منذ ستة أشهر.
+        note: "قل إنك تعمل هنا منذ عامين. الإجابة: `Trabalho aqui há dois anos.` وهي كاملة؛ يبيّن فعل
+          المضارع استمرار الوضع، وتعطي `há dois anos` مدته."
+  - subskill_id: event_sequence
+    explanation: "تشرح خطوات وصفة طعام. توضح `Primeiro misturo a farinha, depois acrescento a água`
+      ترتيبها: تعني `primeiro` أولًا، و`misturo` أخلط، و`depois` بعد ذلك، و`acrescento` أضيف.
+      الفعلان بصيغة المضارع المستعملة لوصف الإجراء. تقول `Depois` إن فعلًا يتبع آخر، ولا تشرح وحدها
+      سبب وقوع أي منهما."
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: أخلط الدقيق أولًا، ثم أضيف الماء.
+        note: "اشرح ترتيبًا عمليًا لتحضير الخضار. الإجابة: `Primeiro lavo os legumes, depois corto os
+          legumes.` وهي كاملة؛ تضع `primeiro` الغسل قبل التقطيع، وتقدم `depois` الخطوة التالية."
+  - subskill_id: event_phase
+    explanation: "يسألك شخص هل انتهيت من قراءة الكتاب. تقول `Já terminei a leitura do livro` إنك بلغت
+      النهاية: تعني `já` بالفعل، و`terminei` أنهيت، وتسمّي `a leitura do livro` القراءة. تستخدم
+      البرتغالية هنا صيغة ماضٍ بسيطة، وإن قالت الإنجليزية «I have finished». وللقراءة المستمرة، تقدم
+      `Ainda estou lendo o livro` المرحلة الأخرى: تعني `ainda` ما زلت، وتعرض `estou lendo` النشاط
+      الجاري. تصف الإجابتان مرحلتين متقابلتين من المهمة نفسها."
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: أنهيت بالفعل قراءة الكتاب.
+        note: "قل إنك أنهيت بالفعل قراءة المقال. الإجابة: `Já terminei a leitura do artigo.` وهي عبارة
+          اكتمال كاملة؛ وتحل `do artigo` محل `do livro` بينما تحدد `já terminei` بلوغ النهاية."
+      - text: Ainda estou lendo o livro.
+        meaning: ما زلت أقرأ الكتاب.
+        note: "قل إنك ما زلت تقرأ المقال. الإجابة: `Ainda estou lendo o artigo.` وهي كاملة لنشاط لم ينتهِ؛
+          تبين `ainda` و`estou lendo` الاستمرار لا الاكتمال."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: feelings_viewpoints
+language: english
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 愿望和计划的作用不同。你可能想学习，却没有留出时间；说自己计划学习，则告诉朋友这是打算做的事。不过，这仍不能保证最终一定会发生。
+    examples:
+      - text: I plan to study tonight.
+        meaning: "`I plan` 表明打算，`to study` 说出要做的事，`tonight` 给出时间。`plan` 后用 `to` 加动词原形连接下一步行动。换成另一个人，就得到 `She plans to
+          study tonight`。"
+        note: |-
+          比较 `I want to study tonight`：它表达愿望，尚未必成为计划。`I am studying tonight` 则可能把学习呈现为已安排的活动。
+
+          **练一练。** 说明你打算明天做饭。答案：`I plan to cook tomorrow`。`cook` 前保留 `to`，用来连接计划与所打算的动作。
+  - subskill_id: preferences
+    explanation: 偏好告诉别人你更喜欢哪个选择。主人提供两种饮料时，你可以说茶是首选，而不必表示讨厌咖啡。`Prefer` 明确标出比较。
+    examples:
+      - text: I prefer tea to coffee.
+        meaning: "`I prefer` 引出你的选择。`Tea` 是较喜欢的一项；`to coffee` 给出另一项。在这个比较里，`to` 连接两个事物，并非引出动作。把两项对换，偏好也会反转：`I prefer
+          coffee to tea`。"
+        note: >-
+          这里用 `to`，不用 `than`：`I prefer tea to coffee`。单说 `I like tea` 没有比较两种饮料。也可以比较活动：`I prefer walking to
+          driving`。
+
+
+          **练一练。** 你更喜欢早晨，而不是晚上。答案：`I prefer mornings to evenings`。较喜欢的选项放前面，另一项放在 `to` 后。
+  - subskill_id: emotions
+    explanation: 说出感受能帮助别人理解你的反应。面试前，你可能担心接下来会怎样。`Feel` 后接描述词说出感受；`about` 可以引出感受针对的事。
+    examples:
+      - text: I feel nervous about the interview.
+        meaning: "`I feel` 报告说话人的感受。`Nervous` 描述紧张，`about the interview` 指出紧张与面试有关。描述词不因人称改变：`She feels nervous`。"
+        note: >-
+          `I am nervous` 也能描述这种状态。`Nervous` 说的是人的感受；`nerve-racking` 可以描述引起紧张的经历：`The interview was
+          nerve-racking`。两词不能互换。
+
+
+          **练一练。** 描述自己对旅行感到兴奋。答案：`I feel excited about the trip`。`Excited` 说出你的感受，`about the trip` 解释它针对什么。
+  - subskill_id: opinions
+    explanation: 表达意见让你参与讨论并给出自己的判断。如果小组正在选择计划，你也许认为费用是个问题。`I think` 把后面的陈述呈现为个人看法，并给别人回应的空间。
+    examples:
+      - text: I think this plan is too expensive.
+        meaning: "`I think` 引出判断。`This plan is too expensive` 给出具体内容：`too` 表示价格超过合适程度，不只是价格高。还可以补充理由，例如 `It uses our
+          whole budget`。"
+        note: |-
+          比较 `very expensive`：它描述价格高，但本身没说高得不合适。`I don’t think this plan is affordable` 是表达负面意见的常见方式。
+
+          **练一练。** 说出你认为一个房间小得不合适。答案：`I think this room is too small`。`Too` 表明大小成了问题。
+  - subskill_id: agreement_disagreement
+    explanation: 赞同是对别人看法的回应。队友说工作还需一天时，你可以明确接受这一点。如果讨论里有几个不同提议，说清自己赞同哪一个会更有帮助。
+    examples:
+      - text: I agree that we need more time.
+        meaning: "`I agree` 表示你持相同看法。`That we need more time` 说明所接受的观点；`that` 把赞同与完整的陈述连起来。若赞同某个人，用 `with`：`I agree
+          with you`。"
+        note: >-
+          若要不同意又不攻击对方，可以说 `I see your point, but I think we have enough time`。理解观点不等于接受它。避免错误的 `I am
+          agree`；`agree` 本身就是主要动词。
+
+
+          **练一练。** 表示赞同房间太小。答案：`I agree that the room is too small`。`that` 后面的词明确双方共同的判断。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cefr2020
+    - bcAgreementTeaching20261007
+    - bcInfinitivesTeaching20261007
+    - bbcPreferencesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.

@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: reasons_connections
+explanation_language: arabic
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-arabic.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "يسألك صديق لماذا لم تخرج. تعطي `Fiquei em casa porque estava chovendo` السبب: تخبر
+      `fiquei em casa` أنك بقيت في المنزل، وتعني `porque` لأن، وتعرض `estava chovendo` المطر بوصفه
+      جاريًا في ذلك الوقت الماضي. تشرح عبارة السبب القرار، ولا تضيف حدثًا ثانيًا غير مرتبط. تُكتب
+      أداة السؤال «لماذا» بالبرتغالية `por que`، بينما تُكتب `porque` التفسيرية هنا كلمة واحدة."
+    examples:
+      - text: Fiquei em casa porque estava chovendo.
+        meaning: بقيت في المنزل لأن المطر كان يهطل.
+        note: "اجعل المرض سبب البقاء في المنزل. الإجابة: `Fiquei em casa porque estava doente.` وهي كاملة؛
+          تربط `porque` الفعل بسببه، وتقدم `estava doente` السبب."
+  - subskill_id: consequences
+    explanation: "ثُقب إطار دراجتك أثناء الرحلة، فرجعت ماشيًا. تعرض `O pneu furou, por isso voltei a pé`
+      النتيجة: تقول `furou` إن الإطار ثُقب، وتعني `por isso` لذلك أو بسبب ذلك، وتعني `voltei` عدت،
+      و`a pé` مشيًا. تعود أداة الربط إلى الثقب بوصفه سبب المشي. أما `O pneu furou, depois voltei a
+      pé` فلا تفعل سوى ترتيب الحدثين ما لم تتضح السببية بوسيلة أخرى. تجعل `Por isso` النتيجة صريحة."
+    examples:
+      - text: O pneu furou, por isso voltei a pé.
+        meaning: ثُقب الإطار، فرجعت ماشيًا.
+        note: "اشرح سبب وصولك متأخرًا عندما تأخرت الحافلة. الإجابة: `O ônibus atrasou, por isso cheguei
+          tarde.` وهي نتيجة كاملة؛ تربط `por isso` الوصول المتأخر بتأخر الحافلة."
+  - subskill_id: conditions
+    explanation: "تخطط لتبادل الكتب غدًا، ويتوقف المكان على هطول المطر. تتضمن `Se chover amanhã, vamos
+      fazer a troca de livros na biblioteca` شرطًا ونتيجة: تعني `se` إذا، و`chover` صيغة المستقبل في
+      المزاج الافتراضي من الفعل `chover`، وتبيّن `vamos fazer` الفعل المخطط له إن هطل المطر. تصادف
+      أن صيغة المستقبل الافتراضي للفعل المنتظم تبدو مثل المصدر هنا. وتظهر الصيغة المختلفة مع فعل غير
+      منتظم: تعني `Se tivermos tempo, vamos fazer a troca` «إذا توفر لنا الوقت، سنقيم التبادل». ولا
+      تزعم أيّ من الجملتين أن المطر أو وقت الفراغ قد حصل بالفعل."
+    examples:
+      - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
+        meaning: إذا أمطرت غدًا، فسنقيم تبادل الكتب في المكتبة.
+        note: "اجعل توفر الوقت شرطًا بدل المطر. الإجابة: `Se tivermos tempo, vamos fazer a troca de livros
+          na biblioteca.` وهي شرط متوقع كامل؛ و`tivermos` صيغة المستقبل الافتراضي من `ter` للمتكلم
+          الجمع."
+  - subskill_id: contrast
+    explanation: "تريد ركوب الدراجة، لكن إطارها مثقوب. تقابل `Quero ir de bicicleta, mas o pneu está
+      furado` رغبة بعائق: تعني `quero ir` أريد الذهاب، وتحدد `de bicicleta` وسيلة النقل، وتعني `mas`
+      لكن، وتبيّن `está furado` حالة الإطار الحالية. تهم العبارة الثانية لأنها تعوق الأولى. ولن يصنع
+      خبر ثانٍ عشوائي بعد `mas` تباينًا مفيدًا."
+    examples:
+      - text: Quero ir de bicicleta, mas o pneu está furado.
+        meaning: أريد الذهاب بالدراجة، لكن الإطار مثقوب.
+        note: "قابل رغبتك في المشي بالمطر. الإجابة: `Quero ir a pé, mas está chovendo.` وهو تباين كامل؛ إذ
+          يجعل المطر المشي المطلوب أقل عملية."
+  - subskill_id: supporting_claims
+    explanation: "توصي بطريق دون آخر. تقدم `Acho que este caminho é melhor: é mais curto` الحكم أولًا ثم
+      تسوق ما يدعمه. تشير `Acho que` إلى رأيك، وتعني `este caminho` هذا الطريق، و`é melhor` أفضل،
+      وتشرح `é mais curto` أنه أقصر. العبارة الثانية دليل ذو صلة بالحكم حتى من دون `porque`. ولا
+      تسند الحكمَ حقيقةٌ غير مرتبطة به."
+    examples:
+      - text: "Acho que este caminho é melhor: é mais curto."
+        meaning: "أعتقد أن هذا الطريق أفضل: إنه أقصر."
+        note: "ادعم التوصية نفسها بالسلامة. الإجابة: `Acho que este caminho é melhor: é mais seguro.` وهي
+          كاملة؛ وتقدم `é mais seguro` سببًا مناسبًا لاختيار الطريق."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

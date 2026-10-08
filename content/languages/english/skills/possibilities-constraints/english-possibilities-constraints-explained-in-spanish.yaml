@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: possibilities_constraints
+language: english
+explanation_language: spanish
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
+sections:
+  - subskill_id: ability
+    explanation: "La capacidad es lo que sabes hacer o puedes hacer en una situación. En inglés suele
+      expresarse con `can` seguido de un verbo de acción. En el ejemplo, quien habla tiene fuerza
+      para llevar dos bolsas. Tras `can`, el verbo conserva su forma básica: `carry`, no `carries`
+      ni `to carry`."
+    examples:
+      - text: I can carry both bags.
+        meaning: "**Cómo funciona.** Aquí `Can` expresa capacidad; `carry` nombra la acción. `Both bags`
+          significa las dos bolsas juntas. Sustituye la acción para crear otra oración: `I can lift
+          this box`."
+        note: >-
+          **Modifica la oración.** Para incapacidad, usa `can't`: `I can't carry both bags`. Para
+          preguntar, coloca `can` al principio: `Can you carry both bags?` Deja `carry` sin cambios.
+
+
+          **El contexto importa.** Si una amistad tiene problemas con su equipaje, la oración
+          inicial también puede ofrecer ayuda; la situación añade esa función.
+
+
+          **Practica.** Convierte `She carries this box` en una afirmación de capacidad. Respuesta:
+          `She can carry this box`. Después de `can` se usa `carry`, no `carries`.
+  - subskill_id: permission
+    explanation: El permiso es la autorización de otra persona para hacer algo. En inglés, las preguntas
+      con `Can I`, `Could I` o `May I` pueden pedir esa autorización antes de actuar. `Can I` es
+      cotidiano; `Could I` es más tentativo y `May I` más formal. Después se usa el verbo de acción
+      sin modificar.
+    examples:
+      - text: May I use this chair?
+        meaning: "**Cómo funciona.** `May I` pide permiso para quien habla. `Use this chair` nombra la
+          acción; `use` no lleva `to` delante. Pregunta a alguien que pueda decidir si la silla está
+          disponible."
+        note: >-
+          **Compara.** `Can I use this chair?` también pide permiso en esta situación. `Can you move
+          this chair?` pide, en cambio, que actúe la otra persona. Cambiar `I` por `you` cambia de
+          quién es la acción.
+
+
+          **Practica.** Pide permiso para abrir una ventana. Una respuesta: `Could I open the
+          window?` Una contestación como `Yes, go ahead` lo concede; `Sorry, please keep it closed`
+          lo deniega y explica qué hacer.
+  - subskill_id: obligation
+    explanation: Una obligación es algo que debe suceder, quizá por una norma, un acuerdo o una
+      necesidad práctica. En inglés, `have to` expresa con frecuencia esa idea. En el ejemplo, es
+      necesario salir y hay una hora límite. Tras `Have to` va el verbo de acción en su forma
+      simple.
+    examples:
+      - text: We have to leave by eight.
+        meaning: "**Cómo funciona.** `Have to` convierte la salida en una obligación. `By eight` fija el
+          plazo: las ocho es la hora más tardía, aunque se puede salir antes. `At eight` fijaría la
+          hora exacta de salida."
+        note: >-
+          **Atención a la negación.** `We don't have to leave` significa que salir es opcional. `We
+          mustn't leave` significa que está prohibido salir. Son indicaciones distintas aunque
+          `must` y `have to` puedan expresar obligación.
+
+
+          **Pregunta por ella.** Usa `Do we have to leave?` para comprobar si es necesario salir.
+
+
+          **Practica.** La asistencia es opcional. Elige entre `You don't have to come` y `You
+          mustn't come`. Respuesta: `You don't have to come`; aún pueden decidir asistir.
+  - subskill_id: possibility
+    explanation: Un suceso posible puede ocurrir, pero no es seguro. En inglés, `might` o `may` se
+      colocan antes del verbo de acción para dejar abierto otro resultado. En el ejemplo, quizá
+      llegue una entrega hoy, pero nadie puede confirmarlo. El verbo no cambia tras `might` o `may`.
+    examples:
+      - text: The delivery might arrive today.
+        meaning: "**Cómo funciona.** `The delivery` identifica aquello de lo que se habla. `Might arrive`
+          deja incierta la llegada, y `today` indica cuándo. Cambiar `today` por `tomorrow` modifica
+          el momento sin eliminar la incertidumbre."
+        note: >-
+          **Compara.** `The delivery will arrive today` presenta la llegada como expectativa o
+          predicción. Añadir `might` deja abierto otro resultado. Usa `might not` si es posible que
+          no llegue: `The delivery might not arrive today`. Eso no significa que definitivamente no
+          llegará.
+
+
+          **Practica.** No tienes fecha de entrega confirmada. Reduce la certeza de `The parcel
+          arrives tomorrow`. Una respuesta: `The parcel might arrive tomorrow`. Después de `might`,
+          `arrives` pasa a `arrive`.
+  - subskill_id: certainty
+    explanation: La certeza indica cuánto confías en que algo sea verdad. `I'm not sure whether…`
+      permite señalar una pregunta cuya respuesta no puedes confirmar. En el ejemplo, no sabes si
+      una puerta está cerrada con llave. La duda deja abiertas ambas posibilidades.
+    examples:
+      - text: I am not sure whether the door is locked.
+        meaning: "**Cómo funciona.** `Not sure` describe tu grado de confianza. `Whether the door is locked`
+          identifica la cuestión pendiente: si está cerrada con llave o no. Después de `whether`, conserva el
+          orden de una afirmación, `the door is`, no el de la pregunta directa `is the door`."
+        note: >-
+          **Compara.** `I'm sure the door is locked` expresa confianza en que está cerrada con llave. `I'm not
+          sure whether the door is locked` deja abiertas las dos opciones. Dudar no significa creer
+          lo contrario.
+
+
+          **Practica.** No puedes confirmar la respuesta a `Is the shop open?` Expresa esa
+          incertidumbre. Una respuesta: `I'm not sure whether the shop is open`. Después de
+          `whether` va el orden afirmativo `the shop is open`.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored Spanish localization of current english guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original english constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

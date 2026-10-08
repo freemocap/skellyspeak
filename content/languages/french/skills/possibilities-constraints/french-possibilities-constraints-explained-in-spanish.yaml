@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: possibilities_constraints
+language: french
+explanation_language: spanish
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
+sections:
+  - subskill_id: ability
+    explanation: Una bicicleta necesita reparación y has aprendido la habilidad necesaria. `Je sais`
+      significa sé hacer; `réparer une roue de vélo`, reparar una rueda de bicicleta. `Savoir`
+      seguido de infinitivo expresa una destreza aprendida; aquí la acción no lleva `de`. `Je peux
+      réparer la roue` puede indicar, en cambio, que ahora dispones del tiempo y las herramientas
+      para hacerlo. `Nous savons réparer` cambia quién domina la habilidad y conserva el infinitivo.
+    examples:
+      - text: Je sais réparer une roue de vélo.
+        meaning: Sé reparar una rueda de bicicleta.
+        note: "Di que tu grupo sabe reparar una bicicleta. `Nous savons réparer un vélo.` funciona: `savons`
+          concuerda con `nous` y `réparer` sigue nombrando la destreza aprendida."
+  - subskill_id: permission
+    explanation: La habitación está calurosa, pero abrir la ventana afecta a otras personas, así que
+      pides permiso. `Est-ce que` introduce la pregunta; `je peux` significa puedo y `ouvrir la
+      fenêtre` nombra la acción propuesta. El contexto la convierte en petición de permiso y no en
+      una prueba de fuerza física. `Vous pouvez ouvrir la fenêtre` puede concederlo. La respuesta
+      negativa `Vous ne pouvez pas ouvrir la fenêtre` lo niega; `ne` y `pas` rodean el verbo
+      conjugado.
+    examples:
+      - text: Est-ce que je peux ouvrir la fenêtre ?
+        meaning: ¿Puedo abrir la ventana?
+        note: "Pide permiso para cerrar la puerta. `Est-ce que je peux fermer la porte ?` funciona: se
+          conserva la estructura de permiso y el infinitivo indica la nueva acción."
+  - subskill_id: obligation
+    explanation: Vais a dejar una habitación alquilada y es obligatorio devolver las llaves antes del
+      mediodía. `Nous devons` significa debemos; `rendre les clés` es devolver las llaves y `avant
+      midi` fija el plazo. `Devons` concuerda con `nous`, mientras `rendre` permanece en infinitivo.
+      `Nous ne devons pas garder les clés` significa que no debemos quedarnos con las llaves. No
+      expresa ausencia de necesidad; esta puede expresarse con `Nous n’avons pas besoin de garder
+      les clés.`
+    examples:
+      - text: Nous devons rendre les clés avant midi.
+        meaning: Debemos devolver las llaves antes del mediodía.
+        note: "Dirige la obligación a una persona tratada de `vous`. `Vous devez rendre les clés avant
+          midi.` funciona: solo cambian el sujeto y la forma correspondiente de `devoir`."
+  - subskill_id: possibility
+    explanation: "El pronóstico es incierto, así que dices que quizá nieve esta noche. `Il va neiger`
+      significa va a nevar; el sujeto meteorológico `il` no se refiere a una persona. `Peut-être`
+      significa quizá y reduce la certeza de la predicción. `Cette nuit` sitúa el suceso esta noche.
+      También puede ir al principio: `Peut-être qu’il va neiger cette nuit.` Sin `peut-être`, `Il va
+      neiger cette nuit` presenta un pronóstico más firme. La palabra de incertidumbre lleva guion;
+      no son dos palabras separadas equivalentes a puede ser."
+    examples:
+      - text: Il va peut-être neiger cette nuit.
+        meaning: Quizá nieve esta noche.
+        note: "Haz el mismo pronóstico incierto sobre la lluvia. `Il va peut-être pleuvoir cette nuit.`
+          funciona: `pleuvoir` sustituye el fenómeno meteorológico y sigue en infinitivo después de
+          `va`."
+  - subskill_id: certainty
+    explanation: Acabas de comprobar el mostrador y afirmas con seguridad que está cerrado. `Je suis
+      certaine que` significa estoy segura de que; `le guichet est fermé` presenta el hecho. `Je
+      viens de vérifier` indica que acabas de comprobarlo y explica tu confianza. `Certaine` es el
+      femenino que describe a la hablante; el masculino es `certain`. `Fermé` concuerda con el
+      masculino `guichet`, no con quien habla. `Je pense que` expresaría una seguridad menos
+      explícita.
+    examples:
+      - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
+        meaning: Estoy segura de que el mostrador está cerrado; acabo de comprobarlo.
+        note: "Mantén el mismo hecho comprobado para un hablante masculino. `Je suis certain que le guichet
+          est fermé : je viens de vérifier.` funciona: solo cambia `certain`; el mostrador y la
+          comprobación son iguales."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of current french guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_modals2026
+    - tex_conditional2026
+    - texRecentPastTeaching20261007
+    - texNearFutureTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original french constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

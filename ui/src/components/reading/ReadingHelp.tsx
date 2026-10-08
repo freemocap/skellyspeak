@@ -152,7 +152,7 @@ export function ReadingInspector({ selection, languages, onClose }: { selection:
       : <ExplanationCards cards={result.explanations.cards} nativeLanguageName={scope.explanation} />}</ReadingScopeContext>}
     {pending && <p className="activity-line reading-progress"><ActivityIndicator label={tr(analyzing ? 'Working out the grammar…' : 'Finding word meanings…')} /></p>}
     {failure != null && <ErrorNotice error={failure}>{message(failure)}<ResponseDetails value={details(failure)} /></ErrorNotice>}
-    {(failure != null || result?.gloss?.coverage === 'partial') && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr(analyzing ? 'Retry' : 'Retry word meanings')}</button>}
+    {(failure != null || result?.gloss?.coverage === 'partial' && !result.dictionaryAnchors?.length) && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr(analyzing ? 'Retry' : 'Retry word meanings')}</button>}
     <AskCoachButton question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${scope.language} passage: “${selection.text}”.`} onClose={onClose} />
   </div></DetailDialog>
 }

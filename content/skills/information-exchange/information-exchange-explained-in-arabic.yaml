@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: information_exchange
+explanation_language: arabic
+title: تبادل المعلومات
+introduction: اطرح الأسئلة، وأجب عنها، وتحقق من وضوح المعلومات وصحتها.
+sections:
+  - subskill_id: asking_information
+    title: طلب المعلومات
+    concept: اسأل عن معلومات لا تعرفها بعد.
+  - subskill_id: answering_information
+    title: الإجابة ذات الصلة
+    concept: قدّم المعلومات التي يسأل عنها الشخص الآخر.
+  - subskill_id: checking_facts
+    title: التحقق من الحقائق
+    concept: تحقق من صحة تفصيلٍ ما أو مما سمعته.
+  - subskill_id: useful_detail
+    title: تقديم تفاصيل مفيدة
+    concept: قدّم تفاصيل كافية لتكون معلوماتك مفيدة.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

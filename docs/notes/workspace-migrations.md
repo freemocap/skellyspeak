@@ -4,7 +4,9 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **54**. Format 53 → 54 restores v4 Turbo for saved v3 selections after listening tests reproduced an accent regression; plain-source synthesis remains in place. See the format-54 section below. The 51 → 52 step adopts the bundled v4 Turbo synthesis default while preserving historical receipts and custom model IDs. The preceding format 51 introduced explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
+Current format: **56**. Format 54 → 55 adds imported-reading records; 55 → 56
+preserves both imported tables while admitting explicit editorial review alongside
+source checking. See [the reading expansion](reading-preload-plan.md#expansion-checkpoint-2026-10-07). Format 53 → 54 restores v4 Turbo for saved v3 selections after listening tests reproduced an accent regression; plain-source synthesis remains in place. See the format-54 section below. The 51 → 52 step adopts the bundled v4 Turbo synthesis default while preserving historical receipts and custom model IDs. The preceding format 51 introduced explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
 preference: coaching is required on new turns. Captured turn policy, operations,
 learner revision, evidence and awards remain unchanged. The removed preference
 is intentionally retired; the three optional-work preferences retain their values.

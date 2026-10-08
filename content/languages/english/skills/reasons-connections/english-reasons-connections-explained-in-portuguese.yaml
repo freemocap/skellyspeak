@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-portuguese-2026-10-07
+skill_id: reasons_connections
+language: english
+explanation_language: portuguese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-portuguese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Uma razão ajuda a entender por que uma ação fazia sentido. Se um amigo pergunta por que
+      você não saiu, relacione o fato de ficar dentro de casa à estrada alagada. `Because` introduz
+      a explicação da escolha.
+    examples:
+      - text: We stayed inside because the road was flooded.
+        meaning: "`We stayed inside` apresenta a ação. `Because the road was flooded` dá a razão. Depois de
+          `because`, há uma afirmação completa com sujeito `the road` e verbo `was`."
+        note: "`Because of the flood` expressa razão semelhante com expressão nominal: `We stayed inside
+          because of the flood`. Mantenha os padrões distintos; o incorreto `because of the road was
+          flooded` os mistura. **Pratique.** Explique que saiu cedo porque estava cansado. Resposta:
+          `I left early because I was tired`. Depois de `because`, há uma explicação completa para a
+          saída."
+  - subskill_id: consequences
+    explanation: Uma consequência diz o que resultou de uma situação. Se não havia espaço no ônibus,
+      vocês talvez tenham caminhado. Ligar os fatos ajuda a entender a decisão, em vez de ouvir
+      eventos desconexos.
+    examples:
+      - text: The bus was full, so we walked.
+        meaning: "`The bus was full` informa a situação. `So` introduz o resultado `we walked`. Nesse
+          padrão, a razão vem primeiro e a resposta depois. Ambos os verbos situam o relato no
+          passado."
+        note: "Compare `We walked because the bus was full`: a razão agora vem depois da ação. `The bus was
+          full, and we walked` lista os dois fatos sem explicitar tanto sua relação. **Pratique.**
+          Ligue o fechamento de um café à compra de comida em outro lugar. Resposta: `The café was
+          closed, so we bought food elsewhere`. `So` marca a segunda ação como consequência."
+  - subskill_id: conditions
+    explanation: Uma condição faz um plano depender do que ocorrer. Ao decidir onde comer, a chuva pode
+      determinar se uma mesa interna será usada. Descreva esse futuro possível sem dizer que
+      certamente choverá.
+    examples:
+      - text: If it rains, we will eat indoors.
+        meaning: "`If it rains` apresenta a condição. `We will eat indoors` apresenta o resultado caso ela
+          se cumpra. Nesse padrão de futuro aberto, `rains` está no presente, embora a chuva seja
+          futura. `Will` aparece no resultado."
+        note: "Neste exemplo, normalmente não ponha `will` na condição: use `If it rains`, não o incorreto
+          `If it will rain`. Também é possível inverter: `We will eat indoors if it rains`.
+          **Pratique.** Faça o ônibus depender de um atraso. Resposta: `If we are late, we will take
+          the bus`. `Are` apresenta a condição futura; `will take`, o plano resultante."
+  - subskill_id: contrast
+    explanation: O contraste reúne fatos que puxam uma decisão em direções distintas. Uma rota mais
+      longa pode demorar, mas sua segurança talvez compense. `But` mostra que o segundo fato
+      qualifica o primeiro.
+    examples:
+      - text: The route is longer, but it is safer.
+        meaning: "`The route is longer` apresenta uma desvantagem. `But it is safer` traz a vantagem; `it`
+          se refere à mesma rota. `longer` e `safer` a comparam com outra rota conhecida da
+          conversa."
+        note: "`And` apenas adicionaria informação. `Although the route is longer, it is safer` expressa o
+          contraste de outra forma. Evite duplicar a ligação com o incorreto `Although the route is
+          longer, but it is safer`. **Pratique.** Contraste uma sala pequena com seu conforto.
+          Resposta: `The room is small, but it is comfortable`. `But` mostra que o tamanho não
+          impede a qualidade positiva."
+  - subskill_id: supporting_claims
+    explanation: Apoiar uma afirmação dá à outra pessoa motivos para aceitá-la. Se um amigo pergunta se
+      uma loja está aberta, mencionar clientes visíveis ajuda mais do que repetir a conclusão. A
+      evidência deve ser pertinente ao que se afirma.
+    examples:
+      - text: The shop is open; I can see customers inside.
+        meaning: "`The shop is open` é a conclusão. `I can see customers inside` é a observação que a
+          sustenta. `Inside` situa os clientes na loja. O ponto e vírgula liga duas afirmações
+          completas relacionadas."
+        note: "A observação apoia, mas não prova, a conclusão: ainda pode haver clientes dentro após o
+          fechamento. Com menos certeza, diga `I think the shop is open; I can see customers
+          inside`. Ajuste o grau de confiança às informações disponíveis. **Pratique.** Apoie a
+          afirmação de que está chovendo com observação direta. Resposta: `It is raining; I can see
+          drops hitting the window`. A segunda afirmação fornece evidência relevante."
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

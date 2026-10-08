@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: people_places
+language: english
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 辨认能告诉听话人，你指的是谁或什么。如果看到一位最近搬到附近的人，你可以把眼前的人和对方与你的关系联系起来。听话人需要足够的共同背景，才知道你指谁。
+    examples:
+      - text: That is our new neighbour.
+        meaning: "`That` 指视线中的那个人。`Is` 把那个人与 `our new neighbour` 连起来；`our` 表示此人与我们家庭或群体有关，`new` 描述刚搬来。若有好几个人，就说 `Those
+          are our new neighbours`。"
+        note: |-
+          `That is our new neighbour` 辨认一个人；`Our neighbour is friendly` 描述这个人。在当前情境中指较近的人或物，可用 `this`。
+
+          **练一练。** 介绍站在你身旁的同事。答案：`This is my colleague`。`This` 指出身边的人，`my colleague` 说明关系。
+  - subskill_id: qualities_states
+    explanation: 描述能帮助别人想象一个地方，或判断它是否适合自己。如果朋友需要地方读书，你可以告诉对方某个房间噪声很少。英语用 `be` 的相应形式把被描述的东西与性质连起来。
+    examples:
+      - text: The room is quiet.
+        meaning: "`The room` 指房间，`is` 把它与描述相连，`quiet` 表示噪声少。若有多个房间，用 `The rooms are quiet`。描述词 `quiet` 本身不变。"
+        note: >-
+          描述词也能放在名词前：`a quiet room`。完整陈述要保留连接动词：`The room is quiet`，不能写成错误的 `The room
+          quiet`。性质可能是暂时或长期的，需由语境判断。
+
+
+          **练一练。** 描述两个房间都很暖。答案：`The rooms are warm`。复数 `rooms` 搭配 `are`；`warm` 不加复数词尾。
+  - subskill_id: location_movement
+    explanation: 位置词帮助别人相对于地标找到物品。朋友没看见你的自行车时，说出它相对棚子的位置会有帮助。位置说明东西在哪里，移动表达则说明它要到哪里。
+    examples:
+      - text: The bicycle is behind the shed.
+        meaning: "`The bicycle is` 指自行车并引出位置。`Behind the shed` 把它放在从当前视角看棚子的远侧。这里 `Behind` 需要地标，听话人才知道它在哪个东西后面。"
+        note: >-
+          `Beside the shed` 则表示在棚子旁边。比较表示移动的 `I moved the bicycle into the shed`：`into` 指以棚子内部为目的地。`In the
+          shed` 则描述到达后的位置。
+
+
+          **练一练。** 告诉别人包在门旁边。答案：`The bag is beside the door`。`Beside` 以门为地标说明包的位置。
+  - subskill_id: possession_relations
+    explanation: 所有关系告诉别人你说的是谁的东西；相关形式也能连接人与人。访客问起一辆自行车时，你可以借家庭关系说明车主，避免与你自己的自行车混淆。
+    examples:
+      - text: This is my brother’s bicycle.
+        meaning: "`This is` 指出自行车。`My brother` 通过与你的关系指出车主。`brother’s` 的词尾把他与 `bicycle` 连起来：车属于他。撇号是书面所有格形式的一部分。"
+        note: |-
+          比较属于你的 `my bicycle` 与属于你兄弟的 `my brother’s bicycle`。若主人是规则复数，把撇号放在复数词尾后：`my parents’ house`。
+
+          **练一练。** 指出一个包属于你的姐妹。答案：`This is my sister’s bag`。所有格词尾附在 `sister` 后，因为包属于她。
+  - subskill_id: quantity_comparison
+    explanation: 比较能帮助你在两个东西之间选择。打包时，你可能想选重量较小的袋子。比较级描述词说明一个东西与另一个有何不同；数量词则说明有多少东西。
+    examples:
+      - text: This bag is lighter than that one.
+        meaning: "`This bag` 是被描述的东西。`Lighter` 表示重量更轻；`than that one` 引出另一个袋子。`One` 避免重复 `bag`。较短的描述词常加 `-er`，例如
+          `light` 变成 `lighter`。"
+        note: >-
+          有些较长的词用 `more`：`This bag is more expensive than that one`。不能把两种方式叠加成错误的 `more lighter`。表达数量时，用 `two
+          bags` 或 `less luggage` 这样的短语，而不是重量比较。
+
+
+          **练一练。** 把一个小箱子与较大的箱子相比。答案：`This box is smaller than that one`。`Smaller` 给出大小比较，`than` 引出第二个箱子。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_grammar2026
+        - bcPossessivesTeaching20261007
+        - bcComparativesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - bc_grammar2026
+    - bcPossessivesTeaching20261007
+    - bcComparativesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.
+variety_sections:
+  english-united-states:
+    - subskill_id: identification
+      explanation: 辨认能告诉听话人，你指的是谁或什么。如果看到一位最近搬到附近的人，你可以把眼前的人和对方与你的关系联系起来。听话人需要足够的共同背景，才知道你指谁。
+      examples:
+        - text: That is our new neighbor.
+          meaning: "`That` 指视线中的那个人。`Is` 把那个人与 `our new neighbor` 连起来；`our` 表示此人与我们家庭或群体有关，`new` 描述刚搬来。若有好几个人，就说 `Those
+            are our new neighbors`。"
+          note: |-
+            `That is our new neighbor` 辨认一个人；`Our neighbor is friendly` 描述这个人。在当前情境中指较近的人或物，可用 `this`。
+
+            **练一练。** 介绍站在你身旁的同事。答案：`This is my colleague`。`This` 指出身边的人，`my colleague` 说明关系。
+    - subskill_id: qualities_states
+      explanation: 描述能帮助别人想象一个地方，或判断它是否适合自己。如果朋友需要地方读书，你可以告诉对方某个房间噪声很少。英语用 `be` 的相应形式把被描述的东西与性质连起来。
+      examples:
+        - text: The room is quiet.
+          meaning: "`The room` 指房间，`is` 把它与描述相连，`quiet` 表示噪声少。若有多个房间，用 `The rooms are quiet`。描述词 `quiet` 本身不变。"
+          note: >-
+            描述词也能放在名词前：`a quiet room`。完整陈述要保留连接动词：`The room is quiet`，不能写成错误的 `The room
+            quiet`。性质可能是暂时或长期的，需由语境判断。
+
+
+            **练一练。** 描述两个房间都很暖。答案：`The rooms are warm`。复数 `rooms` 搭配 `are`；`warm` 不加复数词尾。
+    - subskill_id: location_movement
+      explanation: 位置词帮助别人相对于地标找到物品。朋友没看见你的自行车时，说出它相对棚子的位置会有帮助。位置说明东西在哪里，移动表达则说明它要到哪里。
+      examples:
+        - text: The bicycle is behind the shed.
+          meaning: "`The bicycle is` 指自行车并引出位置。`Behind the shed` 把它放在从当前视角看棚子的远侧。这里 `Behind` 需要地标，听话人才知道它在哪个东西后面。"
+          note: >-
+            `Beside the shed` 则表示在棚子旁边。比较表示移动的 `I moved the bicycle into the shed`：`into` 指以棚子内部为目的地。`In the
+            shed` 则描述到达后的位置。
+
+
+            **练一练。** 告诉别人包在门旁边。答案：`The bag is beside the door`。`Beside` 以门为地标说明包的位置。
+    - subskill_id: possession_relations
+      explanation: 所有关系告诉别人你说的是谁的东西；相关形式也能连接人与人。访客问起一辆自行车时，你可以借家庭关系说明车主，避免与你自己的自行车混淆。
+      examples:
+        - text: This is my brother’s bicycle.
+          meaning: "`This is` 指出自行车。`My brother` 通过与你的关系指出车主。`brother’s` 的词尾把他与 `bicycle` 连起来：车属于他。撇号是书面所有格形式的一部分。"
+          note: |-
+            比较属于你的 `my bicycle` 与属于你兄弟的 `my brother’s bicycle`。若主人是规则复数，把撇号放在复数词尾后：`my parents’ house`。
+
+            **练一练。** 指出一个包属于你的姐妹。答案：`This is my sister’s bag`。所有格词尾附在 `sister` 后，因为包属于她。
+    - subskill_id: quantity_comparison
+      explanation: 比较能帮助你在两个东西之间选择。打包时，你可能想选重量较小的袋子。比较级描述词说明一个东西与另一个有何不同；数量词则说明有多少东西。
+      examples:
+        - text: This bag is lighter than that one.
+          meaning: "`This bag` 是被描述的东西。`Lighter` 表示重量更轻；`than that one` 引出另一个袋子。`One` 避免重复 `bag`。较短的描述词常加 `-er`，例如
+            `light` 变成 `lighter`。"
+          note: >-
+            有些较长的词用 `more`：`This bag is more expensive than that one`。不能把两种方式叠加成错误的 `more lighter`。表达数量时，用
+            `two bags` 或 `less luggage` 这样的短语，而不是重量比较。
+
+
+            **练一练。** 把一个小箱子与较大的箱子相比。答案：`This box is smaller than that one`。`Smaller` 给出大小比较，`than` 引出第二个箱子。

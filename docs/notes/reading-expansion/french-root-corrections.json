@@ -1,0 +1,227 @@
+{
+  "certaine": [
+    "sure / certain",
+    "segura / cierta",
+    "متأكّدة / معيّنة"
+  ],
+  "certain": [
+    "sure / certain",
+    "seguro / cierto",
+    "متأكّد / معيّن"
+  ],
+  "choisi": [
+    "chosen",
+    "elegido",
+    "مختار"
+  ],
+  "gagné": [
+    "won / earned",
+    "ganado",
+    "ربح"
+  ],
+  "j’ai": [
+    "I have",
+    "tengo / he",
+    "عندي"
+  ],
+  "ai": [
+    "I have",
+    "he / tengo",
+    "فعل مساعد / عندي"
+  ],
+  "a": [
+    "has",
+    "ha / tiene",
+    "فعل مساعد / عنده"
+  ],
+  "avons": [
+    "we have",
+    "tenemos / hemos",
+    "عنا"
+  ],
+  "avoir": [
+    "have",
+    "tener / haber",
+    "يكون عنده"
+  ],
+  "peux": [
+    "I can / you can",
+    "puedo / puedes",
+    "بقدر / بتقدر / بتقدري"
+  ],
+  "veux": [
+    "I want / you want",
+    "quiero / quieres",
+    "بدي / بدّك"
+  ],
+  "viens": [
+    "I come / you come / come!",
+    "vengo / vienes / ven",
+    "بجي / بتجي / تعا"
+  ],
+  "voulais": [
+    "I wanted / you wanted",
+    "quería / querías",
+    "كنت بدي / كنت بدّك"
+  ],
+  "pourrais": [
+    "I could / you could",
+    "podría / podrías",
+    "ممكن أقدر / ممكن تقدر"
+  ],
+  "pourriez": [
+    "you could",
+    "podría / podríais / podrían",
+    "ممكن تقدر / ممكن تقدروا"
+  ],
+  "préfère": [
+    "prefer / prefers",
+    "prefiero / prefiere",
+    "بفضّل"
+  ],
+  "prépare": [
+    "prepare / prepares",
+    "preparo / prepara",
+    "بحضّر"
+  ],
+  "pense": [
+    "think / thinks",
+    "pienso / piensa",
+    "بفكّر"
+  ],
+  "arrive": [
+    "arrive / arrives",
+    "llego / llega",
+    "بوصل"
+  ],
+  "travaille": [
+    "work / works",
+    "trabajo / trabaja",
+    "بشتغل"
+  ],
+  "ouvre": [
+    "open / opens",
+    "abro / abre",
+    "بفتح"
+  ],
+  "ferme": [
+    "close / closes",
+    "cierro / cierra",
+    "بسكّر"
+  ],
+  "fait": [
+    "does / makes / done",
+    "hace / hecho",
+    "بيعمل / معمول"
+  ],
+  "dit": [
+    "says / said",
+    "dice / dicho",
+    "بيقول / قال"
+  ],
+  "pourrai": [
+    "I will be able to",
+    "podré",
+    "رح أقدر"
+  ],
+  "suis": [
+    "am / follow",
+    "soy / estoy / sigo",
+    "بكون / بتبع"
+  ],
+  "j’apporterai": [
+    "I will bring",
+    "traeré",
+    "رح جيب"
+  ],
+  "c’est": [
+    "it is / this is",
+    "es / esto es",
+    "هيدا / هاي"
+  ],
+  "sommes": [
+    "we are",
+    "somos / estamos",
+    "منكون"
+  ],
+  "est": [
+    "is",
+    "es / está",
+    "بيكون"
+  ],
+  "un": [
+    "a / one",
+    "un / uno",
+    "واحد"
+  ],
+  "une": [
+    "a / one",
+    "una",
+    "واحدة"
+  ],
+  "ne": [
+    "not",
+    "no",
+    "ما"
+  ],
+  "que": [
+    "that / than / what",
+    "que / qué",
+    "إنّه / من / شو"
+  ],
+  "si": [
+    "if / yes",
+    "si / sí",
+    "إذا / إي"
+  ],
+  "depuis": [
+    "since / for",
+    "desde / desde hace",
+    "من"
+  ],
+  "rendez": [
+    "appointment / return",
+    "cita / devolver",
+    "موعد / يرجّع"
+  ],
+  "sert": [
+    "serves / is used for",
+    "sirve",
+    "بيخدم / بينفع"
+  ],
+  "café": [
+    "coffee / café",
+    "café",
+    "قهوة / كافيه"
+  ],
+  "plu": [
+    "rained / pleased",
+    "llovido / gustado",
+    "مطرت / عجب"
+  ],
+  "reposer": [
+    "rest / put down again",
+    "descansar / volver a poner",
+    "يرتاح / يرجع يحط"
+  ],
+  "n’avons": [
+    "we do not have",
+    "no tenemos / no hemos",
+    "ما عنا"
+  ],
+  "pourrait": [
+    "could",
+    "podría",
+    "ممكن يقدر"
+  ],
+  "french-canada/déjeuner": [
+    "breakfast / eat breakfast",
+    "desayuno / desayunar",
+    "فطور / يفطر"
+  ],
+  "french-canada/dîner": [
+    "lunch / eat lunch",
+    "almuerzo / almorzar",
+    "غدا / يتغدّى"
+  ]
+}

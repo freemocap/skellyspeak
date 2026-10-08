@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-portuguese-2026-10-07
+skill_id: information_exchange
+language: english
+explanation_language: portuguese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-portuguese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Uma pergunta informativa mostra à outra pessoa o que você quer descobrir. Palavras como
+      `where`, `when` e `what` indicam o detalhe desconhecido. A ordem do resto da pergunta depende
+      do verbo; aprender o exemplo inteiro ajuda a reutilizar o padrão com outro detalhe.
+    examples:
+      - text: Where does your sister work?
+        meaning: "**Como funciona.** `Where` pergunta por um lugar. `Does` vem antes de `your sister`;
+          `work` permanece na forma básica. Compare a afirmação `Your sister works at the library`.
+          Na pergunta, `does` carrega a mudança gramatical; portanto, não acrescente também `-s` a
+          `work`."
+        note: "**Compare.** `When does your sister work?` pergunta pelo horário. Para perguntar quem realiza
+          a ação, usa-se outro padrão: `Who works at the library?` Aqui `who` representa a pessoa
+          desconhecida, por isso não se usa `do` nem `does`. Com `be`, pergunte `Where is your
+          sister?` **Pratique.** Pergunte onde eles moram. Resposta: `Where do they live?` Use `do`
+          com `they` e mantenha `live` na forma básica."
+  - subskill_id: answering_information
+    explanation: Uma resposta curta muitas vezes basta. Se uma pessoa que você acaba de conhecer
+      pergunta onde você trabalha, informe o local; acrescente a frase completa se o contexto não
+      estiver claro. A pergunta já fornece a informação que você não precisa repetir.
+    examples:
+      - text: At the library.
+        meaning: "`At` introduz o local de trabalho, e `the library` o identifica. Depois de `Where do you
+          work?`, `At the library` basta. A versão completa é `I work at the library`."
+        note: "Responda com o tipo de detalhe solicitado: `At seven` responde sobre horário, enquanto `At
+          the library` responde sobre lugar. Uma pergunta de sim ou não exige outra resposta: `Do
+          you work at the library?` pode receber `Yes, I do`. **Pratique.** Alguém pergunta `Where
+          do you study?`, e você estuda em casa. Resposta: `At home`. O lugar responde à pergunta;
+          não é preciso repetir `I study`."
+  - subskill_id: checking_facts
+    explanation: Conferir um fato evita que você aja com base num detalhe errado. Antes de ir às
+      compras, talvez você tenha ouvido que a loja fecha às sete e queira confirmar. Uma pergunta de
+      sim ou não apresenta esse fato proposto à outra pessoa.
+    examples:
+      - text: Does the shop close at seven?
+        meaning: "`Does` inicia a pergunta porque `the shop` é singular. `Close` está na forma básica; `at
+          seven` dá o horário a conferir. Compare a afirmação `The shop closes at seven`: a pergunta
+          usa `does`, então `close` perde o `-s` final."
+        note: "Uma resposta útil confirma ou corrige: `Yes, it does` ou `No, it closes at six`. Se você não
+          tem um horário proposto, pergunte `What time does the shop close?` **Pratique.** Confira a
+          afirmação `The buses stop here`. Resposta: `Do the buses stop here?` Use `do` com o plural
+          `the buses` e não altere `stop`."
+  - subskill_id: useful_detail
+    explanation: Detalhes úteis tornam orientações mais fáceis de seguir. Quem procura uma entrada
+      precisa saber o lugar e talvez uma referência visível. Comece pela resposta principal e
+      acrescente o detalhe que ajuda a reconhecer o local certo.
+    examples:
+      - text: The entrance is on the left, beside the blue sign.
+        meaning: "`The entrance` identifica o que se quer localizar. `On the left` indica sua posição, e
+          `beside the blue sign` acrescenta uma referência: fica ao lado daquela placa. As duas
+          expressões descrevem a mesma entrada."
+        note: "Escolha uma referência que a pessoa consiga encontrar. `Beside` significa ao lado; `behind`
+          colocaria a entrada do outro lado da placa. Mais palavras só ajudam se tornarem a
+          localização mais clara. **Pratique.** Acrescente uma referência a `The lift is on the
+          right`. Uma resposta: `The lift is on the right, beside reception`. A recepção ajuda a
+          identificar o elevador."
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - bc_questions2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - bcPresentSimpleTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

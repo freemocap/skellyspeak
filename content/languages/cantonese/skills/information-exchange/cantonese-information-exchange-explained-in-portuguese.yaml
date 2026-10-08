@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-portuguese-2026-10-07
+language: cantonese
+skill_id: information_exchange
+explanation_language: portuguese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-portuguese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Antes de visitar a loja, você precisa saber a hora de fechamento. `幾點` pergunta pela hora que
+      falta na posição de uma expressão de horário; a loja permanece no início.
+    examples:
+      - text: 間舖頭幾點閂門？
+        meaning: A que horas a loja fecha? `間舖頭` significa a loja; o classificador `間` pode identificar o lugar já
+          mencionado. `幾點` pergunta a hora, e `閂門` significa fechar as portas ou encerrar o expediente aqui. A
+          pergunta não sugere uma hora de fechamento.
+        note: "Experimente perguntar quando a loja abre. Resposta: `間舖頭幾點開門？` Troque `閂門` por `開門`. Uma resposta
+          possível é `六點` ou `六點開門`; a hora preenche a posição de `幾點` sem mudar para outra ordem de
+          pergunta."
+  - subskill_id: answering_information
+    explanation: A outra pessoa acabou de perguntar quando a loja fecha. Como loja e fechamento já são conhecidos,
+      só o horário constitui uma resposta completa na conversa.
+    examples:
+      - text: 六點。
+        meaning: Às seis. `六` é seis, e `點` indica uma hora do relógio. Uma resposta mais completa é `間舖頭六點閂門`. Sem
+          uma expressão de manhã ou tarde, a conversa determina a qual das seis horas se refere.
+        note: "Experimente responder que a loja fecha às seis e meia. Resposta: `六點半。` `半` acrescenta meia hora depois
+          das seis. Para maior precisão, `下晝六點半` especifica a tarde. Uma duração como `六個鐘` significa seis
+          horas de tempo e não fornece a hora solicitada."
+  - subskill_id: checking_facts
+    explanation: Você se lembra de que a loja fecha às seis e quer confirmação. A afirmação apresenta sua hora
+      candidata, e a pergunta final `係咪呀` convida a confirmar ou corrigir.
+    examples:
+      - text: 間舖頭六點閂門，係咪呀？
+        meaning: A loja fecha às seis, certo? `間舖頭六點閂門` coloca a loja conhecida antes da hora e da ação propostas.
+          `係咪` é a forma curta comum de `係唔係`, é ou não é; o `呀` final combina com a pergunta conversacional.
+        note: "Experimente confirmar um fechamento às sete. Resposta: `間舖頭七點閂門，係咪呀？` Mude apenas a hora proposta. Uma
+          correção pode dizer `唔係，六點閂門。` Ela rejeita a informação proposta e fornece a hora correta, sem
+          deixar a outra pessoa adivinhar."
+  - subskill_id: useful_detail
+    explanation: Há várias mesas disponíveis; identificar a que fica perto da janela torna a instrução utilizável.
+      A descrição do lugar vem antes da expressão que seleciona aquela mesa específica.
+    examples:
+      - text: 用窗口旁邊嗰張枱。
+        meaning: Use a mesa perto da janela. `用` significa usar, `窗口旁邊` é ao lado da janela, e `嗰張枱` é aquela mesa.
+          `張` é o classificador da mesa. Juntos, lugar e demonstrativo a distinguem das demais.
+        note: "Experimente escolher a mesa perto da porta. Resposta: `用門口旁邊嗰張枱。` Troque o ponto de referência por
+          `門口`. `嗰張枱` seleciona uma mesa; `嗰啲枱` seleciona aquelas mesas, com `啲` para o grupo plural."
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

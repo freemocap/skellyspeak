@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: cantonese
+skill_id: possibilities_constraints
+explanation_language: spanish
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
+sections:
+  - subskill_id: ability
+    explanation: Al decidir quién hará pan para una comida, ayuda decir que has aprendido esa habilidad.
+      `識` antes de una actividad significa saber hacerla; el permiso y el tiempo disponible son
+      cuestiones distintas.
+    examples:
+      - text: 我識整麵包。
+        meaning: Sé hacer pan. `我` identifica a quien habla, `識` expresa la destreza y `整麵包` es hacer pan.
+          La actividad sigue directamente a `識`, sin enlace adicional. Cambiar el sujeto no modifica
+          `識` ni `整`.
+        note: "**Practica:** di que tu amistad sabe hacer pan. Respuesta: `佢識整麵包。` Cambia el sujeto a `佢`.
+          `我唔識整麵包` niega la destreza; `我今日唔得閒整麵包` dice que hoy no tienes tiempo, sin aclarar si
+          sabes hacerlo."
+  - subskill_id: permission
+    explanation: En un espacio de trabajo compartido, preguntas a la persona responsable si puedes usar
+      una mesa. `可唔可以` ofrece las alternativas positiva y negativa del permiso; después aparece la
+      acción propuesta.
+    examples:
+      - text: 我可唔可以用呢張枱？
+        meaning: ¿Puedo usar esta mesa? `我` es quien quiere actuar, `用` significa usar y `呢張枱` identifica
+          esta mesa con el clasificador `張`. `可唔可以` es una pregunta habitual de tipo A-no-A formada
+          a partir de `可以`. El contexto la convierte en petición de permiso.
+        note: "**Practica:** pregunta si puedes usar la silla. Respuesta: `我可唔可以用呢張椅？` Sustituye `枱` por
+          `椅`; ambos usan aquí `張`. `可以，你用啦。` concede el permiso. La misma pregunta puede referirse
+          a la posibilidad práctica; la persona y el contexto aclaran qué se pregunta."
+  - subskill_id: obligation
+    explanation: Una tarea debe entregarse hoy, por lo que presentarla es una obligación y no solo algo
+      deseable. `一定要` refuerza el requisito; el día indica el plazo.
+    examples:
+      - text: 我今日一定要交份功課。
+        meaning: Debo entregar la tarea hoy. `我今日` indica persona y día; `一定要交` significa que sin falta debo
+          entregar. `份功課` identifica la tarea con el clasificador `份`, usado para un documento o
+          trabajo.
+        note: "**Practica:** cambia el plazo a mañana. Respuesta: `我聽日一定要交份功課。` Sustituye `今日` por `聽日`.
+          `我唔使交份功課` elimina la obligación; `我唔可以交份功課` dice que entregarla no está permitido o no es
+          posible. Las dos negaciones cumplen funciones distintas."
+  - subskill_id: possibility
+    explanation: El pronóstico deja dudas sobre el tiempo de mañana. `可能` introduce esa incertidumbre y
+      `會` presenta la lluvia como suceso futuro posible.
+    examples:
+      - text: 聽日可能會落雨。
+        meaning: Podría llover mañana. `聽日` va primero para indicar el día, `可能會` significa quizá y `落雨` es
+          llover. El cantonés describe este fenómeno sin un pronombre meteorológico equivalente al
+          pronombre impersonal del inglés.
+        note: "**Practica:** pronostica nieve posible mañana. Respuesta: `聽日可能會落雪。` Sustituye el fenómeno
+          por `落雪`. `聽日會落雨` presenta el pronóstico más directamente; `聽日可能唔會落雨` deja abierta la
+          posibilidad de que no llueva."
+  - subskill_id: certainty
+    explanation: Estás seguro de que alguien ya ha vuelto a casa. `我肯定` expresa esa confianza y la
+      cláusula siguiente identifica el suceso.
+    examples:
+      - text: 我肯定佢已經返咗屋企。
+        meaning: Estoy seguro de que esa persona ya ha vuelto a casa. `佢` nombra a una persona, `已經`
+          significa ya y `返咗屋企` presenta la vuelta a casa como realizada. `返` es volver, `咗` sigue a
+          la acción y `屋企` indica hogar.
+        note: "**Practica:** expresa la misma seguridad sobre varias personas. Respuesta: `我肯定佢哋已經返咗屋企。`
+          Cambia `佢` por `佢哋`; `返咗` no cambia. `我唔肯定佢係咪返咗屋企` significa, en cambio, que no sabes si
+          volvió; `係咪` presenta la cuestión abierta."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original cantonese constructions, not independent translation validation.

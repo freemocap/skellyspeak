@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: time_events
+explanation_language: mandarin
+title: 时间与事件
+introduction: 谈论事情何时发生、持续多久，以及不同事件如何衔接。
+sections:
+  - subskill_id: present_events
+    title: 当前情况
+    concept: 谈论现在的情况、正在进行的活动和习惯。
+  - subskill_id: past_events
+    title: 过去的事件
+    concept: 谈论先前发生的事。
+  - subskill_id: future_events
+    title: 未来的事件
+    concept: 谈论以后会发生或可能发生的事。
+  - subskill_id: duration_frequency
+    title: 时长与频率
+    concept: 说明某事持续多久，或发生得多频繁。
+  - subskill_id: event_sequence
+    title: 先后顺序
+    concept: 说清楚什么先发生、接着发生，最后发生。
+  - subskill_id: event_phase
+    title: 进行与完成
+    concept: 说明某事正在开始、持续进行，还是已经结束。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English learner-facing concepts. Skill
+    identities and assessment criteria are unchanged; independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: Learner-facing Mandarin title, introduction and section concepts; copied source keys support the
+      original concepts and do not certify the translation.

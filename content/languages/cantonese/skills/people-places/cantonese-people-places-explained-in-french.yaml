@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: people_places
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: Vous présentez quelqu’un et précisez votre relation. `呢位` désigne poliment cette personne ; `係`
+      la relie à l’expression qui l’identifie.
+    examples:
+      - text: 呢位係我朋友。
+        meaning: Voici mon ami. `呢` signifie « ce » et `位` est un classificateur respectueux pour une personne. `我朋友`
+          signifie « mon ami » ; une relation personnelle familière peut se dire sans `嘅`. `係` introduit
+          l’identification par un nom, et non une humeur ou une taille.
+        note: "Essayez : présentez votre enseignant. Réponse : `呢位係我老師。` Remplacez la relation par `老師`. `呢個係我朋友`
+          identifie aussi un ami avec le classificateur général `個` ; `位` donne une nuance plus respectueuse à
+          la présentation."
+  - subskill_id: qualities_states
+    explanation: Vous choisissez un lieu pour lire et décrivez cette pièce comme calme. Une propriété comme `靜`
+      peut servir directement de description ; `好` forme une expression positive naturelle.
+    examples:
+      - text: 呢間房好靜。
+        meaning: Cette pièce est calme. `呢間房` désigne cette pièce, avec le classificateur `間` entre `呢` et `房`. `好靜`
+          dit qu’elle est calme, voire très calme selon le contexte. Dans cette description adjectivale
+          ordinaire, on ne met pas `係` ; `係` sert à identifier avec un nom.
+        note: "Essayez : décrivez la pièce comme lumineuse. Réponse : `呢間房好光猛。` Remplacez `靜` par `光猛`. `呢間房唔靜` nie le
+          calme avec `唔` devant la qualité ; `呢間房係課室` identifie la pièce comme une salle de classe et emploie
+          donc `係`."
+  - subskill_id: location_movement
+    explanation: Vous cherchez quelqu’un et apprenez que cette personne se trouve à la bibliothèque. `喺` indique
+      sa position ; une destination avec `去` décrirait plutôt le déplacement vers un lieu.
+    examples:
+      - text: 佢喺圖書館。
+        meaning: Cette personne est à la bibliothèque. `佢` désigne une personne sans marquer son genre. `喺圖書館`
+          signifie « à la bibliothèque », le lieu venant après `喺`. La phrase rapporte une position, pas le
+          trajet pour y arriver.
+        note: "Essayez : situez tout le groupe au même endroit. Réponse : `佢哋喺圖書館。` Remplacez le singulier `佢` par le
+          pluriel `佢哋` ; l’expression de lieu reste. `佢去圖書館` signifie que la personne va à la bibliothèque,
+          avec `去` pour le déplacement."
+  - subskill_id: possession_relations
+    explanation: Plusieurs livres se trouvent sur une table et vous identifiez celui qui vous appartient. Le livre
+      est nommé d’abord, puis son propriétaire.
+    examples:
+      - text: 呢本書係我嘅。
+        meaning: Ce livre est à moi. `呢本書` désigne ce livre, avec le classificateur `本`. `係我嘅` signifie « est à moi »
+          ; `嘅` suit le possesseur `我` et permet de ne pas répéter le nom du livre. `我嘅書` signifie « mon livre
+          » quand le nom est présent.
+        note: "Essayez : désignez votre interlocuteur comme propriétaire. Réponse : `呢本書係你嘅。` Après `係`, remplacez `我`
+          par `你`. `我有呢本書` dit plutôt que vous possédez ce livre ; `有` ne suit pas le même modèle
+          d’identification du propriétaire."
+  - subskill_id: quantity_comparison
+    explanation: Vous comptez les livres disponibles à prêter. Le nombre se combine au classificateur du livre
+      avant le nom ; le nom ne demande pas de terminaison plurielle.
+    examples:
+      - text: 我有三本書。
+        meaning: J’ai trois livres. `我有` signifie « j’ai » ; `三本書` signifie « trois livres », dans l’ordre nombre `三`,
+          classificateur `本`, nom `書`. `有` indique ce qui est disponible pour la personne qui parle.
+        note: "Essayez : dites que vous avez deux livres. Réponse : `我有兩本書。` Cette quantité ordinaire emploie `兩`
+          avant le classificateur ; retenez `兩本` comme groupe de comptage. Pour comparer, `我有三本書，你有兩本，我多一本。`
+          dit que vous en avez un de plus."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

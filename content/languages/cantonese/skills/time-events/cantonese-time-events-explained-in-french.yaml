@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: time_events
+explanation_language: french
+shared_explanation: skills/time-events/time-events-explained-in-french.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Quelqu’un demande ce que fait votre ami en ce moment. `緊` après l’action la présente comme en
+      cours, ce qui convient à la lecture visible actuellement.
+    examples:
+      - text: 佢睇緊書。
+        meaning: Cette personne lit un livre. `佢` désigne une personne, `睇` signifie « lire » ou « regarder », et `書`
+          peut renvoyer à un livre ou à des livres sans préciser le nombre. `緊` se place entre `睇` et `書`. Il
+          décrit le déroulement de l’activité, sans modifier le verbe selon la personne.
+        note: "Essayez : dites que l’ami mange maintenant. Réponse : `佢食緊飯。` Remplacez `睇書` par `食飯` en gardant `緊`
+          après l’action. `佢噚日呢個時候睇緊書` décrit une lecture en cours à la même heure hier ; un repère passé peut
+          donc accompagner ce marqueur d’aspect."
+  - subskill_id: past_events
+    explanation: Après des achats, vous rapportez l’achat d’un livre hier. L’indication du jour situe l’événement
+      dans le passé ; `咗` présente l’achat comme un fait accompli.
+    examples:
+      - text: 我噚日買咗本書。
+        meaning: J’ai acheté un livre hier. `我噚日` donne « moi » et « hier ». `買咗` indique l’achat dans ce contexte,
+          avec `咗` après `買` ; `本書` désigne un livre avec le classificateur `本`. Un groupe classificateur sans
+          nombre peut introduire un objet après l’action.
+        note: "Essayez : rapportez l’achat de deux livres hier. Réponse : `我噚日買咗兩本書。` Mettez `兩` avant `本`. Pour dire
+          que l’achat n’a pas eu lieu, `我噚日冇買書` emploie `冇` et omet le `咗` d’accomplissement ; un simple `唔`
+          n’est pas la négation ordinaire de cet événement passé."
+  - subskill_id: future_events
+    explanation: Vous avez prévu une visite à la bibliothèque demain. Le jour futur suffit à situer le projet sans
+      changer le verbe de mouvement ni ajouter obligatoirement un marqueur futur.
+    examples:
+      - text: 我聽日去圖書館。
+        meaning: J’irai à la bibliothèque demain. `我` signifie « je », `聽日` « demain » et `去圖書館` « aller à la
+          bibliothèque ». Le jour précède `去`. La destination suit directement le verbe de déplacement, sans
+          mot supplémentaire correspondant au « à » français.
+        note: "Essayez : déplacez la visite à samedi. Réponse : `我星期六去圖書館。` Changez seulement le jour. `我聽日會去圖書館` peut
+          également exprimer le futur avec `會` ; ce marqueur existe, mais n’est pas exigé simplement parce que
+          la visite aura lieu demain."
+  - subskill_id: duration_frequency
+    explanation: Un ami demande combien de fois vous allez à la bibliothèque. Un intervalle régulier avant
+      l’action et un nombre d’occasions après elle donnent la fréquence ; le lieu déjà évoqué peut rester
+      implicite.
+    examples:
+      - text: 我每個星期去兩次。
+        meaning: J’y vais deux fois chaque semaine. `每個星期` signifie « chaque semaine », avec `每` avant le groupe
+          temporel. `去兩次` signifie « y aller deux fois » ; `次` compte les occasions et `兩` donne le nombre
+          deux. La durée de chaque visite reste inconnue.
+        note: "Essayez : dites trois visites par semaine. Réponse : `我每個星期去三次。` Remplacez `兩` par `三`. `我每次去兩個鐘`
+          indique plutôt deux heures à chaque visite : `每次` situe chaque occasion et `兩個鐘` en mesure la
+          durée."
+  - subskill_id: event_sequence
+    explanation: Avant de sortir, le groupe prévoit de finir son repas. La construction rattache l’achèvement de
+      la première activité à la suivante ; l’ordre reste clair sans répéter les participants.
+    examples:
+      - text: 食完飯先出門。
+        meaning: "Sortez après avoir fini de manger. `食完飯` signifie « finir le repas » : `完` suit l’action `食` et
+          marque son achèvement. `先出門` signifie « sortir seulement ensuite ». Ici, `先` précède la seconde
+          action et la fait attendre jusqu’à la fin du repas."
+        note: "Essayez : finissez le thé avant de sortir. Réponse : `飲完茶先出門。` Remplacez `食飯` par `飲茶` en gardant `完`
+          après la première action. `我哋先食飯，跟住出門` donne aussi l’ordre repas, puis sortie ; dans cette
+          formulation à deux propositions, `先` change de place."
+  - subskill_id: event_phase
+    explanation: Quelqu’un demande si vous avez mangé. `仲未` dit que ce repas attendu n’a toujours pas eu lieu
+      jusqu’à présent, tout en laissant possible qu’il arrive plus tard.
+    examples:
+      - text: 我仲未食飯。
+        meaning: Je n’ai pas encore mangé. `我` désigne la personne ; `仲` signifie « encore » et `未` « pas encore ».
+          Ensemble, ils précèdent `食飯`, « prendre un repas ». La phrase décrit l’état actuel, sans refuser de
+          manger ni nier une habitude.
+        note: "Essayez : dites que tout le groupe n’a pas encore mangé. Réponse : `我哋仲未食飯。` Changez la personne sans
+          modifier l’activité. `我已經食咗飯` donne l’équivalent accompli, avec `已經` et `咗`, au lieu d’ajouter `咗` à
+          la proposition « pas encore »."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-french-2026-10-07
+skill_id: feelings_viewpoints
+language: english
+explanation_language: french
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-french.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Un souhait et un projet n’ont pas le même rôle. Vous pouvez vouloir étudier sans avoir réservé de
+      temps ; dire que vous prévoyez d’étudier indique à un ami que c’est votre intention. Cela ne garantit
+      pas encore que l’activité aura lieu.
+    examples:
+      - text: I plan to study tonight.
+        meaning: "`I plan` exprime l’intention, `to study` nomme l’action envisagée et `tonight` en précise le moment.
+          Après `plan`, reliez l’action suivante avec `to` et la forme simple du verbe. En changeant de
+          personne, on obtient `She plans to study tonight`."
+        note: >-
+          Comparez `I want to study tonight` : c’est un désir, qui n’est pas nécessairement devenu un projet.
+          `I am studying tonight` peut présenter l’activité comme déjà organisée.
+
+
+          **À vous.** Dites que vous comptez cuisiner demain. Réponse : `I plan to cook tomorrow`. Gardez `to`
+          avant `cook` : il relie le projet à l’action prévue.
+  - subskill_id: preferences
+    explanation: Une préférence indique quelle option vous aimez davantage. Lorsqu’un hôte propose deux boissons,
+      vous pouvez nommer le thé comme premier choix sans dire que vous n’aimez pas le café. `Prefer` rend la
+      comparaison explicite.
+    examples:
+      - text: I prefer tea to coffee.
+        meaning: "`I prefer` introduit votre choix. `Tea` est l’option préférée ; `to coffee` donne l’autre
+          possibilité. Dans cette comparaison, `to` relie deux choses et n’introduit pas une action. Inverser
+          les boissons change la préférence : `I prefer coffee to tea`."
+        note: >-
+          Utilisez ici `to`, et non `than` : `I prefer tea to coffee`. Dire seulement `I like tea` ne compare
+          pas les boissons. Vous pouvez aussi comparer des activités : `I prefer walking to driving`.
+
+
+          **À vous.** Vous préférez les matins aux soirées. Réponse : `I prefer mornings to evenings`. Placez
+          d’abord votre choix préféré, puis l’autre option après `to`.
+  - subskill_id: emotions
+    explanation: Nommer un sentiment aide l’autre personne à comprendre votre réaction. Avant un entretien, vous
+      pouvez être inquiet de ce qui va se passer. `Feel` suivi d’un mot descriptif indique le sentiment ;
+      `about` peut introduire ce qui le suscite.
+    examples:
+      - text: I feel nervous about the interview.
+        meaning: "`I feel` rapporte l’expérience de la personne qui parle. `Nervous` décrit le sentiment et `about the
+          interview` en indique l’objet. Le mot descriptif ne change pas selon la personne : `She feels
+          nervous`."
+        note: >-
+          `I am nervous` décrit aussi cet état. `Nervous` décrit le sentiment d’une personne ; `nerve-racking`
+          peut qualifier une expérience qui le provoque : `The interview was nerve-racking`. Ne confondez pas
+          ces deux mots.
+
+
+          **À vous.** Dites que vous êtes enthousiaste à propos d’un voyage. Réponse : `I feel excited about
+          the trip`. `Excited` nomme votre sentiment et `about the trip` précise ce qui le suscite.
+  - subskill_id: opinions
+    explanation: Une opinion permet de contribuer à une discussion par son jugement. Si un groupe choisit un
+      projet, vous pouvez estimer que son coût pose problème. `I think` présente l’énoncé qui suit comme votre
+      point de vue et laisse aux autres la possibilité de répondre.
+    examples:
+      - text: I think this plan is too expensive.
+        meaning: "`I think` introduit le jugement. `This plan is too expensive` l’exprime : `too` signifie que le coût
+          dépasse ce qui convient, et pas seulement qu’il est élevé. Vous pouvez ajouter une raison, par
+          exemple `It uses our whole budget`."
+        note: >-
+          Comparez `very expensive`, qui décrit un prix élevé sans dire à lui seul qu’il est excessif. `I
+          don’t think this plan is affordable` est une manière courante d’exprimer un avis défavorable.
+
+
+          **À vous.** Dites que, selon vous, une pièce est trop petite. Réponse : `I think this room is too
+          small`. `Too` signale que sa taille pose problème.
+  - subskill_id: agreement_disagreement
+    explanation: L’accord répond au point de vue d’une autre personne. Si un coéquipier dit que le travail
+      nécessite un jour de plus, vous pouvez accepter ce point explicitement. Nommer ce sur quoi vous êtes
+      d’accord aide lorsque plusieurs propositions sont discutées.
+    examples:
+      - text: I agree that we need more time.
+        meaning: "`I agree` dit que vous partagez cet avis. `That we need more time` précise le point accepté ; `that`
+          relie l’accord à une proposition complète. Avec une personne, utilisez `with` : `I agree with you`."
+        note: >-
+          Pour exprimer un désaccord sans attaquer la personne, essayez `I see your point, but I think we have
+          enough time`. Comprendre un point ne signifie pas nécessairement l’accepter. Évitez la forme
+          incorrecte `I am agree` : `agree` est déjà le verbe principal.
+
+
+          **À vous.** Dites que vous êtes d’accord pour juger la pièce trop petite. Réponse : `I agree that
+          the room is too small`. Les mots après `that` précisent le jugement partagé.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cefr2020
+        - bcAgreementTeaching20261007
+        - bcInfinitivesTeaching20261007
+        - bbcPreferencesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

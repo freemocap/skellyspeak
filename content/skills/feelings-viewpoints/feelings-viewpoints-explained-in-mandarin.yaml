@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: feelings_viewpoints
+explanation_language: mandarin
+title: 感受与观点
+introduction: 谈论感受、愿望、偏好，以及自己的看法。
+sections:
+  - subskill_id: wants_intentions
+    title: 愿望与意图
+    concept: 说明自己想做什么，或打算做什么。
+  - subskill_id: preferences
+    title: 偏好
+    concept: 说明自己喜欢什么，或更倾向于哪个选择。
+  - subskill_id: emotions
+    title: 情绪
+    concept: 谈论某人的感受。
+  - subskill_id: opinions
+    title: 意见
+    concept: 表达自己对某件事的看法。
+  - subskill_id: agreement_disagreement
+    title: 同意与不同意
+    concept: 回应别人的想法，表示赞同或解释分歧。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English learner-facing concepts. Skill
+    identities and assessment criteria are unchanged; independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: Learner-facing Mandarin title, introduction and section concepts; copied source keys support the
+      original concepts and do not certify the translation.

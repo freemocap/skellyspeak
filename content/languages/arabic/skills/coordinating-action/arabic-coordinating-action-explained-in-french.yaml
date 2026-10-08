@@ -1,0 +1,208 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-french-2026-10-07
+language: arabic
+skill_id: coordinating_action
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: "Une demande invite l’autre personne à agir. Imaginez un courant d’air venant d’une porte ouverte
+      : vous voulez qu’elle la ferme et ajoutez une formule de politesse pour adoucir votre demande."
+    examples:
+      - text: أَغْلِقِ الْبَابَ، مِنْ فَضْلِكَ.
+        meaning: "**L’exemple.** Ferme la porte, s’il te plaît. `أَغْلِقِ` ordonne à un homme de fermer quelque chose
+          ; `الْبَابَ` désigne la porte. `مِنْ فَضْلِكَ` signifie « s’il te plaît » pour cet homme. La voyelle
+          brève à la fin de l’impératif facilite la liaison avec le mot suivant dans une prononciation soignée
+          et continue."
+        note: "Pour vous adresser à une femme, employez `أَغْلِقِي` et la formule de politesse `مِنْ فَضْلِكِ`.
+          Essayez : demandez poliment à une femme de fermer la porte. Réponse : `أَغْلِقِي الْبَابَ، مِنْ
+          فَضْلِكِ`. L’impératif gagne une voyelle longue finale et le suffixe de politesse change selon
+          l’interlocutrice."
+  - subskill_id: offers_invitations
+    explanation: Lorsqu’une personne peine à accomplir une tâche, vous pouvez proposer votre propre aide au lieu
+      de lui en demander. Une question brève lui laisse la possibilité d’accepter ou de refuser.
+    examples:
+      - text: هَلْ أُسَاعِدُكَ؟
+        meaning: "**L’exemple.** Puis-je t’aider ? `هَلْ` introduit une question fermée. `أُسَاعِدُ` signifie « j’aide
+          », et le `كَ` attaché signifie « toi », pour un homme. La forme en « je » fait de la personne qui
+          parle l’aide possible ; le suffixe désigne la personne aidée."
+        note: "Pour une femme, employez `هَلْ أُسَاعِدُكِ؟`. Comparez `هَلْ تُسَاعِدُنِي؟`, « vas-tu m’aider ? »,
+          adressé à un homme : celui qui aide devient l’interlocuteur et celui qui reçoit l’aide devient « moi
+          ». Essayez : proposez votre aide à une femme. Réponse : `هَلْ أُسَاعِدُكِ؟` ; gardez la forme en «
+          je » et changez le suffixe de l’interlocutrice."
+  - subskill_id: suggestions
+    explanation: Un groupe cherche un endroit où s’asseoir. Une question du type « pourquoi pas » peut proposer
+      cette place comme option commune sans ordonner à qui que ce soit de la choisir.
+    examples:
+      - text: لِمَاذَا لَا نَجْلِسُ هُنَا؟
+        meaning: "**L’exemple.** Pourquoi ne nous asseyons-nous pas ici ? `لِمَاذَا` signifie pourquoi et `لَا` nie
+          l’action suivante. `نَجْلِسُ` signifie « nous nous asseyons » ; `هُنَا` indique ici. Dans ce
+          contexte, la question entière suggère de s’asseoir ici, plutôt que de demander une raison détaillée
+          de ne pas le faire."
+        note: "Employez `هُنَاكَ` pour « là-bas » en gardant la forme qui inclut « nous ». Dans un autre contexte ou
+          avec un autre ton, la question pourrait réellement porter sur un obstacle. Essayez : proposez de
+          vous asseoir là-bas. Réponse : `لِمَاذَا لَا نَجْلِسُ هُنَاكَ؟` ; seul le lieu change."
+  - subskill_id: commitments
+    explanation: Quelqu’un doit apporter les clés. Quand vous prenez cette responsabilité, annoncer votre action
+      future indique aux autres ce qu’ils peuvent attendre de vous.
+    examples:
+      - text: سَأُحْضِرُ الْمَفَاتِيحَ غَدًا.
+        meaning: "**L’exemple.** J’apporterai les clés demain. Le `سَـ` attaché dans `سَأُحْضِرُ` marque l’avenir ;
+          `أُحْضِرُ` signifie « j’apporte ». `الْمَفَاتِيحَ` désigne les clés et `غَدًا` signifie demain.
+          C’est l’acceptation de la tâche dans le contexte qui donne à cette phrase future la valeur d’un
+          engagement."
+        note: "Employez `الْيَوْمَ` pour « aujourd’hui » si le projet change. Un verbe futur seul peut aussi faire une
+          prévision : il ne constitue pas automatiquement une promesse. Essayez : déplacez l’engagement à
+          aujourd’hui. Réponse : `سَأُحْضِرُ الْمَفَاتِيحَ الْيَوْمَ` ; l’action reste et le moment change."
+  - subskill_id: accepting_declining
+    explanation: On vous a invité quelque part aujourd’hui, mais vous ne pouvez pas y aller. Remercier la personne
+      avant de nommer votre empêchement rend le refus clair et courtois.
+    examples:
+      - text: شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ الْيَوْمَ.
+        meaning: "**L’exemple.** Merci, mais je ne peux pas venir aujourd’hui. `شُكْرًا` remercie. `لٰكِنَّنِي`
+          signifie « mais moi » ; `لَا أَسْتَطِيعُ` signifie « je ne peux pas ». `الْحُضُورَ` désigne la
+          présence, et `الْيَوْمَ` limite le refus à aujourd’hui. Ici, le verbe de capacité est suivi d’un nom
+          qui désigne l’activité."
+        note: "Pour une invitation demain, remplacez `الْيَوْمَ` par `غَدًا`. Gardez `لَا` pour conserver le refus.
+          Essayez : refusez l’invitation de demain. Réponse : `شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ
+          غَدًا`. Le remerciement et l’impossibilité restent ; seule la date change."
+  - subskill_id: negotiating_plans
+    explanation: Une rencontre est prévue aujourd’hui, mais demain conviendrait mieux. Négocier consiste à
+      proposer la modification d’un élément tout en conservant le projet commun identifiable.
+    examples:
+      - text: هَلْ يُمْكِنُ أَنْ نَلْتَقِيَ غَدًا بَدَلًا مِنَ الْيَوْمِ؟
+        meaning: "**L’exemple.** Pourrions-nous nous voir demain au lieu d’aujourd’hui ? `هَلْ يُمْكِنُ` demande si
+          quelque chose est possible. `أَنْ نَلْتَقِيَ` donne l’action commune, se rencontrer. `غَدًا` est le
+          jour proposé ; `بَدَلًا مِنَ الْيَوْمِ` signifie « au lieu d’aujourd’hui » et nomme le jour à
+          remplacer."
+        note: "Gardez le nouveau jour avant l’expression de remplacement pour que les deux possibilités soient
+          claires. Cette question sollicite l’accord ; elle n’annonce pas que le changement est décidé.
+          Essayez : quel jour est remplacé ? Réponse : aujourd’hui, nommé après `بَدَلًا مِنَ` ; demain est le
+          jour proposé."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - talkInArabicFutureTeaching20261007
+    - madinahVerbFormsTeaching20261007
+    - madinahMoodsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - talkInArabicFutureTeaching20261007
+        - madinahVerbFormsTeaching20261007
+        - madinahMoodsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: requests
+      explanation: "Une demande invite l’autre personne à agir. Imaginez un courant d’air venant d’une porte ouverte
+        : vous voulez qu’elle la ferme et ajoutez une formule de politesse pour adoucir votre demande."
+      examples:
+        - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
+          meaning: "**L’exemple.** Ferme la porte, s’il te plaît. `سَكِّرْ` est un impératif adressé à un homme ;
+            `الْبَابْ` désigne la porte. `لَوْ سَمَحْتْ` est une formule de politesse conventionnelle.
+            Apprenez-la comme formule, et non comme une condition à réaliser."
+          note: "Pour une femme, employez `سَكِّرِي` et `لَوْ سَمَحْتِي`. Essayez : formulez la demande complète à une
+            femme. Réponse : `سَكِّرِي الْبَابْ، لَوْ سَمَحْتِي`. Les deux terminaisons changent ; la porte et
+            l’action demandée restent les mêmes."
+    - subskill_id: offers_invitations
+      explanation: Lorsqu’une personne peine à accomplir une tâche, vous pouvez proposer votre propre aide au lieu
+        de lui en demander. Une question brève lui laisse la possibilité d’accepter ou de refuser.
+      examples:
+        - text: أَسَاعْدَكْ؟
+          meaning: "**L’exemple.** Puis-je t’aider ? `أَسَاعْدَكْ` réunit « je t’aide » et un suffixe signifiant « toi
+            », adressé ici à un homme. L’intonation interrogative transforme l’action possible en offre. Dans
+            ce modèle d’offre, le verbe n’a pas son préfixe ordinaire b-."
+          note: "Pour proposer l’aide à une femme, employez `أَسَاعْدِكْ؟` dans ce modèle parlé. Comparez
+            `تْسَاعْدْنِي؟`, qui demande à l’autre personne de vous aider. Essayez : choisissez l’offre
+            lorsque c’est vous qui vous portez volontaire. Réponse : `أَسَاعْدَكْ؟` pour un homme ; la forme
+            initiale en « je » garde votre rôle d’aide."
+    - subskill_id: suggestions
+      explanation: Un groupe cherche un endroit où s’asseoir. Une question du type « pourquoi pas » peut proposer
+        cette place comme option commune sans ordonner à qui que ce soit de la choisir.
+      examples:
+        - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
+          meaning: "**L’exemple.** Pourquoi ne nous asseyons-nous pas ici ? `لَيْشْ` signifie pourquoi, `مَا` marque la
+            négation, `نِقْعُدْ` signifie « nous nous asseyons » et `هُونْ` signifie ici. Ensemble, ces mots
+            suggèrent une action commune. La forme en « nous » inclut la personne qui parle ; ce n’est pas un
+            ordre adressé seulement à l’autre."
+          note: "Remplacez `هُونْ` par `هُنِيكْ` pour suggérer là-bas. Apprenez la suggestion comme une formule parlée
+            complète ; dans une autre situation, la même question peut porter sur un obstacle réel. Essayez :
+            quel mot inclut la personne qui parle dans le projet ? Réponse : `نِقْعُدْ`, la forme en « nous
+            »."
+    - subskill_id: commitments
+      explanation: Quelqu’un doit apporter les clés. Quand vous prenez cette responsabilité, annoncer votre action
+        future indique aux autres ce qu’ils peuvent attendre de vous.
+      examples:
+        - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
+          meaning: "**L’exemple.** J’apporterai les clés demain. `رَحْ` marque l’avenir, `أَجِيبْ` signifie « j’apporte
+            », `الْمَفَاتِيحْ` désigne les clés et `بُكْرَا` demain. Après `رَحْ`, ce verbe n’a pas son
+            préfixe ordinaire b-. La phrase devient un engagement parce que vous avez accepté la tâche."
+          note: "Après `رَحْ`, gardez le verbe d’action sans son préfixe ordinaire b-. Essayez : promettez d’apporter
+            les clés aujourd’hui plutôt que demain. Réponse : `رَحْ أَجِيبْ الْمَفَاتِيحْ الْيَوْمْ`.
+            Remplacer `بُكْرَا` par `الْيَوْمْ` change le jour, mais vous gardez la même responsabilité."
+    - subskill_id: accepting_declining
+      explanation: On vous a invité quelque part aujourd’hui, mais vous ne pouvez pas y aller. Remercier la personne
+        avant de nommer votre empêchement rend le refus clair et courtois.
+      examples:
+        - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
+          meaning: "**L’exemple.** Merci, mais je ne peux pas venir aujourd’hui. `شُكْرًا` remercie l’hôte et `بَسّ`
+            introduit l’opposition. `مَا بَقْدَرْ` signifie « je ne peux pas » ; `أَجِي` est l’action
+            dépendante « venir », sans préfixe b-. `الْيَوْمْ` signifie aujourd’hui. L’impossibilité explique
+            le refus."
+          note: "Employez `بُكْرَا` pour une invitation demain, tout en gardant `مَا` avant le verbe de capacité.
+            Essayez : refusez l’invitation de demain. Réponse : `شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي بُكْرَا`. La
+            forme dépendante de « venir » garde l’absence du préfixe b- ; seul le moment change."
+    - subskill_id: negotiating_plans
+      explanation: Une rencontre est prévue aujourd’hui, mais demain conviendrait mieux. Négocier consiste à
+        proposer la modification d’un élément tout en conservant le projet commun identifiable.
+      examples:
+        - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
+          meaning: "**L’exemple.** Pourrions-nous nous voir demain au lieu d’aujourd’hui ? `مُمْكِنْ` ouvre une question
+            sur la possibilité et `نِلْتَقِي` signifie que nous nous rencontrons. `بُكْرَا` désigne demain ;
+            `بَدَلْ الْيَوْمْ` signifie « au lieu d’aujourd’hui ». La forme en « nous » inclut les deux
+            personnes, et les deux expressions de temps isolent le changement demandé."
+          note: "Après `مُمْكِنْ`, l’action n’a pas de préfixe ordinaire b-. Inverser les deux jours inverse le
+            changement demandé. Essayez : annulez-vous entièrement la rencontre ? Réponse : non ; `نِلْتَقِي`
+            reste le projet et seul son jour est renégocié."

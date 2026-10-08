@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: information_exchange
+explanation_language: mandarin
+shared_explanation: skills/information-exchange/information-exchange-explained-in-mandarin.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 明天去图书馆前，你需要知道它几点开门。`A que horas a biblioteca abre amanhã?` 询问具体时刻：`a que horas` 意为几点，`a
+      biblioteca` 是主语，`abre` 意为开门，`amanhã` 是明天。在这个巴西葡语问句中，主语可以留在动词前；不必像英语那样加入助动词 do。相比之下，`A biblioteca abre às
+      oito?` 提出八点这个时间请人确认，而不是询问未知的开门时间。
+    examples:
+      - text: A que horas a biblioteca abre amanhã?
+        meaning: 图书馆明天几点开门？
+        note: 询问明天几点关门。`A que horas a biblioteca fecha amanhã?` 是完整的开放式问句；`fecha` 取代 `abre`，`a que horas` 仍在询问缺少的时刻。
+  - subskill_id: answering_information
+    explanation: 有人刚问图书馆什么时候开门。`Às oito` 回答八点，不必重复整个句子。`Às` 是时间介词 `a` 与复数冠词 `as` 的合成，后面本来可以接 `oito
+      horas`；在意思明白时，表示小时的词可以省去。这个简短回答能成立，是因为前一个问题已经说明八点发生什么事。单独听到它，则无法知道说的是谁的开门时间。
+    examples:
+      - text: Às oito.
+        meaning: 八点。
+        note: 回答九点开门。在询问开门时间之后，`Às nove.` 就够了；`nove` 取代 `oito`，前一个问题提供其余信息。
+  - subskill_id: checking_facts
+    explanation: 你听说图书馆八点开门，出门前想核实。`A biblioteca abre às oito, não é?` 先说出待确认的事实，再用 `não é?` 请人确认，大致相当于“对吧？” `Às
+      oito` 给出时间，其中 `às` 由 `a` 和 `as` 合成。听者可以确认八点，也可以纠正。它不同于 `A que horas a biblioteca abre?`，后者没有先提出某个时间。
+    examples:
+      - text: A biblioteca abre às oito, não é?
+        meaning: 图书馆八点开门，对吧？
+        note: 核实你所听说的九点开门。`A biblioteca abre às nove, não é?` 说出待确认的事实并请人确认；变动的只有表示小时的 `nove`。
+  - subskill_id: useful_detail
+    explanation: 访客知道大楼在哪儿，却找不到入口。`A entrada fica na lateral, ao lado do jardim` 给出两个有用的地标：`fica` 说明入口位置，`na
+      lateral` 意为在侧面（`em` 加 `a`），`ao lado do jardim` 意为在花园旁边（`a` 加 `o`，以及 `de` 加 `o`）。第二个短语缩小了要找的侧面范围。`A
+      entrada fica na lateral` 可能仍让访客四处寻找；`ao lado do jardim` 才让指路更实用。补充细节应当消除实际的歧义。
+    examples:
+      - text: A entrada fica na lateral, ao lado do jardim.
+        meaning: 入口在侧面，花园旁边。
+        note: 只用花园作地标。`A entrada fica ao lado do jardim.` 仍说明入口位置；`ao lado do` 指明它和花园的位置关系，不再提较宽泛的“侧面”。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_contractions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

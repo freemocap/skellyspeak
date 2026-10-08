@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-french-2026-10-07
+language: mandarin
+skill_id: people_places
+explanation_language: french
+shared_explanation: skills/people-places/people-places-explained-in-french.yaml
+sections:
+  - subskill_id: identification
+    explanation: Présenter une personne comme votre voisin indique qui elle est et quel lien vous avez avec elle.
+      `这是` ouvre cette identification ; `我的邻居` nomme la relation au lieu de décrire une qualité.
+    examples:
+      - text: 这是我的邻居。
+        meaning: "**L’exemple.** Voici mon voisin. `这` désigne cette personne, `是` la relie à l’expression qui
+          l’identifie et `邻居` signifie « voisin ». `我的` signifie « mon » : la personne liée précède `的`, puis
+          vient le nom."
+        note: "Essayez : présentez le voisin de l’autre personne. Réponse : `这是你的邻居。` Remplacez `我` par `你` avant `的`.
+          `这是我姐姐` présente également une relation ; des termes proches de parenté tels que `姐姐`, « sœur aînée
+          », se construisent couramment sans `的`."
+  - subskill_id: qualities_states
+    explanation: Pour transporter un objet volumineux, la largeur d’une route compte. `窄` décrit directement une
+      route étroite. Dans cette description ordinaire, `很` rend l’énoncé adjectival naturel sans forcément
+      insister sur « très ».
+    examples:
+      - text: 这条路很窄。
+        meaning: "**L’exemple.** Cette route est étroite. `这条路` désigne cette route : `这` la montre, `条` est son
+          classificateur et `路` signifie « route ». `很窄` donne la propriété. Dans cette description neutre, on
+          ne place pas `是` entre le sujet et l’adjectif."
+        note: "Essayez : dites que cette route est large. Réponse : `这条路很宽。` Remplacez `窄` par `宽`, « large ». Pour
+          dire qu’elle n’est pas étroite, employez `这条路不窄` ; `不` précède l’adjectif sans garder `很`."
+  - subskill_id: location_movement
+    explanation: Quelqu’un cherche une clé. Indiquer sa position l’aide à la retrouver. `在` relie la clé au lieu ;
+      le repère précède le mot de position, de sorte que la table vient avant « dessus ».
+    examples:
+      - text: 钥匙在桌子上。
+        meaning: "**L’exemple.** La clé est sur la table. `钥匙` signifie « clé », `桌子` « table » et `上` « dessus » ;
+          `桌子上` forme « sur la table ». `在桌子上` indique où se trouve la clé, sans exprimer de déplacement vers
+          la table."
+        note: "Essayez : situez la clé sous la table. Réponse : `钥匙在桌子下。` Remplacez `上` par `下`, « dessous ». Dans
+          `把钥匙放在桌子上`, « poser la clé sur la table », `放` ajoute l’action de placement ; la phrase initiale ne
+          décrit que le lieu."
+  - subskill_id: possession_relations
+    explanation: Avant d’organiser les places, indiquer votre nombre de chaises précise le matériel disponible.
+      `有` exprime la possession ; le nombre et le classificateur précèdent l’objet compté.
+    examples:
+      - text: 我有两把折叠椅。
+        meaning: "**L’exemple.** J’ai deux chaises pliantes. `我有` signifie « j’ai », `两` « deux » dans ce groupe de
+          comptage, `把` classe ici les chaises et `折叠椅` signifie « chaise pliante ». Le nom ne prend pas de
+          terminaison plurielle supplémentaire."
+        note: "Essayez : dites que vous avez trois chaises pliantes. Réponse : `我有三把折叠椅。` Remplacez `两` par `三` et
+          gardez `把`. Ici, `把` sert au comptage ; dans `把椅子搬到门口`, « déplacer la chaise vers l’entrée », il
+          introduit plutôt l’objet déplacé."
+  - subskill_id: quantity_comparison
+    explanation: Pour attribuer la boîte la plus facile à porter, une comparaison de poids est utile. `比`
+      introduit l’autre boîte avant la propriété comparée ; `一点` après celle-ci indique un faible écart.
+    examples:
+      - text: 这个箱子比那个轻一点。
+        meaning: "**L’exemple.** Cette boîte est un peu plus légère que l’autre. `这个箱子` désigne cette boîte, `比那个` «
+          comparée à celle-là », `轻` « légère » et `一点` « un peu ». `那个` suffit à désigner l’autre boîte, déjà
+          connue dans l’échange."
+        note: "Essayez : dites que cette boîte est un peu plus lourde. Réponse : `这个箱子比那个重一点。` Remplacez `轻` par `重` ;
+          gardez la comparaison et le faible écart. Pour l’égalité, `这个箱子和那个一样重` dit que les deux boîtes
+          pèsent autant, sans différence à comparer."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

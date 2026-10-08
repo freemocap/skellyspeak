@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-expanded-arabic-2026-10-07
+skill_id: reasons_connections
+language: english
+explanation_language: arabic
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-arabic.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: يساعد السبب شخصًا على فهم لماذا كان الفعل منطقيًا. إذا سألك صديق لماذا لم تخرج، يمكنك
+      ربط بقائك في الداخل بغمر الطريق بالماء. تقدّم `Because` تفسير الموقف أو الاختيار.
+    examples:
+      - text: We stayed inside because the road was flooded.
+        meaning: تذكر `We stayed inside` الفعل. وتقدّم `Because the road was flooded` سببه. بعد `because`
+          تأتي في هذا المثال جملة كاملة ذات فاعل `the road` وفعل `was`.
+        note: >-
+          تقدّم `Because of the flood` سببًا مشابهًا باستعمال عبارة اسمية: `We stayed inside because
+          of the flood`. ميّز بين التركيبتين؛ فالصيغة الخاطئة `because of the road was flooded`
+          تخلطهما.
+
+
+          **جرّب.** اشرح أنك غادرت مبكرًا لأنك كنت متعبًا. الإجابة: `I left early because I was
+          tired`. تشكل الكلمات بعد `because` تفسيرًا كاملًا لسبب مغادرتك.
+  - subskill_id: consequences
+    explanation: تذكر النتيجة ما ترتب على موقف. إذا لم يكن في الحافلة مكان، فقد يكون المشي رد فعلك.
+      يساعد ربط هاتين الحقيقتين المستمع على فهم القرار بدل سماع حدثين لا صلة واضحة بينهما.
+    examples:
+      - text: The bus was full, so we walked.
+        meaning: تقدّم `The bus was full` الموقف. وتقدّم `So` نتيجته، وهي `we walked`. يأتي السبب أولًا في
+          هذه الصيغة، ثم الفعل الناتج عنه. يضع الفعلان الرواية في الماضي.
+        note: >-
+          قارن بـ`We walked because the bus was full`: يأتي السبب نفسه هنا بعد الفعل. تسرد `The bus
+          was full, and we walked` الحقيقتين، لكنها لا تصرّح بالصلة بينهما بالقدر نفسه.
+
+
+          **جرّب.** اربط إغلاق مقهى بشراء الطعام من مكان آخر. الإجابة: `The café was closed, so we
+          bought food elsewhere`. تجعل `So` الفعل الثاني نتيجةً للموقف الأول.
+  - subskill_id: conditions
+    explanation: يجعل الشرطُ الخطةَ معتمدةً على ما سيحدث. عند تحديد مكان تناول الطعام، قد يقرر المطر هل
+      ستستخدم طاولة في الداخل. يمكنك وصف هذا المستقبل الممكن من غير الجزم بهطول المطر.
+    examples:
+      - text: If it rains, we will eat indoors.
+        meaning: تذكر `If it rains` الشرط. وتذكر `We will eat indoors` النتيجة إذا تحقق الشرط. في هذا النمط
+          المستقبلي المفتوح، تأتي `rains` بصيغة الحاضر مع أن المطر لم يحدث بعد. وتأتي `Will` في جملة
+          النتيجة.
+        note: >-
+          لا تضف `will` عادةً إلى هذا الشرط: استعمل `If it rains`، لا الصيغة الخاطئة `If it will
+          rain` في هذا المثال. يمكنك عكس الترتيب: `We will eat indoors if it rains`.
+
+
+          **جرّب.** اجعل ركوب الحافلة معتمدًا على التأخر. الإجابة: `If we are late, we will take the
+          bus`. تذكر `Are` الشرط المستقبلي؛ وتقدّم `will take` الخطة الناتجة.
+  - subskill_id: contrast
+    explanation: يجمع التباين بين حقيقتين تدفعان القرار في اتجاهين مختلفين. قد يستغرق طريق أطول وقتًا
+      أكثر، لكن سلامته قد تجعله جديرًا بالاختيار. تساعد `But` المستمع على إدراك أن الحقيقة الثانية
+      تقيّد الأولى.
+    examples:
+      - text: The route is longer, but it is safer.
+        meaning: تصف `The route is longer` عيبًا. وتضيف `But it is safer` ميزةً؛ ويعود `it` على الطريق نفسه.
+          وتقارن كل من `longer` و`safer` هذا الطريق بطريق آخر معلوم من النقاش.
+        note: >-
+          تضيف `And` حقيقةً فقط. وتعبّر `Although the route is longer, it is safer` عن التباين
+          بطريقة أخرى. تجنّب في هذه الصيغة تكرار أداة الربط في العبارة الخاطئة `Although the route
+          is longer, but it is safer`.
+
+
+          **جرّب.** قارن صغر غرفة براحتها. الإجابة: `The room is small, but it is comfortable`.
+          تبيّن `But` أن صغرها لا يمنع الصفة الإيجابية.
+  - subskill_id: supporting_claims
+    explanation: يمنح الدليلُ المستمعَ أساسًا لتصديق ادعاء. إذا تساءل صديق هل متجر مفتوح، فإن وصف زبائن
+      تراهم أنفع من تكرار استنتاجك وحده. ينبغي أن يكون الدليل متصلًا بالادعاء المحدد.
+    examples:
+      - text: The shop is open; I can see customers inside.
+        meaning: تذكر `The shop is open` الاستنتاج. وتقدّم `I can see customers inside` الملاحظة التي يستند
+          إليها. وتضع `Inside` الزبائن داخل المتجر. تصل الفاصلة المنقوطة بين عبارتين كاملتين
+          متقاربتين في المعنى.
+        note: >-
+          تدعم الملاحظة الاستنتاج لكنها لا تثبته: فقد يبقى الزبائن داخل المتجر بعد إغلاقه. إذا كنت
+          أقل يقينًا، فقل `I think the shop is open; I can see customers inside`. اجعل درجة ثقتك
+          متناسبةً مع ما تعرفه.
+
+
+          **جرّب.** ادعم قولك إن المطر يهطل بملاحظة مباشرة. الإجابة: `It is raining; I can see drops
+          hitting the window`. تقدّم الجملة الثانية دليلًا ذا صلة.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

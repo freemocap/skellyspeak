@@ -12,7 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
 import { ToolbarIcon } from '../src/components/controls/ToolbarIcon'
 import { DifficultySelect } from '../src/components/controls/DifficultySelect'
-import { ConversationHeader } from '../src/features/conversation/session/ConversationHeader'
+import { ConversationHeader, type DifficultyPlace } from '../src/features/conversation/session/ConversationHeader'
 import { ConversationSettings } from '../src/features/conversation/session/ConversationSettings'
 import { XpChip } from '../src/features/conversation/progress/XpChip'
 import { SkillEvidenceContext } from '../src/state/learning/useSkillEvidence'
@@ -43,6 +43,8 @@ import { ReadingPreferencesProvider } from '../src/components/reading/ReadingPre
 import { useAppearance } from '../src/platform/appearance/useAppearance'
 import { useWidthTier } from '../src/components/layout/useWidthTier'
 import { useNavigationStore } from '../src/state/navigation/navigation'
+import { useSettingsStore } from '../src/state/settings/settings'
+import { useSkillEvidenceStore } from '../src/state/learning/skill-evidence'
 import { AiStatus } from '../src/features/conversation/composer/AiStatus'
 import { useSessionStore } from '../src/state/session/session'
 import { useConnectionHealth } from '../src/state/session/connection-health'
@@ -63,6 +65,11 @@ const previewLanguages = [
     varieties: [{ transcriptionLanguage: 'es', id: 'spanish-spain', name: 'Spain', description: 'Spain', direction: 'ltr', fontScale: 1, romanization: null }] },
   { transcriptionLanguage: 'en', languageTag: 'en', fontScale: 1, id: 'english', name: 'English', nativeName: 'English', direction: 'ltr', romanization: null, defaultVariety: 'english-united-states',
     varieties: [{ transcriptionLanguage: 'en', id: 'english-united-states', name: 'United States', description: 'United States', direction: 'ltr', fontScale: 1, romanization: null }] },
+  // A short and a long language name for the top bar's room checks (?lang=irish, ?lang=indonesian).
+  { transcriptionLanguage: 'ga', languageTag: 'ga', fontScale: 1, id: 'irish', name: 'Irish', nativeName: 'Gaeilge', direction: 'ltr', romanization: null, defaultVariety: 'irish-ireland',
+    varieties: [{ transcriptionLanguage: 'ga', id: 'irish-ireland', name: 'Ireland', description: 'Ireland', direction: 'ltr', fontScale: 1, romanization: null }] },
+  { transcriptionLanguage: 'id', languageTag: 'id', fontScale: 1, id: 'indonesian', name: 'Indonesian', nativeName: 'Bahasa Indonesia', direction: 'ltr', romanization: null, defaultVariety: 'indonesian-indonesia',
+    varieties: [{ transcriptionLanguage: 'id', id: 'indonesian-indonesia', name: 'Indonesia', description: 'Indonesia', direction: 'ltr', fontScale: 1, romanization: null }] },
 ]
 // The AI View reads a conversation mid-turn, so its tray and full screen show a live graph.
 const aiViewTurns = [presentTurn(14, 'live'), presentTurn(99, 'older')]
@@ -73,7 +80,8 @@ mockIPC((command, args) => {
   if (command === 'create_drill_item') return { id: 'preview-drill-copy' }
   // The header counters and the top bar's pill read effort and totals; sample numbers, no workspace.
   if (command === 'get_effort_progress') return { target: (args as { target: string }).target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, explorations: 0, bot: 0, recent: [] }
-  if (command === 'get_language_totals') return [{ target: 'spanish-spain', name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: 0, conversations: 1, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, explorations: 0, bot: 0 }]
+  // One row per sample language; the active one has no XP yet and the total is 181, as in a real early profile.
+  if (command === 'get_language_totals') return previewLanguages.map((language, index) => ({ target: language.id, name: language.name, nativeName: language.nativeName, languageTag: language.languageTag, xp: index === 0 ? 181 : 0, conversations: 1, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, explorations: 0, bot: 0 }))
   if (command === 'get_snapshot') return { languages: previewLanguages, savedTopics: [{ id: 'preview-saved', text: 'Mi barrio' }], conversations: [AI_VIEW_CONVERSATION] } as unknown
   if (command === 'list_microphones') return { source: 'native', devices: [{ id: 'sample-microphone', label: 'Sample microphone', isDefault: true, channels: 1, sampleRate: 48000, unavailable: null }] }
   // The local microphone check in Recording settings: a sample signal, no capture.
@@ -83,6 +91,13 @@ mockIPC((command, args) => {
   throw new Error('This layout preview does not support native actions. Use the running app for this control.')
 })
 await loadLanguages()
+// The production language picker reads the target from the settings store; ?lang= picks it.
+{
+  const target = previewLanguages.find(language => language.id === new URLSearchParams(location.search).get('lang')) ?? previewLanguages[1]
+  useSettingsStore.setState({ settings: { ...PREVIEW_SETTINGS, my_languages: previewLanguages.map(language => language.id), target_language: target.id, target_variety: target.defaultVariety } })
+  // The top bar's level chip and language code come from the language's evidence.
+  useSkillEvidenceStore.setState({ snapshot: { ...skillDemo, target: target.id }, scope: 0 })
+}
 const topics: TopicCard[] = [
   { id: 'weekend', glyph: '☕', target: 'Your weekend', romanized: null, translation: 'Your weekend' },
   { id: 'food', glyph: '☕', target: 'Food', romanized: null, translation: 'Food' },
@@ -206,7 +221,8 @@ function Preview() {
     return () => clearInterval(timer)
   }, [recording, feed])
   const composer = useRef<HTMLDivElement>(null)
-  const [coach, setCoach] = useState(true)
+  // ?coach=closed starts with the docked coach panel closed, as after pressing Close coach.
+  const [coach, setCoach] = useState(new URLSearchParams(location.search).get('coach') !== 'closed')
   const [dark, setDark] = useState(new URLSearchParams(location.search).get('theme') === 'dark')
   const [palette, setPalette] = useState<'cool' | 'warm'>('cool')
   const [notice, setNotice] = useState('')
@@ -220,8 +236,9 @@ function Preview() {
   }
   useEffect(() => () => aiPlay.current.forEach(clearTimeout), [])
   const aiStatus = <div className="composer-activity"><AiStatus {...ai} onInspectLatest={() => setNotice('AI activity for the latest exchange')} /></div>
-  const [tab, setTab] = useState<'coaching' | 'skills'>('coaching')
+  const [tab, setTab] = useState<'coaching' | 'progress'>('coaching')
   const [configOpen, setConfigOpen] = useState(false)
+  const [difficultyPlace, setDifficultyPlace] = useState<DifficultyPlace>('header')
   const [partnerMenu, setPartnerMenu] = useState(false)
   const [quick, setQuick] = useState(PREVIEW_SETTINGS)
   const workspace = useRef<HTMLDivElement>(null)
@@ -251,7 +268,7 @@ function Preview() {
     speak: async () => { setNotice('Playback control — sample only; no audio request'); return null },
     activity: async () => ({}),
   }), [])
-  // As in production: beside the partner while the header has room, in the settings sheet on phones.
+  // As in production: beside the partner while the header has room, leading the settings sheet otherwise.
   const difficulty = <DifficultySelect value={startConfig.difficulty} saving={false} onChange={async difficulty => setStartConfig(current => ({ ...current, difficulty }))} />
   // Production phone structure: the composer follows the conversation; the coach
   // is a full-screen modal over both.
@@ -288,14 +305,14 @@ function Preview() {
   )
   return <AskCoachContext value={setNotice}><ReadingProvider settings={null}><ReadingHelp services={readingServices} languages={[]}><ReadingPreferencesProvider settings={settings}><div className="app" data-place="chat">
     <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>AI status<select value={aiScene} onChange={event => { aiPlay.current.forEach(clearTimeout); setAiScene(event.target.value as AiScene) }}>{AI_SCENES.map(scene => <option key={scene}>{scene}</option>)}</select></label><button onClick={playAiTurn}>Play a turn</button><label>Mic<select value={micScene} onChange={event => setMicScene(event.target.value as typeof micScene)}>{(['sound', 'quiet', 'stalled', 'missing'] as const).map(scene => <option key={scene}>{scene}</option>)}</select></label><label><input type="checkbox" checked={silentTake} onChange={event => setSilentTake(event.target.checked)} /> Silent take</label><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>cool</option><option>warm</option></select></label><output>{notice}</output></div>
-    <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
+    <TopBar />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`} ref={workspace}>
       <section className="chat">
         <ConversationHeader error={null} leading={<button type="button" className="chat-conversations" aria-label="Conversations" title="Conversations" onClick={() => setNotice('Conversations')}><ToolbarIcon name="menu" size={17} /></button>} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} open={partnerMenu} onOpenChange={setPartnerMenu} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}
-          difficulty={mobile ? undefined : difficulty}>
+          difficulty={difficulty} onDifficultyPlace={setDifficultyPlace}>
           <div className="chat-heading-actions"><SkillEvidenceContext value={{ snapshot: skillDemo, error: null }}><XpChip chatId="preview-conversation" onOpen={section => setNotice(`Progress: ${section}`)} /></SkillEvidenceContext><ConversationSettings summary={quick.auto_speak ? 'Reading aloud' : undefined} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
             onToggle={async (key, value) => setQuick(current => ({ ...current, [key]: value ?? !current[key] }))}
-            nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>} difficulty={mobile ? difficulty : undefined}
+            nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>} difficulty={difficultyPlace === 'settings' ? difficulty : undefined}
             exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button type="button" className="chat-new" aria-label="New conversation" title="New conversation" onClick={() => setOpening(true)}><ToolbarIcon name="plus" size={17} /></button></div>
         </ConversationHeader>
         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onAboutPartner={() => setNotice('Partner profile')} onChangePartner={() => setPartnerMenu(true)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>

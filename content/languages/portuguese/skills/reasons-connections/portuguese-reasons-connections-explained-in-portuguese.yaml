@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-portuguese-2026-10-07
+language: portuguese
+skill_id: reasons_connections
+explanation_language: portuguese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-portuguese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: "Um amigo pergunta por que você não saiu. `Fiquei em casa porque estava chovendo`
+      apresenta o motivo: `fiquei em casa` informa que você permaneceu em casa, `porque` introduz a
+      razão e `estava chovendo` apresenta a chuva em andamento naquele momento passado. A oração
+      causal explica a decisão; não é apenas outro acontecimento sem relação. Na pergunta pelo
+      motivo, o português escreve `por que`; aqui, o explicativo `porque` é uma palavra só."
+    examples:
+      - text: Fiquei em casa porque estava chovendo.
+        meaning: A chuva foi o motivo de eu ter ficado em casa.
+        note: "Dê uma doença como motivo para ter ficado em casa. `Fiquei em casa porque estava doente.` é
+          uma resposta completa: `porque` conecta a ação ao motivo, e `estava doente` apresenta esse
+          motivo."
+  - subskill_id: consequences
+    explanation: "O pneu da sua bicicleta furou durante o trajeto, então você voltou a pé. `O pneu
+      furou, por isso voltei a pé` apresenta o resultado: `furou` informa o que aconteceu com o
+      pneu, `por isso` introduz a consequência, `voltei` relata o retorno e `a pé` diz como você
+      voltou. O conector retoma o furo como razão para caminhar. `O pneu furou, depois voltei a pé`
+      apenas ordena os acontecimentos, a menos que a relação causal já esteja clara por outro meio.
+      `Por isso` torna a consequência explícita."
+    examples:
+      - text: O pneu furou, por isso voltei a pé.
+        meaning: Voltei caminhando porque o pneu furou.
+        note: "Explique por que chegou tarde quando o ônibus atrasou. `O ônibus atrasou, por isso cheguei
+          tarde.` apresenta uma consequência completa: `por isso` liga a chegada tardia ao atraso do
+          ônibus."
+  - subskill_id: conditions
+    explanation: "Você está planejando uma troca de livros para amanhã, e o local depende da chuva. `Se
+      chover amanhã, vamos fazer a troca de livros na biblioteca` tem uma condição e uma
+      consequência: `se` introduz a condição, `chover` é o futuro do subjuntivo de `chover`, e
+      `vamos fazer` apresenta a ação planejada caso chova. Aqui, a forma regular do futuro do
+      subjuntivo coincide com o infinitivo. Com um verbo irregular, a diferença aparece: `Se
+      tivermos tempo, vamos fazer a troca` condiciona a troca à disponibilidade de tempo. Nenhuma
+      das frases afirma que a chuva ou o tempo livre já ocorreram."
+    examples:
+      - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
+        meaning: Caso chova amanhã, o local da troca de livros será a biblioteca.
+        note: Use o tempo disponível como condição. `Se tivermos tempo, vamos fazer a troca de livros na
+          biblioteca.` é uma condição futura completa; `tivermos` é a forma de futuro do subjuntivo
+          de `ter` para nós.
+  - subskill_id: contrast
+    explanation: "Você quer ir de bicicleta, mas o pneu está furado. `Quero ir de bicicleta, mas o pneu
+      está furado` contrapõe uma intenção a um obstáculo: `quero ir` expressa o desejo, `de
+      bicicleta` indica o meio de transporte, `mas` introduz o contraste e `está furado` descreve a
+      condição atual do pneu. A segunda oração importa porque dificulta a primeira. Um fato qualquer
+      depois de `mas` não produziria um contraste útil."
+    examples:
+      - text: Quero ir de bicicleta, mas o pneu está furado.
+        meaning: Gostaria de ir de bicicleta, porém o pneu está furado.
+        note: "Contraponha a caminhada à chuva. `Quero ir a pé, mas está chovendo.` é um contraste completo:
+          a chuva torna a caminhada desejada menos prática."
+  - subskill_id: supporting_claims
+    explanation: "Você recomenda um caminho em vez de outro. `Acho que este caminho é melhor: é mais
+      curto` primeiro apresenta a avaliação e depois oferece seu fundamento. `Acho que` marca sua
+      opinião, `este caminho` indica o caminho em questão, `é melhor` faz a avaliação e `é mais
+      curto` explica o motivo. A segunda oração oferece uma razão pertinente à avaliação mesmo sem
+      `porque`. Uma afirmação seguida de um fato sem relação não ficaria sustentada."
+    examples:
+      - text: "Acho que este caminho é melhor: é mais curto."
+        meaning: Na minha opinião, este caminho é melhor porque é mais curto.
+        note: "Sustente a mesma recomendação com a segurança. `Acho que este caminho é melhor: é mais
+          seguro.` é uma resposta completa; `é mais seguro` oferece uma razão pertinente à escolha
+          de um caminho."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Portuguese localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; sources support original guidance, not independent validation
+      of this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,131 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: arabic
+skill_id: reasons_connections
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 别人问你为什么待在家里时，说明自己生病，就把决定与促成它的情况连起来。这里说话人是女性。
+    examples:
+      - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
+        meaning: "**例句。** 我因生病而待在家里。`بَقِيتُ` 意为我留着，`فِي الْبَيْتِ` 是在家，`لِأَنَّنِي` 意为因为我。`مَرِيضَةٌ`
+          是与女性说话人一致的生病。过去式动词把待在家的事放到以前；原因分句解释当时的决定。"
+        note: 男性说话人用 `مَرِيضٌ`；“我待着”的动词形式不变。原因跟在“因为”后，并非第二件无关事件。试一试：哪部分回答了为什么？答案：`لِأَنَّنِي مَرِيضَةٌ`，把生病与待在家里连起来。
+  - subskill_id: consequences
+    explanation: 你到商店发现已关门，于是决定明天再来。结果表达让听话人知道新计划怎样由眼前情况引出。
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
+        meaning: "**例句。** 商店关门了，所以我们明天回来。`الْمَحَلُّ مُغْلَقٌ` 表示商店关着。`لِذٰلِكَ` 意为因此。`سَنَعُودُ` 是我们会回来，`غَدًا`
+          是明天。第一句给出情况，第二句是对此采取的行动。"
+        note: 将来前缀 `سَـ` 附在“我们”形式 `نَعُودُ` 前。比较普通的“和”：它未必解释为什么计划回来。试一试：哪个短语明确把关门与新计划连起来？答案：`لِذٰلِكَ`；它指回商店关着这个原因。
+  - subskill_id: conditions
+    explanation: 你在说明到达后的安排，但不知道对方是否会早到。条件分句使等待指示只在早到时适用。
+    examples:
+      - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
+        meaning: "**例句。** 如果你早到，就在这里等。`إِذَا` 引出如果；`وَصَلْتَ` 形式上是对一名男子说的“你到了”。这里它描述未来可能的到达，不是已发生的过去事实。`مُبَكِّرًا`
+          是早；`فَانْتَظِرْ هُنَا` 告诉他那就等在这里。"
+        note: 附着的 `فَـ` 把条件与这个命令连起来。不能因为 `إِذَا` 后动词是完成式形态，就自动读成过去。试一试：即使没有早到，听话人也必须等吗？答案：这句话只在所述早到条件下给出等待指示。
+  - subskill_id: contrast
+    explanation: 小箱子看上去可能容易提，却很重。“但是”把两个真实描述连在一起，并说明为什么第二点可能让人意外。
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
+        meaning: "**例句。** 这个箱子小，但很重。`هٰذَا الصُّنْدُوقُ` 指这个箱子；`صَغِيرٌ` 是小。`وَلٰكِنَّهُ` 意为但是它，词尾指回箱子。`ثَقِيلٌ`
+          意为重。对比并没有否认箱子小。"
+        note: "`وَلٰكِنَّهُ` 的词尾与阳性的“箱子”名词相应。若所指对象不同，词尾和形容词可能都要改变。试一试：哪两种性质仍都为真？答案：小和重；“但是”对比的是预期，不是否定事实。"
+  - subskill_id: supporting_claims
+    explanation: 如果你推荐某条路线较短，别人可能问你凭什么知道。提到测量结果，会为比较提供具体依据，而不是重复个人偏好。
+    examples:
+      - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
+        meaning: "**例句。** 这条路更短，因为我们测了距离。`هٰذَا الطَّرِيقُ أَقْصَرُ` 表示这条路较短。`لِأَنَّنَا` 意为因为我们；`قِسْنَا`
+          是我们测量了，`الْمَسَافَةَ` 是距离。过去式动词里的“我们”词尾指出测量的人。"
+        note: 只有测量与所比较的路线相关，它才是依据。别处的“因为”分句可能说明个人动机；这里它说明何以知道。试一试：哪些词指出证据？答案：`قِسْنَا الْمَسَافَةَ`，报告支持主张的测量。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahVerbFormsTeaching20261007
+    - madinahNominalTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+      constructions, not independent translation validation.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original Arabic
+          constructions, not independent translation validation.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: causes_reasons
+      explanation: 别人问你为什么待在家里时，说明自己生病，就把决定与促成它的情况连起来。这里说话人是女性。
+      examples:
+        - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+          meaning: "**例句。** 我因生病而待在家里。`ضَلِّيتْ` 在这里意为我待着。`بِالْبَيْتْ` 是在家；`لِأَنِّي` 意为因为我，`مَرِيضَة`
+            是与女性一致的生病。过去待在家里的事与生病被连为行动和原因。"
+          note: 男性把形容词改成 `مَرِيضْ`。“因为”短语说明为什么；普通的“和”只会并列信息。试一试：句中生病是待在家里的结果吗？答案：不是；它被呈现为待在家里的原因。
+    - subskill_id: consequences
+      explanation: 你到商店发现已关门，于是决定明天再来。结果表达让听话人知道新计划怎样由眼前情况引出。
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+          meaning: "**例句。** 商店关门了，所以我们明天回来。`الْمَحَلّ مْسَكَّرْ` 意为商店关着。`عَشَانْ هَيْكْ` 意为因此。`رَحْ نِرْجَعْ`
+            是我们会回来；`بُكْرَا` 是明天。`رَحْ` 后的动作没有普通 b- 前缀。"
+          note: 商店的状态由 `مْسَكَّرْ` 表达；它不是命令别人关店。试一试：哪个分句给出结果？答案：`رَحْ نِرْجَعْ بُكْرَا`，即关门后作出的新计划。
+    - subskill_id: conditions
+      explanation: 你在说明到达后的安排，但不知道对方是否会早到。条件分句使等待指示只在早到时适用。
+      examples:
+        - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+          meaning: "**例句。** 如果你早到，就在这里等。`إِذَا` 意为如果；在这个条件情境里，`وِصِلْتْ` 表示你到达，`بَكِّيرْ` 是早。`اِسْتَنَّى`
+            告诉一名男子等待；`هُونْ` 是这里。第一分句设定情况，第二句给出指示。"
+          note: 到达动词的形式可能看起来像过去，但“如果”的语境使它成为开放的可能。条件指示没有说对方已经到了。试一试：哪个词使等待有条件？答案：`إِذَا`；去掉这个框架，指示就不再受同样条件限制。
+    - subskill_id: contrast
+      explanation: 小箱子看上去可能容易提，却很重。“但是”把两个真实描述连在一起，并说明为什么第二点可能让人意外。
+      examples:
+        - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+          meaning: "**例句。** 这个箱子小，但很重。`هَادْ الصُّنْدُوقْ` 是这个箱子；`صْغِيرْ` 是小。`بَسّ` 在这句里意为但是，`تْقِيلْ`
+            是重。两个性质都属于同一个箱子，不需要独立的现在时“是”。"
+          note: 其他语境里 `بَسّ` 也可能意为“只”，所以要结合整句判断。这里它连接描述，突出意外。试一试：第二个描述会替换第一个吗？答案：不会；箱子仍小，也很重。
+    - subskill_id: supporting_claims
+      explanation: 如果你推荐某条路线较短，别人可能问你凭什么知道。提到测量结果，会为比较提供具体依据，而不是重复个人偏好。
+      examples:
+        - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+          meaning: "**例句。** 这条路更短，因为我们测了距离。`هَادْ الطَّرِيقْ أَقْصَرْ` 意为这条路较短。这里 `لِأَنُّه` 在 `إِحْنَا قِسْنَا
+            الْمَسَافَة` 这个“我们测了距离”的分句前，充当“因为”。`إِحْنَا` 明确指我们，`قِسْنَا` 的词尾也带“我们”。"
+          note: 这里不能机械地把连接语翻成“因为他”：后面的“我们”分句才给出原因。测量结果也必须确实支持比较。试一试：谁做了测量？答案：我们，由 `إِحْنَا` 和 `قِسْنَا`
+            的词尾指出，而不是由连接语的末尾读音决定。

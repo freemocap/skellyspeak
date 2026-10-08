@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: people_places
+explanation_language: arabic
+title: الأشخاص والأشياء والأماكن
+introduction: عرّف بالأشخاص والأشياء، وصفهم، وبيّن أين يوجدون وكيف ترتبط بعضهم ببعض.
+sections:
+  - subskill_id: identification
+    title: التعريف
+    concept: اذكر من يكون الشخص أو ما يكون الشيء.
+  - subskill_id: qualities_states
+    title: الصفات والحالات
+    concept: صف طبيعة شخص أو شيء، أو حالته الآن.
+  - subskill_id: location_movement
+    title: المكان والحركة
+    concept: اذكر أين يوجد شخص أو شيء، أو إلى أين يتجه.
+  - subskill_id: possession_relations
+    title: الملكية والعلاقات
+    concept: اشرح لمن ينتمي شيء ما أو كيف يرتبط الأشخاص والأشياء.
+  - subskill_id: quantity_comparison
+    title: الكمية والمقارنة
+    concept: تحدّث عن المقادير وقارن بين الأشخاص أو الأشياء.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

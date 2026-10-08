@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-french-2026-10-07
+language: mandarin
+skill_id: information_exchange
+explanation_language: french
+shared_explanation: skills/information-exchange/information-exchange-explained-in-french.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Avant d’aller au magasin, connaître son heure de fermeture permet d’arriver à temps. `几点` occupe
+      la place où figurerait une réponse comme `五点`. Le magasin reste en tête de phrase.
+    examples:
+      - text: 商店几点关门？
+        meaning: "**L’exemple.** À quelle heure le magasin ferme-t-il ? `商店` signifie « magasin », `几点` « à quelle
+          heure » et `关门` « fermer » pour un commerce. L’ordre est magasin, heure inconnue, fermeture ; le mot
+          interrogatif suffit sans `吗` final."
+        note: "Essayez : demandez l’heure d’ouverture. Réponse : `商店几点开门？` Remplacez `关门` par `开门`, « ouvrir ».
+          `商店五点关门吗？` demande au contraire si le magasin ferme à cinq heures, avec une heure proposée et un `吗`
+          final."
+  - subskill_id: answering_information
+    explanation: Après une question sur l’heure de fermeture, l’événement est déjà connu. Une expression de
+      l’heure suffit à répondre. Après un nombre, `点` marque une heure, et non le nombre d’objets.
+    examples:
+      - text: 五点。
+        meaning: "**L’exemple.** À cinq heures. `五` signifie « cinq » et `点` indique l’heure. Cette réponse courte
+          fournit l’information manquante dans `商店几点关门？` ; inutile de répéter le magasin ou la fermeture."
+        note: "Essayez : répondez « à six heures ». Réponse : `六点。` Changez le nombre et gardez `点`. Une réponse
+          complète serait `商店六点关门。` Les deux répondent à la question sur la fermeture ; `六个` compte six objets
+          et n’indique pas l’heure."
+  - subskill_id: checking_facts
+    explanation: Vous avez entendu que le magasin ferme à cinq heures et souhaitez le vérifier avant de partir.
+      `对吗` suit le fait proposé et demande s’il est exact ; l’autre personne peut le confirmer ou le corriger.
+    examples:
+      - text: 商店五点关门，对吗？
+        meaning: "**L’exemple.** Le magasin ferme à cinq heures, c’est bien cela ? `商店五点关门` énonce le magasin, l’heure
+          et la fermeture. `对` signifie « exact » et `吗` forme la courte question de confirmation. La virgule
+          sépare cette vérification du fait proposé."
+        note: "Essayez : vérifiez une fermeture à six heures. Réponse : `商店六点关门，对吗？` Changez l’heure proposée. Si
+          l’heure est totalement inconnue, `商店几点关门？` pose une question ouverte au lieu de soumettre une
+          réponse à vérifier."
+  - subskill_id: useful_detail
+    explanation: Quand il faut choisir une table parmi plusieurs, la fenêtre sert de repère. `靠窗的` décrit la table
+      avant son nom, et `那张` désigne cette table précise.
+    examples:
+      - text: 请用靠窗的那张桌子。
+        meaning: "**L’exemple.** Veuillez utiliser la table près de la fenêtre. `请用` signifie « veuillez utiliser »,
+          `靠窗` « près de la fenêtre » ; `的` rattache cette description à `桌子`, « table ». `那` signifie « cette
+          table-là » et `张` est ici le classificateur des tables. Toute l’expression identifiante suit `用`."
+        note: "Essayez : indiquez la table près de la porte. Réponse : `请用靠门的那张桌子。` Remplacez `窗` par `门` dans la
+          description. `请用桌子` demande seulement d’utiliser une table et perd l’indice nécessaire pour
+          choisir."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

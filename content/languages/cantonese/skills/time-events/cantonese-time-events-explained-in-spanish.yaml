@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: cantonese
+skill_id: time_events
+explanation_language: spanish
+shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Alguien pregunta qué hace tu amistad en este momento. `緊` después de la acción indica
+      que está en curso, apropiado para describir la lectura que ves ahora.
+    examples:
+      - text: 佢睇緊書。
+        meaning: Esa persona está leyendo un libro. `佢` se refiere a una persona, `睇` significa leer o mirar
+          y `書` puede ser libro o libros sin especificar cantidad. `緊` va entre `睇` y `書`. Presenta
+          la actividad en desarrollo, sin modificar el verbo según la persona.
+        note: "**Practica:** di que esa persona está comiendo ahora. Respuesta: `佢食緊飯。` Sustituye `睇書` por
+          `食飯` y conserva `緊` después de la acción. `佢噚日呢個時候睇緊書` describe una lectura en curso a
+          esta hora de ayer; la misma marca aspectual admite una referencia pasada."
+  - subskill_id: past_events
+    explanation: Tras una compra, cuentas que adquiriste un libro ayer. La palabra de tiempo sitúa el
+      suceso en el pasado y `咗` presenta la compra como realizada.
+    examples:
+      - text: 我噚日買咗本書。
+        meaning: Compré un libro ayer. `我噚日` indica yo y ayer. Aquí `買咗` es compré, con `咗` después de `買`;
+          `本書` significa un libro con el clasificador `本`. Una expresión con clasificador sin
+          numeral puede introducir un objeto singular después de la acción.
+        note: "**Practica:** cuenta que compraste dos libros ayer. Respuesta: `我噚日買咗兩本書。` Coloca `兩` antes
+          de `本`. Para negar que ocurrió la compra, `我噚日冇買書` usa `冇` y omite `咗`; añadir simplemente
+          un `唔` general no produce la negación habitual de ese hecho pasado."
+  - subskill_id: future_events
+    explanation: Has planeado una visita a la biblioteca para mañana. Un día futuro puede dejar claro el
+      plan sin cambiar la forma del verbo de movimiento ni exigir una marca especial de futuro.
+    examples:
+      - text: 我聽日去圖書館。
+        meaning: Iré a la biblioteca mañana. `我` significa yo, `聽日` es mañana y `去圖書館` significa ir a la
+          biblioteca. El día precede a `去`. El destino sigue al verbo de movimiento sin una palabra
+          adicional equivalente al a español.
+        note: "**Practica:** traslada la visita al sábado. Respuesta: `我星期六去圖書館。` Cambia solo el día.
+          `我聽日會去圖書館` también puede expresar futuro con `會`; está disponible, pero no es obligatorio
+          solo porque la visita sea mañana."
+  - subskill_id: duration_frequency
+    explanation: Una amistad pregunta con qué frecuencia visitas la biblioteca. El intervalo regular
+      antes de la acción y el número de veces después expresan la frecuencia; la biblioteca ya
+      conocida puede omitirse.
+    examples:
+      - text: 我每個星期去兩次。
+        meaning: Voy dos veces por semana. `每個星期` significa cada semana, con `每` antes de la expresión de
+          semana. `去兩次` es ir dos veces; `次` cuenta ocasiones y `兩` indica dos. No informa cuánto
+          dura cada visita.
+        note: "**Practica:** di que vas tres veces por semana. Respuesta: `我每個星期去三次。` Sustituye `兩` por `三`.
+          Una respuesta de duración sería `我每次去兩個鐘`, voy dos horas cada vez: `每次` identifica cada
+          visita y `兩個鐘` mide cuánto dura."
+  - subskill_id: event_sequence
+    explanation: Antes de salir de casa, el grupo planea terminar de comer. La construcción une la
+      finalización de una actividad con la siguiente, por lo que el orden queda claro sin repetir
+      quién actúa.
+    examples:
+      - text: 食完飯先出門。
+        meaning: "Sal después de terminar de comer. `食完飯` significa terminar una comida: `完` sigue a `食` e
+          indica que se completó. `先出門` significa solo entonces salir. Aquí `先` precede a la segunda
+          acción y la aplaza hasta que termine la primera."
+        note: "**Practica:** termina de beber té antes de salir. Respuesta: `飲完茶先出門。` Cambia `食飯` por `飲茶` y
+          conserva `完` tras la primera acción. `我哋先食飯，跟住出門` también indica comer primero y salir
+          después; `先` ocupa otro lugar en esa oración de dos cláusulas."
+  - subskill_id: event_phase
+    explanation: Alguien pregunta si ya has comido. `仲未` indica que todavía no ha sucedido la comida
+      esperada, aunque puede ocurrir después.
+    examples:
+      - text: 我仲未食飯。
+        meaning: Todavía no he comido. `我` identifica a la persona; `仲` significa todavía y `未`, aún no.
+          Juntos preceden a `食飯`, comer. Expresan la fase actual, no un rechazo a comer ni una
+          negación de una costumbre.
+        note: "**Practica:** di que el grupo todavía no ha comido. Respuesta: `我哋仲未食飯。` Cambia la persona
+          sin modificar la actividad. `我已經食咗飯` expresa el estado opuesto de comida terminada con
+          `已經` y `咗`, sin añadir `咗` a la oración de todavía no."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original cantonese constructions, not independent translation validation.

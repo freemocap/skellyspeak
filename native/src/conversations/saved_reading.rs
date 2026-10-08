@@ -79,6 +79,8 @@ pub(crate) fn sources(store: &Store, query: &SavedGlossQuery) -> Result<Vec<Save
                 &mut bytes,
                 query,
                 SavedGlossSource {
+                    dictionary: None,
+                    provenance: None,
                     source_id: id.clone(),
                     operation_id: Some(view.operation_id),
                     attempt_id: Some(view.attempt_id),
@@ -99,6 +101,8 @@ pub(crate) fn sources(store: &Store, query: &SavedGlossQuery) -> Result<Vec<Save
                     &mut bytes,
                     query,
                     SavedGlossSource {
+                        dictionary: None,
+                        provenance: None,
                         source_id: format!("{id}/suggestion/{index}"),
                         operation_id: None,
                         attempt_id: context["coachRepliesAttempt"].as_str().map(str::to_owned),

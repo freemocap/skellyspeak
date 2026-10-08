@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: coordinating_action
+explanation_language: french
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-french.yaml
+sections:
+  - subskill_id: requests
+    explanation: Vous confiez des livres à un collègue et souhaitez qu’il les range. `Você pode guardar estes
+      livros, por favor?` emploie `você` pour la personne sollicitée, `pode` pour « pouvez » et l’infinitif
+      `guardar` pour l’action demandée. `Estes livros` désigne les livres proches de la personne qui parle.
+      Dans cette situation, la question sert de demande polie, même si `poder` exprime aussi la capacité. Avec
+      un autre infinitif, `Você pode fechar a porta, por favor?` demande de fermer la porte.
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: Pourriez-vous ranger ces livres, s’il vous plaît ?
+        note: Demandez au collègue de ranger ces boîtes. `Você pode guardar estas caixas, por favor?` est une demande
+          complète. `Estas caixas` remplace `estes livros` ; le démonstratif passe au féminin pluriel pour
+          s’accorder avec `caixas`.
+  - subskill_id: offers_invitations
+    explanation: Vous avez du pain frais et pouvez en donner une tranche. `Quer uma fatia de pão?` signifie «
+      Voulez-vous une tranche de pain ? ». `Quer` est la forme présente de `querer` adressée à l’autre
+      personne ; `uma fatia` donne une tranche et `de pão` précise de quoi. Le pain disponible en fait une
+      offre. Sans ce contexte, les mêmes mots pourraient interroger sur une préférence. `Quer um pouco de
+      água?` reprend l’offre pour de l’eau.
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: Voulez-vous une tranche de pain ?
+        note: Proposez plutôt un verre d’eau. `Quer um copo de água?` est une offre complète si vous pouvez le servir
+          ; `um copo de` précise la quantité et son contenu.
+  - subskill_id: suggestions
+    explanation: "Le groupe choisit un jour pour échanger des livres. `Vamos organizar a troca de livros no
+      sábado?` propose une action commune : `vamos` signifie « nous allons » ou « allons », `organizar` reste
+      à l’infinitif et `no sábado` signifie « samedi » (`em` + `o`). La question invite les autres à
+      considérer le projet. `Vamos organizar ...` peut aussi annoncer une intention ; l’échange de
+      planification en fait ici une suggestion. `Vamos organizar a troca no domingo?` propose un autre jour."
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: Organiserons-nous l’échange de livres samedi ?
+        note: Proposez dimanche. `Vamos organizar a troca de livros no domingo?` garde le cadre d’action commune et
+          remplace `no sábado` par `no domingo`.
+  - subskill_id: commitments
+    explanation: "Le groupe cherche quelqu’un pour apporter les boîtes. Avec `Eu levo as caixas amanhã`, vous
+      prenez cette tâche : `eu` désigne explicitement la personne responsable, `levo` est une forme présente
+      de `levar` et `amanhã` situe l’action demain. Le présent portugais peut exprimer un projet futur
+      convenu. Hors d’un plan commun, les mêmes mots pourraient seulement rapporter un horaire ; ici, ils
+      répondent à « qui s’en charge ? »."
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: J’apporterai les boîtes demain.
+        note: Engagez-vous à apporter les livres demain. `Eu levo os livros amanhã.` convient parce que `eu levo`
+          prend la tâche en charge et `amanhã` en fixe le moment futur.
+  - subskill_id: accepting_declining
+    explanation: "On vous invite à aider à l’échange aujourd’hui, mais vous ne pouvez pas venir. `Não posso ir
+      hoje` donne un refus pertinent : `não` précède le verbe conjugué `posso`, `ir` est l’action impossible
+      et `hoje` limite le refus à aujourd’hui. L’invitation donne déjà la destination, donc inutile de la
+      répéter. Un bref `Posso, sim` pourrait au contraire accepter une tâche connue."
+    examples:
+      - text: Não posso ir hoje.
+        meaning: Je ne peux pas venir aujourd’hui.
+        note: Déclinez pour demain plutôt qu’aujourd’hui. `Não posso ir amanhã.` est une réponse complète à
+          l’invitation ; remplacer `hoje` par `amanhã` change le jour où vous ne pouvez pas venir.
+  - subskill_id: negotiating_plans
+    explanation: Un ami propose vendredi, mais ce jour ne convient pas. `Na sexta não posso. Podemos combinar no
+      sábado?` donne d’abord la contrainte, puis une solution possible. `Na sexta` signifie « vendredi » (`em`
+      + `a`) ; `não posso` laisse la rencontre déjà évoquée implicite. `Podemos` signifie « pouvons-nous » et
+      `combinar` demande d’arranger la rencontre ; `no sábado` propose samedi. Il s’agit de négociation parce
+      que la phrase répond à un projet existant. `Podemos combinar no domingo?` proposerait dimanche.
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: Je ne peux pas vendredi. Pouvons-nous convenir de samedi ?
+        note: "Gardez vendredi comme problème et proposez dimanche. `Na sexta não posso. Podemos combinar no domingo?`
+          répond complètement : la première phrase écarte le jour proposé, la seconde offre un remplacement
+          possible."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

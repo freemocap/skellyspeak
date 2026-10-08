@@ -317,7 +317,7 @@ mod tests {
         assert_ne!(source.fingerprint(), changed.fingerprint());
         assert!(
             registry
-                .guide_edition("spanish", "arabic", "time_events")
+                .guide_edition("spanish", "german", "time_events")
                 .unwrap()
                 .is_none()
         );

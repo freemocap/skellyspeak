@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-french-2026-10-07
+skill_id: reasons_connections
+language: english
+explanation_language: french
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-french.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Une raison aide à comprendre pourquoi une action était judicieuse. Si un ami demande pourquoi
+      vous n’êtes pas sortis, vous pouvez relier votre décision de rester à l’intérieur à la route inondée.
+      `Because` introduit l’explication de la situation ou du choix.
+    examples:
+      - text: We stayed inside because the road was flooded.
+        meaning: "`We stayed inside` énonce l’action. `Because the road was flooded` en donne la raison. Après
+          `because`, cet exemple comporte une proposition complète avec un sujet, `the road`, et un verbe,
+          `was`."
+        note: >-
+          `Because of the flood` donne une raison comparable avec un groupe nominal : `We stayed inside
+          because of the flood`. Distinguez les deux constructions ; la forme incorrecte `because of the road
+          was flooded` les mélange.
+
+
+          **À vous.** Expliquez que vous êtes parti tôt parce que vous étiez fatigué. Réponse : `I left early
+          because I was tired`. Les mots après `because` expliquent complètement pourquoi vous êtes parti.
+  - subskill_id: consequences
+    explanation: Une conséquence indique ce qui a suivi une situation. S’il n’y avait pas de place dans le bus,
+      marcher a pu être votre réponse. Relier ces faits aide l’interlocuteur à comprendre la décision, au lieu
+      d’entendre deux événements sans lien explicite.
+    examples:
+      - text: The bus was full, so we walked.
+        meaning: "`The bus was full` présente la situation. `So` introduit son résultat, `we walked`. Dans cette
+          construction, la raison vient d’abord et la réponse suit. Les deux verbes situent le récit dans le
+          passé."
+        note: >-
+          Comparez `We walked because the bus was full` : la même raison vient maintenant après l’action. `The
+          bus was full, and we walked` énumère les deux faits sans rendre leur lien aussi explicite.
+
+
+          **À vous.** Reliez la fermeture d’un café à l’achat de nourriture ailleurs. Réponse : `The café was
+          closed, so we bought food elsewhere`. `So` marque la seconde action comme conséquence de la première
+          situation.
+  - subskill_id: conditions
+    explanation: Une condition fait dépendre un projet de ce qui se produira. Pour décider où manger, la pluie
+      peut déterminer si vous utiliserez une table à l’intérieur. Vous pouvez décrire cet avenir possible sans
+      affirmer qu’il pleuvra certainement.
+    examples:
+      - text: If it rains, we will eat indoors.
+        meaning: "`If it rains` pose la condition. `We will eat indoors` donne le résultat si elle se réalise. Dans ce
+          modèle ouvert vers l’avenir, `rains` a une forme de présent, bien que la pluie soit encore future.
+          `Will` se trouve dans le résultat."
+        note: >-
+          N’ajoutez normalement pas `will` dans cette condition : dans cet exemple, dites `If it rains`, et
+          non la forme incorrecte `If it will rain`. Vous pouvez inverser l’ordre : `We will eat indoors if it
+          rains`.
+
+
+          **À vous.** Faites dépendre le trajet en bus d’un retard. Réponse : `If we are late, we will take
+          the bus`. `Are` exprime la condition future ; `will take` indique le projet qui en résulterait.
+  - subskill_id: contrast
+    explanation: Un contraste rapproche deux faits qui orientent une décision dans des sens différents. Un trajet
+      plus long peut prendre davantage de temps, mais sa sécurité peut le rendre préférable. `But` aide
+      l’interlocuteur à voir que le second fait nuance le premier.
+    examples:
+      - text: The route is longer, but it is safer.
+        meaning: "`The route is longer` présente un inconvénient. `But it is safer` ajoute l’avantage ; `it` renvoie
+          au même trajet. `longer` et `safer` le comparent tous deux à un autre trajet connu dans la
+          discussion."
+        note: >-
+          `And` ajouterait simplement un fait. `Although the route is longer, it is safer` exprime le
+          contraste autrement. Dans cette construction, évitez de doubler le lien avec la forme incorrecte
+          `Although the route is longer, but it is safer`.
+
+
+          **À vous.** Opposez la petite taille d’une pièce à son confort. Réponse : `The room is small, but it
+          is comfortable`. `But` indique que sa taille n’empêche pas cette qualité positive.
+  - subskill_id: supporting_claims
+    explanation: Un argument donne à l’interlocuteur des raisons de croire une affirmation. Si un ami se demande
+      si un magasin est ouvert, décrire les clients que vous voyez est plus utile que répéter votre
+      conclusion. L’indice doit avoir un lien avec l’affirmation précise.
+    examples:
+      - text: The shop is open; I can see customers inside.
+        meaning: "`The shop is open` énonce la conclusion. `I can see customers inside` indique l’observation qui la
+          motive. `Inside` situe les clients dans le magasin. Le point-virgule rapproche deux propositions
+          complètes étroitement liées par leur sens."
+        note: >-
+          L’observation appuie la conclusion sans la prouver : des clients pourraient encore se trouver à
+          l’intérieur après la fermeture. Si vous êtes moins sûr, dites `I think the shop is open; I can see
+          customers inside`. Adaptez votre degré de certitude à ce que vous savez.
+
+
+          **À vous.** Appuyez l’affirmation qu’il pleut sur une observation directe. Réponse : `It is raining;
+          I can see drops hitting the window`. La seconde proposition fournit un indice pertinent.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

@@ -1,6 +1,16 @@
 import { expect, it } from 'vitest'
 import { savedGlossIndex } from './saved-gloss-index'
 const scope = {language:'spanish', variety:'spain', explanation:'english', explanationVariety:'us'}
+it('keeps dictionary senses together and lets contextual sources win in either order', () => {
+  const dictionary = ['financial institution', 'bench'].map(gloss => ({scope, text:'banco', dictionary:true, segments:[{start:0,end:5,kind:'gloss' as const,gloss}]}))
+  const contextual = {scope,text:'Un banco.',segments:[{start:3,end:8,kind:'gloss' as const,gloss:'bank'}]}
+  expect(savedGlossIndex(dictionary)('banco',scope)[0]).toMatchObject({gloss:'financial institution / bench',dictionary:true})
+  for (const sources of [[...dictionary,contextual], [contextual,...dictionary]]) {
+    const result = savedGlossIndex(sources)('banco',scope)
+    expect(result[0].gloss).toBe('bank')
+    expect(result[0].dictionary).toBeUndefined()
+  }
+})
 it('reuses saved words across sentences with immediate exact-source precedence', () => {
   const resolve = savedGlossIndex([
     {scope,text:'La playa.',segments:[{start:3,end:8,kind:'gloss',gloss:'beach',pronunciation:'pla-ya'}]},

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: feelings_viewpoints
+explanation_language: french
+title: Sentiments et points de vue
+introduction: Parler de ses sentiments, de ses souhaits, de ses préférences et de ses opinions.
+sections:
+  - subskill_id: wants_intentions
+    title: Souhaits et intentions
+    concept: Dire ce que l’on souhaite ou compte faire.
+  - subskill_id: preferences
+    title: Préférences
+    concept: Dire ce que l’on aime ou quelle option on préfère.
+  - subskill_id: emotions
+    title: Émotions
+    concept: Parler de ce que ressent une personne.
+  - subskill_id: opinions
+    title: Opinions
+    concept: Dire ce que l’on pense de quelque chose.
+  - subskill_id: agreement_disagreement
+    title: Accord et désaccord
+    concept: Répondre à une idée en exprimant son accord ou en expliquant son désaccord.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

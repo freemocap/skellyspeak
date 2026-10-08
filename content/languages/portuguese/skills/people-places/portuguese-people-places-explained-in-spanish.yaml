@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: people_places
+explanation_language: spanish
+shared_explanation: skills/people-places/people-places-explained-in-spanish.yaml
+sections:
+  - subskill_id: identification
+    explanation: "Estás presentando a Ana a alguien que no la conoce. `Esta é minha colega Ana` la
+      identifica: `esta` señala a una persona femenina próxima a quien habla, `é` es el presente de
+      `ser` y `minha` concuerda con el sustantivo femenino `colega`. `Colega` puede designar a un
+      hombre o a una mujer; aquí las palabras que lo acompañan lo aclaran. Una expresión de estado
+      como `Ana está cansada` informa de cómo se siente Ana hoy, en lugar de identificarla."
+    examples:
+      - text: Esta é minha colega Ana.
+        meaning: Esta es mi colega Ana.
+        note: Presenta a Beatriz como tu colega. `Esta é minha colega Beatriz.` es una presentación
+          completa; `esta` y `minha` concuerdan con el referente femenino.
+  - subskill_id: qualities_states
+    explanation: "Revisas unas plantas que necesitan agua. `As plantas estão secas` describe su estado
+      actual: `as plantas` es femenino plural, `estão` es la forma plural correspondiente de `estar`
+      y `secas` es el adjetivo en femenino plural. Las terminaciones importan porque el estado
+      corresponde a varias plantas. Aquí `estar` informa de cómo están ahora, no de su identidad ni
+      de una clasificación inherente."
+    examples:
+      - text: As plantas estão secas.
+        meaning: Las plantas están secas.
+        note: "Describe una sola planta seca. `A planta está seca.` es la oración completa: el singular `a
+          planta` lleva `está` y el singular `seca`."
+  - subskill_id: location_movement
+    explanation: "Un visitante pregunta dónde está la biblioteca. `A biblioteca fica perto da praça` la
+      sitúa: `fica` es un uso de localización de `ficar`, `perto de` significa cerca de y `da`
+      combina `de` con el femenino `a` delante de `praça`. Esto indica dónde está el edificio, no
+      que se haya convertido en biblioteca. En cambio, una oración de movimiento como `Vou à
+      biblioteca` diría adónde vas."
+    examples:
+      - text: A biblioteca fica perto da praça.
+        meaning: La biblioteca está cerca de la plaza.
+        note: Sitúa la biblioteca cerca del parque. `A biblioteca fica perto do parque.` es una oración
+          completa; `do` sustituye a `da` porque `parque` lleva el masculino `o`.
+  - subskill_id: possession_relations
+    explanation: "Le hablas a alguien de tu familia y de un objeto que tiene tu hermano. `Meu irmão tem
+      uma bicicleta` contiene dos relaciones: `meu irmão` identifica a tu hermano y `tem uma
+      bicicleta` dice que tiene una bicicleta. `Meu` es masculino porque `irmão` es masculino,
+      independientemente de quien hable; `tem` es la tercera persona del presente de `ter` y
+      concuerda con el hermano. Es una afirmación de posesión, no un recuento de bicicletas."
+    examples:
+      - text: Meu irmão tem uma bicicleta.
+        meaning: Mi hermano tiene una bicicleta.
+        note: Di que tu hermana tiene una bicicleta. `Minha irmã tem uma bicicleta.` es la oración completa;
+          `minha` concuerda con el femenino `irmã`, mientras que `tem` sigue describiendo lo que
+          tiene esa persona.
+  - subskill_id: quantity_comparison
+    explanation: Tienes tres cajas y necesitas elegir una para llevarla. `Temos três caixas. Esta caixa
+      é mais leve que as outras` primero cuenta las cajas y luego compara su peso. `Temos` significa
+      tenemos, `três` indica el número y `mais leve que` significa más ligera que. `Esta` señala una
+      caja, mientras que `as outras` representa las otras cajas y está en femenino plural. La
+      comparación de peso depende del adjetivo que sigue a `mais`; `mais pesada` significa más
+      pesada y `mais leve`, más ligera.
+    examples:
+      - text: Temos três caixas. Esta caixa é mais leve que as outras.
+        meaning: Tenemos tres cajas. Esta caja es más ligera que las otras.
+        note: Di que esta caja es más pesada que las otras. `Temos três caixas. Esta caixa é mais pesada que
+          as outras.` conserva la cantidad y la estructura comparativa; `pesada` cambia la propiedad
+          comparada y concuerda con `caixa`.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

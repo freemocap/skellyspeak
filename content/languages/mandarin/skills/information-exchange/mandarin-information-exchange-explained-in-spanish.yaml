@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: information_exchange
+explanation_language: spanish
+shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Antes de visitar una tienda, conocer su hora de cierre te ayuda a llegar a tiempo. `几点`
+      pregunta por esa hora en la misma posición que ocuparía una respuesta como `五点`. La tienda
+      permanece al principio.
+    examples:
+      - text: 商店几点关门？
+        meaning: "**El ejemplo.** ¿A qué hora cierra la tienda? `商店` significa tienda, `几点`, a qué hora, y
+          `关门`, cerrar al público. El orden es tienda, hora desconocida y acción de cerrar; la
+          palabra interrogativa forma la pregunta sin un `吗` final."
+        note: "Prueba a preguntar cuándo abre la tienda. Respuesta: `商店几点开门？` Sustituye `关门` por `开门`, abrir
+          al público. En cambio, `商店五点关门吗？` pregunta si las cinco es la hora de cierre, con una hora
+          propuesta y `吗` al final."
+  - subskill_id: answering_information
+    explanation: Después de una pregunta sobre la hora de cierre, el suceso ya está claro. Una expresión
+      horaria puede responder directamente. `点` después de un número indica una hora, no una
+      cantidad de objetos.
+    examples:
+      - text: 五点。
+        meaning: "**El ejemplo.** A las cinco. `五` significa cinco y `点` marca la hora. La respuesta breve
+          aporta precisamente la hora que falta en `商店几点关门？`; no necesita repetir la tienda ni la
+          acción de cerrar."
+        note: "Prueba a responder las seis. Respuesta: `六点。` Sustituye el número y conserva `点`. Una
+          respuesta más completa es `商店六点关门。` Ambas sirven después de la pregunta sobre el cierre;
+          `六个` cuenta seis objetos y no indica una hora."
+  - subskill_id: checking_facts
+    explanation: Has oído que la tienda cierra a las cinco y quieres comprobarlo antes de salir. `对吗`
+      sigue a la información propuesta y pregunta si es correcta. Así, la otra persona recibe un
+      dato concreto que puede confirmar o corregir.
+    examples:
+      - text: 商店五点关门，对吗？
+        meaning: "**El ejemplo.** La tienda cierra a las cinco, ¿verdad? `商店五点关门` presenta la tienda, la
+          hora y el cierre. `对` significa correcto y `吗` forma la pregunta breve de confirmación. La
+          coma separa esa comprobación del dato propuesto."
+        note: "Prueba a confirmar un cierre a las seis. Respuesta: `商店六点关门，对吗？` Cambia la hora propuesta. Si
+          desconoces por completo la hora, `商店几点关门？` pregunta abiertamente, en vez de presentar una
+          respuesta para comprobarla."
+  - subskill_id: useful_detail
+    explanation: Cuando alguien pregunta qué mesa usar, una referencia cercana permite distinguir la
+      adecuada. `靠窗的` describe la mesa antes de nombrarla y `那张` señala esa mesa concreta.
+    examples:
+      - text: 请用靠窗的那张桌子。
+        meaning: "**El ejemplo.** Usa la mesa junto a la ventana, por favor. `请用` significa usa, por favor;
+          `靠窗` indica junto a la ventana y `的` vincula esa descripción con `桌子`, mesa. `那` significa
+          esa y `张` es el clasificador usado aquí para mesas. Toda la expresión que identifica la
+          mesa sigue a `用`."
+        note: "Prueba a especificar la mesa junto a la puerta. Respuesta: `请用靠门的那张桌子。` Sustituye `窗` por `门`
+          dentro de la descripción. `请用桌子` solo dice que uses una mesa y pierde la pista necesaria
+          para elegir entre varias."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

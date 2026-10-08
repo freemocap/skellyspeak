@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-french-2026-10-07
+language: cantonese
+skill_id: reasons_connections
+explanation_language: french
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-french.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: La pluie modifie le projet de sortie du groupe. Donner d’abord la raison avec `因為` permet de
+      comprendre pourquoi vous restez chez vous ; la proposition suivante donne la décision.
+    examples:
+      - text: 因為落雨，我哋留喺屋企。
+        meaning: "Comme il pleut, nous restons chez nous. `因為落雨` donne la pluie comme raison, avec l’expression
+          météorologique `落雨`. `我哋留喺屋企` signifie « nous restons à la maison » : `留` exprime le séjour, `喺`
+          introduit le lieu et `屋企` signifie « chez soi »."
+        note: "Essayez : placez la décision avant la raison. Réponse : `我哋留喺屋企，因為落雨。` Inversez les propositions en
+          gardant `因為` avec la cause. `因為落雨，所以我哋留喺屋企` explicite à la fois la raison et le résultat ; les deux
+          connecteurs peuvent figurer ensemble."
+  - subskill_id: consequences
+    explanation: Le magasin que vous comptiez visiter a fermé ; le groupe en choisit un autre. `所以` présente ce
+      changement de projet comme une conséquence de la fermeture.
+    examples:
+      - text: 間舖頭閂咗，所以我哋去第二間。
+        meaning: Le magasin a fermé, donc nous allons dans un autre. `間舖頭閂咗` présente la fermeture comme accomplie,
+          avec `咗` après `閂`. `我哋去第二間` signifie que nous allons dans un autre magasin. Dans ce contexte, `第二間`
+          peut désigner un autre commerce sans compter littéralement le deuxième d’une file.
+        note: "Essayez : faites du retour à la maison la conséquence. Réponse : `間舖頭閂咗，所以我哋返屋企。` Remplacez la réaction
+          par `返屋企`. `跟住我哋返屋企` indique simplement la suite des événements ; `所以` relie explicitement la
+          réaction à sa cause."
+  - subskill_id: conditions
+    explanation: Vous aimeriez sortir ensemble, à condition que l’autre personne soit disponible. `如果` présente
+      cette possibilité ouverte ; `就` introduit le projet qui en découlera si elle se réalise.
+    examples:
+      - text: 如果你得閒，我哋就一齊去。
+        meaning: Si tu es libre, nous irons ensemble. `你得閒` signifie « tu es disponible ». `我哋就一齊去` signifie « alors
+          nous irons ensemble » ; `一齊` précède l’action. La disponibilité reste incertaine et n’est pas
+          affirmée.
+        note: "Essayez : faites dépendre la sortie de l’absence de pluie. Réponse : `如果聽日唔落雨，我哋就一齊去。` Remplacez la
+          condition et gardez `就` dans le résultat. `因為你得閒，我哋一齊去` présente au contraire la disponibilité comme
+          une raison acquise, pas une possibilité ouverte."
+  - subskill_id: contrast
+    explanation: Un petit restaurant peut sembler peu prometteur, mais ses plats réservent une bonne surprise.
+      `但係` oppose la petite taille à une autre propriété, la qualité de la nourriture.
+    examples:
+      - text: 呢間舖頭細，但係啲嘢幾好食。
+        meaning: "Ce commerce est petit, mais la nourriture y est plutôt bonne. `呢間舖頭細` décrit directement sa taille,
+          sans `係`. `啲嘢` désigne ici les choses à manger. `幾好食` signifie « plutôt bon » : `好食` est la qualité
+          et `幾` en donne le degré."
+        note: "Essayez : opposez la petite taille à des plats peu chers. Réponse : `呢間舖頭細，但係啲嘢幾平。` Remplacez `好食` par
+          `平`, « bon marché ». Les deux affirmations restent vraies ; `但係` souligne le bon côté malgré la
+          première impression, sans corriger la taille."
+  - subskill_id: supporting_claims
+    explanation: Quelqu’un demande pourquoi ce lieu est pratique. Une station de métro proche donne un motif
+      concret à votre jugement, en reliant la facilité du trajet à une caractéristique du lieu.
+    examples:
+      - text: 我覺得呢度方便，因為附近有地鐵站。
+        meaning: Je trouve cet endroit pratique parce qu’il y a une station de métro à proximité. `我覺得` présente votre
+          avis, `呢度方便` évalue le lieu et `因為附近有地鐵站` en donne la raison. `附近` situe les environs avant `有`, qui
+          exprime ici la présence de la station.
+        note: "Essayez : fondez ce jugement sur un arrêt de bus proche. Réponse : `我覺得呢度方便，因為附近有巴士站。` Changez
+          l’équipement et gardez `因為` pour le rattacher à l’évaluation. `我覺得呢度好方便` renforce l’avis avec `好`,
+          sans donner cette raison concrète."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

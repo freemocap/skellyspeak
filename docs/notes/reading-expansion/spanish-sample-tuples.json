@@ -1,0 +1,1062 @@
+{
+  "a": [
+    "to; at",
+    "لـ / إلى",
+    "à"
+  ],
+  "abierta": [
+    "open (feminine)",
+    "مفتوحة",
+    "ouverte"
+  ],
+  "abiertas": [
+    "open (feminine plural)",
+    "مفتوحات",
+    "ouvertes"
+  ],
+  "abrir": [
+    "to open",
+    "يفتح",
+    "ouvrir"
+  ],
+  "acuerdo": [
+    "agreement",
+    "اتفاق",
+    "accord"
+  ],
+  "al": [
+    "to the; at the",
+    "لـ الـ",
+    "au"
+  ],
+  "alegre": [
+    "cheerful",
+    "مبسوط / مبسوطة",
+    "joyeux / joyeuse"
+  ],
+  "Ana": [
+    "Ana",
+    "آنا",
+    "Ana"
+  ],
+  "anoche": [
+    "last night",
+    "مبارح بالليل",
+    "hier soir"
+  ],
+  "antes": [
+    "before",
+    "قبل",
+    "avant"
+  ],
+  "Avisar": [
+    "to notify",
+    "يخبر",
+    "prévenir"
+  ],
+  "avisarme": [
+    "to let me know",
+    "يخبرني",
+    "me prévenir"
+  ],
+  "Ayer": [
+    "yesterday",
+    "مبارح",
+    "hier"
+  ],
+  "ayudarme": [
+    "to help me",
+    "يساعدني",
+    "m'aider"
+  ],
+  "banco": [
+    "bank",
+    "بنك",
+    "banque"
+  ],
+  "baño": [
+    "bathroom",
+    "حمّام",
+    "salle de bains"
+  ],
+  "buena": [
+    "good (feminine)",
+    "منيحة",
+    "bonne"
+  ],
+  "caja": [
+    "box",
+    "صندوق",
+    "boîte"
+  ],
+  "cajas": [
+    "boxes",
+    "صناديق",
+    "boîtes"
+  ],
+  "cansada": [
+    "tired (feminine)",
+    "تعبانة",
+    "fatiguée"
+  ],
+  "cansado": [
+    "tired (masculine)",
+    "تعبان",
+    "fatigué"
+  ],
+  "cara": [
+    "face; expensive (feminine)",
+    "وجه؛ غالية",
+    "visage; chère"
+  ],
+  "caro": [
+    "expensive (masculine)",
+    "غالي",
+    "cher"
+  ],
+  "cenamos": [
+    "we had dinner; we have dinner",
+    "تعشّينا / منتعشّى",
+    "nous avons dîné; nous dînons"
+  ],
+  "cenar": [
+    "to have dinner",
+    "يتعشّى",
+    "dîner"
+  ],
+  "cerrada": [
+    "closed (feminine)",
+    "مسكّرة",
+    "fermée"
+  ],
+  "cerrar": [
+    "to close",
+    "يسكّر",
+    "fermer"
+  ],
+  "cierto": [
+    "certain; true",
+    "معيّن / صحيح",
+    "certain; vrai"
+  ],
+  "claro": [
+    "clear; of course",
+    "أكيد",
+    "clair; bien sûr"
+  ],
+  "coche": [
+    "car",
+    "سيارة",
+    "voiture"
+  ],
+  "cocinar": [
+    "to cook",
+    "يطبخ",
+    "cuisiner"
+  ],
+  "Cocinaré": [
+    "I will cook",
+    "رح أطبخ",
+    "je cuisinerai"
+  ],
+  "comer": [
+    "to eat",
+    "ياكل",
+    "manger"
+  ],
+  "cómo": [
+    "how",
+    "كيف",
+    "comment"
+  ],
+  "con": [
+    "with",
+    "مع",
+    "avec"
+  ],
+  "contenta": [
+    "happy (feminine)",
+    "مبسوطة",
+    "contente"
+  ],
+  "contento": [
+    "happy (masculine)",
+    "مبسوط",
+    "content"
+  ],
+  "contigo": [
+    "with you",
+    "معك",
+    "avec toi"
+  ],
+  "creo": [
+    "I think; I believe",
+    "بظنّ",
+    "je pense; je crois"
+  ],
+  "cuándo": [
+    "when (question)",
+    "إمتى",
+    "quand"
+  ],
+  "de": [
+    "of; from",
+    "من / تبع",
+    "de"
+  ],
+  "decir": [
+    "to say; to tell",
+    "يقول",
+    "dire"
+  ],
+  "del": [
+    "of the; from the",
+    "من الـ",
+    "du"
+  ],
+  "descansar": [
+    "to rest",
+    "يرتاح",
+    "se reposer"
+  ],
+  "descanso": [
+    "rest",
+    "راحة",
+    "repos"
+  ],
+  "después": [
+    "after; afterwards",
+    "بعدين",
+    "après; ensuite"
+  ],
+  "devolver": [
+    "to return; give back",
+    "يرجّع",
+    "rendre"
+  ],
+  "días": [
+    "days",
+    "أيام",
+    "jours"
+  ],
+  "dónde": [
+    "where (question)",
+    "وين",
+    "où"
+  ],
+  "dos": [
+    "two",
+    "اتنين",
+    "deux"
+  ],
+  "durante": [
+    "during",
+    "خلال",
+    "pendant"
+  ],
+  "el": [
+    "the (masculine)",
+    "الـ",
+    "le"
+  ],
+  "ella": [
+    "she",
+    "هي",
+    "elle"
+  ],
+  "en": [
+    "in; on; at",
+    "بـ / في",
+    "dans; sur; à"
+  ],
+  "encendida": [
+    "on; lit (feminine)",
+    "شغّالة",
+    "allumée"
+  ],
+  "enfermo": [
+    "ill; sick (masculine)",
+    "مريض",
+    "malade"
+  ],
+  "Entendido": [
+    "understood",
+    "مفهوم",
+    "compris"
+  ],
+  "entrar": [
+    "to enter",
+    "يفوت",
+    "entrer"
+  ],
+  "es": [
+    "is",
+    "هو / تكون",
+    "est"
+  ],
+  "esa": [
+    "that (feminine)",
+    "هديك",
+    "celle-là"
+  ],
+  "ese": [
+    "that (masculine)",
+    "هداك",
+    "celui-là"
+  ],
+  "eso": [
+    "that; that thing",
+    "هالشي",
+    "cela; ça"
+  ],
+  "español": [
+    "Spanish",
+    "إسباني",
+    "espagnol"
+  ],
+  "esta": [
+    "this (feminine)",
+    "هيدي",
+    "cette"
+  ],
+  "estación": [
+    "station; season",
+    "محطة؛ فصل",
+    "gare; saison"
+  ],
+  "estamos": [
+    "we are",
+    "نحنا",
+    "nous sommes"
+  ],
+  "están": [
+    "they are",
+    "هنّي",
+    "ils sont; elles sont"
+  ],
+  "estar": [
+    "to be (state/location)",
+    "يكون",
+    "être"
+  ],
+  "estas": [
+    "these (feminine)",
+    "هول",
+    "ces"
+  ],
+  "este": [
+    "this (masculine)",
+    "هيدا",
+    "ce; cet"
+  ],
+  "estos": [
+    "these (masculine)",
+    "هول",
+    "ces"
+  ],
+  "estoy": [
+    "I am",
+    "أنا",
+    "je suis"
+  ],
+  "está": [
+    "is; is located",
+    "هو / موجود",
+    "est; se trouve"
+  ],
+  "estás": [
+    "you are",
+    "إنت",
+    "tu es"
+  ],
+  "estudiar": [
+    "to study",
+    "يدرس",
+    "étudier"
+  ],
+  "estudio": [
+    "I study; study",
+    "بدرس؛ دراسة",
+    "j'étudie; étude"
+  ],
+  "farmacia": [
+    "pharmacy",
+    "صيدلية",
+    "pharmacie"
+  ],
+  "favor": [
+    "favor",
+    "لطف",
+    "faveur"
+  ],
+  "frente": [
+    "opposite; in front",
+    "مقابل",
+    "en face"
+  ],
+  "fue": [
+    "went; was",
+    "راح / كان",
+    "est allé(e); était"
+  ],
+  "fui": [
+    "I went; I was",
+    "رحت / كنت",
+    "je suis allé(e); j'étais"
+  ],
+  "grande": [
+    "big; large",
+    "كبير / كبيرة",
+    "grand / grande"
+  ],
+  "gusta": [
+    "is pleasing; I like",
+    "بيعجب",
+    "plaît"
+  ],
+  "gustan": [
+    "are pleasing; I like (plural)",
+    "بيعجبوا",
+    "plaisent"
+  ],
+  "gustar": [
+    "to please; to like",
+    "يعجب",
+    "plaire"
+  ],
+  "Hasta": [
+    "until; see you",
+    "لحدّ",
+    "jusqu'à"
+  ],
+  "hay": [
+    "there is; there are",
+    "في",
+    "il y a"
+  ],
+  "hermana": [
+    "sister",
+    "أخت",
+    "sœur"
+  ],
+  "hermano": [
+    "brother",
+    "أخ",
+    "frère"
+  ],
+  "herramienta": [
+    "tool",
+    "أداة",
+    "outil"
+  ],
+  "hora": [
+    "hour; time",
+    "ساعة؛ وقت",
+    "heure"
+  ],
+  "hoy": [
+    "today",
+    "اليوم",
+    "aujourd'hui"
+  ],
+  "iba": [
+    "was going; used to go",
+    "كان يروح",
+    "allait"
+  ],
+  "idea": [
+    "idea",
+    "فكرة",
+    "idée"
+  ],
+  "ir": [
+    "to go",
+    "يروح",
+    "aller"
+  ],
+  "jueves": [
+    "Thursday",
+    "الخميس",
+    "jeudi"
+  ],
+  "la": [
+    "the (feminine)",
+    "الـ",
+    "la"
+  ],
+  "lado": [
+    "side",
+    "جنب",
+    "côté"
+  ],
+  "las": [
+    "the (feminine plural)",
+    "الـ",
+    "les"
+  ],
+  "leer": [
+    "to read",
+    "يقرأ",
+    "lire"
+  ],
+  "Leo": [
+    "I read",
+    "بقرأ",
+    "je lis"
+  ],
+  "leyendo": [
+    "reading",
+    "عم يقرأ",
+    "en train de lire"
+  ],
+  "libro": [
+    "book",
+    "كتاب",
+    "livre"
+  ],
+  "libros": [
+    "books",
+    "كتب",
+    "livres"
+  ],
+  "llamar": [
+    "to call; name",
+    "يتصل؛ يسمّي",
+    "appeler"
+  ],
+  "llamarme": [
+    "to call me",
+    "يتصل فيني",
+    "m'appeler"
+  ],
+  "llamarte": [
+    "to call you",
+    "يتصل فيك",
+    "t'appeler"
+  ],
+  "llave": [
+    "key",
+    "مفتاح",
+    "clé"
+  ],
+  "llaves": [
+    "keys",
+    "مفاتيح",
+    "clés"
+  ],
+  "llegas": [
+    "you arrive",
+    "بتوصل",
+    "tu arrives"
+  ],
+  "llego": [
+    "I arrive",
+    "بوصل",
+    "j'arrive"
+  ],
+  "llevo": [
+    "I carry; wear",
+    "بشيل / بلبس",
+    "je porte"
+  ],
+  "llover": [
+    "to rain",
+    "تمطر",
+    "pleuvoir"
+  ],
+  "llueva": [
+    "rain (subjunctive)",
+    "تمطر",
+    "pleuve"
+  ],
+  "llueve": [
+    "it is raining",
+    "عم تمطر",
+    "il pleut"
+  ],
+  "lo": [
+    "it; him",
+    "ـه / إيّاه",
+    "le; l'"
+  ],
+  "los": [
+    "the (masculine plural)",
+    "الـ",
+    "les"
+  ],
+  "luego": [
+    "later",
+    "بعدين",
+    "plus tard"
+  ],
+  "luz": [
+    "light",
+    "ضو",
+    "lumière"
+  ],
+  "mala": [
+    "bad (feminine)",
+    "سيئة",
+    "mauvaise"
+  ],
+  "mañana": [
+    "tomorrow; morning",
+    "بكرا؛ الصبح",
+    "demain; matin"
+  ],
+  "martes": [
+    "Tuesday",
+    "الثلاثاء",
+    "mardi"
+  ],
+  "más": [
+    "more",
+    "أكتر",
+    "plus"
+  ],
+  "me": [
+    "me; to me",
+    "ني / إلي",
+    "me; à moi"
+  ],
+  "menos": [
+    "less; fewer",
+    "أقل",
+    "moins"
+  ],
+  "mercado": [
+    "market",
+    "سوق",
+    "marché"
+  ],
+  "mesa": [
+    "table",
+    "طاولة",
+    "table"
+  ],
+  "mi": [
+    "my",
+    "ـي",
+    "mon; ma; mes"
+  ],
+  "mis": [
+    "my (plural)",
+    "ـي",
+    "mes"
+  ],
+  "mochila": [
+    "backpack",
+    "شنطة ظهر",
+    "sac à dos"
+  ],
+  "nadar": [
+    "to swim",
+    "يسبح",
+    "nager"
+  ],
+  "nos": [
+    "us; to us",
+    "نا",
+    "nous"
+  ],
+  "nueve": [
+    "nine",
+    "تسعة",
+    "neuf"
+  ],
+  "ocho": [
+    "eight",
+    "تمانية",
+    "huit"
+  ],
+  "palabra": [
+    "word",
+    "كلمة",
+    "mot"
+  ],
+  "paraguas": [
+    "umbrella",
+    "شمسيّة",
+    "parapluie"
+  ],
+  "parque": [
+    "park",
+    "حديقة",
+    "parc"
+  ],
+  "pasear": [
+    "to go for a walk",
+    "يتمشّى",
+    "se promener"
+  ],
+  "películas": [
+    "movies; films",
+    "أفلام",
+    "films"
+  ],
+  "pero": [
+    "but",
+    "بس",
+    "mais"
+  ],
+  "plan": [
+    "plan",
+    "خطّة",
+    "plan"
+  ],
+  "podemos": [
+    "we can",
+    "فينا",
+    "nous pouvons"
+  ],
+  "podría": [
+    "could; might",
+    "ممكن",
+    "pourrait"
+  ],
+  "por": [
+    "for; by",
+    "لـ / عن طريق",
+    "pour; par"
+  ],
+  "porque": [
+    "because",
+    "لأنّه",
+    "parce que"
+  ],
+  "primero": [
+    "first",
+    "أول شي",
+    "d'abord"
+  ],
+  "prometo": [
+    "I promise",
+    "بوعد",
+    "je promets"
+  ],
+  "puede": [
+    "he/she can",
+    "بيقدر",
+    "il/elle peut"
+  ],
+  "puedes": [
+    "you can",
+    "بتقدر",
+    "tu peux"
+  ],
+  "puedo": [
+    "I can",
+    "بقدر",
+    "je peux"
+  ],
+  "puerta": [
+    "door",
+    "باب",
+    "porte"
+  ],
+  "puertas": [
+    "doors",
+    "أبواب",
+    "portes"
+  ],
+  "que": [
+    "that; which; than",
+    "إنّ / اللي",
+    "que"
+  ],
+  "qué": [
+    "what (question)",
+    "شو",
+    "quoi"
+  ],
+  "quedamos": [
+    "we meet; we agreed",
+    "منتلاقى / اتفقنا",
+    "nous nous retrouvons; nous avons convenu"
+  ],
+  "quedarse": [
+    "to stay",
+    "يضلّ",
+    "rester"
+  ],
+  "quedas": [
+    "you stay",
+    "بتضلّ",
+    "tu restes"
+  ],
+  "quedo": [
+    "I stay",
+    "بضلّ",
+    "je reste"
+  ],
+  "quiere": [
+    "he/she wants",
+    "بدّه",
+    "il/elle veut"
+  ],
+  "quieres": [
+    "you want",
+    "بدّك",
+    "tu veux"
+  ],
+  "quiero": [
+    "I want",
+    "بدّي",
+    "je veux"
+  ],
+  "refiero": [
+    "I mean; I refer",
+    "قصدي",
+    "je veux dire"
+  ],
+  "repetirlo": [
+    "to repeat it",
+    "يعيده",
+    "le répéter"
+  ],
+  "sabe": [
+    "he/she knows",
+    "بيعرف",
+    "il/elle sait"
+  ],
+  "saber": [
+    "to know",
+    "يعرف",
+    "savoir"
+  ],
+  "salgo": [
+    "I go out",
+    "بطلع",
+    "je sors"
+  ],
+  "salimos": [
+    "we go out",
+    "منطلع",
+    "nous sortons"
+  ],
+  "salir": [
+    "to go out",
+    "يطلع",
+    "sortir"
+  ],
+  "se": [
+    "oneself; themselves",
+    "حالُه / حالها",
+    "se; soi"
+  ],
+  "sé": [
+    "I know",
+    "بعرف",
+    "je sais"
+  ],
+  "sea": [
+    "be (subjunctive)",
+    "يكون",
+    "soit"
+  ],
+  "segura": [
+    "sure (feminine)",
+    "متأكدة",
+    "sûre"
+  ],
+  "seguro": [
+    "sure (masculine)",
+    "متأكد",
+    "sûr"
+  ],
+  "seis": [
+    "six",
+    "ستة",
+    "six"
+  ],
+  "semana": [
+    "week",
+    "أسبوع",
+    "semaine"
+  ],
+  "ser": [
+    "to be",
+    "يكون",
+    "être"
+  ],
+  "si": [
+    "if",
+    "إذا",
+    "si"
+  ],
+  "siento": [
+    "I feel; I am sorry",
+    "بحسّ؛ آسف",
+    "je sens; je suis désolé(e)"
+  ],
+  "siete": [
+    "seven",
+    "سبعة",
+    "sept"
+  ],
+  "significa": [
+    "it means",
+    "يعني",
+    "signifie"
+  ],
+  "silla": [
+    "chair",
+    "كرسي",
+    "chaise"
+  ],
+  "son": [
+    "they are",
+    "هنّي",
+    "ils sont; elles sont"
+  ],
+  "soy": [
+    "I am",
+    "أنا",
+    "je suis"
+  ],
+  "su": [
+    "his; her; your formal; their",
+    "ـه / ـها / ـك",
+    "son; sa; votre; leur"
+  ],
+  "te": [
+    "you; to you",
+    "ك / لك",
+    "te; à toi"
+  ],
+  "Tenemos": [
+    "we have",
+    "عنا",
+    "nous avons"
+  ],
+  "tener": [
+    "to have",
+    "يكون معه",
+    "avoir"
+  ],
+  "tengo": [
+    "I have",
+    "عندي",
+    "j'ai"
+  ],
+  "terminé": [
+    "I finished",
+    "خلّصت",
+    "j'ai terminé"
+  ],
+  "tiene": [
+    "he/she has",
+    "عنده",
+    "il/elle a"
+  ],
+  "todos": [
+    "all; every",
+    "كلّ",
+    "tous"
+  ],
+  "trabaja": [
+    "he/she works",
+    "بيشتغل",
+    "il/elle travaille"
+  ],
+  "trabajando": [
+    "working",
+    "عم يشتغل",
+    "en train de travailler"
+  ],
+  "trabajar": [
+    "to work",
+    "يشتغل",
+    "travailler"
+  ],
+  "trabajo": [
+    "I work; work",
+    "بشتغل؛ شغل",
+    "je travaille; travail"
+  ],
+  "triste": [
+    "sad",
+    "حزين / حزينة",
+    "triste"
+  ],
+  "tu": [
+    "your (informal singular)",
+    "ـك",
+    "ton; ta; tes"
+  ],
+  "una": [
+    "a; one (feminine)",
+    "وحدة",
+    "une"
+  ],
+  "usar": [
+    "to use",
+    "يستعمل",
+    "utiliser"
+  ],
+  "útil": [
+    "useful",
+    "مفيد / مفيدة",
+    "utile"
+  ],
+  "va": [
+    "he/she goes",
+    "بيروح",
+    "il/elle va"
+  ],
+  "veces": [
+    "times; occasions",
+    "مرّات",
+    "fois"
+  ],
+  "vemos": [
+    "we see",
+    "منشوف",
+    "nous voyons"
+  ],
+  "venir": [
+    "to come",
+    "يجي",
+    "venir"
+  ],
+  "ventana": [
+    "window",
+    "شباك",
+    "fenêtre"
+  ],
+  "viernes": [
+    "Friday",
+    "الجمعة",
+    "vendredi"
+  ],
+  "voy": [
+    "I go; I'm going",
+    "رايح",
+    "je vais"
+  ],
+  "y": [
+    "and",
+    "و",
+    "et"
+  ],
+  "Ya": [
+    "already; now",
+    "هلّق / صار",
+    "déjà; maintenant"
+  ],
+  "Yo": [
+    "I",
+    "أنا",
+    "je"
+  ],
+  "Luis": [
+    "Luis",
+    "لويس",
+    "Luis"
+  ],
+  "Marta": [
+    "Marta",
+    "مارتا",
+    "Marta"
+  ]
+}

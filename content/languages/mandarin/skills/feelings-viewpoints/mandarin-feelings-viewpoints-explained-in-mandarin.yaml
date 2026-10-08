@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: feelings_viewpoints
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 修自行车可以是你想学、但还不会的一项技能。把 `想` 放在活动前表示这个愿望；`学` 引出你想学的内容。
+    examples:
+      - text: 我想学修自行车。
+        meaning: "**例句。** 我想学修自行车。`我想` 表示我的愿望，`学` 是学习，`修自行车` 是要学会的修理活动。整个修理活动跟在 `学` 后面；`想` 指向学会这项技能的愿望。"
+        note: 试着说大家想学这项技能。答案：`我们想学修自行车。` 把 `我` 换成 `我们`，动词不用变词尾。`我会修自行车` 表示已经掌握技能；`我想学` 表示希望获得这项技能。
+  - subskill_id: preferences
+    explanation: 选饮料时，可以先说出备选项，再表明自己更喜欢哪一个。`更喜欢` 指出更喜欢的选择，说的不是价格或大小的差异。
+    examples:
+      - text: 咖啡和红茶，我更喜欢红茶。
+        meaning: "**例句。** 咖啡和红茶之间，我更喜欢红茶。`咖啡和红茶` 列出两种饮料，`和` 把它们连起来。`我更喜欢红茶` 表示我比较喜欢红茶。`更` 放在 `喜欢` 前面，偏好的饮料跟在后面。"
+        note: 试着改为更喜欢咖啡。答案：`咖啡和红茶，我更喜欢咖啡。` 只改变 `更喜欢` 后的饮料。`我喜欢红茶` 表达喜欢红茶，但本身没有与咖啡作比较。
+  - subskill_id: emotions
+    explanation: 听到好消息后，你可能想说出自己的感受。先说听到消息，再说情绪反应。`高兴` 直接表达快乐，不需要另加一个连接动词。
+    examples:
+      - text: 听到这个消息，我很高兴。
+        meaning: "**例句。** 听到这个消息，我很高兴。`听到` 表示听见，其中 `到` 标出消息已经传达到你这里。`这个消息` 指眼前谈的消息。逗号后，`我很高兴` 给出反应。这里的 `很`
+          不一定要重读成特别强烈的“非常”。"
+        note: 试着表达大家都很高兴。答案：`听到这个消息，我们很高兴。` 把感受的人改成 `我们`，前面的听到消息部分不变。`我听到这个消息` 只报告听见了，并没有说出感受。
+  - subskill_id: opinions
+    explanation: 讨论解决问题的方法后，你可以提出自己的评价。`我觉得` 表明后面是你的判断，`不错` 给出积极评价。
+    examples:
+      - text: 我觉得这个办法不错。
+        meaning: "**例句。** 我觉得这个办法不错。`这个办法` 是这里讨论的方法或做法。`不错` 字面上包含“不”和“错”，实际是常见的肯定评价，意思是挺好。`觉得` 引出这个评价，这里不是指触摸的感觉。"
+        note: 试着评价另一个办法。答案：`我觉得那个办法不错。` 把 `这个` 换成 `那个`。`这个办法很贵` 说办法很贵；加上 `我觉得`，就明确呈现为你个人的判断。
+  - subskill_id: agreement_disagreement
+    explanation: 有人说出对某个办法的看法，而你持相同意见。`也` 表示你和前面说话的人一样；`这么` 指回刚刚表达的想法。
+    examples:
+      - text: 我也这么想。
+        meaning: "**例句。** 我也这么想。`我` 指自己，`也` 表示同样，`这么` 指这样，`想` 在这里表示认为。语序上，`也` 放在表示想法的部分之前。听话人要知道前面的意见，才能明白你赞同的是什么。"
+        note: 试着改为表达不同意。答案：`我不这么想。` 把 `也` 换成 `不`，你就不再持相同看法。`我明白了` 表示现在听懂了解释，即使不同意，也可能听懂。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

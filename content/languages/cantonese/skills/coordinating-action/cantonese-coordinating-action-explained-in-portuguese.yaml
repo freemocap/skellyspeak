@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-teaching-portuguese-2026-10-07
+language: cantonese
+skill_id: coordinating_action
+explanation_language: portuguese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-portuguese.yaml
+sections:
+  - subskill_id: requests
+    explanation: Suas mãos estão ocupadas, e você precisa que alguém abra a porta. `唔該` introduz um pedido educado
+      de ajuda. A pessoa solicitada pode ficar subentendida; a frase nomeia diretamente a ação, em vez de
+      fazer uma pergunta.
+    examples:
+      - text: 唔該，幫我開門。
+        meaning: Por favor, abra a porta para mim. `幫我` significa ajudar-me ou fazer isso por mim, seguido de `開門`,
+          abrir a porta. `我` é quem recebe a ajuda, não quem deve abrir. A ação segue a expressão de auxílio.
+        note: "Experimente pedir que a porta seja fechada. Resposta: `唔該，幫我閂門。` Troque `開` por `閂`, fechar. `我幫你開門`
+          oferece, em vez disso, sua própria ajuda: inverter as pessoas muda quem ajuda quem."
+  - subskill_id: offers_invitations
+    explanation: Um amigo está decidindo o que fazer em seguida, e você o convida para uma refeição. `一齊`
+      significa juntos; `好唔好` apresenta a atividade para a pessoa aceitar ou não, em vez de anunciá-la como já
+      combinada.
+    examples:
+      - text: 一齊去食飯，好唔好？
+        meaning: Vamos comer juntos? `去食飯` significa ir fazer uma refeição; `食飯` não precisa significar comer apenas
+          arroz. `好唔好` reúne as alternativas positiva e negativa para perguntar se a proposta está boa. Os
+          participantes são entendidos pelo convite.
+        note: "Experimente convidar o amigo para tomar chá. Resposta: `一齊去飲茶，好唔好？` A atividade muda para `飲茶`, e o
+          convite permanece aberto. `好呀，一齊去。` aceita; `唔好意思，我唔得閒。` recusa educadamente."
+  - subskill_id: suggestions
+    explanation: Vocês estão discutindo uma visita, mas hoje talvez não convenha a todos. `不如` apresenta uma
+      alternativa a considerar. A sugestão curta pode omitir o destino porque ele já é o assunto.
+    examples:
+      - text: 不如聽日去。
+        meaning: Que tal ir amanhã? `聽日` significa amanhã e vem antes de `去`, ir. A palavra da ação não precisa mudar
+          para expressar futuro. A proposta pede que o grupo considere o dia; não diz que todos concordaram.
+        note: "Experimente propor sábado. Resposta: `不如星期六去。` Troque o dia e mantenha a sugestão. `我聽日去` afirma seu
+          próprio plano, enquanto `不如聽日去` propõe uma opção. Acrescentar `先`, como em `不如聽日先去`, sugere
+          especificamente esperar até amanhã."
+  - subskill_id: commitments
+    explanation: Um amigo precisa do livro, e você assume a responsabilidade de levá-lo. `我答應你` faz uma promessa
+      explícita a essa pessoa. A oração seguinte informa o que você fará e quando.
+    examples:
+      - text: 我答應你，聽日會帶本書嚟。
+        meaning: Prometo que levarei o livro amanhã. `聽日` indica amanhã, `會帶` diz que levará, e `本書` identifica o
+          livro no contexto com o classificador `本`. O `嚟` final orienta o movimento até o local relevante de
+          encontro ou até a outra pessoa.
+        note: "Experimente prometer levar o livro na sexta-feira. Resposta: `我答應你，星期五會帶本書嚟。` Mude apenas o dia.
+          `我可能會帶本書嚟` exprime uma possibilidade; `可能` deixa a ação incerta e não substitui a promessa
+          explícita."
+  - subskill_id: accepting_declining
+    explanation: Você recebeu um convite para amanhã, mas não tem tempo livre. Uma desculpa breve seguida da falta
+      de disponibilidade deixa claro que você não pode participar.
+    examples:
+      - text: 唔好意思，我聽日唔得閒。
+        meaning: Desculpe, não estou livre amanhã. `唔好意思` suaviza a recusa. `我聽日` identifica quem e quando, e `唔得閒`
+          significa não estar livre. `唔` nega a disponibilidade `得閒`; não indica que você não gosta do
+          convite.
+        note: "Experimente recusar um convite para sábado. Resposta: `唔好意思，我星期六唔得閒。` Troque o dia. Uma aceitação
+          poderia ser `好呀，我聽日得閒。` No contexto do convite, a disponibilidade diz respeito à participação; fora
+          dele, a frase pode simplesmente descrever sua agenda."
+  - subskill_id: negotiating_plans
+    explanation: Um encontro às três entra em conflito com outro compromisso. Você descarta esse horário e
+      pergunta se quatro horas servem, oferecendo uma alternativa específica para a outra pessoa avaliar.
+    examples:
+      - text: 三點唔得，四點得唔得？
+        meaning: Três horas não servem; quatro horas serviriam? `三點` e `四點` nomeiam horas do relógio. `唔得` rejeita o
+          primeiro horário. `得唔得` repete a forma positiva e negativa de `得`, funcionar ou estar bem, para
+          perguntar sobre o segundo. Não é preciso repetir o encontro.
+        note: "Experimente manter três horas indisponíveis e propor cinco. Resposta: `三點唔得，五點得唔得？` Só muda o horário
+          proposto. `五點得` afirma que cinco funciona; `五點得唔得` pede que a outra pessoa confirme em vez de
+          decidir por ela."
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-teaching-portuguese-2026-10-07
+    scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Portuguese pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-teaching-portuguese-2026-10-07
+        scope: Portuguese explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.

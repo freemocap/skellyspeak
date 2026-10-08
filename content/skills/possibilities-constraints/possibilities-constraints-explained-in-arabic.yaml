@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-expansion-arabic-2026-10-07
+skill_id: possibilities_constraints
+explanation_language: arabic
+title: الإمكانات والقيود
+introduction: تحدّث عمّا يستطيع الناس فعله، وما هو مسموح أو مطلوب، وما هو ممكن أو غير مؤكد.
+sections:
+  - subskill_id: ability
+    title: القدرة
+    concept: تحدّث عمّا يستطيع شخص ما فعله.
+  - subskill_id: permission
+    title: الإذن
+    concept: اسأل عمّا إذا كان الفعل مسموحًا أو اذكر ذلك.
+  - subskill_id: obligation
+    title: الإلزام والضرورة
+    concept: اذكر ما يحتاج الشخص إلى فعله أو ما يُطلب منه فعله.
+  - subskill_id: possibility
+    title: الاحتمال
+    concept: اذكر أن شيئًا ما ممكن دون الجزم بوقوعه.
+  - subskill_id: certainty
+    title: اليقين وعدم اليقين
+    concept: وضّح مدى تأكدك من شيء ما.
+provenance:
+  origin: ai
+  authorship: ترجمة تعليمية عربية من صياغة Codex مستندة إلى النسخة الإنجليزية الحالية؛ هويات المهارات
+    ومعايير التقييم لم تتغير. الترجمة ما زالت بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-expansion-arabic-2026-10-07
+    scope: العناوين والمقدمات والمفاهيم الموجهة للمتعلمين؛ الترجمة بحاجة إلى مراجعة مستقلة.

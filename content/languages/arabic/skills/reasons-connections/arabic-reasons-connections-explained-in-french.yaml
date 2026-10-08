@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-teaching-french-2026-10-07
+language: arabic
+skill_id: reasons_connections
+explanation_language: french
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-french.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Une femme explique pourquoi elle est restée chez elle. Le lien de cause rattache sa maladie à sa
+      décision, au lieu de présenter deux faits sans rapport.
+    examples:
+      - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
+        meaning: "**L’exemple.** Je suis restée chez moi parce que j’étais malade. `بَقِيتُ` signifie « je suis restée
+          », `فِي الْبَيْتِ` indique « à la maison » et `لِأَنَّنِي` signifie « parce que je ». `مَرِيضَةٌ`
+          exprime la maladie avec un accord féminin. Le verbe situe le séjour dans le passé ; la dernière
+          proposition en donne la raison."
+        note: "Un homme emploie `مَرِيضٌ` ; la forme de « je suis resté » ne change pas. La cause suit le mot « parce
+          que ». Essayez : quelle partie répond à « pourquoi » ? Réponse : `لِأَنَّنِي مَرِيضَةٌ` ; elle relie
+          la maladie au séjour chez soi."
+  - subskill_id: consequences
+    explanation: Vous trouvez un magasin fermé et décidez de revenir demain. Une expression de conséquence montre
+      comment cette nouvelle décision découle de la fermeture.
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
+        meaning: "**L’exemple.** Le magasin est fermé, donc nous reviendrons demain. `الْمَحَلُّ مُغْلَقٌ` indique que
+          le magasin est fermé. `لِذٰلِكَ` signifie « donc » ou « pour cette raison ». `سَنَعُودُ` signifie «
+          nous reviendrons » et `غَدًا` « demain ». La première proposition donne la situation ; la seconde
+          donne la décision qui en résulte."
+        note: "Le préfixe futur `سَـ` s’attache à la forme « nous revenons » `نَعُودُ`. Une simple coordination par «
+          et » ne préciserait pas nécessairement pourquoi le retour est prévu. Essayez : quelle expression
+          relie explicitement la fermeture au projet ? Réponse : `لِذٰلِكَ` ; elle renvoie à la fermeture
+          comme raison."
+  - subskill_id: conditions
+    explanation: Vous donnez des consignes d’arrivée sans savoir si la personne arrivera en avance. La proposition
+      en « si » limite l’ordre d’attendre à cette possibilité.
+    examples:
+      - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
+        meaning: "**L’exemple.** Si tu arrives en avance, attends ici. `إِذَا` introduit la condition ; `وَصَلْتَ` a
+          la forme « tu es arrivé », adressée ici à un homme, mais renvoie dans cette condition à une arrivée
+          future possible. `مُبَكِّرًا` signifie « tôt » ; `فَانْتَظِرْ هُنَا` donne ensuite l’ordre
+          d’attendre ici."
+        note: "Le `فَـ` initial rattache l’ordre à la condition. Une forme verbale dite accomplie après `إِذَا` ne se
+          lit donc pas automatiquement comme un fait passé. Essayez : faut-il attendre même sans arrivée en
+          avance ? Réponse : cette phrase ne donne l’ordre que dans la condition indiquée."
+  - subskill_id: contrast
+    explanation: Une petite boîte peut paraître facile à soulever tout en étant lourde. Le contraste réunit deux
+      descriptions vraies et signale pourquoi la seconde surprend.
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
+        meaning: "**L’exemple.** Cette boîte est petite, mais elle est lourde. `هٰذَا الصُّنْدُوقُ` désigne cette
+          boîte ; `صَغِيرٌ` signifie « petite ». `وَلٰكِنَّهُ` signifie « mais elle », avec un suffixe
+          renvoyant au nom arabe de la boîte. `ثَقِيلٌ` signifie « lourde ». Le contraste n’annule pas sa
+          petite taille."
+        note: "Le suffixe de `وَلٰكِنَّهُ` s’accorde avec le nom arabe masculin de la boîte. Un autre référent
+          pourrait changer ce suffixe et les adjectifs. Essayez : quelles deux propriétés restent vraies ?
+          Réponse : la boîte est petite et lourde ; « mais » oppose une attente aux faits, sans nier ces
+          faits."
+  - subskill_id: supporting_claims
+    explanation: Vous recommandez un itinéraire plus court et quelqu’un demande comment vous le savez. Une mesure
+      fournit un fondement concret à la comparaison.
+    examples:
+      - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
+        meaning: "**L’exemple.** Cet itinéraire est plus court parce que nous avons mesuré la distance. `هٰذَا
+          الطَّرِيقُ أَقْصَرُ` affirme qu’il est plus court. `لِأَنَّنَا` signifie « parce que nous » ;
+          `قِسْنَا` signifie « nous avons mesuré » et `الْمَسَافَةَ` « la distance ». La terminaison du verbe
+          passé indique qui a fait la mesure."
+        note: "La mesure ne constitue une preuve que si elle porte sur les itinéraires comparés. Ailleurs, une
+          proposition en « parce que » peut donner un simple motif personnel ; ici, elle fonde la comparaison.
+          Essayez : quels mots nomment la preuve ? Réponse : `قِسْنَا الْمَسَافَةَ` ; ils rapportent la
+          mesure."
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+    - madinahVerbFormsTeaching20261007
+    - madinahNominalTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  arabic-levantine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  arabic-modern-standard:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahVerbFormsTeaching20261007
+        - madinahNominalTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: causes_reasons
+      explanation: Une femme explique pourquoi elle est restée chez elle. La maladie est présentée comme le motif de
+        sa décision.
+      examples:
+        - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+          meaning: "**L’exemple.** Je suis restée chez moi parce que j’étais malade. `ضَلِّيتْ` signifie ici « je suis
+            restée ». `بِالْبَيْتْ` signifie « à la maison », `لِأَنِّي` « parce que je » et `مَرِيضَة` «
+            malade », au féminin. Le séjour passé et la maladie sont liés comme action et raison."
+          note: "Un homme emploie l’adjectif `مَرِيضْ`. La proposition de cause explique pourquoi, tandis qu’un simple «
+            et » ne ferait que juxtaposer des informations. Essayez : la maladie est-elle la conséquence du
+            séjour chez soi ? Réponse : non ; elle en est présentée comme la raison."
+    - subskill_id: consequences
+      explanation: Vous trouvez un magasin fermé et décidez de revenir demain. La seconde proposition indique ce qui
+        résulte de la situation.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+          meaning: "**L’exemple.** Le magasin est fermé, donc nous reviendrons demain. `الْمَحَلّ مْسَكَّرْ` indique la
+            fermeture ; `عَشَانْ هَيْكْ` signifie « donc » ou « pour cette raison ». `رَحْ نِرْجَعْ` signifie
+            « nous reviendrons » et `بُكْرَا` « demain ». Le verbe après le marqueur futur `رَحْ` n’a pas ici
+            son préfixe b- ordinaire."
+          note: "La forme `مْسَكَّرْ` décrit l’état du magasin ; ce n’est pas un ordre de le fermer. Essayez : quelle
+            proposition donne la conséquence ? Réponse : `رَحْ نِرْجَعْ بُكْرَا`, le projet de revenir motivé
+            par la fermeture."
+    - subskill_id: conditions
+      explanation: Vous donnez des consignes d’arrivée sans savoir si la personne sera en avance. L’ordre d’attendre
+        vaut seulement dans le cas annoncé.
+      examples:
+        - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+          meaning: "**L’exemple.** Si tu arrives en avance, attends ici. `إِذَا` signifie « si », `وِصِلْتْ` exprime
+            l’arrivée dans cette condition et `بَكِّيرْ` signifie « tôt ». `اِسْتَنَّى` demande à un homme
+            d’attendre ; `هُونْ` signifie « ici ». La première proposition pose la condition, la seconde donne
+            la consigne."
+          note: "La forme de l’arrivée peut évoquer le passé, mais le contexte en « si » présente ici une possibilité
+            ouverte. La phrase ne rapporte pas une arrivée déjà accomplie. Essayez : quel mot rend la consigne
+            conditionnelle ? Réponse : `إِذَا` ; sans ce cadre, l’ordre ne serait plus limité de la même
+            manière."
+    - subskill_id: contrast
+      explanation: Une petite boîte peut paraître facile à porter tout en étant lourde. Le contraste signale cette
+        différence entre attente et réalité.
+      examples:
+        - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+          meaning: "**L’exemple.** Cette boîte est petite, mais lourde. `هَادْ الصُّنْدُوقْ` désigne cette boîte ;
+            `صْغِيرْ` signifie « petite ». `بَسّ` signifie « mais » dans cette phrase et `تْقِيلْ` « lourde ».
+            Les deux propriétés concernent la même boîte ; aucun verbe « être » distinct n’est nécessaire au
+            présent."
+          note: "Dans un autre contexte, `بَسّ` peut signifier « seulement » ; ici, il relie deux descriptions
+            contrastées. Essayez : la seconde remplace-t-elle la première ? Réponse : non ; la boîte reste
+            petite et elle est aussi lourde."
+    - subskill_id: supporting_claims
+      explanation: Vous recommandez un itinéraire plus court et quelqu’un demande sur quoi repose cette comparaison.
+        La mesure de la distance fournit un élément concret.
+      examples:
+        - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+          meaning: "**L’exemple.** Cet itinéraire est plus court parce que nous avons mesuré la distance. `هَادْ
+            الطَّرِيقْ أَقْصَرْ` donne la comparaison. Ici, `لِأَنُّه` joue le rôle de « parce que » devant
+            `إِحْنَا قِسْنَا الْمَسَافَة`, « nous avons mesuré la distance ». `إِحْنَا` exprime explicitement
+            « nous » ; `قِسْنَا` porte aussi la terminaison correspondante."
+          note: "Ne traduisez pas mécaniquement cette conjonction par « parce qu’il » : la proposition suivante indique
+            la raison. La mesure doit réellement étayer la comparaison. Essayez : qui a mesuré ? Réponse : «
+            nous », indiqué par `إِحْنَا` et la terminaison de `قِسْنَا`, pas par le son final de la
+            conjonction."

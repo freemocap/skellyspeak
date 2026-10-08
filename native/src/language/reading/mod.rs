@@ -1,5 +1,6 @@
 //! Explicit reading consumers. Generated payloads are evictable local results;
 //! redacted execution receipts are durable. New text help can earn exploration, never skill XP.
+pub(crate) mod preloaded;
 mod receipts;
 pub(crate) mod saved;
 mod sentence_blanks;

@@ -11,6 +11,8 @@
   padding: var(--space-2) var(--space-6);
   text-transform: none; letter-spacing: normal; font-family: var(--font-sans);
   gap: var(--space-4);
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .chat-heading-actions { display: flex; align-items: center; gap: var(--space-3); flex: none; }
@@ -40,12 +42,20 @@
 
 .chat-language-picker:disabled { opacity: .6; cursor: default; }
 
-/* The header difficulty uses control typography rather than reading size. The
-   identity row wraps within its own space, leaving the action buttons intact. */
-.conversation-identity { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-width: 0; }
-.conversation-identity > .persona-picker { min-width: 0; max-width: 100%; }
+/* The header is one row at every width; nothing in it wraps. The partner gives
+   up room by shortening its name, never by breaking onto a second line, and the
+   difficulty select keeps its natural width. When the row is short of room the
+   header picks a more compact layout, which it marks in data-fit (see
+   ConversationHeader); the difficulty select then leads the settings sheet.
+   The header difficulty uses control typography rather than reading size. */
+.chat-head .conversation-title { flex: 1 1 0; min-width: 0; }
+.conversation-identity { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-4); min-width: 0; }
+.conversation-identity > .persona-picker { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.chat-head .partner-identity { min-width: 0; }
+.chat-head .partner-identity strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-head[data-fit~='difficulty-in-settings'] .conversation-identity > .chat-language-picker { display: none; }
 .conversation-identity > .chat-language-picker {
-  max-width: 100%; min-width: 0;
+  flex: none;
   border-radius: var(--radius-md);
   color: var(--ink-2);
   font: var(--weight-medium) var(--type-ui) var(--font-sans);
@@ -73,25 +83,12 @@
 }
 
 @media (max-width: 860px) {
-  /* One row, as tall as the top bar above it and with its inline padding, so the
-     two rows' first and last controls share edges. The difficulty select is in
-     the settings sheet at this width (see ConversationSettings), so the identity
-     is one line and never wraps. min-width lets the row resolve at the width it
-     has, instead of growing to its content and pushing the control row over
-     the name. */
-  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-2); min-width: 0; }
-  .conversation-identity { flex-wrap: nowrap; }
+  /* As tall as the top bar above it and with its inline padding, so the two
+     rows' first and last controls share edges. */
+  .chat > .chat-head { padding: var(--space-1) var(--space-2); }
   .chat-conversations { margin-inline-end: 0; }
-  /* The partner name is what gives up room, by shortening, and it may shrink to
-     nothing. The control row keeps its natural width: squeezed, its own buttons
-     would clip and overlap the name. */
-  .chat > .chat-head .conversation-title { flex: 1 1 0; min-width: 0; }
-  .chat-head .partner-identity { min-width: 0; }
-  .chat-head .partner-identity strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chat-heading-actions { flex: 0 0 auto; margin-inline-start: var(--space-3); }
+  .chat-heading-actions { margin-inline-start: var(--space-3); }
 }
-
-.chat-head .conversation-title { flex: 1; }
 
 /* ── Conversation settings ──────────────────────────────────────────────
    Desktop: a panel on the inline end, below the top bar, beside the chat.
@@ -232,7 +229,12 @@
 /* Cascading language menu: the first panel matches its trigger; varieties float beside the row. */
 .language-dropdown { position: relative; min-width: 0; }
 .language-dropdown .learning-picker { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; text-align: start; white-space: normal; overflow-wrap: anywhere; }
-.learning-picker-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-4); min-width: 0; }
+/* The trigger is one line at every width: the variety gives way first, then the
+   language's name in the interface language. The top bar folds its progress pill
+   before the language's own name is cut (see TopBar). */
+.learning-picker-identity { display: flex; flex-wrap: nowrap; align-items: baseline; gap: 0 var(--space-4); min-width: 0; }
+.learning-picker-identity > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.learning-picker-identity > small { flex-shrink: 100; }
 .language-dropdown .learning-picker small { font-size: var(--type-ui); font-weight: var(--weight-regular); color: var(--ink-2); }
 .language-dropdown .learning-picker > span:last-child { grid-column: 2; align-self: center; }
 .language-dropdown-panel { position: absolute; inset-block-start: 100%; inset-inline-start: 0; z-index: var(--z-popover); width: 100%; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }

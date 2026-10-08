@@ -1,0 +1,160 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-expanded-arabic-2026-10-07
+skill_id: possibilities_constraints
+language: spanish
+explanation_language: arabic
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-arabic.yaml
+sections:
+  - subskill_id: ability
+    explanation: تميّز الإسبانية بين معرفة كيفية فعل شيء والقدرة على فعله في موقف معين. عند الحديث عن
+      مهارة مكتسبة مثل السباحة أو الطبخ، تعني `saber` متبوعةً بالمصدر «يعرف كيف». والمصدر هو صيغة
+      الفعل في المعجم، مثل `nadar`. يصف المثال مهارة تعلمها المتحدث.
+    examples:
+      - text: Sé nadar.
+        meaning: "**كيف تعمل الصيغة.** تعني الجملة «أعرف السباحة». تحدد `Sé` المتحدث أصلًا، لذا يكون `yo`
+          اختياريًا. تبقى `Nadar` في صيغة المصدر. أبقِ علامة النبرة المكتوبة في `sé`؛ فـ`se` من
+          دونها كلمة أخرى."
+        note: >-
+          **قارن.** تعني `Puedo nadar hoy` «أستطيع السباحة اليوم»: تسمح الظروف بذلك. قد تعرف السباحة
+          لكن لا تستطيع ممارستها اليوم. ضع `no` قبل الفعل الأول للنفي: `No sé nadar`.
+
+
+          **جرّب.** قل إنها تعرف الطبخ باستعمال `cocinar`. الإجابة: `Ella sabe cocinar`. غيّر الفعل
+          الأول وأبقِ النشاط في صيغة المصدر.
+  - subskill_id: permission
+    explanation: عندما يحتاج الفعل إلى موافقة شخص آخر، يمكن للسؤال مع `poder` أن يطلب الإذن. تسأل
+      `¿Puedo…?` هل يجوز لي فعل شيء؛ وهو نمط يومي مفيد عند الباب أو في مكان مشترك أو قبل استعارة
+      غرض. يأتي الفعل بعده في صيغة المصدر، مثل `entrar` أي الدخول.
+    examples:
+      - text: ¿Puedo entrar?
+        meaning: "**كيف تعمل الصيغة.** يجمع سؤال «هل يمكنني الدخول؟» بين `puedo`، الذي يسأل هل يجوز لي،
+          و`entrar`، أي الدخول. عند الباب يستطيع المخاطَب منح الإذن أو رفضه. لا توجد كلمة إضافية
+          تقابل «do» الإنجليزية في هذا السؤال."
+        note: >-
+          **غيّر الشخص.** تسأل `¿Puedes entrar?` هل يستطيع المخاطَب الدخول؛ ولم تعد تطلب الإذن
+          لنفسك. وتعبّر `¿Podría entrar?` عن طلب أكثر تحفظًا لنفسك. تظل النبرة والعلاقة بين الطرفين
+          مهمتين.
+
+
+          **جرّب.** اطلب الإذن باستعمال كرسي مع `usar esta silla`. الإجابة: `¿Puedo usar esta
+          silla?` رد ممكن هو `Sí, claro`: نعم، بالتأكيد.
+  - subskill_id: obligation
+    explanation: المطلوب شيء يحتاج شخص إلى فعله أو يُتوقع منه فعله. تعبّر الإسبانية عنه كثيرًا بـ`tener
+      que` متبوعةً بالمصدر. في المثال، يحتاج المتحدث إلى المغادرة. تبيّن الجملة الضرورة، وقد يذكر
+      الحوار سببها مثل موعد أو وقت إغلاق.
+    examples:
+      - text: Tengo que salir.
+        meaning: "**كيف تعمل الصيغة.** تستعمل جملة «عليّ أن أغادر» `tengo` للمتكلم. وللحديث عن شخص آخر غيّر
+          هذه الكلمة: `Ella tiene que salir`. أبقِ `que salir` من دون تغيير. تذكر الجملة الإلزام؛
+          ويوضح الحوار المحيط سبب ضرورة المغادرة."
+        note: >-
+          **قارن.** تقول `Hay que salir` إن المغادرة ضرورية من غير تسمية شخص معين. وتعني `No tengo
+          que salir` عادةً أنني لست ملزمًا بالمغادرة، لا أن المغادرة ممنوعة.
+
+
+          **جرّب.** قل إن عليك إعادة المفتاح باستعمال `devolver la llave`. الإجابة: `Tengo que
+          devolver la llave`. لا تحذف `que` بين الفعلين.
+  - subskill_id: possibility
+    explanation: "قد تريد ذكر نتيجة من غير الجزم بحدوثها. تستعمل الإسبانية `puede que` لهذا النوع من
+      الاحتمال. ويأتي الفعل التالي بصيغة الفعل المسماة subjuntivo في الإسبانية، وهي صيغة يتطلبها هذا التركيب. يصلح التنبؤ
+      بالطقس مثالًا: يجيز المتحدث وقوع المطر لكنه لا يعد به."
+    examples:
+      - text: Puede que llueva.
+        meaning: "**كيف تعمل الصيغة.** تستعمل عبارة «قد تمطر» `llueva`، وهي من `llover` أي «تمطر». قارن
+          `Llueve`، أي إنها تمطر، بـ`Puede que llueva`، أي قد تمطر. لا تحتاج الإسبانية إلى كلمة فاعل
+          منفصلة تقابل «it» الإنجليزية الخاصة بالطقس."
+        note: >-
+          **غيّر الاحتمال.** ضع `no` بعد `que` للسماح باحتمال عدم المطر: `Puede que no llueva`. تبقى
+          النتيجة غير مؤكدة. أضف `mañana` للغد: `Puede que llueva mañana`.
+
+
+          **جرّب.** قل إن المطر قد لا يهطل غدًا. الإجابة: `Puede que no llueva mañana`. أبقِ `llueva` في
+          هذا النمط؛ ولا تستبدل بها `llueve`.
+  - subskill_id: certainty
+    explanation: قد تعرف شيئًا عن موقف من غير أن تكون قادرًا على تأكيده. تعبّر `No estoy seguro` أو `No
+      estoy segura` عن هذا الشك. تصف درجة ثقتك ولا تقول إن الادعاء خاطئ. تطابق نهاية `seguro` أو
+      `segura` جنس المتحدث.
+    examples:
+      - text: No estoy seguro.
+        meaning: "**كيف تعمل الصيغة.** تستعمل عبارة «لست متأكدًا» صيغة التذكير. ومن تستعمل التأنيث تقول `No
+          estoy segura`. تصف الصفة المتحدث لا الجنس النحوي للشيء الجاري الحديث عنه. ولا تقول أي من
+          الصيغتين إن الشخص الآخر مخطئ."
+        note: >-
+          **حدّد موضوع الشك.** تعني `No estoy seguro de la hora` أنني لست متأكدًا من الوقت. أما `No
+          sé` فتقول إنني لا أعرف؛ وقد تكون ردًا مباشرًا عندما تنقصك المعلومة.
+
+
+          **جرّب.** امرأة لا تستطيع تأكيد الوقت. إجابة ممكنة: `No estoy segura de la hora`. أبقِ
+          `estoy` للمتكلم وغيّر نهاية الصفة فقط.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+        اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-expanded-arabic-2026-10-07
+        scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+          مراجعة مستقلة.
+provenance:
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesSaberTeaching20261007
+    - raePoderTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.

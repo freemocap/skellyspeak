@@ -32,6 +32,56 @@ beforeEach(() => {
 })
 function app(children: React.ReactNode) { return render(<ReadingPreferencesContext value={{autoTranslate:true, alwaysRomanize:true, alwaysPronunciation:true}}><ReadingScopeContext value={scope}><ReadingHelp services={services} languages={languages}>{children}</ReadingHelp></ReadingScopeContext></ReadingPreferencesContext>) }
 
+it('shows only the saved translation on tap without added labels, actions or inference', async () => {
+  vi.mocked(services.saved!).mockResolvedValue({...result, gloss:{segments:[{start:0,end:4,kind:'gloss',gloss:'dictionary hello'}],coverage:'partial'},dictionaryAnchors:[{start:0,end:4}]})
+  app(<TargetText text="Hola" />)
+  fireEvent.click(screen.getByRole('button',{name:'Hola'}))
+  const helper = await screen.findByRole('group',{name:'Word help'})
+  await waitFor(() => expect(helper).toHaveTextContent('dictionary hello'))
+  expect(helper).toHaveTextContent('dictionary hello')
+  expect(services.read).not.toHaveBeenCalled()
+  expect(helper).not.toHaveTextContent('Dictionary meaning')
+  expect(within(helper).queryByRole('button',{name:'Explain in context'})).not.toBeInTheDocument()
+  expect(within(helper).queryByRole('button',{name:'Retry word meanings'})).not.toBeInTheDocument()
+})
+
+it('does not treat dictionary coverage as a complete whole-passage analysis', async () => {
+  const { useReadingLookup } = await import('./ReadingContext')
+  let lookup: ReturnType<typeof useReadingLookup> = null
+  function Probe() { lookup = useReadingLookup(); return null }
+  vi.mocked(services.saved!).mockResolvedValue({...result,gloss:{segments:[{start:0,end:4,kind:'gloss',gloss:'dictionary hello'}],coverage:'partial'},dictionaryAnchors:[{start:0,end:4}]})
+  app(<Probe />)
+  const resolved = await lookup!({...scope,text:'Hola',aid:'word_gloss'},new AbortController().signal)
+  expect(services.read).toHaveBeenCalledOnce()
+  expect(resolved.gloss?.segments[0].gloss).toBe('hello')
+})
+
+it('keeps saved translations compact on mouse hover for dictionary and contextual sources', async () => {
+  vi.useFakeTimers()
+  try {
+    vi.mocked(services.saved!).mockResolvedValueOnce({...result,gloss:{segments:[{start:0,end:4,kind:'gloss',gloss:'dictionary hello'}],coverage:'partial'},dictionaryAnchors:[{start:0,end:4}]}).mockResolvedValue(result)
+    app(<TargetText text="Hola" />)
+    const word = screen.getByRole('button',{name:'Hola'})
+    const hover = () => {
+      const event = new MouseEvent('pointerover',{bubbles:true})
+      Object.defineProperty(event,'pointerType',{value:'mouse'})
+      fireEvent(word,event)
+    }
+    hover()
+    await act(async () => { vi.advanceTimersByTime(350) })
+    expect(screen.getByRole('group',{name:'Word help'})).toHaveTextContent('dictionary hello')
+    expect(screen.getByRole('group',{name:'Word help'})).not.toHaveTextContent('Dictionary meaning')
+    expect(services.read).not.toHaveBeenCalled()
+    fireEvent.keyDown(document,{key:'Escape'})
+    hover()
+    await act(async () => { vi.advanceTimersByTime(350) })
+    const helper = screen.getByRole('group',{name:'Word help'})
+    expect(helper).toHaveTextContent('hello')
+    expect(helper).not.toHaveTextContent('Dictionary meaning')
+    expect(services.read).not.toHaveBeenCalled()
+  } finally { vi.useRealTimers() }
+})
+
 it('keeps an inspector request alive when unrelated saved meanings update', async () => {
   let finish!: (value: ReadingResult) => void
   vi.mocked(services.read).mockImplementation(() => new Promise(resolve => { finish = resolve }))

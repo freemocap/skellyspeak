@@ -1,0 +1,140 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: possibilities_constraints
+language: english
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 能力可以是学会做某事，也可以是在特定情况下做得到。英语常用 `can` 后接动作动词来表达。例句中，说话人的力气足以同时提两个袋子。`can` 后用动词原形 `carry`，不用
+      `carries` 或 `to carry`。
+    examples:
+      - text: I can carry both bags.
+        meaning: "**句子怎么组成。** `Can` 在这里表示能力；`carry` 说出动作。`Both bags` 指两个袋子一起。替换动作可以造新句：`I can lift this box`。"
+        note: >-
+          **改变句子。** 表示做不到时用 `can't`：`I can't carry both bags`。提问时把 `can` 放前面：`Can you carry both
+          bags?`。`carry` 保持不变。
+
+
+          **语境很重要。** 如果朋友正提着沉重行李，原句也可能是在主动提出帮忙；情境赋予它这个目的。
+
+
+          **练一练。** 把 `She carries this box` 改成表示能力的句子。答案：`She can carry this box`。`can` 后用 `carry`，不用
+          `carries`。
+  - subskill_id: permission
+    explanation: 许可是有权决定的人同意某项行动。行动前，英语可用以 `Can I`、`Could I` 或 `May I` 开头的问句请求同意。`Can I` 适合日常场合；`Could I` 更委婉，`May
+      I` 更正式。三者后面都接动作动词原形。
+    examples:
+      - text: May I use this chair?
+        meaning: "**句子怎么组成。** `May I` 替说话人请求许可。`Use this chair` 说明动作；`use` 前面没有 `to`。应向能决定这张椅子是否可用的人提问。"
+        note: >-
+          **比较。** 在这种场景中，`Can I use this chair?` 也请求许可。`Can you move this chair?` 则请对方行动。把 `I` 换成
+          `you`，所谈的行动者就不同了。
+
+
+          **练一练。** 请求允许开窗。一种答案：`Could I open the window?`。`Yes, go ahead` 表示允许；`Sorry, please keep it closed`
+          表示拒绝，并说明应保持关窗。
+  - subskill_id: obligation
+    explanation: 要求是需要发生的事，原因可能是规则、安排或实际需要。英语常用 `have to` 表示。例句中，必须离开，而且有最迟出发时间。`Have to` 后接动作动词原形。
+    examples:
+      - text: We have to leave by eight.
+        meaning: "**句子怎么组成。** `Have to` 表示离开是必要的。`By eight` 设定期限：最迟八点离开，也可以更早。`At eight` 则是指定在八点出发。"
+        note: >-
+          **留意否定。** `We don't have to leave` 表示可以不走。`We mustn't leave` 表示禁止离开。虽然 `must` 和 `have to`
+          都能表达要求，这两个否定句却是不同的指示。
+
+
+          **询问要求。** 用 `Do we have to leave?` 核实是否必须离开。
+
+
+          **练一练。** 出席是自愿的。在 `You don't have to come` 和 `You mustn't come` 中选一句。答案：`You don't have to
+          come`；对方仍可选择参加。
+  - subskill_id: possibility
+    explanation: 可能发生的事并不确定。英语在动作动词前用 `might` 或 `may`，为其他结果留有余地。例句中的包裹今天可能送到，但说话人无法确认。`might` 或 `may` 后的动词形式不变。
+    examples:
+      - text: The delivery might arrive today.
+        meaning: "**句子怎么组成。** `The delivery` 指所谈的配送。`Might arrive` 表示到达不确定，`today` 给出时间。把 `today` 换成 `tomorrow`
+          改变日期，却不改变不确定性。"
+        note: >-
+          **比较。** `The delivery will arrive today` 把到达说成预期或预测。改用 `might` 就为另一种结果留有余地。可能不送达时用 `might not`：`The
+          delivery might not arrive today`。这不等于断定今天一定不会到。
+
+
+          **练一练。** 送达日期尚未确认，把 `The parcel arrives tomorrow` 改得不那么确定。一种答案：`The parcel might arrive tomorrow`。注意
+          `might` 后 `arrives` 改为 `arrive`。
+  - subskill_id: certainty
+    explanation: 确定程度表示你对某件事为真的信心。`I'm not sure whether…` 可以指出你无法确认的疑问。例句未解决的问题是门是否锁上；不确定意味着两种答案都还可能。
+    examples:
+      - text: I am not sure whether the door is locked.
+        meaning: "**句子怎么组成。** `Not sure` 描述你的把握程度。`Whether the door is locked` 指你无法判定的问题：锁上或没锁上。`whether` 后保留陈述语序 `the
+          door is`，不用直接问句的 `is the door`。"
+        note: >-
+          **比较。** `I'm sure the door is locked` 表示确信门锁了。`I'm not sure whether the door is locked`
+          保留两种可能。不确定并不代表你相信相反答案。
+
+
+          **练一练。** 你无法确认 `Is the shop open?` 的答案。说出这种不确定。一种答案：`I'm not sure whether the shop is
+          open`。`whether` 后用陈述语序 `the shop is open`。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - bc_modals2026
+    - bcCanCouldTeaching20261007
+    - bcPermissionObligationTeaching20261007
+    - bc_questions2026
+    - cambridgeModalFormsTeaching20261007
+    - bbcWhetherTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.

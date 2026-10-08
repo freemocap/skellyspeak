@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+language: cantonese
+skill_id: coordinating_action
+explanation_language: spanish
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-spanish.yaml
+sections:
+  - subskill_id: requests
+    explanation: Tienes las manos ocupadas y necesitas que alguien abra la puerta. `唔該` introduce una
+      petición cortés. Se entiende quién debe actuar sin expresar tú; la oración nombra la acción
+      directamente en vez de formular una pregunta.
+    examples:
+      - text: 唔該，幫我開門。
+        meaning: Abre la puerta por mí, por favor. `幫我` significa ayudarme o hacerlo por mí y precede a
+          `開門`, abrir la puerta. `我` es quien recibe la ayuda, no quien debe abrir. La acción sigue
+          a la expresión de ayuda.
+        note: "**Practica:** pide que cierren la puerta. Respuesta: `唔該，幫我閂門。` Sustituye `開` por `閂`,
+          cerrar. `我幫你開門` ofrece, en cambio, tu propia ayuda: intercambiar las personas cambia quién
+          ayuda a quién."
+  - subskill_id: offers_invitations
+    explanation: Una amistad está decidiendo qué hacer y la invitas a comer contigo. `一齊` significa
+      juntos. `好唔好` solicita su acuerdo con la actividad, sin presentarla como ya organizada.
+    examples:
+      - text: 一齊去食飯，好唔好？
+        meaning: ¿Vamos a comer juntos? `去食飯` significa ir a comer; `食飯` no se limita a comer arroz. `好唔好`
+          reúne las alternativas positiva y negativa para preguntar si la propuesta parece bien. La
+          invitación permite entender quiénes irán.
+        note: "**Practica:** invita a tomar té en su lugar. Respuesta: `一齊去飲茶，好唔好？` La actividad cambia a
+          `飲茶` y la invitación sigue abierta. `好呀，一齊去。` acepta; `唔好意思，我唔得閒。` rechaza con cortesía."
+  - subskill_id: suggestions
+    explanation: Habláis de una visita, pero hoy quizá no convenga a todos. `不如` introduce una
+      alternativa para considerar. Puede omitirse el destino porque ya es el tema de la
+      conversación.
+    examples:
+      - text: 不如聽日去。
+        meaning: ¿Y si vamos mañana? `聽日` significa mañana y aparece antes de `去`, ir. La acción no cambia
+          de forma por situarse en el futuro. La propuesta plantea un día; no dice que todos hayan
+          aceptado.
+        note: "**Practica:** propón el sábado. Respuesta: `不如星期六去。` Cambia el día y conserva la sugerencia.
+          `我聽日去` afirma un plan propio; `不如聽日去` propone una opción. Añadir `先`, como en `不如聽日先去`,
+          sugiere específicamente esperar hasta mañana."
+  - subskill_id: commitments
+    explanation: Una amistad necesita el libro y tú asumes traerlo. `我答應你` expresa una promesa explícita
+      dirigida a esa persona. La cláusula siguiente indica qué harás y cuándo.
+    examples:
+      - text: 我答應你，聽日會帶本書嚟。
+        meaning: Prometo traerte el libro mañana. `聽日` indica mañana, `會帶` significa traeré y `本書`
+          identifica el libro conocido con el clasificador `本`. El `嚟` final orienta el movimiento
+          hacia el lugar de encuentro pertinente o hacia quien escucha.
+        note: "**Practica:** promete traer el libro el viernes. Respuesta: `我答應你，星期五會帶本書嚟。` Solo cambia el
+          día. `我可能會帶本書嚟` expresa una posibilidad: `可能` deja incierta la acción y no sustituye la
+          promesa explícita."
+  - subskill_id: accepting_declining
+    explanation: Te invitan para mañana, pero no dispones de tiempo. Una disculpa breve seguida de tu
+      falta de disponibilidad deja claro que no podrás participar.
+    examples:
+      - text: 唔好意思，我聽日唔得閒。
+        meaning: Lo siento, mañana no tengo tiempo libre. `唔好意思` suaviza la negativa. `我聽日` indica a quién
+          afecta mañana y `唔得閒` significa no estar libre. `唔` niega la disponibilidad `得閒`; no
+          expresa que te desagrade la invitación.
+        note: "**Practica:** rechaza una invitación para el sábado. Respuesta: `唔好意思，我星期六唔得閒。` Cambia el
+          día. Una aceptación podría ser `好呀，我聽日得閒。` La invitación convierte la disponibilidad en
+          respuesta; fuera de ella, la frase puede limitarse a informar del horario."
+  - subskill_id: negotiating_plans
+    explanation: Una reunión a las tres coincide con otra cita. Rechazas esa hora y consultas si las
+      cuatro convienen, ofreciendo una alternativa concreta.
+    examples:
+      - text: 三點唔得，四點得唔得？
+        meaning: Las tres no me van bien; ¿sirven las cuatro? `三點` y `四點` indican horas. `唔得` rechaza el
+          primer plan. `得唔得` repite las formas positiva y negativa de `得`, servir o venir bien, para
+          preguntar por el segundo. No hace falta repetir la reunión.
+        note: "**Practica:** mantén que las tres no sirven y propón las cinco. Respuesta: `三點唔得，五點得唔得？` Solo
+          cambia la hora propuesta. `五點得` afirma que las cinco sirven; `五點得唔得` pide confirmación a
+          la otra persona, sin decidir por ella."
+provenance:
+  origin: ai
+  authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored Spanish localization of current cantonese guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original cantonese constructions, not independent translation validation.

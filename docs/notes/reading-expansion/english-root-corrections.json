@@ -1,0 +1,232 @@
+{
+  "a": [
+    "un / una",
+    "أداة تنكير",
+    "un / une"
+  ],
+  "an": [
+    "un / una",
+    "أداة تنكير",
+    "un / une"
+  ],
+  "am": [
+    "soy / estoy",
+    "أكون",
+    "suis"
+  ],
+  "is": [
+    "es / está",
+    "بيكون",
+    "est"
+  ],
+  "are": [
+    "eres / estás / somos / estamos / sois / estáis / son / están",
+    "بتكون / منكون / بتكونوا / بيكونوا",
+    "es / sommes / êtes / sont"
+  ],
+  "will": [
+    "futuro",
+    "رح",
+    "futur"
+  ],
+  "would": [
+    "condicional",
+    "كان رح",
+    "conditionnel"
+  ],
+  "i’ll": [
+    "futuro: yo",
+    "أنا رح",
+    "futur : je"
+  ],
+  "i’d": [
+    "había / condicional: yo",
+    "كنت / كنت رح",
+    "j’avais / conditionnel : je"
+  ],
+  "i’ve": [
+    "he",
+    "ماضٍ مرتبط بالحاضر",
+    "j’ai"
+  ],
+  "good": [
+    "bueno / buena",
+    "منيح / منيحة",
+    "bon / bonne"
+  ],
+  "feel": [
+    "sentir / sentirse",
+    "يحسّ",
+    "sentir / se sentir"
+  ],
+  "closed": [
+    "cerró / cerrado",
+    "سكّر / مسكّر",
+    "a fermé / fermé"
+  ],
+  "locked": [
+    "cerrado con llave",
+    "مسكّر بالمفتاح",
+    "verrouillé"
+  ],
+  "open": [
+    "abierto / abrir",
+    "مفتوح / يفتح",
+    "ouvert / ouvrir"
+  ],
+  "practice": [
+    "práctica / practicar",
+    "تمرين / يتمرّن",
+    "pratique / pratiquer"
+  ],
+  "plan": [
+    "plan / planear",
+    "خطة / يخطّط",
+    "plan / prévoir"
+  ],
+  "work": [
+    "trabajo / trabajar",
+    "شغل / يشتغل",
+    "travail / travailler"
+  ],
+  "rain": [
+    "lluvia / llover",
+    "مطر / تمطر",
+    "pluie / pleuvoir"
+  ],
+  "right": [
+    "correcto / derecha",
+    "صح / يمين",
+    "correct / droite"
+  ],
+  "sure": [
+    "seguro / claro",
+    "متأكّد / أكيد",
+    "sûr / bien sûr"
+  ],
+  "usual": [
+    "habitual",
+    "معتاد",
+    "habituel"
+  ],
+  "more": [
+    "más",
+    "أكتر",
+    "plus"
+  ],
+  "less": [
+    "menos",
+    "أقلّ",
+    "moins"
+  ],
+  "so": [
+    "así / tan / así que",
+    "هيك / كتير / لهيك",
+    "ainsi / si / donc"
+  ],
+  "nerve": [
+    "nervio",
+    "عصب",
+    "nerf"
+  ],
+  "racking": [
+    "estresante",
+    "مقلق",
+    "angoissant"
+  ],
+  "can": [
+    "poder",
+    "بيقدر",
+    "pouvoir"
+  ],
+  "you": [
+    "tú / usted / vosotros / ustedes",
+    "إنت / إنتو",
+    "tu / vous"
+  ],
+  "has": [
+    "tiene / ha",
+    "عنده",
+    "a"
+  ],
+  "have": [
+    "tener / haber",
+    "عنده",
+    "avoir"
+  ],
+  "ed": [
+    "pasado / participio",
+    "لاحقة الماضي",
+    "passé / participe"
+  ],
+  "er": [
+    "comparativo / agente",
+    "مقارنة / فاعل",
+    "comparatif / agent"
+  ],
+  "s": [
+    "plural / tercera persona",
+    "جمع / غائب مفرد",
+    "pluriel / troisième personne"
+  ],
+  "shall": [
+    "futuro / propuesta",
+    "رح / اقتراح",
+    "futur / proposition"
+  ],
+  "whether": [
+    "si",
+    "إذا",
+    "si"
+  ],
+  "packed": [
+    "empacamos / empacado",
+    "وضّبنا / محزوم",
+    "nous avons fait les bagages / emballé"
+  ],
+  "both": [
+    "ambos",
+    "التنين",
+    "les deux"
+  ],
+  "only": [
+    "solo",
+    "بس",
+    "seulement"
+  ],
+  "that": [
+    "ese / esa / que",
+    "هداك / هديك / إنّه",
+    "ce / cette / que"
+  ],
+  "since": [
+    "desde / ya que",
+    "من / بما إنّه",
+    "depuis / puisque"
+  ],
+  "not": [
+    "no",
+    "مش / ما",
+    "ne…pas"
+  ],
+  "yes": [
+    "sí",
+    "إي / نعم",
+    "oui"
+  ],
+  "do": [
+    "hacer / auxiliar",
+    "يعمل / فعل مساعد",
+    "faire / auxiliaire"
+  ],
+  "does": [
+    "hace / auxiliar",
+    "بيعمل / فعل مساعد",
+    "fait / auxiliaire"
+  ],
+  "did": [
+    "hizo / auxiliar pasado",
+    "عمل / فعل مساعد للماضي",
+    "a fait / auxiliaire passé"
+  ]
+}

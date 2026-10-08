@@ -1,0 +1,118 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: reasons_connections
+language: english
+explanation_language: spanish
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-spanish.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Una razón ayuda a entender por qué una acción tenía sentido. Si una amistad pregunta
+      por qué no saliste, puedes relacionar el hecho de quedarte dentro con la carretera inundada.
+      `Because` introduce la explicación de la situación o la decisión.
+    examples:
+      - text: We stayed inside because the road was flooded.
+        meaning: "`We stayed inside` presenta la acción. `Because the road was flooded` aporta su motivo. En
+          este ejemplo, tras `because` hay una oración completa con sujeto, `the road`, y verbo,
+          `was`."
+        note: >-
+          `Because of the flood` expresa un motivo parecido mediante un sintagma nominal: `We stayed
+          inside because of the flood`. Distingue las dos estructuras; `because of the road was
+          flooded` las mezcla incorrectamente.
+
+
+          **Practica.** Explica que saliste temprano porque estabas cansado. Respuesta: `I left
+          early because I was tired`. Lo que sigue a `because` explica por completo el motivo de la
+          salida.
+  - subskill_id: consequences
+    explanation: Una consecuencia cuenta lo que se produjo a partir de una situación. Si el autobús
+      estaba lleno, quizá caminar fue tu respuesta. Relacionar los dos hechos ayuda a comprender la
+      decisión, en lugar de oír solo dos sucesos separados.
+    examples:
+      - text: The bus was full, so we walked.
+        meaning: "`The bus was full` presenta la situación. `So` introduce el resultado, `we walked`. En
+          esta estructura, el motivo va primero y la respuesta después. Ambos verbos sitúan el
+          relato en el pasado."
+        note: >-
+          Compara `We walked because the bus was full`: ahora el motivo aparece después de la
+          acción. `The bus was full, and we walked` enumera los hechos sin hacer tan explícita su
+          relación.
+
+
+          **Practica.** Relaciona el cierre de una cafetería con comprar comida en otro lugar.
+          Respuesta: `The café was closed, so we bought food elsewhere`. `So` marca la segunda
+          acción como consecuencia de la primera situación.
+  - subskill_id: conditions
+    explanation: Una condición hace depender un plan de lo que suceda. Al decidir dónde comer, la lluvia
+      puede determinar si usáis una mesa en el interior. Puedes hablar de ese futuro posible sin
+      afirmar que lloverá con seguridad.
+    examples:
+      - text: If it rains, we will eat indoors.
+        meaning: "`If it rains` presenta la condición. `We will eat indoors` indica qué haréis si se cumple.
+          En esta estructura abierta de futuro, `rains` tiene forma de presente aunque la lluvia aún
+          no haya sucedido. `Will` aparece en el resultado."
+        note: >-
+          Normalmente no añadas `will` a esta condición: aquí se usa `If it rains`, no la forma
+          incorrecta `If it will rain`. Puedes invertir el orden: `We will eat indoors if it rains`.
+
+
+          **Practica.** Haz que tomar el autobús dependa de llegar tarde. Respuesta: `If we are
+          late, we will take the bus`. `Are` presenta la condición futura; `will take` expresa el
+          plan resultante.
+  - subskill_id: contrast
+    explanation: Un contraste reúne dos hechos que llevan una decisión en distintas direcciones. Una
+      ruta más larga puede requerir más tiempo, pero su seguridad quizá compense. `But` permite ver
+      que el segundo hecho matiza el primero.
+    examples:
+      - text: The route is longer, but it is safer.
+        meaning: "`The route is longer` expresa una desventaja. `But it is safer` añade una ventaja; `it` se
+          refiere a la misma ruta. Tanto `longer` como `safer` la comparan con otra ruta conocida
+          por la conversación."
+        note: >-
+          `And` solo añadiría otro hecho. `Although the route is longer, it is safer` expresa el
+          contraste de otra manera. En esta construcción, evita duplicar el enlace como en el
+          incorrecto `Although the route is longer, but it is safer`.
+
+
+          **Practica.** Contrasta el tamaño pequeño de una habitación con su comodidad. Respuesta:
+          `The room is small, but it is comfortable`. `But` indica que el tamaño no impide la
+          cualidad positiva.
+  - subskill_id: supporting_claims
+    explanation: Apoyar una afirmación da a otra persona motivos para creerla. Si alguien pregunta si
+      una tienda está abierta, describir a los clientes que ves resulta más útil que repetir tu
+      conclusión. El apoyo debe guardar relación con esa afirmación concreta.
+    examples:
+      - text: The shop is open; I can see customers inside.
+        meaning: "`The shop is open` expresa la conclusión. `I can see customers inside` da la observación
+          en que se basa. `Inside` sitúa a los clientes dentro de la tienda. El punto y coma vincula
+          dos afirmaciones completas y relacionadas."
+        note: >-
+          La observación respalda la conclusión sin demostrarla: puede quedar gente dentro después
+          del cierre. Si tienes menos certeza, di `I think the shop is open; I can see customers
+          inside`. Ajusta la seguridad a lo que realmente sabes.
+
+
+          **Practica.** Apoya con una observación directa la afirmación de que llueve. Respuesta:
+          `It is raining; I can see drops hitting the window`. La segunda afirmación aporta una
+          prueba pertinente.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored Spanish localization of current english guide; principal target examples,
+        source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-spanish-2026-10-07
+        scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+          original english constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

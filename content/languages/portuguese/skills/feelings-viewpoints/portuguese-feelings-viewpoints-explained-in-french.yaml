@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: feelings_viewpoints
+explanation_language: french
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-french.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: "Vous souhaitez acquérir une compétence en cuisine. `Quero aprender a fazer pão` enchaîne deux
+      actions : `quero` exprime le souhait et `aprender a fazer` signifie « apprendre à faire ». Le `a`
+      appartient à la construction `aprender a` devant un autre infinitif. Le sujet de `quero` est la personne
+      qui parle, sans être écrit. `Quero aprender a nadar` reprend le modèle pour la natation. Souhaiter
+      apprendre ne promet pas que vous suivrez effectivement un cours."
+    examples:
+      - text: Quero aprender a fazer pão.
+        meaning: Je veux apprendre à faire du pain.
+        note: Dites que vous voulez apprendre à faire de la soupe. `Quero aprender a fazer sopa.` garde `quero
+          aprender a fazer` et remplace la chose préparée par `sopa`.
+  - subskill_id: preferences
+    explanation: Vous aimez cuisiner en général, mais choisissez la fabrication du pain. `Gosto de cozinhar, mas
+      prefiro fazer pão` associe un goût et une préférence. `Gostar` prend `de` devant ce qu’on aime, ici
+      l’infinitif `cozinhar` ; `gosto` correspond à la personne qui aime. `Prefiro` signifie « je préfère » et
+      introduit directement `fazer pão`, sans `de`. `Mas` oppose le goût général à l’activité favorite. `Gosto
+      de ler, mas prefiro escrever` suit le même modèle.
+    examples:
+      - text: Gosto de cozinhar, mas prefiro fazer pão.
+        meaning: J’aime cuisiner, mais je préfère faire du pain.
+        note: "Préférez faire de la soupe tout en aimant cuisiner. `Gosto de cozinhar, mas prefiro fazer sopa.` est
+          complet : `de` reste après `gosto`, tandis que `prefiro` précède directement `fazer`."
+  - subskill_id: emotions
+    explanation: Vous venez de voir le résultat d’un projet et en êtes satisfait. `Estou contente com o resultado`
+      emploie `estou`, première personne du présent de `estar`, pour décrire votre état actuel. `Contente`
+      signifie « content » et a la même forme pour un homme ou une femme au singulier ; `com o resultado`
+      nomme ce qui suscite le sentiment. Il s’agit d’une émotion, pas d’une preuve que le résultat est
+      objectivement bon. `Estou preocupado com o resultado` remplace la satisfaction par l’inquiétude ; cet
+      adjectif peut varier selon la personne.
+    examples:
+      - text: Estou contente com o resultado.
+        meaning: Je suis content du résultat.
+        note: Dites que la nouvelle vous réjouit. `Estou contente com a notícia.` donne le sentiment et son objet ;
+          `com a notícia` remplace `com o resultado`.
+  - subskill_id: opinions
+    explanation: Dans une discussion sur la bibliothèque, vous pensez que davantage de tables seraient utiles.
+      `Acho que a biblioteca precisa de mais mesas` introduit votre avis par `acho que`, « je pense que ».
+      Après `que`, `a biblioteca` est le sujet, `precisa de` signifie « a besoin de » et `mais mesas` « plus
+      de tables ». Le `de` appartient à `precisar de` devant l’objet nécessaire. Vous donnez un avis, sans
+      demander qu’on répète des paroles mal entendues.
+    examples:
+      - text: Acho que a biblioteca precisa de mais mesas.
+        meaning: Je pense que la bibliothèque a besoin de plus de tables.
+        note: Dites qu’elle a besoin de plus de chaises. `Acho que a biblioteca precisa de mais cadeiras.` garde le
+          cadre d’opinion et le `de` requis, en remplaçant les tables par des chaises.
+  - subskill_id: agreement_disagreement
+    explanation: "Quelqu’un propose de fermer la bibliothèque le samedi et vous vous y opposez. `Não concordo com
+      essa ideia` place `não` avant `concordo` pour nier l’accord ; `com essa ideia` désigne la proposition
+      rejetée. `Concordar com` relie l’accord à une personne ou à une idée. Le contexte importe : `essa ideia`
+      renvoie à une idée déjà exprimée."
+    examples:
+      - text: Não concordo com essa ideia.
+        meaning: Je ne suis pas d’accord avec cette idée.
+        note: Acceptez plutôt la proposition. `Concordo com essa ideia.` est une réponse complète à l’idée connue ;
+          retirer `não` inverse la position, tandis que `com` continue de la relier à la proposition.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -109,7 +109,7 @@ it('labels local daily limits as disabled while retaining usage counts', async (
 it('keeps email masked until clicked, hides it again and supports account inspection', async () => {
   const user = { id: 'google:123456789012345678901', email_label: 'l•••r@e•••d', effective_limit_micros: 500000, daily_limit_micros: null,
     admin_revision: 0, token_version: 0, created_at: '2026-09-01T12:00:00Z', last_seen: '2026-10-01T22:38:14Z', last_inference_at: '2026-10-05T10:00:00Z',
-    usage: { micros: 1000, micros_credit: 0, tokens: 20 }, usage_90_days_micros: 20000,
+    usage: { micros: 1000, micros_credit: 0, tokens: 20 }, usage_90_days_micros: 20000, usage_24_hours_micros: 12000, usage_7_days_micros: 18000,
     admission: { requests: 5, diagnostics_requests: 2, diagnostics_requests_credit: 0 } }
   const original = vi.mocked(fetch).getMockImplementation()!
   vi.mocked(fetch).mockImplementation(async (...args) => {
@@ -127,6 +127,11 @@ it('keeps email masked until clicked, hides it again and supports account inspec
   expect(document.querySelector('#users thead')!.textContent).toContain('Last inference request (UTC)')
   expect(document.querySelector('#users tbody')!.textContent).toContain('01 Oct 2026')
   expect(document.querySelector('#users tbody')!.textContent).toContain('05 Oct 2026')
+  expect(document.querySelector('#users [data-sort-key=used]')!.textContent).toContain('UTC day (USD)')
+  expect(document.querySelector('#users [data-sort-key=rolling-day]')!.querySelectorAll('.column-heading-line')).toHaveLength(2)
+  expect(document.querySelector('#users [data-sort-key=rolling-week]')!.textContent).toContain('Past 7 days (USD)')
+  expect(document.querySelector('#users tbody')!.textContent).toContain('$0.012000')
+  expect(document.querySelector('#users tbody')!.textContent).toContain('$0.018000')
   const idToggle = document.querySelectorAll('#users .identity-toggle')[1]
   fireEvent.click(idToggle)
   await waitFor(() => expect(idToggle.textContent).toBe(user.id))

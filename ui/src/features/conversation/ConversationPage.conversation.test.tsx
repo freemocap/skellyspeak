@@ -329,29 +329,39 @@ it('opens the conversation list from the chat header and lets the coach cover th
   view.unmount()
   media.mockRestore()
 })
-it('keeps difficulty beside the partner where the header has room, and hands it to the settings sheet on phones', async () => {
-  const wide = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
-  await waitFor(() => expect(watches).toHaveLength(1))
-  await act(async () => watches[0].resolve(snapshot()))
-  expect(within(document.querySelector<HTMLElement>('.chat-head')!).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
-  expect(within(screen.getByRole('dialog', { name: 'Conversation settings' })).queryByRole('combobox', { name: 'Difficulty' })).toBeNull()
-  wide.unmount()
-  // Narrow: the header is one row, so the select is the first thing in the sheet.
+it('keeps difficulty in the one-row header while it fits there at any window width, and moves it to the settings sheet only while the row has no room', async () => {
+  // A phone-width window whose header still has room: the select stays beside the partner.
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    const phone = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
-    await waitFor(() => expect(watches).toHaveLength(2))
-    await act(async () => watches[1].resolve(snapshot()))
-    expect(within(document.querySelector<HTMLElement>('.chat-head')!).queryByRole('combobox', { name: 'Difficulty' })).toBeNull()
+    const roomy = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot()))
+    const head = document.querySelector<HTMLElement>('.chat-head')!
+    expect(head).toHaveAttribute('data-fit', 'full')
+    expect(within(head).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
-    const sheet = screen.getByRole('dialog', { name: 'Conversation settings' })
-    const group = within(sheet).getByRole('region', { name: 'Difficulty' })
-    expect(within(group).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
-    expect(group.parentElement!.firstElementChild).toBe(group)
-    phone.unmount()
+    expect(within(screen.getByRole('dialog', { name: 'Conversation settings' })).queryByRole('region', { name: 'Difficulty' })).toBeNull()
+    roomy.unmount()
   } finally {
     media.mockRestore()
+  }
+  // A wide window whose header is too short for the partner and the select side
+  // by side (the coach panel takes the rest): the select leads the settings sheet.
+  const width = vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockImplementation(function (this: Element) {
+    return this.matches('.conversation-identity') && !this.closest('.chat-head')?.getAttribute('data-fit')?.includes('difficulty-in-settings') ? 400 : 0
+  })
+  try {
+    const tight = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(2))
+    await act(async () => watches[1].resolve(snapshot()))
+    expect(document.querySelector('.chat-head')).toHaveAttribute('data-fit', 'difficulty-in-settings')
+    fireEvent.click(screen.getByRole('button', { name: 'Conversation settings' }))
+    const group = within(screen.getByRole('dialog', { name: 'Conversation settings' })).getByRole('region', { name: 'Difficulty' })
+    expect(within(group).getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
+    expect(group.parentElement!.firstElementChild).toBe(group)
+    tight.unmount()
+  } finally {
+    width.mockRestore()
   }
 })
 it('puts the recording panel’s divider on the panel’s own edge, with the row above it outside the panel', async () => {

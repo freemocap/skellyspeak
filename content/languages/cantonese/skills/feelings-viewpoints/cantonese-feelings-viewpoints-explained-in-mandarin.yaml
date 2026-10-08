@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: cantonese
+skill_id: feelings_viewpoints
+explanation_language: mandarin
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 烘焙课听起来很吸引人，你想说出希望学会的技能。`想` 放在活动前引出愿望；`學` 加上学习这一步，并没有声称你已经会做。
+    examples:
+      - text: 我想學整麵包。
+        meaning: 我想学做面包。`我` 指说话人，`想學` 意为想学习，`整麵包` 意为制作面包。几个词把想要、学习和制作串起来；三个动作都由同一个人完成。
+        note: 试一试：改为想学做饭。答案：`我想學煮飯。` 把活动换成 `煮飯`。`我識整麵包` 表示已经会做；`我想學整麵包` 只表达学习的愿望，并没有说已经报名或作出承诺。
+  - subskill_id: preferences
+    explanation: 有人请你选饮料时，你可以比较自己更喜欢哪种饮用活动。`鍾意` 表示喜欢，`多過` 把较喜欢的活动放在较不喜欢的选择前。
+    examples:
+      - text: 我鍾意飲茶多過飲咖啡。
+        meaning: 比起喝咖啡，我更喜欢喝茶。`我鍾意` 表示我喜欢，`飲茶` 是喝茶，`飲咖啡` 是喝咖啡。这里 `多過` 意为比……更喜欢；因为比较的是跟在 `鍾意` 后面的两项活动，它不是在数杯子。
+        note: 试一试：改为更喜欢咖啡。答案：`我鍾意飲咖啡多過飲茶。` 对换两个活动。`我鍾意飲茶` 只表达喜欢喝茶，没有与咖啡排序；作比较时，`多過` 后还需要另一个选择。
+  - subskill_id: emotions
+    explanation: 好消息让今天成为开心的一天。`開心` 这样的感受词可以直接描述人；`好` 表示程度，不需要另加一个表示“是”的词。
+    examples:
+      - text: 我今日好開心。
+        meaning: 我今天很开心。`我` 指感受的人，`今日` 给出今天，`好開心` 说出愉快的心情。时间放在感受前。`好` 常使肯定描述听起来自然；具体有多强，取决于语境和重读。
+        note: 试一试：说你们今天很开心。答案：`我哋今日好開心。` 把 `我` 换成 `我哋`；感受词没有人称或复数词尾。`我今日唔開心` 在 `開心` 前用 `唔` 表示不开心，而不保留肯定的 `好`。
+  - subskill_id: opinions
+    explanation: 大家在比较解决问题的方法，你提出对其中一种的评价。`我覺得` 引出你的想法；后面的描述说清你的判断。
+    examples:
+      - text: 我覺得呢個辦法幾好。
+        meaning: 我觉得这个办法挺好。`呢個辦法` 指这个方法：`呢` 指向它，`個` 是量词。`幾好` 意为相当好；这里 `幾` 表示程度。它修饰评价词 `好`，所以不是在问数量。
+        note: 试一试：评价这个办法挺有用。答案：`我覺得呢個辦法幾有用。` 把 `好` 换成 `有用`。`呢個辦法有三個步驟` 只是报告有三个步骤；表达意见的句式则说明你怎样评价它。
+  - subskill_id: agreement_disagreement
+    explanation: 你听懂了一个提议，却仍不赞成。答话可以先承认自己理解，再表明不同意，把两种回应分开。
+    examples:
+      - text: 我明你嘅意思，不過我唔同意。
+        meaning: 我明白你的意思，但我不同意。`我明` 表示我明白；`你嘅意思` 是你的意思，`嘅` 把人和意思连起来。`不過` 引出转折，`唔同意` 把否定词放在表示赞同的 `同意` 前。
+        note: 试一试：代表大家表达不同意。答案：`我哋明你嘅意思，不過我哋唔同意。` 两处说话人的主语都改成 `我哋`。若要改为同意，`我明你嘅意思，我同意。` 去掉拒绝，也不再需要表示转折的 `不過`。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - cuhk_cantonese_grammar20261005
+    - cuhkCantoneseFoundationsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Cantonese constructions, not independent translation validation.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - cuhk_cantonese_grammar20261005
+        - cuhkCantoneseFoundationsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Cantonese constructions, not independent translation validation.

@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-portuguese-2026-10-07
+skill_id: reasons_connections
+explanation_language: portuguese
+title: Razões e conexões
+introduction: Relacione ideias explicando razões, resultados, condições e diferenças.
+sections:
+  - subskill_id: causes_reasons
+    title: Causas e razões
+    concept: Explique por que algo acontece ou por que alguém faz algo.
+  - subskill_id: consequences
+    title: Consequências
+    concept: Explique o que acontece como resultado.
+  - subskill_id: conditions
+    title: Condições
+    concept: Explique o que precisa acontecer para que outro resultado seja possível.
+  - subskill_id: contrast
+    title: Contraste
+    concept: Mostre como duas ideias diferem ou por que um resultado é inesperado.
+  - subskill_id: supporting_claims
+    title: Justificar uma afirmação
+    concept: Apresente razões ou evidências para sustentar o que você pensa.
+provenance:
+  origin: ai
+  authorship: AI-authored Portuguese localization of shared English teaching concepts. Skill
+    identities and assessment criteria unchanged. Source references inherited from the English
+    edition; they do not independently validate this translation.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-portuguese-2026-10-07
+    scope: Entire Portuguese localization; independent linguistic review pending.

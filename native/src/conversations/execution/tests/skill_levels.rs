@@ -45,7 +45,7 @@ fn upgrades_preserve_actual_skill_awards_and_claims_from_both_supported_formats(
             progression::snapshot(&store, "spanish").unwrap()["profile"]["credits"].clone();
         store
             .connection
-            .execute_batch("DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
+            .execute_batch("DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
             .unwrap();
         store
             .connection

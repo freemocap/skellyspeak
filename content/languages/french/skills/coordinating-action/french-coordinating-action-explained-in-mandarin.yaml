@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: coordinating_action
+language: french
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 一把笨重椅子挡住门口，访客于是请人挪开。`Pourriez-vous` 意为您能否，使请求更委婉；`déplacer cette chaise` 说出挪动这把椅子的动作。问句中的连字符连接动词与
+      `vous`。`S’il vous plaît` 加上请。`pourriez-vous` 后的动作动词保留不定式：`Pourriez-vous fermer la porte ?`
+      请求做另一件事。对熟人，`Tu peux déplacer cette chaise ?` 是较直接的日常请求；`vous` 也可称呼多人。
+    examples:
+      - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+        meaning: 能请您挪开这把椅子吗？
+        note: 试着礼貌地请人打开窗户。一种答案是 `Pourriez-vous ouvrir la fenêtre, s’il vous plaît ?`。保留 `pourriez-vous`，把动作改成 `ouvrir
+          la fenêtre`；`ouvrir` 仍是不定式。
+  - subskill_id: offers_invitations
+    explanation: 朋友计划星期六去市场，并邀请你同行。`Tu veux` 问你想不想，`venir` 意为来；`avec nous` 把说话人这组人包括进来。`Samedi`
+      给出日期。随意交谈中，陈述句形状的句子可以凭上扬语调成为问句。`Tu veux venir au cinéma avec nous ?` 保留邀请结构，改了目的地。这是给对方选择，比直接说 `Viens
+      avec nous !` 更温和。
+    examples:
+      - text: Tu veux venir au marché avec nous samedi ?
+        meaning: 星期六你想和我们一起去市场吗？
+        note: 改为邀请熟悉的朋友星期日同行。`Tu veux venir au marché avec nous dimanche ?` 可用：只改变日期。若称呼对方为 `vous`，开头改成 `Vous voulez
+          venir`。
+  - subskill_id: suggestions
+    explanation: 大家在决定午餐去哪里吃，有人提出车站附近的一处地点。`On` 在这里指我们，`pourrait` 提出选项，而不是宣布已定计划。`Déjeuner` 意为吃午饭；`près de la
+      gare` 说明在车站附近。`pourrait` 后动词保持不定式，例如 `On pourrait manger dehors.`。相比之下，`On va déjeuner près de la gare.`
+      宣布大家打算去那里吃。条件式形式给讨论留出空间。
+    examples:
+      - text: On pourrait déjeuner près de la gare.
+        meaning: 我们可以在车站附近吃午饭。
+        note: 改为建议在外面吃。`On pourrait manger dehors.` 是一种答案：`manger dehors` 取代原提议的活动，而没有把它变成承诺。
+  - subskill_id: commitments
+    explanation: 大家在分配用餐准备工作，其中一人负责带盘子。`D’accord` 表示接受安排。`J’apporterai` 意为我会带来；`les assiettes` 指盘子。`apporterai`
+      的将来时词尾对应 `je`，后者在元音前缩成 `j’`。`Nous apporterons` 把承担者改为我们。在这个情境里，将来时表达接下任务；`Je pourrais apporter les
+      assiettes.` 只提出可能的贡献。
+    examples:
+      - text: D’accord, j’apporterai les assiettes.
+        meaning: 好的，我会带盘子。
+        note: 承诺带杯子。`D’accord, j’apporterai les verres.` 可用，因为将来时动词保留了承担任务的意思，`les verres` 改变了物品。
+  - subskill_id: accepting_declining
+    explanation: 即使无法赴约，也应明确回应邀请。`Merci pour l’invitation` 表示感谢，`mais` 引出拒绝。`Je ne pourrai pas venir` 意为我无法来：`ne`
+      与 `pas` 夹住将来时形式 `pourrai`，`venir` 保持不定式。这句话以无法参加为理由。`Je ne veux pas venir` 则是说不想去，可能不够委婉。接受时可以简单说
+      `Merci, je viendrai avec plaisir.`
+    examples:
+      - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+        meaning: 感谢邀请，但我无法前来。
+        note: 以不能留下为由婉拒。`Merci, mais je ne pourrai pas rester.` 保留将来的无法做到，把 `venir` 换成表示留下的 `rester`。
+  - subskill_id: negotiating_plans
+    explanation: 星期五与你的日程不合，于是提出星期六继续商量。`Ne me convient pas` 意为不适合我；`me` 指出受影响的是谁的日程。`Est-ce que samedi vous irait
+      ?` 问星期六是否适合对方。这里 `irait` 是 `aller` 表示适合的条件式，不是字面上的旅行。礼貌的 `vous` 对比熟人之间 `Est-ce que samedi t’irait ?` 的
+      `te`。另一种问法是 `Samedi vous convient ?`
+    examples:
+      - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+        meaning: 星期五我不方便。星期六您方便吗？
+        note: 保留礼貌称呼，改提星期日。`Est-ce que dimanche vous irait ?` 可用：提议的日期改变，`vous irait` 仍在询问听话人的空闲情况。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+    - texQuestionsTeaching20261007
+    - tex_modals2026
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+      constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_conditional2026
+        - waystage_language_functions
+        - texQuestionsTeaching20261007
+        - tex_modals2026
+        - oqlfMealsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - tex_conditional2026
+        - waystage_language_functions
+        - texQuestionsTeaching20261007
+        - tex_modals2026
+        - oqlfMealsTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original French
+          constructions, not independent translation validation.
+variety_sections:
+  french-canada:
+    - subskill_id: requests
+      explanation: 一把笨重椅子挡住门口，访客于是请人挪开。`Pourriez-vous` 意为您能否，使请求更委婉；`déplacer cette chaise` 说出挪动这把椅子的动作。问句中的连字符连接动词与
+        `vous`。`S’il vous plaît` 加上请。`pourriez-vous` 后的动作动词保留不定式：`Pourriez-vous fermer la porte ?`
+        请求做另一件事。对熟人，`Tu peux déplacer cette chaise ?` 是较直接的日常请求；`vous` 也可称呼多人。
+      examples:
+        - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+          meaning: 能请您挪开这把椅子吗？
+          note: 试着礼貌地请人打开窗户。一种答案是 `Pourriez-vous ouvrir la fenêtre, s’il vous plaît ?`。保留 `pourriez-vous`，把动作改成 `ouvrir
+            la fenêtre`；`ouvrir` 仍是不定式。
+    - subskill_id: offers_invitations
+      explanation: 朋友计划星期六去市场，并邀请你同行。`Tu veux` 问你想不想，`venir` 意为来；`avec nous` 把说话人这组人包括进来。`Samedi`
+        给出日期。随意交谈中，陈述句形状的句子可以凭上扬语调成为问句。`Tu veux venir au cinéma avec nous ?` 保留邀请结构，改了目的地。这是给对方选择，比直接说 `Viens
+        avec nous !` 更温和。
+      examples:
+        - text: Tu veux venir au marché avec nous samedi ?
+          meaning: 星期六你想和我们一起去市场吗？
+          note: 改为邀请熟悉的朋友星期日同行。`Tu veux venir au marché avec nous dimanche ?` 可用：只改变日期。若称呼对方为 `vous`，开头改成 `Vous voulez
+            venir`。
+    - subskill_id: suggestions
+      explanation: 大家在决定早餐去哪里吃，有人提出车站附近的一处地点。`On` 在这里指我们，`pourrait` 提出选项，而不是宣布已定计划。`Déjeuner` 在这里意为吃早餐；`près de la
+        gare` 说明在车站附近。`pourrait` 后动词保持不定式，例如 `On pourrait manger dehors.`。相比之下，`On va déjeuner près de la
+        gare.` 宣布大家打算去那里吃。条件式形式给讨论留出空间。
+      examples:
+        - text: On pourrait déjeuner près de la gare.
+          meaning: 我们可以在车站附近吃早餐。
+          note: 改为建议在外面吃。`On pourrait manger dehors.` 是一种答案：`manger dehors` 取代原提议的活动，而没有把它变成承诺。
+    - subskill_id: commitments
+      explanation: 大家在分配用餐准备工作，其中一人负责带盘子。`D’accord` 表示接受安排。`J’apporterai` 意为我会带来；`les assiettes` 指盘子。`apporterai`
+        的将来时词尾对应 `je`，后者在元音前缩成 `j’`。`Nous apporterons` 把承担者改为我们。在这个情境里，将来时表达接下任务；`Je pourrais apporter les
+        assiettes.` 只提出可能的贡献。
+      examples:
+        - text: D’accord, j’apporterai les assiettes.
+          meaning: 好的，我会带盘子。
+          note: 承诺带杯子。`D’accord, j’apporterai les verres.` 可用，因为将来时动词保留了承担任务的意思，`les verres` 改变了物品。
+    - subskill_id: accepting_declining
+      explanation: 即使无法赴约，也应明确回应邀请。`Merci pour l’invitation` 表示感谢，`mais` 引出拒绝。`Je ne pourrai pas venir` 意为我无法来：`ne`
+        与 `pas` 夹住将来时形式 `pourrai`，`venir` 保持不定式。这句话以无法参加为理由。`Je ne veux pas venir` 则是说不想去，可能不够委婉。接受时可以简单说
+        `Merci, je viendrai avec plaisir.`
+      examples:
+        - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+          meaning: 感谢邀请，但我无法前来。
+          note: 以不能留下为由婉拒。`Merci, mais je ne pourrai pas rester.` 保留将来的无法做到，把 `venir` 换成表示留下的 `rester`。
+    - subskill_id: negotiating_plans
+      explanation: 星期五与你的日程不合，于是提出星期六继续商量。`Ne me convient pas` 意为不适合我；`me` 指出受影响的是谁的日程。`Est-ce que samedi vous irait
+        ?` 问星期六是否适合对方。这里 `irait` 是 `aller` 表示适合的条件式，不是字面上的旅行。礼貌的 `vous` 对比熟人之间 `Est-ce que samedi t’irait ?` 的
+        `te`。另一种问法是 `Samedi vous convient ?`
+      examples:
+        - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+          meaning: 星期五我不方便。星期六您方便吗？
+          note: 保留礼貌称呼，改提星期日。`Est-ce que dimanche vous irait ?` 可用：提议的日期改变，`vous irait` 仍在询问听话人的空闲情况。

@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: coordinating_action
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-portuguese.yaml
+sections:
+  - subskill_id: requests
+    explanation: Se uma sala está fria, você pode pedir a outra pessoa que feche a porta. Uma pergunta
+      com `poder` é uma forma familiar de pedir uma ação. Aqui você quer que a pessoa faça algo, não
+      está avaliando sua capacidade física.
+    examples:
+      - text: ¿Puedes cerrar la puerta, por favor?
+        meaning: “Você pode fechar a porta, por favor?” `Puedes` dirige-se informalmente a uma pessoa,
+          `cerrar` indica a ação e `la puerta` seu objeto. `Por favor` acrescenta cortesia. Depois
+          de `puedes`, a ação permanece no infinitivo.
+        note: "**Adapte.** `¿Puede cerrar la puerta, por favor?` dirige-se a uma pessoa tratada por `usted`.
+          `¿Puedes abrir la puerta?` pede a ação oposta. A cortesia também depende do tom e da
+          situação. **Pratique.** Peça informalmente que alguém abra a janela, usando `abrir la
+          ventana`. Resposta: `¿Puedes abrir la ventana, por favor?`. Mantenha a ação na forma de
+          dicionário."
+  - subskill_id: offers_invitations
+    explanation: Convidar alguém para jantar lhe dá a oportunidade de participar. Uma pergunta com
+      `querer` verifica se a pessoa deseja vir. A situação transforma uma pergunta sobre vontade em
+      convite e permite aceitação ou recusa.
+    examples:
+      - text: ¿Quieres venir a cenar?
+        meaning: "“Gostaria de vir jantar?” `Quieres` pergunta se a pessoa quer, `venir` significa vir, e `a
+          cenar` indica a finalidade: jantar. O convite se dirige informalmente a uma pessoa."
+        note: "**Adapte.** `¿Quieres venir a comer?` convida para uma refeição com `comer`. `¿Quieres
+          cenar?` pergunta se a pessoa quer jantar sem convidá-la expressamente a vir a algum lugar.
+          **Pratique.** Convide alguém para vir caminhar usando `pasear`. Resposta: `¿Quieres venir
+          a pasear?`. Mantenha `venir a` e troque a atividade."
+  - subskill_id: suggestions
+    explanation: Ao planejar um passeio, você pode apresentar uma opção. `Podemos` seguido de uma
+      atividade pode sugerir algo que vocês fariam juntos. Apresenta um plano possível, não uma
+      ordem nem um acordo já fechado.
+    examples:
+      - text: Podemos ir mañana.
+        meaning: “Poderíamos ir amanhã.” `Podemos` inclui quem fala no grupo; `ir` significa ir e `mañana`
+          indica o dia. Numa conversa de planejamento, essa frase oferece amanhã como opção.
+        note: "**Compare.** `Tenemos que ir mañana` diz que vocês precisam ir amanhã, acrescentando uma
+          obrigação. `Podemos ir hoy` mantém a sugestão e troca o dia. **Pratique.** Sugira comer
+          aqui usando `comer aquí`. Resposta: `Podemos comer aquí`. Mude a atividade depois de
+          `podemos`, mantendo-a no infinitivo."
+  - subskill_id: commitments
+    explanation: Quando alguém precisa contar com você, uma promessa explícita esclarece sua
+      responsabilidade. Dizer o que acontecerá no futuro pode apenas descrever um plano; `prometo`
+      informa que você se compromete a fazê-lo.
+    examples:
+      - text: Te prometo que voy a llamarte.
+        meaning: “Prometo que vou ligar para você.” `Te` identifica quem recebe a promessa. `Prometo que`
+          apresenta o prometido; `voy a llamarte` diz que você vai ligar. O `te` final de `llamarte`
+          identifica a pessoa que receberá a ligação.
+        note: "**Adapte.** `Voy a llamarte` apresenta um plano sem promessa explícita. A mesma ligação pode
+          ser expressa por `Te voy a llamar`: o pronome objeto também pode vir antes do verbo
+          conjugado. **Pratique.** Prometa ligar amanhã. Resposta: `Te prometo que voy a llamarte
+          mañana`. Acrescente o tempo sem mudar quem faz nem quem recebe a promessa."
+  - subskill_id: accepting_declining
+    explanation: Um convite não exige resposta longa. Se você não pode participar, um breve pedido de
+      desculpas seguido da recusa torna a resposta clara sem revelar detalhes privados. O convite já
+      informa a atividade omitida na resposta.
+    examples:
+      - text: Lo siento, no puedo.
+        meaning: “Desculpe, não posso.” `Lo siento` é um pedido de desculpas convencional; `no puedo`
+          informa que você não pode realizar a atividade proposta. Depois de um convite para jantar,
+          a pessoa entende que você não poderá ir ao jantar.
+        note: "**Compare.** `Sí, gracias` aceita o convite. `No quiero` indica falta de vontade, motivo
+          diferente de incapacidade. Você pode explicitar a recusa com `No puedo ir`. **Pratique.**
+          Recuse o convite e diga que não pode ir hoje. Resposta: `Lo siento, hoy no puedo ir`.
+          `Hoy` informa o tempo e `ir` nomeia a ação omitida."
+  - subskill_id: negotiating_plans
+    explanation: Quando um horário proposto não serve, outro horário ajuda a avançar até um acordo.
+      Primeiro você pode nomear o impedimento e depois oferecer uma alternativa possível. As duas
+      partes indicam o que deve mudar.
+    examples:
+      - text: A las seis no puedo; ¿quedamos a las siete?
+        meaning: “Não posso às seis; podemos nos encontrar às sete?” `A las seis` identifica o horário
+          indisponível, e `no puedo` explica o impedimento. `¿Quedamos a las siete?` propõe o
+          encontro às sete; `quedamos` inclui as duas pessoas.
+        note: "**Adapte.** `¿Nos vemos a las siete?` também propõe um encontro às sete. Apenas `No puedo`
+          rejeita o horário sem oferecer alternativa. A pergunta continua sendo proposta até a outra
+          pessoa concordar. **Pratique.** Você não pode às sete; sugira oito. Resposta: `A las siete
+          no puedo; ¿quedamos a las ocho?`. Ponha primeiro o horário recusado e depois o novo na
+          pergunta."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

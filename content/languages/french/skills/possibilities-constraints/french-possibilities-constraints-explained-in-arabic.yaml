@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: possibilities_constraints
+language: french
+explanation_language: arabic
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-arabic.yaml
+sections:
+  - subskill_id: ability
+    explanation: تحتاج دراجة إلى إصلاح، وأنت تعلمت المهارة اللازمة. تعني `Je sais` أنني أعرف كيف؛ وتعني
+      `réparer une roue de vélo` إصلاح عجلة دراجة. تعبّر `Savoir` متبوعةً بالمصدر عن معرفة مهارة
+      مكتسبة؛ ولا يحتاج فعل العمل هنا إلى `de`. وقد تصف `Je peux réparer la roue` بدلًا من ذلك قدرتك
+      في الظروف الحالية، مثل توفر الأدوات والوقت. تغيّر `Nous savons réparer` من يملك المهارة مع
+      إبقاء المصدر.
+    examples:
+      - text: Je sais réparer une roue de vélo.
+        meaning: أعرف كيف أصلح عجلة دراجة.
+        note: "قل إن مجموعتك تعرف كيف تصلح دراجة. تصلح `Nous savons réparer un vélo.`: تطابق `savons` الضمير
+          `nous`، وتظل `réparer` تصف المهارة المكتسبة."
+  - subskill_id: permission
+    explanation: الغرفة دافئة، لكن فتح نافذتها يؤثر في الآخرين، فتطلب الإذن. تقدّم `Est-ce que` السؤال؛
+      وتعني `je peux` هل يجوز لي أو هل أستطيع، وتسمّي `ouvrir la fenêtre` الفعل المقترح. يجعل السياق
+      السؤالَ طلب إذن لا اختبار قدرة بدنية. يمكن لـ`Vous pouvez ouvrir la fenêtre` أن تمنح الإذن.
+      ويرفضه رد منفي `Vous ne pouvez pas ouvrir la fenêtre`؛ إذ تحيط `ne` و`pas` بالفعل المصرف.
+    examples:
+      - text: Est-ce que je peux ouvrir la fenêtre ?
+        meaning: هل يجوز لي فتح النافذة؟
+        note: "اطلب الإذن بإغلاق الباب. تصلح `Est-ce que je peux fermer la porte ?`: يبقى إطار الإذن، وتقدّم
+          عبارة المصدر الفعل الجديد."
+  - subskill_id: obligation
+    explanation: تغادر غرفة مستأجرة، ويُلزمك إرجاع المفاتيح قبل الظهر. تعني `Nous devons` «علينا»؛ وتعني
+      `rendre les clés` إعادة المفاتيح، وتحدد `avant midi` آخر موعد. تطابق `Devons` الضمير `nous`،
+      بينما تبقى `rendre` في المصدر. تقول `Nous ne devons pas garder les clés` إنه يجب ألا نحتفظ
+      بها. ولا تعني أننا غير ملزمين بالاحتفاظ بها؛ ويمكن التعبير عن عدم الضرورة بـ`Nous n’avons pas
+      besoin de garder les clés.`
+    examples:
+      - text: Nous devons rendre les clés avant midi.
+        meaning: علينا إعادة المفاتيح قبل الظهر.
+        note: "وجّه الإلزام إلى شخص تخاطبه بـ`vous`. تصلح `Vous devez rendre les clés avant midi.`: يتغير
+          الفاعل وصيغة `devoir` المطابقة له فقط."
+  - subskill_id: possibility
+    explanation: التوقع الجوي غير مؤكد، فتقول إن الثلج قد يهطل الليلة. تعني `Il va neiger` «ستثلج»؛
+      وضمير الطقس `il` لا يشير إلى شخص. تعني `Peut-être` «ربما» وتُبقي التنبؤ غير مؤكد. وتحدد `Cette
+      nuit` هذه الليلة. ويمكن أيضًا بدء الجملة بـ`Peut-être qu’il va neiger cette nuit.` ومن دون
+      `peut-être` يعرض `Il va neiger cette nuit` توقعًا أكثر جزمًا. تحمل كلمة الشك شرطة، وتختلف عن
+      كلمتين منفصلتين بمعنى «يمكن أن يكون».
+    examples:
+      - text: Il va peut-être neiger cette nuit.
+        meaning: قد تثلج الليلة.
+        note: "اجعل التوقع غير المؤكد نفسه عن المطر. تصلح `Il va peut-être pleuvoir cette nuit.`: تحل
+          `pleuvoir` محل حدث الطقس وتبقى في المصدر بعد `va`."
+  - subskill_id: certainty
+    explanation: تحققت للتو من شباك الخدمة، فتقول بثقة إنه مغلق. تعني `Je suis certaine que` «أنا متأكدة
+      من أن»؛ وتقدّم `le guichet est fermé` الواقعة. وتقول `Je viens de vérifier` إنك تحققت للتو،
+      فتبيّن أساس الثقة. `Certaine` صيغة التأنيث التي تصف المتحدثة؛ وصيغة التذكير هي `certain`.
+      تطابق `Fermé` الاسم المذكر `guichet` لا المتحدثة. تجعل `Je pense que` القول أقل تصريحًا
+      باليقين.
+    examples:
+      - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
+        meaning: أنا متأكدة من أن الشباك مغلق؛ لقد تحققت للتو.
+        note: "أبقِ الواقعة المتحقق منها مع متحدث بصيغة المذكر. تصلح `Je suis certain que le guichet est
+          fermé : je viens de vérifier.`: تتغير `certain` وحدها لأن الشباك والتحقق لم يتغيرا."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - tex_modals2026
+    - tex_conditional2026
+    - texRecentPastTeaching20261007
+    - texNearFutureTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

@@ -24,7 +24,7 @@ fn fidelity_default_preserves_other_data_and_rolls_back_on_failure() {
         let tables: Vec<String> = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name!='ai_config' ORDER BY name").unwrap().query_map([], |r| r.get(0)).unwrap().map(|r| r.unwrap()).collect();
         let history: Vec<_> = tables.iter().map(|t| rows(&db, t)).collect();
         assert!(
-            run_chain(&mut db, 53, 54, STEPS, |_| Err(AppError::new(
+            run_chain(&mut db, 53, 54, &STEPS[..9], |_| Err(AppError::new(
                 ErrorCode::Storage,
                 "injected"
             )))
@@ -32,7 +32,7 @@ fn fidelity_default_preserves_other_data_and_rolls_back_on_failure() {
         );
         assert_eq!(version(&db), 53);
         assert_eq!(rows(&db, "ai_config"), before);
-        run_chain(&mut db, 53, 54, STEPS, validate_current_schema).unwrap();
+        run_chain(&mut db, 53, 54, &STEPS[..9], v52_speech_default::validate).unwrap();
         for (table, expected) in tables.iter().zip(&history) {
             assert_eq!(&rows(&db, table), expected, "{table}");
         }
@@ -71,7 +71,7 @@ fn fidelity_upgrade_covers_every_supported_start_and_later_choices_survive() {
             speech_model(&fresh.connection)
         );
         assert_eq!(speech_model(&store.connection), "eleven_v4_turbo");
-        assert_eq!(version(&store.connection), 54);
+        assert_eq!(version(&store.connection), SCHEMA_VERSION);
         assert_eq!(rows(&store.connection, "effort_awards"), awards);
         assert_eq!(rows(&store.connection, "saved_topics"), topics);
         let settings = rows(&store.connection, "ai_config");

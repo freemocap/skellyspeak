@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: people_places
+explanation_language: spanish
+shared_explanation: skills/people-places/people-places-explained-in-spanish.yaml
+sections:
+  - subskill_id: identification
+    explanation: Presentar a un vecino informa de quién es la persona y de cómo la conoces. `这是` inicia
+      una identificación; `我的邻居` expresa la relación en vez de describir una cualidad.
+    examples:
+      - text: 这是我的邻居。
+        meaning: "**El ejemplo.** Este es mi vecino. `这` señala a esta persona, `是` la vincula con la
+          expresión que la identifica y `邻居` significa vecino. `我的` significa mi: el poseedor o la
+          persona relacionada va antes de `的` y el sustantivo va después."
+        note: "Prueba a presentar al vecino de la otra persona. Respuesta: `这是你的邻居。` Sustituye `我` por `你`
+          antes de `的`. `这是我姐姐` también presenta una relación; los términos de familiares cercanos
+          como `姐姐`, hermana mayor, aparecen a menudo sin `的`."
+  - subskill_id: qualities_states
+    explanation: Al elegir una ruta para transportar algo voluminoso, importa la anchura del camino. `窄`
+      expresa directamente que es estrecho. En esta descripción corriente, `很` hace natural la
+      afirmación con adjetivo sin necesariamente enfatizar que sea muy estrecho.
+    examples:
+      - text: 这条路很窄。
+        meaning: "**El ejemplo.** Este camino es estrecho. `这条路` significa este camino: `这` lo señala, `条`
+          es su clasificador y `路` significa camino. `很窄` expresa la cualidad. No hay `是` entre el
+          camino y esta descripción neutra con adjetivo."
+        note: "Prueba a decir que este camino es ancho. Respuesta: `这条路很宽。` Sustituye `窄` por `宽`, ancho.
+          Para decir que no es estrecho, usa `这条路不窄`; `不` precede al adjetivo en vez de conservar
+          `很`."
+  - subskill_id: location_movement
+    explanation: Cuando alguien no encuentra la llave, indicar su posición ayuda a recuperarla. `在`
+      vincula la llave con una ubicación. El objeto de referencia va antes de la palabra de
+      posición, por lo que la mesa se menciona antes de indicar encima.
+    examples:
+      - text: 钥匙在桌子上。
+        meaning: "**El ejemplo.** La llave está sobre la mesa. `钥匙` significa llave, `桌子`, mesa, y `上`,
+          sobre o encima; juntos, `桌子上` significa sobre la mesa. `在桌子上` indica dónde está la llave,
+          no un movimiento hacia la mesa."
+        note: "Prueba a situar la llave debajo de la mesa. Respuesta: `钥匙在桌子下。` Sustituye `上` por `下`,
+          debajo. En `把钥匙放在桌子上`, pon la llave sobre la mesa, `放` añade una acción de colocar; la
+          oración original solo describe la ubicación."
+  - subskill_id: possession_relations
+    explanation: Antes de organizar los asientos, decir cuántas sillas tienes aclara los recursos
+      disponibles. `有` expresa posesión y el número y el clasificador preceden al objeto contado.
+    examples:
+      - text: 我有两把折叠椅。
+        meaning: "**El ejemplo.** Tengo dos sillas plegables. `我有` significa tengo, `两` es dos en esta
+          expresión de cantidad, `把` es el clasificador para sillas aquí y `折叠椅` significa silla
+          plegable. El sustantivo no recibe una terminación adicional de plural."
+        note: "Prueba a decir que tienes tres sillas plegables. Respuesta: `我有三把折叠椅。` Sustituye `两` por `三`
+          y conserva `把`. Aquí `把` cuenta sillas; en `把椅子搬到门口`, mueve la silla hasta la entrada,
+          introduce el objeto que se traslada."
+  - subskill_id: quantity_comparison
+    explanation: Si una caja es más fácil de llevar, comparar su peso ayuda a asignarla. `比` introduce
+      la otra caja antes de la cualidad comparada; `一点` después de la cualidad dice que la
+      diferencia es pequeña.
+    examples:
+      - text: 这个箱子比那个轻一点。
+        meaning: "**El ejemplo.** Esta caja es un poco más ligera que aquella. `这个箱子` significa esta caja,
+          `比那个`, en comparación con aquella, `轻`, ligera, y `一点`, un poco. `那个` representa la otra
+          caja porque ya se sabe que se habla de cajas."
+        note: "Prueba a decir que esta caja es un poco más pesada. Respuesta: `这个箱子比那个重一点。` Sustituye `轻`
+          por `重`; conserva la comparación y la diferencia pequeña. Para expresar igualdad de peso,
+          `这个箱子和那个一样重` dice que esta caja y aquella pesan lo mismo, en vez de comparar una
+          diferencia."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

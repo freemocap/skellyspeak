@@ -47,6 +47,21 @@ pub(super) fn require_files(files: &BTreeMap<String, String>) -> Result<()> {
 
 pub(super) fn validate_file(files: &BTreeMap<String, String>, path: &str) -> Result<()> {
     match path {
+        path if crate::language::reading::preloaded::registered(path) => {
+            crate::language::reading::preloaded::validate_document_shape(&files[path]).map_err(
+                |cause| {
+                    error(
+                        path,
+                        "reading_preload",
+                        format!(
+                            "{} Diagnostics: {}",
+                            cause.message,
+                            cause.diagnostics.unwrap_or(serde_json::Value::Null)
+                        ),
+                    )
+                },
+            )?;
+        }
         "policies/guide-authoring.yaml" => {
             let _: guide_policy::GuidePolicy = parse(files, path)?;
         }
@@ -98,4 +113,26 @@ pub(super) fn validate_file(files: &BTreeMap<String, String>, path: &str) -> Res
         _ => return Err(error(path, "unknown_file", "Unknown content file.")),
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod preload_tests {
+    use super::*;
+
+    #[test]
+    fn reading_package_requires_registered_path_and_valid_shape() {
+        let mut files = BTreeMap::new();
+        let path = "reading/preload-pilot.json";
+        files.insert(path.into(), "{invalid".into());
+        let failure = validate_file(&files, path).unwrap_err();
+        assert_eq!(failure.code, "reading_preload");
+        assert!(failure.message.contains("preload_decode"));
+        assert!(!failure.message.contains("{invalid"));
+        assert_eq!(
+            validate_file(&files, "reading/unregistered.json")
+                .unwrap_err()
+                .code,
+            "unknown_file"
+        );
+    }
 }

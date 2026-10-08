@@ -1,0 +1,137 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: feelings_viewpoints
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Depois de um dia corrido, talvez você queira descansar em vez de fazer outra atividade.
+      `Querer` seguido de infinitivo expressa o que você deseja fazer. Nomeia um desejo; a frase não
+      promete, por si só, que você o realizará.
+    examples:
+      - text: Quiero descansar.
+        meaning: “Quero descansar.” `Quiero` identifica o desejo de quem fala; `descansar` nomeia a
+          atividade. Apenas o primeiro verbo se flexiona conforme a pessoa; a atividade fica no
+          infinitivo.
+        note: "**Adapte.** `Ella quiere descansar` descreve o desejo dela. `Voy a descansar` apresenta o
+          descanso como plano. Não flexione os dois verbos na forma `quiero descanso`. **Pratique.**
+          Diga que quer comer usando `comer`. Resposta: `Quiero comer`. Mantenha `quiero` para eu e
+          substitua o infinitivo."
+  - subskill_id: preferences
+    explanation: Conversar sobre livros de que você gosta revela seus gostos. Com `gustar`, o espanhol
+      organiza a frase em torno daquilo que agrada; um pronome identifica quem gosta. O verbo
+      concorda com o que agrada.
+    examples:
+      - text: Me gustan estos libros.
+        meaning: “Gosto destes livros.” `Me` identifica a pessoa a quem eles agradam. `Gustan` está no
+          plural porque `estos libros`, estes livros, é plural. Os livros são o sujeito gramatical,
+          embora na tradução portuguesa o sujeito implícito seja quem gosta.
+        note: "**Adapte.** `Me gusta este libro` menciona um livro só, portanto o verbo fica no singular.
+          `Me gusta leer` diz que você gosta de ler; uma atividade no infinitivo também usa o
+          singular `gusta`. **Pratique.** Diga que gosta destes filmes usando `estas películas`.
+          Resposta: `Me gustan estas películas`. Faça `gustan` concordar com os filmes no plural,
+          não com `me`."
+  - subskill_id: emotions
+    explanation: Se um amigo pergunta como você está, um adjetivo com `estar` pode nomear seu estado
+      emocional. O adjetivo concorda com a pessoa cujo sentimento descreve. Aqui quem fala está
+      contente ou feliz.
+    examples:
+      - text: Estoy contenta.
+        meaning: “Estou feliz.” `Estoy` se refere ao estado de quem fala. `Contenta` é o adjetivo feminino
+          singular; quem usa concordância masculina diz `contento`. A terminação descreve a pessoa,
+          não a causa da felicidade.
+        note: "**Compare.** `Estoy triste` indica tristeza; `triste` tem a mesma forma para concordância
+          masculina e feminina. `Soy una persona alegre` descreve uma disposição alegre, não apenas
+          um sentimento atual. **Pratique.** Use concordância masculina para dizer que está feliz.
+          Resposta: `Estoy contento`. Mude a terminação do adjetivo e mantenha `estoy`."
+  - subskill_id: opinions
+    explanation: Ao discutir um plano, você pode apresentar seu julgamento sem atribuí-lo a todos. `Creo
+      que` introduz o que você pensa. A oração seguinte contém a opinião, como a avaliação da ideia
+      proposta.
+    examples:
+      - text: Creo que es una buena idea.
+        meaning: “Acho que é uma boa ideia.” `Creo` significa acho, `que` liga o verbo à opinião, e `es una
+          buena idea` avalia a proposta. `Buena` concorda com o substantivo feminino `idea`.
+        note: "**Adapte.** `Creo que es una mala idea` muda a avaliação. Para expressar dúvida, e não
+          crença, diga `No creo que sea una buena idea`. Nessa expressão de dúvida, use o subjuntivo
+          `sea`, não `es`. **Pratique.** Diga que acha útil usando `útil`. Resposta: `Creo que es
+          útil`. Mantenha `que` ligando a oração opinativa."
+  - subskill_id: agreement_disagreement
+    explanation: Duas pessoas podem entender uma proposta e ainda discordar. `Estar de acuerdo` expressa
+      concordância; `no` antes do verbo expressa discordância. A expressão responde à opinião em
+      discussão.
+    examples:
+      - text: No estoy de acuerdo.
+        meaning: “Não concordo.” `No` nega `estoy`, que identifica quem fala. `De acuerdo` é a expressão de
+          concordância. A frase marca uma posição diferente, mas não fornece, por si só, um motivo.
+        note: "**Adapte.** `Estoy de acuerdo contigo` significa concordo com você. `No estoy de acuerdo con
+          el plan` identifica a proposta rejeitada. Mantenha `de` na expressão e use `con` antes da
+          pessoa ou proposta. **Pratique.** Concorde com o plano usando `el plan`. Resposta: `Estoy
+          de acuerdo con el plan`. Tire `no` e acrescente aquilo com que concorda."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesStemChangesTeaching20261007
+        - yepesGustarTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesStemChangesTeaching20261007
+    - yepesGustarTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

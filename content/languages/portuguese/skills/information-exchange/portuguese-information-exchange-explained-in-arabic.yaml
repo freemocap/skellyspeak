@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: information_exchange
+explanation_language: arabic
+shared_explanation: skills/information-exchange/information-exchange-explained-in-arabic.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: "تحتاج إلى معرفة وقت فتح المكتبة قبل زيارتها غدًا. تسأل `A que horas a biblioteca abre
+      amanhã?` عن الساعة: تعني `a que horas` في أي ساعة، و`a biblioteca` هي الفاعل، وتعني `abre`
+      تفتح، و`amanhã` غدًا. يمكن أن يبقى الفاعل قبل الفعل في هذا السؤال بالبرتغالية البرازيلية؛ ولا
+      تُضاف أداة مساعدة تقابل «do» الإنجليزية. وعلى خلاف ذلك تقترح `A biblioteca abre às oito?`
+      الثامنة للتأكيد، ولا تسأل عن وقت مجهول."
+    examples:
+      - text: A que horas a biblioteca abre amanhã?
+        meaning: في أي ساعة تفتح المكتبة غدًا؟
+        note: "اسأل عن وقت الإغلاق غدًا. الإجابة: `A que horas a biblioteca fecha amanhã?` وهو سؤال مفتوح
+          كامل؛ تحل `fecha` محل `abre` وتبقى `a que horas` سائلة عن الساعة المجهولة."
+  - subskill_id: answering_information
+    explanation: سأل شخص للتو عن موعد فتح المكتبة. تجيب `Às oito` «في الثامنة» من دون تكرار الجملة كلها.
+      `Às` اختصار لحرف الزمن `a` وأداة التعريف للجمع `as` قبل `oito horas`؛ ويمكن حذف كلمة «ساعات»
+      حين تُفهم. ينجح هذا الرد القصير لأن السؤال السابق يحدد ما يحدث في ذلك الوقت. أما بمفرده فلا
+      يحدد وقت فتح أي مكان.
+    examples:
+      - text: Às oito.
+        meaning: في الثامنة.
+        note: "أجب بأن المكتبة تفتح في التاسعة. الإجابة: `Às nove.` وهي كافية بعد السؤال عن وقت الفتح؛ تحل
+          `nove` محل `oito` ويقدم السؤال المشترك بقية المعنى."
+  - subskill_id: checking_facts
+    explanation: سمعت أن المكتبة تفتح في الثامنة وتريد التحقق قبل المغادرة. تذكر `A biblioteca abre às
+      oito, não é?` المعلومة المقترحة أولًا؛ ثم تدعو `não é?` إلى تأكيدها، بمعنى تقريبي «أليس
+      كذلك؟». تحدد `Às oito` الوقت، وتتكون `às` من `a` و`as`. يستطيع المخاطَب تأكيد الثامنة أو
+      تصحيحها. وهذا يختلف عن `A que horas a biblioteca abre?`، الذي يسأل عن وقت من دون اقتراحه.
+    examples:
+      - text: A biblioteca abre às oito, não é?
+        meaning: تفتح المكتبة في الثامنة، أليس كذلك؟
+        note: "تحقق من اقتراح فتح المكتبة في التاسعة. الإجابة: `A biblioteca abre às nove, não é?` فهي تذكر
+          المعلومة المقترحة وتسأل عن تأكيدها؛ وتتغير الساعة إلى `nove` فقط."
+  - subskill_id: useful_detail
+    explanation: "يعرف زائر المبنى لكنه لا يجد مدخله. تعطي `A entrada fica na lateral, ao lado do
+      jardim` علامتين مفيدتين: تحدد `fica` موقع المدخل، وتعني `na lateral` على الجانب، من `em` و`a`؛
+      وتعني `ao lado do jardim` بجانب الحديقة، من `a` و`o` ثم `de` و`o`. تحدد العبارة الثانية أي
+      جانب يبحث فيه. وقد تترك `A entrada fica na lateral` الزائر يبحث؛ وتجعل `ao lado do jardim`
+      الإرشاد عمليًا. لا تفيد الكلمات الإضافية إلا حين تزيل غموضًا حقيقيًا."
+    examples:
+      - text: A entrada fica na lateral, ao lado do jardim.
+        meaning: يقع المدخل على الجانب، بجانب الحديقة.
+        note: "اجعل الحديقة العلامة المكانية الوحيدة. الإجابة: `A entrada fica ao lado do jardim.` وهي ما
+          زالت تحدد موقع المدخل؛ وتوضح `ao lado do` علاقته بالحديقة دون الوصف الأعم للجانب."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

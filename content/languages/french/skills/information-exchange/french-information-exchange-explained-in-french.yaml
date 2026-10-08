@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: information_exchange
+language: french
+explanation_language: french
+shared_explanation: skills/information-exchange/information-exchange-explained-in-french.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Vous avez besoin de l’heure de fermeture du magasin avant de vous déplacer. `À quelle heure`
+      demande un horaire ; `est-ce que` marque la question, et `le magasin ferme` désigne l’événement. Après
+      `est-ce que`, le sujet précède toujours le verbe. `À quelle heure est-ce que le train arrive ?` reprend
+      le modèle pour un autre événement. `Est-ce que le magasin ferme à six heures ?` propose au contraire une
+      heure à confirmer, au lieu de laisser la réponse ouverte.
+    examples:
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: À quelle heure ferme le magasin ?
+        note: "Demandez à quelle heure le magasin ouvre. `À quelle heure est-ce que le magasin ouvre ?` convient :
+          `ouvre` remplace la fermeture par l’ouverture, et la question cherche toujours une heure."
+  - subskill_id: answering_information
+    explanation: "L’heure de fermeture du magasin est déjà le sujet de l’échange : une expression horaire peut
+      donc répondre sans répéter toute la question. `À dix-huit heures` signifie dix-huit heures, soit six
+      heures du soir. `À` introduit l’heure, et `heures` est au pluriel parce qu’il y en a dix-huit. Une
+      réponse complète serait `Le magasin ferme à dix-huit heures.` Dans un horaire ou un rendez-vous précis,
+      le format sur vingt-quatre heures évite la confusion entre matin et soir. Ici, `Dix-huit heures` désigne
+      un moment de la journée, et non une durée de dix-huit heures."
+    examples:
+      - text: À dix-huit heures.
+        meaning: À six heures du soir.
+        note: Répondez que le magasin ferme à dix-neuf heures. `À dix-neuf heures.` suffit lorsque la question sur la
+          fermeture est connue. Sur l’horloge de vingt-quatre heures, `Dix-neuf` correspond à 19 h.
+  - subskill_id: checking_facts
+    explanation: Vous pensez que le rendez-vous est jeudi et voulez le vérifier avant de le noter. `Le
+      rendez-vous` désigne l’événement, et `bien jeudi` présente jeudi comme détail à confirmer. Ici, `bien`
+      renforce le fait proposé ; il ne signifie pas « de bonne manière ». `C’est ça ?` demande confirmation.
+      Cette formulation rend votre hypothèse explicite, contrairement à la question ouverte `Quel jour est le
+      rendez-vous ?` L’autre personne peut confirmer ou corriger le jour.
+    examples:
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: Le rendez-vous est bien jeudi, c’est ça ?
+        note: "Vérifiez si le rendez-vous est mardi. `Le rendez-vous est bien mardi, c’est ça ?` convient : le fait à
+          confirmer devient mardi, mais la forme de confirmation reste la même."
+  - subskill_id: useful_detail
+    explanation: "Un visiteur cherche un café précis ; deux repères l’aident à le trouver. `Le café que tu
+      cherches` désigne le café recherché : `que` représente le café comme objet de `cherches`, tandis que
+      `tu` désigne la personne qui cherche. `Au deuxième étage` indique l’étage et `près de l’escalier` situe
+      le café près de l’escalier. `Au` réunit `à` et `le`. Un café qui sert lui-même à manger pourrait se
+      décrire par `le café qui sert des repas` : `qui` accomplit l’action, alors que `que` la reçoit."
+    examples:
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: Le café que tu cherches se trouve au deuxième étage, près de l’escalier.
+        note: "Situez-le plutôt au troisième étage. `Le café que tu cherches est au troisième étage, près de
+          l’escalier.` convient : `troisième` change l’étage, tandis que `que tu cherches` continue à
+          identifier le café."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - texRelativeTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

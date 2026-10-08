@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: managing_conversation
+explanation_language: spanish
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Al terminar una visita, puedes anunciar que te vas y anticipar otro encuentro. `我先走了`
+      es una despedida natural incluso mientras todavía estás diciendo adiós.
+    examples:
+      - text: 我先走了，下次见！
+        meaning: "**El ejemplo.** Me voy. ¡Hasta la próxima! Aquí `先` significa primero o antes que los
+          demás y `走` significa irse. El `了` final presenta la nueva situación de marcharse; no
+          demuestra que ya te hayas ido. `下次见` significa hasta la próxima."
+        note: "Prueba a despedirte hasta mañana. Respuesta: `我先走了，明天见！` Sustituye `下次` por `明天`. `我昨天走了` se
+          refiere a haberse ido ayer porque `昨天` lo sitúa en el pasado; la despedida original trata
+          de irse ahora."
+  - subskill_id: acknowledging
+    explanation: Después de que alguien explique un procedimiento, puedes mostrar que ahora lo
+      entiendes. `明白了` expresa esa nueva comprensión sin obligarte a estar de acuerdo con todas las
+      opiniones de la explicación.
+    examples:
+      - text: 哦，我明白了。
+        meaning: "**El ejemplo.** Ah, ahora entiendo. `哦` marca que reconoces o comprendes algo, `我`
+          significa yo y `明白`, entender. El `了` final señala el cambio a la comprensión. La
+          respuesta se vincula directamente con la explicación que acabas de oír."
+        note: "Prueba a decir que el grupo ya entiende. Respuesta: `哦，我们明白了。` Cambia `我` por `我们`; la
+          expresión sigue igual. En cambio, `我也这么想` comparte una opinión expresada antes, en vez de
+          limitarse a reconocer que está clara."
+  - subskill_id: clarification
+    explanation: Si no has captado lo que alguien acaba de decir, pedir que lo repita le indica
+      claramente cómo resolver el problema. `再说一遍` pide repetir el mismo enunciado una vez más.
+    examples:
+      - text: 不好意思，请再说一遍。
+        meaning: "**El ejemplo.** Perdona, repítelo, por favor. `不好意思` se disculpa por la interrupción y `请`
+          introduce la petición con cortesía. `再` significa otra vez, `说`, decir, y `一遍` cuenta una
+          repetición completa. Lo dicho anteriormente indica qué se debe repetir."
+        note: "Prueba a pedir que lo lea una vez más. Respuesta: `不好意思，请再读一遍。` Sustituye `说` por `读`, leer.
+          Si has oído las palabras pero no las entiendes, `这是什么意思？` pregunta qué significa esto, en
+          lugar de pedir otra repetición."
+  - subskill_id: rephrasing
+    explanation: La explicación de que las visitas no se pueden concertar al llegar puede reformularse
+      como una necesidad práctica. `换句话说` anuncia otra manera de expresar lo mismo, seguida de lo
+      que debe hacer el grupo.
+    examples:
+      - text: 换句话说，我们得提前预约。
+        meaning: "**El ejemplo.** En otras palabras, tenemos que reservar con antelación. `换句话说` significa
+          dicho de otra manera. `我们得` significa tenemos que, con `得` pronunciado `děi` aquí. `提前`
+          significa con antelación y precede a `预约`, concertar una cita o hacer una reserva."
+        note: "Prueba a aplicar la obligación solo a ti. Respuesta: `换句话说，我得提前预约。` Sustituye `我们` por `我`.
+          Aquí `得` precede a la acción y expresa necesidad; el `得` de tono neutro en `说得很清楚`, hablar
+          con claridad, sigue a un verbo y cumple otra función."
+  - subskill_id: correcting_misunderstanding
+    explanation: La otra persona entendió que proponías el viernes, pero querías decir sábado. Nombrar
+      el día correcto y rechazar el entendido por error corrige el malentendido directamente.
+    examples:
+      - text: 我说的是周六，不是周五。
+        meaning: "**El ejemplo.** Dije sábado, no viernes. `我说的` se refiere a lo que dije; `是周六` lo
+          identifica como sábado. `不是周五` rechaza viernes. Las dos expresiones de día aparecen
+          después de `是` y `不是`, haciendo explícito el contraste."
+        note: "Prueba a corregir el malentendido en sentido contrario. Respuesta: `我说的是周五，不是周六。` Intercambia
+          los días. `我没说周六` solo dice que no dijiste sábado; no aporta el día que querías decir."
+  - subskill_id: turns_topics
+    explanation: Durante una conversación, puedes querer pasar a los planes de la próxima semana.
+      Anunciar la transición y nombrar el tema nuevo ayuda a la otra persona a seguirte. `可以吗`
+      pregunta si le parece bien ese cambio.
+    examples:
+      - text: 我想换个话题，聊聊下周的安排，可以吗？
+        meaning: "**El ejemplo.** Me gustaría cambiar de tema y hablar de los planes de la próxima semana.
+          ¿Te parece bien? `我想` significa me gustaría, `换个话题`, cambiar de tema, y `聊聊`, charlar un
+          poco. `下周的安排` significa los planes de la próxima semana, con el tiempo vinculado a los
+          planes mediante `的`."
+        note: "Prueba a pasar a los planes de mañana. Respuesta: `我想换个话题，聊聊明天的安排，可以吗？` Sustituye `下周` por
+          `明天`. Repetir `聊` da a la charla propuesta un tono ligero y conversacional; limitarse a
+          nombrar otra fecha no anunciaría claramente el cambio de tema."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

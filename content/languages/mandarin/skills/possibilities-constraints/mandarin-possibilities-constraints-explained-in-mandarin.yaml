@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: possibilities_constraints
+explanation_language: mandarin
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-mandarin.yaml
+sections:
+  - subskill_id: ability
+    explanation: 自行车坏了时，大家需要知道谁有修理技能。活动前面的 `会` 在这里表示学会的能力。`我会修自行车` 回答这个实际问题，并没有承诺某个时间一定去修。
+    examples:
+      - text: 我会修自行车。
+        meaning: "**例句。** 我会修自行车。`我` 指说话人，`会` 表示掌握做法，`修` 是修理，`自行车` 是修理的对象。活动放在 `会` 后面，对象跟在 `修` 后面。动词不会因为主语是我或我们而另加词尾。"
+        note: 表示没有这项技能时，`不会` 放在活动前。试着说你们这组人会修自行车。答案：`我们会修自行车。` 把 `我` 换成 `我们`；`会` 和后面的活动不变。`我今天不能修自行车`
+          则表示今天做不到，原因也许是没有时间或工具。
+  - subskill_id: permission
+    explanation: 把包放在别人的空间之前，问有权决定的人，才能确认是否得到允许。`我可以` 引出想做的动作，句末的 `吗` 把陈述变成是非问句。包先于放置动作被提出。
+    examples:
+      - text: 我可以把包放在这里吗？
+        meaning: "**例句。** 我可以把包放在这里吗？`把包` 把要处理的包提前。`放在这里` 表示把它放到此处：`放` 是放置，`在这里` 指放好后的地点。`可以` 放在整个动作前，`吗` 放在句末。"
+        note: 试着改问能否把包放在那里。答案：`我可以把包放在那里吗？` 把 `这里` 换成 `那里`，地点仍跟在 `放在` 后。答应许可时，可以只说 `可以`。`我把包放在这里` 只陈述放包，并没有请求允许。
+  - subskill_id: obligation
+    explanation: 图书馆的截止日期可能使今天还书成为必要。`必须` 说明要求，不是表达愿望。日期放在 `必须` 前，要做的事跟在后面。
+    examples:
+      - text: 我们今天必须还书。
+        meaning: "**例句。** 我们今天必须还书。`我们` 指这组人，`今天` 是当天，`还书` 是把书归还。这里的 `还` 读 `huán`，意为归还，不读表示“仍然”的 `hái`。`必须`
+          管辖后面的还书动作。"
+        note: 试着说今天没有还书的必要。答案：`我们今天不用还书。` `不用` 表示不需要，并不禁止还书。`我们今天不能还书` 则表示今天无法归还，或者在特定情境下不被允许归还。
+  - subskill_id: possibility
+    explanation: 决定要不要出门时，不确定的天气很重要。`可能` 表示下雨只是可能，并非确定的预报。先给出下午这个时间，再说不确定性和天气事件。
+    examples:
+      - text: 下午可能下雨。
+        meaning: "**例句。** 下午可能下雨。`下午` 指午后，`可能` 表示有可能，`下雨` 是雨落下来。普通话这句话不需要另加一个对应英语天气主语 it 的词。"
+        note: 试着把可能下雨的时间改成明天。答案：`明天可能下雨。` 用 `明天` 替换时间，`可能` 仍放在 `下雨` 前。`下午下雨` 直接陈述下雨；`下午可能不下雨` 则表示也许不会下雨。
+  - subskill_id: certainty
+    explanation: 安排明天的工作前，你可能不知道那天是否休息。`不确定` 说明你没有把握，后面的 `是不是` 在这个陈述中列出两种尚未判定的可能。
+    examples:
+      - text: 我不确定明天是不是休息日。
+        meaning: "**例句。** 我不确定明天是不是休息日。`我不确定` 表示我没有把握。`明天` 给出日期，`是不是` 提出是或不是两种选择，`休息日` 指不用工作的日子。两种情况是在被考虑，并未被断言。"
+        note: 试着表达大家都没有把握。答案：`我们不确定明天是不是休息日。` 只把 `我` 换成 `我们`。`明天不是休息日` 直接说那天不是休息日，去掉了不确定性。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

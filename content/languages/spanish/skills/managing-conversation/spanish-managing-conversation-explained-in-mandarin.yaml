@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: managing_conversation
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-mandarin.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 友好的交谈结束时，道别能清楚标出结束。`Hasta luego` 是常见的告别语，含有之后再见的意思，但日常使用并不要求已经约好具体时间。
+    examples:
+      - text: Hasta luego.
+        meaning: “回头见。” `Hasta` 意为直到，`luego` 意为稍后。两词合起来成为惯用的道别语；只逐字翻译，就看不出它用来结束交谈的作用。
+        note: |-
+          **变换用法。** 如果明天再见与当前情境有关，`Hasta mañana` 表示明天见。`Hola` 则用于开始交谈。道别本身并没有约定下次会面的时间。
+
+          **练一练。** 在明天还会见面时结束对话。答案：`Hasta mañana`。把 `luego` 换成预期的日期。
+  - subskill_id: acknowledging
+    explanation: 别人告诉你计划有变，向对方道谢能表示你收到并重视这条消息。西语可以用 `gracias por` 感谢别人做过的一件具体事。这里 `por` 后面的动作使用不定式。
+    examples:
+      - text: Gracias por avisarme.
+        meaning: “谢谢你告诉我。” `Gracias` 表示感谢；`por avisarme` 给出感谢的缘由。`Avisar` 意为通知，附在后面的 `me` 指明被通知的人是说话人。
+        note: |-
+          **变换用法。** `Gracias por ayudarme` 感谢对方帮忙。`Entendido` 只表示已经理解，没有表达谢意。不要把 `por` 后的动作直接改成变位动词。
+
+          **练一练。** 用 `llamarme` 感谢对方给你打电话。答案：`Gracias por llamarme`。附着的 `me` 指接到电话的人。
+  - subskill_id: clarification
+    explanation: 有时每个词都听清了，却仍不明白对方的意思。澄清问句请对方解释本意，能在你误解后作答之前修复对话。
+    examples:
+      - text: ¿Qué quieres decir?
+        meaning: “你是什么意思？” `Qué` 问什么，`quieres` 指听话人，`decir` 意为说。这里整个表达 `querer decir` 询问含义，并非只是在问对方是否想开口说话。
+        note: >-
+          **比较。** `¿Puedes repetirlo?` 请求重复，适用于没听清的情况。`¿Qué significa esta palabra?` 问一个词的意思。疑问词 `qué`
+          的重音符号要保留。
+
+
+          **练一练。** 你听清了一个句子，却不明白本意。问 `¿Qué quieres decir?`。这个问句请求解释，而不只是原样再说一遍。
+  - subskill_id: rephrasing
+    explanation: 第一次解释不清楚时，你可以更直白地重述本意。`Quiero decir que` 引出你实际想说的内容。后面的从句应给出重要细节，消除误会。
+    examples:
+      - text: Quiero decir que llego después de las ocho.
+        meaning: “我的意思是我八点以后到。” `Quiero decir que` 引出解释；`llego` 表示我到达。`Después de las ocho` 把到达时间放在八点以后，而不是恰好八点。
+        note: |-
+          **比较。** `Llego a las ocho` 指八点到。`Llego antes de las ocho` 指八点前到。说 `después` 后面的钟点前，要保留 `de`。
+
+          **练一练。** 澄清自己九点前到。答案：`Quiero decir que llego antes de las nueve`。更换时间短语，保留引出解释的句式。
+  - subskill_id: correcting_misunderstanding
+    explanation: 别人把两个日期弄混时，有效的纠正会同时说出原定日期和听错的日期。`Me refiero a` 引出你真正指的是什么。这样比只说“不”更准确，不必让听话人再猜。
+    examples:
+      - text: No, me refiero al martes, no al jueves.
+        meaning: “不，我说的是星期二，不是星期四。” `No` 否定误解。`Me refiero al martes` 确认星期二是本意；`no al jueves` 排除星期四。`Al` 是 `a` 与 `el`
+          的合成。
+        note: |-
+          **变换用法。** `Me refiero a Ana, no a Luis` 纠正所指的人。介词 `a` 仍在，但这些人名不需要日期前的冠词。
+
+          **练一练。** 把误听的星期四纠正为星期五。答案：`No, me refiero al viernes, no al jueves`。先说原意，再说听错的日子。
+  - subskill_id: turns_topics
+    explanation: 交谈可以转向刚想到的另一件相关的事。`Por cierto` 标明这个转换，让听话人跟上。这里说话人从前一个话题转为询问对方的姐妹；西语没有说明她是姐姐还是妹妹。
+    examples:
+      - text: Por cierto, ¿cómo está tu hermana?
+        meaning: “对了，你姐姐或妹妹怎么样？” `Por cierto` 引出顺带提起的话题；`cómo está` 问她的情况。`Tu hermana` 指对方的姐妹。疑问词 `Cómo` 有重音符号，表示“你的”的
+          `tu` 没有。
+        note: |-
+          **比较。** `¿Dónde está tu hermana?` 问她在哪里，而不是她怎么样。`Por cierto` 标出一个新话题，并不表示某事发生的原因。
+
+          **练一练。** 用 `tu hermano` 顺带问起对方的哥哥或弟弟。答案：`Por cierto, ¿cómo está tu hermano?`。替换人物，保留转换话题的提示和问句。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

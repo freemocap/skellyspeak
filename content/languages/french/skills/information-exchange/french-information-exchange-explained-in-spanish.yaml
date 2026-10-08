@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-spanish-2026-10-07
+skill_id: information_exchange
+language: french
+explanation_language: spanish
+shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Necesitas saber cuándo cierra la tienda antes de ir. `À quelle heure` pregunta a qué
+      hora; `est-ce que` marca la pregunta y `le magasin ferme` significa la tienda cierra. Después
+      de `est-ce que`, el sujeto sigue delante del verbo. `À quelle heure est-ce que le train arrive
+      ?` pregunta por otro suceso con la misma estructura. `Est-ce que le magasin ferme à six heures
+      ?` propone una hora concreta para confirmarla, en vez de dejar abierta la respuesta.
+    examples:
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: ¿A qué hora cierra la tienda?
+        note: "Pregunta a qué hora abre. `À quelle heure est-ce que le magasin ouvre ?` funciona: `ouvre`
+          cambia cierre por apertura y la pregunta sigue solicitando una hora."
+  - subskill_id: answering_information
+    explanation: La hora de cierre ya es el tema, así que basta con una expresión de tiempo sin repetir
+      toda la pregunta. `À dix-huit heures` indica las dieciocho horas, es decir, las seis de la
+      tarde. `À` introduce la hora y `heures` va en plural porque son dieciocho. Una respuesta
+      completa sería `Le magasin ferme à dix-huit heures.` En horarios precisos, el formato de
+      veinticuatro horas evita confundir mañana y tarde. Aquí `Dix-huit heures` indica una hora del
+      día, no una duración.
+    examples:
+      - text: À dix-huit heures.
+        meaning: A las seis de la tarde.
+        note: Responde que cierra a las siete de la tarde. `À dix-neuf heures.` basta cuando se comparte la
+          pregunta. `Dix-neuf` corresponde a diecinueve en el reloj de veinticuatro horas.
+  - subskill_id: checking_facts
+    explanation: Crees que una cita es el jueves y quieres comprobarlo antes de anotarlo. `Le
+      rendez-vous` nombra la cita y `bien jeudi` presenta jueves como dato que deseas confirmar.
+      Aquí `bien` refuerza el dato propuesto, no significa bien. `C’est ça ?` pregunta si es
+      correcto. A diferencia de `Quel jour est le rendez-vous ?`, esta forma explicita lo que crees
+      saber; la otra persona puede confirmarlo o corregir el día.
+    examples:
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: La cita es el jueves, ¿verdad?
+        note: Comprueba si la cita es el martes. `Le rendez-vous est bien mardi, c’est ça ?` funciona porque
+          el dato propuesto pasa a ser martes, con la misma estructura de confirmación.
+  - subskill_id: useful_detail
+    explanation: "Una visita busca una cafetería determinada y dos referencias le ayudan a encontrarla.
+      `Le café que tu cherches` significa la cafetería que buscas: `que` representa la cafetería
+      como objeto de `cherches`, mientras `tu` realiza la búsqueda. `Au deuxième étage` indica la
+      segunda planta y `près de l’escalier`, cerca de la escalera. `Au` combina `à` con `le`. Una
+      cafetería que sirve comidas sería `le café qui sert des repas`: `qui` realiza la acción,
+      mientras `que` la recibe."
+    examples:
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: La cafetería que buscas está en la segunda planta, cerca de la escalera.
+        note: "Sitúala en la tercera planta. `Le café que tu cherches est au troisième étage, près de
+          l’escalier.` funciona: `troisième` cambia la planta y `que tu cherches` sigue
+          identificando la cafetería."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of current french guide; principal target examples,
+    source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - texRelativeTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-spanish-2026-10-07
+    scope: All Spanish explanatory prose, meanings and practice notes; copied source keys support
+      original french constructions, not independent translation validation.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

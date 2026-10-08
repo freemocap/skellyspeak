@@ -1,0 +1,136 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: feelings_viewpoints
+language: french
+explanation_language: arabic
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-arabic.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: "تبدو نزهة مشيًا بعد الغداء ممتعة، لكن المتحدث يعبّر عن رغبة لا عن ترتيب ثابت. تعني
+      `J’ai envie de` أنني أرغب؛ وتعني `marcher un peu` المشي قليلًا، وتحدد `après le déjeuner`
+      الوقت. تحتوي العبارة `avoir`، لذا تتغير الصيغة مع الشخص: `Nous avons envie de marcher.` يبقى
+      الفعل بعد `de` في المصدر. تعلن `Je vais marcher` نيةً مباشرة أكثر؛ ولا تعني الرغبة وحدها أن
+      الخطة محسومة."
+    examples:
+      - text: J’ai envie de marcher un peu après le déjeuner.
+        meaning: أرغب في المشي قليلًا بعد الغداء.
+        note: "عبّر عن رغبة في الراحة بدلًا من ذلك. تصلح `J’ai envie de me reposer un peu après le
+          déjeuner.`: تعني `me reposer` الراحة، وتتضمن `me` العائدة إلى المتحدث."
+  - subskill_id: preferences
+    explanation: تتاح طريقتان للسفر، ويفضل المتحدث القطار في هذه الرحلة. تذكر `Je préfère` التفضيل؛ وتضع
+      `le train à l’avion` الخيار المفضّل أولًا والآخر بعد `à`. تحصر `Pour ce trajet` القول في هذه
+      الرحلة، فلا يلزم أن يصف كل الرحلات. تحمل `L’avion` فاصلة حذف لأن `avion` تبدأ بحرف علة. مجرد
+      الإعجاب بشيء، كما في `J’aime le train`، لا يقارنه صراحةً بخيار آخر.
+    examples:
+      - text: Je préfère le train à l’avion pour ce trajet.
+        meaning: أفضّل القطار على الطائرة في هذه الرحلة.
+        note: "اعكس التفضيل. تصلح `Je préfère l’avion au train pour ce trajet.`: تجمع `au` بين `à` و`le`،
+          ويأتي الخيار المفضّل الآن أولًا."
+  - subskill_id: emotions
+    explanation: تسمع خبرًا سارًا وتصف أثره عليك. تعني `Cette nouvelle` هذا الخبر؛ وتعني `me fait
+      plaisir` أنه يسرّني. تحدد `Me` من يشعر، بينما يطابق `fait` الخبر المفرد. تغيّر `Cette nouvelle
+      nous fait plaisir` الأشخاص المتأثرين إلى «نحن» من غير تغيير `fait`. وفي `Je suis contente` تصف
+      الصفةُ المتحدثة بصيغة المؤنث؛ أما `Je suis content` فبصيغة المذكر.
+    examples:
+      - text: Cette nouvelle me fait plaisir.
+        meaning: يسرّني هذا الخبر.
+        note: "قل إن الخبر يسرّ مجموعتك. الإجابة: `Cette nouvelle nous fait plaisir.` تحل `nous` محل `me`،
+          بينما يبقى الفعل `fait` مع الفاعل المفرد."
+  - subskill_id: opinions
+    explanation: قد لا يناسب ممر ضيق الدراجات، ويعرض المتحدث ذلك حكمًا. تعني `À mon avis` «في رأيي». `Ce
+      chemin` هذا الممر؛ وتعني `trop étroit` ضيقًا أكثر من اللازم، لا مجرد ضيق شديد، وتسمّي `pour
+      les vélos` ما لا يناسبه. تطابق `Étroit` الاسم المذكر `chemin`؛ ولو كان شارعًا لقيل `Cette rue
+      est trop étroite.` تشير البداية إلى وجهة نظر، لكن سببًا مثل ضيق المساحة يجعل مناقشتها أسهل.
+    examples:
+      - text: À mon avis, ce chemin est trop étroit pour les vélos.
+        meaning: في رأيي، هذا الممر أضيق من اللازم لمرور الدراجات.
+        note: احكم على شارع بدل ممر. تصلح `À mon avis, cette rue est trop étroite pour les vélos.` لأن كلًا
+          من `cette` و`étroite` تطابق الاسم المؤنث `rue`.
+  - subskill_id: agreement_disagreement
+    explanation: تقبل سعر الترتيب لكنك لا تزال بحاجة إلى مناقشة تاريخه. تعني `Je suis d’accord` «أوافق»،
+      وتحدد `sur le prix` نقطة الاتفاق. تحذف `Mais pas sur la date` الكلمات المكررة مع إبقاء الخلاف
+      واضحًا. تحدد `D’accord avec vous` الشخص الذي توافقه؛ وتحدد `d’accord sur la date` الموضوع.
+      تمنع الموافقة الجزئية الإيحاء بقبول الترتيب كله.
+    examples:
+      - text: Je suis d’accord sur le prix, mais pas sur la date.
+        meaning: أوافق على السعر، لكن ليس على التاريخ.
+        note: "وافق على التاريخ لا السعر. تصلح `Je suis d’accord sur la date, mais pas sur le prix.`: يعكس
+          تبديل الموضوعين نطاق الموافقة."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - tex_modals2026
+    - waystage_language_functions
+    - texAdjectivesTeaching20261007
+    - texObjectPronounsTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: wants_intentions
+      explanation: "تبدو نزهة مشيًا بعد الإفطار ممتعة، لكن المتحدث يعبّر عن رغبة لا عن ترتيب ثابت. تعني
+        `J’ai envie de` أنني أرغب؛ وتعني `marcher un peu` المشي قليلًا، وتحدد `après le déjeuner`
+        الوقت. تحتوي العبارة `avoir`، لذا تتغير الصيغة مع الشخص: `Nous avons envie de marcher.` يبقى
+        الفعل بعد `de` في المصدر. تعلن `Je vais marcher` نيةً مباشرة أكثر؛ ولا تعني الرغبة وحدها أن
+        الخطة محسومة."
+      examples:
+        - text: J’ai envie de marcher un peu après le déjeuner.
+          meaning: أرغب في المشي قليلًا بعد الإفطار.
+          note: "عبّر عن رغبة في الراحة بدلًا من ذلك. تصلح `J’ai envie de me reposer un peu après le
+            déjeuner.`: تعني `me reposer` الراحة، وتتضمن `me` العائدة إلى المتحدث."
+    - subskill_id: preferences
+      explanation: تتاح طريقتان للسفر، ويفضل المتحدث القطار في هذه الرحلة. تذكر `Je préfère` التفضيل؛ وتضع
+        `le train à l’avion` الخيار المفضّل أولًا والآخر بعد `à`. تحصر `Pour ce trajet` القول في هذه
+        الرحلة، فلا يلزم أن يصف كل الرحلات. تحمل `L’avion` فاصلة حذف لأن `avion` تبدأ بحرف علة. مجرد
+        الإعجاب بشيء، كما في `J’aime le train`، لا يقارنه صراحةً بخيار آخر.
+      examples:
+        - text: Je préfère le train à l’avion pour ce trajet.
+          meaning: أفضّل القطار على الطائرة في هذه الرحلة.
+          note: "اعكس التفضيل. تصلح `Je préfère l’avion au train pour ce trajet.`: تجمع `au` بين `à` و`le`،
+            ويأتي الخيار المفضّل الآن أولًا."
+    - subskill_id: emotions
+      explanation: تسمع خبرًا سارًا وتصف أثره عليك. تعني `Cette nouvelle` هذا الخبر؛ وتعني `me fait
+        plaisir` أنه يسرّني. تحدد `Me` من يشعر، بينما يطابق `fait` الخبر المفرد. تغيّر `Cette
+        nouvelle nous fait plaisir` الأشخاص المتأثرين إلى «نحن» من غير تغيير `fait`. وفي `Je suis
+        contente` تصف الصفةُ المتحدثة بصيغة المؤنث؛ أما `Je suis content` فبصيغة المذكر.
+      examples:
+        - text: Cette nouvelle me fait plaisir.
+          meaning: يسرّني هذا الخبر.
+          note: "قل إن الخبر يسرّ مجموعتك. الإجابة: `Cette nouvelle nous fait plaisir.` تحل `nous` محل `me`،
+            بينما يبقى الفعل `fait` مع الفاعل المفرد."
+    - subskill_id: opinions
+      explanation: قد لا يناسب ممر ضيق الدراجات، ويعرض المتحدث ذلك حكمًا. تعني `À mon avis` «في رأيي». `Ce
+        chemin` هذا الممر؛ وتعني `trop étroit` ضيقًا أكثر من اللازم، لا مجرد ضيق شديد، وتسمّي `pour
+        les vélos` ما لا يناسبه. تطابق `Étroit` الاسم المذكر `chemin`؛ ولو كان شارعًا لقيل `Cette
+        rue est trop étroite.` تشير البداية إلى وجهة نظر، لكن سببًا مثل ضيق المساحة يجعل مناقشتها
+        أسهل.
+      examples:
+        - text: À mon avis, ce chemin est trop étroit pour les vélos.
+          meaning: في رأيي، هذا الممر أضيق من اللازم لمرور الدراجات.
+          note: احكم على شارع بدل ممر. تصلح `À mon avis, cette rue est trop étroite pour les vélos.` لأن كلًا
+            من `cette` و`étroite` تطابق الاسم المؤنث `rue`.
+    - subskill_id: agreement_disagreement
+      explanation: تقبل سعر الترتيب لكنك لا تزال بحاجة إلى مناقشة تاريخه. تعني `Je suis d’accord` «أوافق»،
+        وتحدد `sur le prix` نقطة الاتفاق. تحذف `Mais pas sur la date` الكلمات المكررة مع إبقاء
+        الخلاف واضحًا. تحدد `D’accord avec vous` الشخص الذي توافقه؛ وتحدد `d’accord sur la date`
+        الموضوع. تمنع الموافقة الجزئية الإيحاء بقبول الترتيب كله.
+      examples:
+        - text: Je suis d’accord sur le prix, mais pas sur la date.
+          meaning: أوافق على السعر، لكن ليس على التاريخ.
+          note: "وافق على التاريخ لا السعر. تصلح `Je suis d’accord sur la date, mais pas sur le prix.`: يعكس
+            تبديل الموضوعين نطاق الموافقة."

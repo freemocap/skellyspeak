@@ -1,0 +1,106 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: time_events
+explanation_language: spanish
+shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
+sections:
+  - subskill_id: present_events
+    explanation: "Alguien pregunta qué estás haciendo en la cocina ahora mismo. `Estou preparando a
+      massa do pão` presenta una actividad en curso: `estou` es la primera persona del presente de
+      `estar`, `preparando` es el gerundio de `preparar` y `a massa do pão` es la masa del pan (`do`
+      combina `de` y `o`). En cambio, `Preparo pão toda semana` describiría un hábito. La
+      construcción progresiva se centra en el proceso actual."
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: Estoy preparando la masa del pan.
+        note: Di que estás horneando el pan ahora. `Estou assando o pão.` es la oración completa de
+          actividad en curso; `assando` sustituye a `preparando` como acción que se está realizando.
+  - subskill_id: past_events
+    explanation: "Un amigo pregunta qué hiciste ayer con la bicicleta. `Ontem troquei o pneu da
+      bicicleta` relata una acción pasada y terminada: `ontem` la sitúa ayer, `troquei` significa
+      cambié y `o pneu da bicicleta` identifica el neumático de la bicicleta. `Troquei` es la
+      primera persona del pretérito de `trocar`; la grafía `qu` mantiene el sonido consonántico ante
+      `ei`. El portugués no necesita un auxiliar equivalente a haber para este suceso terminado."
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: Ayer cambié el neumático de la bicicleta.
+        note: Cuenta que ayer cambiaste la cadena de la bicicleta. `Ontem troquei a corrente da bicicleta.`
+          expresa un suceso pasado completo; `troquei` sigue siendo la acción terminada y `a
+          corrente` cambia su objeto.
+  - subskill_id: future_events
+    explanation: "Estás planeando ir mañana a la biblioteca. `Amanhã vou levar os livros à biblioteca`
+      sitúa la acción después del momento actual mediante `amanhã` y `vou levar`: `vou` es el
+      presente de `ir` para yo y `levar` permanece en infinitivo. `À biblioteca` significa a la
+      biblioteca; `à` une la preposición de destino `a` con el artículo femenino `a`. En cambio,
+      `Hoje levo os livros` puede expresar un plan para hoy. Una intención futura no es
+      automáticamente una promesa a otra persona."
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: Mañana voy a llevar los libros a la biblioteca.
+        note: Planea llevar cajas a la biblioteca mañana. `Amanhã vou levar as caixas à biblioteca.` es una
+          oración completa; `vou levar` marca la acción futura prevista y `as caixas` nombra el
+          nuevo objeto.
+  - subskill_id: duration_frequency
+    explanation: "Alguien pregunta cuánto tiempo llevas trabajando en este lugar. `Trabalho aqui há seis
+      meses` significa que empezaste hace seis meses y sigues trabajando aquí: `trabalho` está en
+      presente, `aqui` significa aquí y `há seis meses` mide la duración transcurrida. La forma
+      compuesta portuguesa `tenho trabalhado` suele sugerir una actividad reciente repetida o
+      continuada; no equivale mecánicamente a cualquier expresión de otro idioma que use un tiempo
+      compuesto. En cambio, `Trabalho aqui toda sexta-feira` indica con qué frecuencia, no desde
+      hace cuánto tiempo."
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: Llevo seis meses trabajando aquí.
+        note: Di que llevas dos años trabajando aquí. `Trabalho aqui há dois anos.` es una oración completa;
+          el presente indica que la situación continúa y `há dois anos` expresa su duración.
+  - subskill_id: event_sequence
+    explanation: "Estás explicando los pasos de una receta. `Primeiro misturo a farinha, depois
+      acrescento a água` deja claro su orden: `primeiro` significa primero, `misturo` significa
+      mezclo, `depois` significa después y `acrescento` significa añado. Ambos verbos están en
+      presente y describen el procedimiento. `Depois` dice que una acción sigue a otra; no explica
+      por sí solo por qué ocurre ninguna de ellas."
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: Primero mezclo la harina, después añado el agua.
+        note: "Explica una secuencia razonable para preparar verduras. `Primeiro lavo os legumes, depois
+          corto os legumes.` es una respuesta completa: `primeiro` sitúa el lavado antes del corte y
+          `depois` introduce el siguiente paso."
+  - subskill_id: event_phase
+    explanation: "Alguien pregunta si has terminado de leer el libro. `Já terminei a leitura do livro`
+      dice que se ha alcanzado el final: `já` significa ya, `terminei` significa terminé y `a
+      leitura do livro` nombra la lectura. Aquí el portugués usa un pasado simple, aunque en español
+      también se pueda decir he terminado. Si la lectura continúa, `Ainda estou lendo o livro`
+      expresa la otra fase: `ainda` significa todavía y `estou lendo` presenta la actividad en
+      curso. Las dos respuestas describen fases opuestas de la misma tarea."
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: Ya he terminado de leer el libro.
+        note: Di que ya has terminado de leer el artículo. `Já terminei a leitura do artigo.` expresa la
+          finalización de forma completa; `do artigo` sustituye a `do livro` y `já terminei` marca
+          el final.
+      - text: Ainda estou lendo o livro.
+        meaning: Todavía estoy leyendo el libro.
+        note: Di que todavía estás leyendo el artículo. `Ainda estou lendo o artigo.` es una oración
+          completa para una actividad sin terminar; `ainda` y `estou lendo` muestran continuidad, no
+          finalización.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

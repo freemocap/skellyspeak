@@ -102,7 +102,7 @@ export function LearningPicker() {
         <span className="learning-picker-identity">
           {/* The language's own name, then its name in the interface language; the
               second gives way first where the bar is short of room. */}
-          <span><span lang={selected.languageTag}>{selected.endonym}</span>{translatedName(tr.locale, selected.name) !== selected.endonym
+          <span><span className="learning-picker-endonym" lang={selected.languageTag}>{selected.endonym}</span>{translatedName(tr.locale, selected.name) !== selected.endonym
             && <span className="learning-picker-name"> ({translatedName(tr.locale, selected.name)})</span>}</span>
           <small>{selectedVariety && translatedName(tr.locale, selectedVariety.label)}</small>
         </span>

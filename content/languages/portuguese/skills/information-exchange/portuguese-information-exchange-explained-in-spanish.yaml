@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: information_exchange
+explanation_language: spanish
+shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: "Necesitas saber a qué hora abre la biblioteca antes de visitarla mañana. `A que horas
+      a biblioteca abre amanhã?` pregunta por una hora: `a que horas` significa a qué hora, `a
+      biblioteca` es el sujeto, `abre` significa abre y `amanhã` significa mañana. En esta pregunta
+      del portugués brasileño, el sujeto puede permanecer delante del verbo; no se añade un auxiliar
+      como el inglés do. En cambio, `A biblioteca abre às oito?` propone las ocho para confirmarlo,
+      en vez de pedir una hora desconocida."
+    examples:
+      - text: A que horas a biblioteca abre amanhã?
+        meaning: ¿A qué hora abre la biblioteca mañana?
+        note: Pregunta a qué hora cierra mañana. `A que horas a biblioteca fecha amanhã?` es una pregunta
+          abierta completa; `fecha` sustituye a `abre` y `a que horas` sigue pidiendo la hora
+          desconocida.
+  - subskill_id: answering_information
+    explanation: Alguien acaba de preguntar cuándo abre la biblioteca. `Às oito` responde a las ocho sin
+      repetir toda la oración. `Às` es la contracción de la preposición temporal `a` y el artículo
+      plural `as` delante de `oito horas`; la palabra que significa horas puede omitirse cuando se
+      sobreentiende. Esta respuesta breve funciona porque la pregunta anterior indica qué sucede a
+      esa hora. Por sí sola, no identificaría de qué apertura se habla.
+    examples:
+      - text: Às oito.
+        meaning: A las ocho.
+        note: Responde que abre a las nueve. `Às nove.` basta después de la pregunta sobre la apertura;
+          `nove` sustituye a `oito` y la pregunta compartida aporta el resto.
+  - subskill_id: checking_facts
+    explanation: Has oído que la biblioteca abre a las ocho y quieres comprobarlo antes de salir. `A
+      biblioteca abre às oito, não é?` primero presenta el dato propuesto; después, `não é?` pide
+      confirmación, como ¿verdad? `Às oito` indica la hora, con `às` formado por `a` más `as`. La
+      otra persona puede confirmar o corregir las ocho. Esto se distingue de `A que horas a
+      biblioteca abre?`, que pregunta por una hora sin proponer ninguna.
+    examples:
+      - text: A biblioteca abre às oito, não é?
+        meaning: La biblioteca abre a las ocho, ¿verdad?
+        note: Comprueba si la apertura es a las nueve. `A biblioteca abre às nove, não é?` presenta el dato
+          propuesto y pide confirmación; `nove` es el único cambio de hora.
+  - subskill_id: useful_detail
+    explanation: "Un visitante conoce el edificio, pero no encuentra la entrada. `A entrada fica na
+      lateral, ao lado do jardim` ofrece dos referencias útiles: `fica` sitúa la entrada, `na
+      lateral` significa en el lateral (`em` + `a`) y `ao lado do jardim` significa junto al jardín
+      (`a` + `o`; `de` + `o`). La segunda expresión precisa dónde buscar. `A entrada fica na
+      lateral` todavía podría dejar al visitante buscando; `ao lado do jardim` hace que la
+      indicación resulte práctica. Añadir palabras solo ayuda si resuelve una ambigüedad real."
+    examples:
+      - text: A entrada fica na lateral, ao lado do jardim.
+        meaning: La entrada está en el lateral, junto al jardín.
+        note: Usa el jardín como única referencia. `A entrada fica ao lado do jardim.` sigue situando la
+          entrada; `ao lado do` especifica la relación con el jardín sin la descripción más amplia
+          del lateral.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

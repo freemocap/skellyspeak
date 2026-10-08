@@ -1,0 +1,136 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: time_events
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/time-events/time-events-explained-in-mandarin.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 别人问你的工作时，现在时可以描述目前的就业情况，并不一定表示你此刻正在工作。地点和对话背景能帮助听话人理解所指的情况。
+    examples:
+      - text: Trabajo aquí.
+        meaning: “我在这里工作。” `Trabajo` 是说话人对应 `trabajar` 的现在时形式；`aquí` 意为这里。动词词尾已经表明“我”，所以可以省略
+          `yo`。在工作场所自我介绍时，这句话说明你在哪里工作。
+        note: >-
+          **变换用法。** `Ella trabaja aquí` 把工作人员改为“她”。`Estoy trabajando` 强调工作正在进行。西语也能用简单现在时表示眼下的动作，因此看到英语 -ing
+          形式，并不意味着西语一定要用进行式。
+
+
+          **练一练。** 说你在家工作。答案：`Trabajo en casa`。替换地点，表示“我”的 `trabajo` 不变。
+  - subskill_id: past_events
+    explanation: 讲述昨天去市场购物，通常把这次出行作为一件已完成的事。西语用简单过去式呈现这种视角。其他过去形式可以描述习惯或背景，所以要根据你如何叙述事件选择形式。
+    examples:
+      - text: Ayer fui al mercado.
+        meaning: “昨天我去了市场。” `Ayer` 把事件放在昨天；`fui` 是 `ir` 对应说话人的简单过去式。`Al mercado` 给出目的地，其中 `al` 由 `a` 和 `el`
+          合成。合起来，它们描述一次完成的出行。
+        note: >-
+          **比较。** `Iba al mercado todos los días` 用未完成过去式 `iba` 描述过去的日常习惯。`Fui` 也可能是 `ser`
+          的形式，但这里有目的地，因此“去了”的意思很清楚。
+
+
+          **练一练。** 说她昨天去了市场。答案：`Ayer fue al mercado`。表示“她”时把 `fui` 换成 `fue`，时间和目的地不变。
+  - subskill_id: future_events
+    explanation: 明天的计划指尚未发生的行动。`Ir a` 后接不定式，是表达这类计划的常用方式。`ir` 的形式说明计划属于谁。
+    examples:
+      - text: Mañana voy a cocinar.
+        meaning: “明天我打算做饭。” `Mañana` 是明天；`voy` 指说话人。`A cocinar` 给出计划中的行动。这里 `voy a` 是表示未来的结构，不是说话人正要去某个地方。
+        note: |-
+          **变换用法。** `Ella va a cocinar` 改变做事的人，`cocinar` 仍用不定式。`Cocinaré mañana` 也表达未来。`voy` 和活动之间的 `a` 不可省。
+
+          **练一练。** 用 `estudiar` 说你明天打算学习。答案：`Mañana voy a estudiar`。保留 `voy a`，替换活动。
+  - subskill_id: duration_frequency
+    explanation: 学习习惯可以用练习频率来描述，也可以用每次学习持续多久来描述。这回答的是不同问题。`Todos los días` 给出频率：每天都学，但没有说明每次花几分钟。
+    examples:
+      - text: Estudio español todos los días.
+        meaning: “我每天学习西语。” `Estudio` 指说话人的学习活动；`español` 是学习的语言。`Todos los días` 意为每天。语言名称在这种用法中以小写字母开头。
+        note: >-
+          **比较。** `Estudio español durante una hora` 给出一次学习的时长，而非频率。`Dos veces por semana` 意为每周两次。在惯用的 `todos
+          los días` 中，要保留 `los`。
+
+
+          **练一练。** 说你每周学习西语两次。答案：`Estudio español dos veces por semana`。替换频率短语，不改变学习活动。
+  - subskill_id: event_sequence
+    explanation: 讲述一个晚上的经历时，按顺序排列事件能帮助别人理解故事。`Primero` 标出第一步，`después` 引出后面的事。这些词表示先后，并没有说前一件事导致了后一件。
+    examples:
+      - text: Primero cenamos y después salimos.
+        meaning: 在讲述昨晚的故事时：“我们先吃了晚饭，然后出门了。” `Primero cenamos` 给出第一件事，`y después salimos` 接上后一件。`Cenamos` 和 `salimos`
+          的形式都可能是现在时或简单过去式；周围的故事使这里读作过去。
+        note: |-
+          **比较。** 如果是在商量今晚的计划，同样的词形可以是指未来的现在时。加上 `anoche` 就能明确是过去的晚上。`Por eso` 表示因果结果，而不只是简单的先后。
+
+          **练一练。** 说昨晚先吃了晚饭，后来出门。答案：`Anoche primero cenamos y después salimos`。`Anoche` 明确过去的时间背景。
+  - subskill_id: event_phase
+    explanation: 有人在你摊开书读着的时候打断，可以说明阅读仍在进行。`Estar` 加动名词突出正在进行的活动。动名词是这里使用的动作形式，例如 `leer` 的 `leyendo`。
+    examples:
+      - text: Estoy leyendo.
+        meaning: “我正在读书。” `Estoy` 指说话人，并把活动放在当前；`leyendo` 给出正在进行的动作。动名词不随性别或人数变化。`Estamos leyendo` 表示“我们”，只改变第一个动词。
+        note: |-
+          **比较。** `Leo todos los días` 描述日常习惯。`Ya terminé de leer` 表示已经读完。要表达正在阅读，不能在 `estoy` 后直接放不定式 `leer`。
+
+          **练一练。** 说她正在读书。答案：`Ella está leyendo`。把 `estoy` 换成 `está`，`leyendo` 不变。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesPresentTeaching20261007
+        - yepesPreteriteTeaching20261007
+        - yepesGerundTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesPresentTeaching20261007
+    - yepesPreteriteTeaching20261007
+    - yepesGerundTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

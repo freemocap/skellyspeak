@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: reasons_connections
+language: english
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 原因帮助别人理解某个行动为什么合理。如果朋友问你为什么没出门，你可以把留在室内与道路被淹联系起来。`Because` 引出对情况或选择的解释。
+    examples:
+      - text: We stayed inside because the road was flooded.
+        meaning: "`We stayed inside` 说出行动。`Because the road was flooded` 给出原因。在这个例子中，`because` 后面是完整陈述，包含主语 `the road`
+          和动词 `was`。"
+        note: >-
+          `Because of the flood` 用名词短语给出类似原因：`We stayed inside because of the flood`。两种结构要区分；错误的 `because of
+          the road was flooded` 把它们混在一起。
+
+
+          **练一练。** 解释说自己因疲倦而早走。答案：`I left early because I was tired`。`because` 后面的词完整说明为什么离开。
+  - subskill_id: consequences
+    explanation: 结果说明某种情况之后发生了什么。如果公交车没有空位，步行可能是你们的应对方式。把两个事实连起来，听话人才明白决定，而不只是听到两件无关的事。
+    examples:
+      - text: The bus was full, so we walked.
+        meaning: "`The bus was full` 给出当时情况。`So` 引出结果 `we walked`。在这个句式里，原因先说，应对行动后说。两个动词都把叙述放在过去。"
+        note: >-
+          比较 `We walked because the bus was full`：同一原因现在放在行动后。`The bus was full, and we walked`
+          列出两个事实，但没有同样明确地说出关联。
+
+
+          **练一练。** 把咖啡馆关门与去别处买吃的连起来。答案：`The café was closed, so we bought food elsewhere`。`So`
+          标明第二个行动是第一种情况的结果。
+  - subskill_id: conditions
+    explanation: 条件使计划取决于接下来发生什么。决定在哪里吃饭时，下雨可能决定是否用室内桌子。你可以描述这种未来可能，而不声称一定会下雨。
+    examples:
+      - text: If it rains, we will eat indoors.
+        meaning: "`If it rains` 给出条件。`We will eat indoors` 说明条件成立后的结果。在这种开放的未来句式里，虽然下雨还没发生，`rains` 仍用现在时形式。`Will`
+          放在结果分句中。"
+        note: >-
+          这里通常不要在条件分句加 `will`：例句用 `If it rains`，不用错误的 `If it will rain`。也可以颠倒顺序：`We will eat indoors if it
+          rains`。
+
+
+          **练一练。** 以迟到为条件决定坐公交车。答案：`If we are late, we will take the bus`。`Are` 说出未来条件，`will take` 给出相应计划。
+  - subskill_id: contrast
+    explanation: 对比把两个使决定朝不同方向倾斜的事实放在一起。较长的路线也许费时，但安全性可能让它值得走。`But` 让听话人知道第二点修正了第一印象。
+    examples:
+      - text: The route is longer, but it is safer.
+        meaning: "`The route is longer` 给出缺点。`But it is safer` 增加优点；`it` 仍指同一条路线。`longer` 和 `safer`
+          都把它与讨论中已知的另一条路线比较。"
+        note: >-
+          `And` 只会增加一项事实。`Although the route is longer, it is safer` 是另一种表达对比的方式。这个句式里不要把两个连接语重叠成错误的 `Although
+          the route is longer, but it is safer`。
+
+
+          **练一练。** 对比房间小但舒适。答案：`The room is small, but it is comfortable`。`But` 表明小不妨碍它舒适。
+  - subskill_id: supporting_claims
+    explanation: 提供依据，能让听话人有理由相信一个主张。如果朋友怀疑商店是否营业，描述你看见店里有顾客，比重复结论更有用。依据应与特定主张相关。
+    examples:
+      - text: The shop is open; I can see customers inside.
+        meaning: "`The shop is open` 说出结论。`I can see customers inside` 给出背后的观察。`Inside` 说明顾客在店内。分号把两个意义密切相关的完整陈述连接起来。"
+        note: >-
+          这个观察支持结论，但不能证明它：关门后顾客也可能还在里面。如果没有那么肯定，可以说 `I think the shop is open; I can see customers
+          inside`。表达的把握程度应与已知证据相称。
+
+
+          **练一练。** 用直接观察支持正在下雨的判断。答案：`It is raining; I can see drops hitting the window`。第二句提供相关证据。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - bc_conditionals2026
+        - bcConnectorsTeaching20261007
+        - bbcBecauseTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          English constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - bc_conditionals2026
+    - bcConnectorsTeaching20261007
+    - bbcBecauseTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      English constructions, not independent translation validation.

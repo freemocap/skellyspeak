@@ -34,7 +34,7 @@ fn format_47_preserves_completed_evidence_and_cancels_only_assessment_execution(
     let evidence = rows(&db, "message_assessments");
     let messages = rows(&db, "messages");
     let awards = rows(&db, "effort_awards");
-    run_chain(&mut db, 47, 48, &STEPS[..3], validate_current_schema).unwrap();
+    run_chain(&mut db, 47, 48, &STEPS[..3], v48_assessment::validate).unwrap();
     assert_eq!(version(&db), 48);
     assert_eq!(rows(&db, "message_assessments"), evidence);
     assert_eq!(rows(&db, "messages"), messages);
@@ -80,7 +80,7 @@ fn format_47_preserves_completed_evidence_and_cancels_only_assessment_execution(
         "unknown"
     );
     let after = rows(&db, "attempts");
-    run_chain(&mut db, 48, 48, &STEPS[..3], validate_current_schema).unwrap();
+    run_chain(&mut db, 48, 48, &STEPS[..3], v48_assessment::validate).unwrap();
     assert_eq!(rows(&db, "attempts"), after);
 }
 
@@ -115,7 +115,7 @@ fn malformed_captured_context_is_rejected_without_cancelling_work() {
     let mut db = populated(&dir.path().join("fixture"));
     db.execute("UPDATE turns SET context='[]'", []).unwrap();
     let operations = rows(&db, "operations");
-    assert!(run_chain(&mut db, 47, 48, &STEPS[..3], validate_current_schema).is_err());
+    assert!(run_chain(&mut db, 47, 48, &STEPS[..3], v48_assessment::validate).is_err());
     assert_eq!(version(&db), 47);
     assert_eq!(rows(&db, "operations"), operations);
 }

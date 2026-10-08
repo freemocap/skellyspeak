@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-french-2026-10-07
+skill_id: time_events
+language: french
+explanation_language: french
+shared_explanation: skills/time-events/time-events-explained-in-french.yaml
+sections:
+  - subskill_id: present_events
+    explanation: "Quelqu’un demande ce que vous faites pendant que vous préparez le repas du soir. `Je prépare`
+      est la forme présente ; `le dîner` désigne ici le repas du soir. `En ce moment` situe clairement
+      l’activité à l’instant présent. Le français peut employer ce présent sans temps progressif distinct. `Je
+      prépare le dîner tous les soirs` décrit au contraire une habitude répétée chaque soir. Le verbe peut
+      garder la même forme : c’est l’expression de temps qui oriente la lecture."
+    examples:
+      - text: Je prépare le dîner en ce moment.
+        meaning: Je prépare le repas du soir en ce moment.
+        note: "Dites que votre groupe prépare maintenant le repas. `Nous préparons le dîner en ce moment.` convient :
+          `préparons` s’accorde avec `nous`, et l’expression de temps continue à désigner l’activité en
+          cours."
+  - subskill_id: past_events
+    explanation: Vous vous souvenez de votre départ de la maison alors que la pluie tombait déjà. `Hier` situe le
+      récit la veille. `Il pleuvait` présente la météo en cours à l’imparfait ; `quand nous avons quitté la
+      maison` donne le départ comme événement achevé dans cet arrière-plan. `Avons quitté` associe
+      l’auxiliaire présent `avons` au participe passé `quitté`. `Hier` ne suffit pas à choisir entre ces
+      temps. `Il a plu toute la journée` peut au contraire présenter la pluie d’une journée entière comme un
+      événement délimité, et non comme le fond d’un départ.
+    examples:
+      - text: Hier, il pleuvait quand nous avons quitté la maison.
+        meaning: Hier, il pleuvait quand nous avons quitté la maison.
+        note: "Gardez la pluie en arrière-plan, mais faites partir une seule personne. `Hier, il pleuvait quand j’ai
+          quitté la maison.` convient : la météo reste à l’imparfait et le départ devient `j’ai quitté` pour «
+          je »."
+  - subskill_id: future_events
+    explanation: "Le groupe prévoit de visiter un jardin demain. `Nous allons` est le présent de `aller` pour «
+      nous », mais suivi de `visiter`, il forme une construction future : le groupe va faire cette visite. `Le
+      jardin` nomme le lieu et `demain` situe la visite le lendemain. Seul `aller` change selon le sujet ;
+      `visiter` reste à l’infinitif. `Nous allons au jardin` emploie plutôt `aller` pour le déplacement vers
+      un lieu, sans second verbe. La construction peut annoncer un projet sans signifier que la visite est
+      immédiate."
+    examples:
+      - text: Nous allons visiter le jardin demain.
+        meaning: Nous allons visiter le jardin demain.
+        note: "Exprimez ce projet pour vous seul. `Je vais visiter le jardin demain.` convient : `vais` s’accorde avec
+          `je`, tandis que `visiter` et le jour restent identiques."
+  - subskill_id: duration_frequency
+    explanation: "Vous avez commencé à travailler ici il y a trois mois et vous y travaillez toujours. `Je
+      travaille ici` exprime la situation qui continue ; `depuis trois mois` en mesure la durée du début
+      jusqu’à maintenant. Avec une date de départ, `depuis janvier` signifie que cela dure depuis janvier. Une
+      période terminée peut s’exprimer avec `J’ai travaillé ici pendant trois mois.` La fréquence répond à «
+      combien de fois ? » : `Je travaille ici trois jours par semaine` indique trois jours par semaine. Durée
+      et fréquence donnent deux informations différentes, même si les deux comportent des nombres."
+    examples:
+      - text: Je travaille ici depuis trois mois.
+        meaning: Je travaille ici depuis trois mois.
+        note: "Dites que ce travail toujours en cours a commencé en janvier. `Je travaille ici depuis janvier.`
+          convient : `depuis` introduit maintenant un point de départ au lieu d’une durée chiffrée."
+  - subskill_id: event_sequence
+    explanation: "Vous racontez dans quel ordre votre groupe a organisé un voyage. `D’abord` marque la première
+      étape et `puis` la suivante. `Nous avons acheté les billets` désigne l’achat ; `nous avons choisi nos
+      places` désigne le choix des sièges. Les deux formes associent `avons` à un participe passé : `acheté`
+      vient de `acheter` et `choisi` de `choisir`. `Nos` s’accorde avec le pluriel `places`. Ces mots de
+      liaison indiquent l’ordre sans affirmer à eux seuls qu’un événement a causé l’autre. `Donc` introduirait
+      plutôt une conséquence."
+    examples:
+      - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+        meaning: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+        note: "Inversez l’ordre des deux événements. `D’abord, nous avons choisi nos places, puis nous avons acheté
+          les billets.` convient : les propositions changent de place et conservent chacune leur forme
+          passée."
+  - subskill_id: event_phase
+    explanation: "La cuisine est maintenant rangée, et vous dites que la tâche s’est terminée il y a un instant.
+      `Je viens de` marque le passé récent ; `finir de` indique l’achèvement et `ranger la cuisine` nomme
+      l’activité. Les deux occurrences de `de` appartiennent à deux constructions différentes : toutes deux
+      sont nécessaires. `Finir` et `ranger` sont des infinitifs après leurs constructions respectives. `Je
+      suis en train de ranger la cuisine` dit au contraire que l’activité se poursuit ; `Je commence à ranger`
+      indique son début."
+    examples:
+      - text: Je viens de finir de ranger la cuisine.
+        meaning: Je viens de finir de ranger la cuisine.
+        note: "Dites que vous venez de finir de nettoyer la table. `Je viens de finir de nettoyer la table.` convient
+          : les deux constructions avec `de` restent et seule la dernière activité change."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - tex_past_aspect2026
+    - tex_depuis2026
+    - texNearFutureTeaching20261007
+    - texCompoundPastTeaching20261007
+    - texRecentPastTeaching20261007
+    - oqlfMealsTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1
+variety_sections:
+  french-canada:
+    - subskill_id: present_events
+      explanation: "Quelqu’un demande ce que vous faites pendant que vous préparez le repas de midi. `Je prépare`
+        est la forme présente ; `le dîner` désigne ici le repas de midi. `En ce moment` situe clairement
+        l’activité à l’instant présent. Le français peut employer ce présent sans temps progressif distinct.
+        `Je prépare le dîner tous les jours` décrit au contraire une habitude répétée chaque jour. Le verbe
+        peut garder la même forme : c’est l’expression de temps qui oriente la lecture."
+      examples:
+        - text: Je prépare le dîner en ce moment.
+          meaning: Je prépare le repas de midi en ce moment.
+          note: "Dites que votre groupe prépare maintenant le repas. `Nous préparons le dîner en ce moment.` convient :
+            `préparons` s’accorde avec `nous`, et l’expression de temps continue à désigner l’activité en
+            cours."
+    - subskill_id: past_events
+      explanation: Vous vous souvenez de votre départ de la maison alors que la pluie tombait déjà. `Hier` situe le
+        récit la veille. `Il pleuvait` présente la météo en cours à l’imparfait ; `quand nous avons quitté la
+        maison` donne le départ comme événement achevé dans cet arrière-plan. `Avons quitté` associe
+        l’auxiliaire présent `avons` au participe passé `quitté`. `Hier` ne suffit pas à choisir entre ces
+        temps. `Il a plu toute la journée` peut au contraire présenter la pluie d’une journée entière comme un
+        événement délimité, et non comme le fond d’un départ.
+      examples:
+        - text: Hier, il pleuvait quand nous avons quitté la maison.
+          meaning: Hier, il pleuvait quand nous avons quitté la maison.
+          note: "Gardez la pluie en arrière-plan, mais faites partir une seule personne. `Hier, il pleuvait quand j’ai
+            quitté la maison.` convient : la météo reste à l’imparfait et le départ devient `j’ai quitté` pour
+            « je »."
+    - subskill_id: future_events
+      explanation: "Le groupe prévoit de visiter un jardin demain. `Nous allons` est le présent de `aller` pour «
+        nous », mais suivi de `visiter`, il forme une construction future : le groupe va faire cette visite.
+        `Le jardin` nomme le lieu et `demain` situe la visite le lendemain. Seul `aller` change selon le sujet
+        ; `visiter` reste à l’infinitif. `Nous allons au jardin` emploie plutôt `aller` pour le déplacement
+        vers un lieu, sans second verbe. La construction peut annoncer un projet sans signifier que la visite
+        est immédiate."
+      examples:
+        - text: Nous allons visiter le jardin demain.
+          meaning: Nous allons visiter le jardin demain.
+          note: "Exprimez ce projet pour vous seul. `Je vais visiter le jardin demain.` convient : `vais` s’accorde avec
+            `je`, tandis que `visiter` et le jour restent identiques."
+    - subskill_id: duration_frequency
+      explanation: "Vous avez commencé à travailler ici il y a trois mois et vous y travaillez toujours. `Je
+        travaille ici` exprime la situation qui continue ; `depuis trois mois` en mesure la durée du début
+        jusqu’à maintenant. Avec une date de départ, `depuis janvier` signifie que cela dure depuis janvier.
+        Une période terminée peut s’exprimer avec `J’ai travaillé ici pendant trois mois.` La fréquence répond
+        à « combien de fois ? » : `Je travaille ici trois jours par semaine` indique trois jours par semaine.
+        Durée et fréquence donnent deux informations différentes, même si les deux comportent des nombres."
+      examples:
+        - text: Je travaille ici depuis trois mois.
+          meaning: Je travaille ici depuis trois mois.
+          note: "Dites que ce travail toujours en cours a commencé en janvier. `Je travaille ici depuis janvier.`
+            convient : `depuis` introduit maintenant un point de départ au lieu d’une durée chiffrée."
+    - subskill_id: event_sequence
+      explanation: "Vous racontez dans quel ordre votre groupe a organisé un voyage. `D’abord` marque la première
+        étape et `puis` la suivante. `Nous avons acheté les billets` désigne l’achat ; `nous avons choisi nos
+        places` désigne le choix des sièges. Les deux formes associent `avons` à un participe passé : `acheté`
+        vient de `acheter` et `choisi` de `choisir`. `Nos` s’accorde avec le pluriel `places`. Ces mots de
+        liaison indiquent l’ordre sans affirmer à eux seuls qu’un événement a causé l’autre. `Donc`
+        introduirait plutôt une conséquence."
+      examples:
+        - text: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          meaning: D’abord, nous avons acheté les billets, puis nous avons choisi nos places.
+          note: "Inversez l’ordre des deux événements. `D’abord, nous avons choisi nos places, puis nous avons acheté
+            les billets.` convient : les propositions changent de place et conservent chacune leur forme
+            passée."
+    - subskill_id: event_phase
+      explanation: "La cuisine est maintenant rangée, et vous dites que la tâche s’est terminée il y a un instant.
+        `Je viens de` marque le passé récent ; `finir de` indique l’achèvement et `ranger la cuisine` nomme
+        l’activité. Les deux occurrences de `de` appartiennent à deux constructions différentes : toutes deux
+        sont nécessaires. `Finir` et `ranger` sont des infinitifs après leurs constructions respectives. `Je
+        suis en train de ranger la cuisine` dit au contraire que l’activité se poursuit ; `Je commence à
+        ranger` indique son début."
+      examples:
+        - text: Je viens de finir de ranger la cuisine.
+          meaning: Je viens de finir de ranger la cuisine.
+          note: "Dites que vous venez de finir de nettoyer la table. `Je viens de finir de nettoyer la table.` convient
+            : les deux constructions avec `de` restent et seule la dernière activité change."

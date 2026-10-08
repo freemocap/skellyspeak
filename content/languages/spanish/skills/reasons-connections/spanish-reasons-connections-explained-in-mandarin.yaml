@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+skill_id: reasons_connections
+language: spanish
+explanation_language: mandarin
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-mandarin.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 别人问你为什么留下时，给出原因可以让这个决定容易理解。`Porque` 把行动与解释连接起来。这里的疲惫说明说话人为什么留下，而不出去。
+    examples:
+      - text: Me quedo porque estoy cansada.
+        meaning: “我留下，因为我累了。” `Me quedo` 表示我留下；在这个意思里，代词属于 `quedarse`。`Porque` 引出原因，`estoy cansada` 说明说话人的状态。`Cansada`
+          使用阴性一致形式。
+        note: |-
+          **比较。** `¿Por qué te quedas?` 问原因：问句分成两个词，而且带重音符号。回答中的 `porque` 是一个词，没有重音。使用阳性一致形式的说话人说 `cansado`。
+
+          **练一练。** 用 `estoy enfermo` 回答说你因病留下。答案：`Me quedo porque estoy enfermo`。把原因放在 `porque` 后。
+  - subskill_id: consequences
+    explanation: 某种情况可以解释你随后采取的行动。`Por eso` 指回那种情况，并引出结果。这里下雨解释了为什么说话人带伞。
+    examples:
+      - text: Llueve; por eso llevo paraguas.
+        meaning: “下雨了，所以我带着伞。” `Llueve` 说明下雨；西语不另加天气主语代词。`Por eso` 意为因此。`Llevo paraguas` 给出应对行动：我带伞。
+        note: |-
+          **比较。** `Llevo paraguas porque llueve` 先说应对行动，再解释缘由。使用 `por eso` 时，原因在前、结果在后。不要拿它连接毫不相关的两件事。
+
+          **练一练。** 因为下雨，所以你待在家里。答案：`Llueve; por eso me quedo en casa`。后半句是对下雨的应对。
+  - subskill_id: conditions
+    explanation: 有些计划取决于接下来会发生什么。`Si` 引出条件：只有条件成立，另一部分才适用。例句中，如果下雨就待在家里；说话人没有断定一定会下雨。
+    examples:
+      - text: Si llueve, me quedo en casa.
+        meaning: “如果下雨，我就待在家里。” `Si llueve` 用直陈式现在时 `llueve` 提出条件。`Me quedo en casa`
+          给出相应的计划。两个动词虽然都用现在时，但在商量计划的语境中可指未来。
+        note: >-
+          **比较。** `Porque llueve, me quedo en casa` 把下雨当作实际原因。开放条件用 `si llueve`，不用 `si llueva`。带重音符号的 `Sí`
+          意为是；表示条件的 `si` 没有重音。
+
+
+          **练一练。** 以不下雨作为出门的条件。答案：`Si no llueve, salgo`。`No` 否定条件，`salgo` 说出计划。
+  - subskill_id: contrast
+    explanation: 价格高可能是缺点，但实用仍是优点。`Pero` 连接两个结合起来与预期相反的事实。这里说话人在不利和有利的评价之间作对比。
+    examples:
+      - text: Es caro, pero es útil.
+        meaning: “它很贵，但很有用。” `Es caro` 给出价格评价；`pero` 引出对比。`Es útil` 给出优点。两种描述都指对话里已经说到的同一样东西。
+        note: >-
+          **变换用法。** `Es cara, pero es útil` 描述 `la herramienta` 等阴性名词。`Útil` 形式不变；`caro` 改为 `cara`。`Y`
+          只是增加一项事实，不明确标出对比。
+
+
+          **练一练。** 描述一件昂贵但实用的工具。答案：`La herramienta es cara, pero es útil`。让 `cara` 与阴性名词一致。
+  - subskill_id: supporting_claims
+    explanation: 看不到某人是否在家时，一个观察结果可以支持你的推测。用 `creo que` 引出推断，再用 `porque` 说明依据。观察可以支持结论，却不能证明它一定正确。
+    examples:
+      - text: Creo que está en casa porque la luz está encendida.
+        meaning: “我觉得那个人在家，因为灯亮着。” `Creo que` 标明说话人的看法；`está en casa` 是关于一个人的结论。`Porque la luz está encendida`
+          给出观察到的情况。`Encendida` 与阴性名词 `luz` 一致。
+        note: >-
+          **比较。** 只重复 `Está en casa` 没有给出依据。`Sé que está en casa` 则声称掌握确切信息，而不是推测。人离开时也可能忘了关灯，所以原句仍容许判断出错。
+
+
+          **练一练。** 用 `su coche está aquí` 支持同一推测。答案：`Creo que está en casa porque su coche está
+          aquí`。车在这里是观察依据，不是确定无疑的证据。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Spanish constructions, not independent translation validation.
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Spanish constructions, not independent translation validation.

@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: portuguese
+skill_id: people_places
+explanation_language: mandarin
+shared_explanation: skills/people-places/people-places-explained-in-mandarin.yaml
+sections:
+  - subskill_id: identification
+    explanation: 你要向不认识安娜的人介绍她。`Esta é minha colega Ana` 表明她的身份：`esta` 指说话人身边的女性，`é` 是 `ser` 的现在时，`minha` 与阴性名词
+      `colega` 一致。`Colega` 既能指男同事，也能指女同事；这里由周围的词说明所指的人。`Ana está cansada` 这类状态表达说的是安娜今天的感受，而不是介绍她是谁。
+    examples:
+      - text: Esta é minha colega Ana.
+        meaning: 这是我的同事安娜。
+        note: 介绍同事比阿特丽斯。`Esta é minha colega Beatriz.` 是完整的介绍；`esta` 和 `minha` 都与所指的女性一致。
+  - subskill_id: qualities_states
+    explanation: 你查看一些需要浇水的植物。`As plantas estão secas` 描述它们目前的状况：`as plantas` 是阴性复数，`estão` 是相应的 `estar`
+      复数形式，`secas` 是阴性复数形容词。词尾很重要，因为这种状况属于不止一株植物。这里的 `estar` 说明植物现在的样子，而不是身份或固有类别。
+    examples:
+      - text: As plantas estão secas.
+        meaning: 这些植物干了。
+        note: 描述一株干了的植物。`A planta está seca.` 是完整句子：单数的 `a planta` 搭配 `está` 和单数的 `seca`。
+  - subskill_id: location_movement
+    explanation: 访客问图书馆在哪里。`A biblioteca fica perto da praça` 说明位置：`fica` 是 `ficar` 表示位置的用法，`perto de` 意为靠近，`da` 是
+      `de` 与阴性冠词 `a` 在 `praça` 前的合成。这说明建筑物的位置，并不是说它变成了图书馆。`Vou à biblioteca` 这样的移动句则说明你要去哪里。
+    examples:
+      - text: A biblioteca fica perto da praça.
+        meaning: 图书馆在广场附近。
+        note: 说明图书馆在公园附近。`A biblioteca fica perto do parque.` 是完整表达；因为 `parque` 搭配阳性冠词 `o`，这里的 `do` 取代了 `da`。
+  - subskill_id: possession_relations
+    explanation: 你在介绍家人，以及兄弟拥有的一样东西。`Meu irmão tem uma bicicleta` 包含两种关系：`meu irmão` 指你的哥哥或弟弟，并未说明年龄大小；`tem uma bicicleta`
+      说他有一辆自行车。`Meu` 用阳性形式，因为 `irmão` 是阳性名词，与说话人的性别无关；`tem` 是 `ter` 的第三人称现在时，与这位兄弟对应。这是在说拥有关系，而不是统计自行车数量。
+    examples:
+      - text: Meu irmão tem uma bicicleta.
+        meaning: 我哥哥或弟弟有一辆自行车。
+        note: 说你姐姐或妹妹有一辆自行车。`Minha irmã tem uma bicicleta.` 是完整句子；`minha` 与阴性的 `irmã` 一致，`tem` 仍说明那个人拥有什么。
+  - subskill_id: quantity_comparison
+    explanation: 你有三个箱子，需要挑一个搬。`Temos três caixas. Esta caixa é mais leve que as outras` 先数箱子，再比较重量。`Temos`
+      是我们有，`três` 给出数量，`mais leve que` 是比……轻。`Esta` 指其中一个箱子，`as outras` 代指其他箱子，是阴性复数。轻重取决于 `mais` 后的形容词：`mais
+      pesada` 是更重，而 `mais leve` 是更轻。
+    examples:
+      - text: Temos três caixas. Esta caixa é mais leve que as outras.
+        meaning: 我们有三个箱子。这个箱子比其他的轻。
+        note: 说这个箱子比其他的重。`Temos três caixas. Esta caixa é mais pesada que as outras.` 保留数量和比较句式；`pesada` 改变比较的性质，并与
+          `caixa` 一致。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Portuguese constructions, not independent translation validation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_contractions2026
+        - ut_pt_possessives2026
+        - ut_pt_ficar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Portuguese constructions, not independent translation validation.

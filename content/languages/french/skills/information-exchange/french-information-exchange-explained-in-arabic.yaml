@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-teaching-expanded-arabic-2026-10-07
+skill_id: information_exchange
+language: french
+explanation_language: arabic
+shared_explanation: skills/information-exchange/information-exchange-explained-in-arabic.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: تحتاج إلى معرفة وقت إغلاق المتجر قبل الذهاب إليه. تسأل `À quelle heure` «في أي ساعة»؛
+      وتحدد `est-ce que` السؤال، وتعني `le magasin ferme` أن المتجر يغلق. بعد `est-ce que` يبقى
+      الفاعل قبل الفعل. تعيد `À quelle heure est-ce que le train arrive ?` استعمال السؤال مع حدث
+      آخر. أما `Est-ce que le magasin ferme à six heures ?` فتقترح وقتًا وتطلب تأكيده بدل ترك الجواب
+      مفتوحًا.
+    examples:
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: في أي ساعة يغلق المتجر؟
+        note: "اسأل عن موعد فتح المتجر. تصلح `À quelle heure est-ce que le magasin ouvre ?`: تغيّر `ouvre`
+          الإغلاق إلى الفتح، ويبقى السؤال طالبًا للوقت."
+  - subskill_id: answering_information
+    explanation: موعد إغلاق المتجر هو موضوع الحديث أصلًا، لذا تكفي عبارة وقت من غير تكرار السؤال كله.
+      تعني `À dix-huit heures` الساعة الثامنة عشرة، أي السادسة مساءً. تقدّم `À` الوقت، وتأتي
+      `heures` جمعًا لأن العدد ثمانية عشر. والجواب الأكمل هو `Le magasin ferme à dix-huit heures.`
+      في الجداول أو المواعيد الدقيقة، تزيل ساعة الأربع والعشرين الالتباس بين الصباح والمساء.
+      `Dix-huit heures` هنا وقت من اليوم، لا مدة ثماني عشرة ساعة.
+    examples:
+      - text: À dix-huit heures.
+        meaning: في السادسة مساءً.
+        note: أجب بموعد السابعة مساءً. تكفي `À dix-neuf heures.` عندما يكون سؤال الإغلاق معلومًا للطرفين.
+          `Dix-neuf` هي التاسعة عشرة في نظام الأربع والعشرين ساعة.
+  - subskill_id: checking_facts
+    explanation: تظن أن الموعد يوم الخميس وتريد التحقق منه قبل تسجيله. تسمّي `Le rendez-vous` الموعد،
+      وتعرض `bien jeudi` الخميسَ معلومةً مطلوب تأكيدها. تعزّز `bien` هنا الواقعة المقترحة ولا تعني
+      «جيدًا». تسأل `C’est ça ?` هل هذا صحيح؟ تبيّن الصيغة اعتقادك الحالي، بخلاف السؤال المفتوح
+      `Quel jour est le rendez-vous ?` ويمكن للطرف الآخر تأكيد اليوم أو تصحيحه.
+    examples:
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: الموعد يوم الخميس، أليس كذلك؟
+        note: تحقّق هل الموعد يوم الثلاثاء. تصلح `Le rendez-vous est bien mardi, c’est ça ?` لأن المعلومة
+          المقترحة صارت الثلاثاء، وبقي إطار التحقق كما هو.
+  - subskill_id: useful_detail
+    explanation: "يبحث زائر عن مقهى بعينه، فتساعده علامتان في العثور عليه. تعني `Le café que tu
+      cherches` المقهى الذي تبحث عنه: تعود `que` على المقهى مفعولًا لـ`cherches`، و`tu` هو من يبحث.
+      تحدد `Au deuxième étage` الطابق الثاني، وتضيف `près de l’escalier` القرب من الدرج. تجمع `Au`
+      بين `à` و`le`. ويمكن وصف مقهى يقدّم الطعام بعبارة `le café qui sert des repas`: تكون `qui`
+      فاعلةً للفعل، بينما تقع `que` مفعولًا به."
+    examples:
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: المقهى الذي تبحث عنه في الطابق الثاني، قرب الدرج.
+        note: "ضعه في الطابق الثالث بدلًا من ذلك. تصلح `Le café que tu cherches est au troisième étage, près
+          de l’escalier.`: تغيّر `troisième` الطابق، وتبقى `que tu cherches` محددةً للمقهى."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - oqlf_questions2026
+    - texQuestionsTeaching20261007
+    - texRelativeTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: french-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *a1
+  french-canada:
+    disposition: use_core
+    provenance: *a1

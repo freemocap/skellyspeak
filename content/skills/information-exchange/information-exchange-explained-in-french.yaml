@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: shared-teaching-french-2026-10-07
+skill_id: information_exchange
+explanation_language: french
+title: Échanger des informations
+introduction: Poser des questions, y répondre et vérifier que les informations sont claires et exactes.
+sections:
+  - subskill_id: asking_information
+    title: Demander une information
+    concept: Demander une information que l’on ne possède pas encore.
+  - subskill_id: answering_information
+    title: Donner une réponse pertinente
+    concept: Fournir l’information demandée par l’autre personne.
+  - subskill_id: checking_facts
+    title: Vérifier les faits
+    concept: Vérifier qu’un détail ou une information entendue est exact.
+  - subskill_id: useful_detail
+    title: Apporter une précision utile
+    concept: Donner assez de précisions pour que l’information soit utile.
+provenance:
+  origin: ai
+  authorship: AI-authored French translation of the current English shared teaching concepts; independent
+    translation review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: shared-teaching-french-2026-10-07
+    scope: French learner-facing title, introduction and subskill concepts; assessment criteria unchanged.

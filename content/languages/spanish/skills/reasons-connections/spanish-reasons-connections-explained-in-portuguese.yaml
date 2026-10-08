@@ -1,0 +1,130 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-portuguese-2026-10-07
+skill_id: reasons_connections
+language: spanish
+explanation_language: portuguese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-portuguese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Se alguém pergunta por que você fica, apresentar o motivo torna a escolha
+      compreensível. `Porque` liga a ação à explicação. Aqui o cansaço explica ficar em vez de sair.
+    examples:
+      - text: Me quedo porque estoy cansada.
+        meaning: “Fico porque estou cansada.” `Me quedo` indica que a pessoa fica; o pronome integra
+          `quedarse` nesse sentido. `Porque` introduz o motivo, e `estoy cansada` nomeia o estado.
+          `Cansada` usa concordância feminina.
+        note: "**Compare.** `¿Por qué te quedas?` pergunta por quê com duas palavras e acento. O `porque` da
+          resposta é uma palavra sem acento. Quem usa concordância masculina diz `cansado`.
+          **Pratique.** Responda que fica porque está doente usando `estoy enfermo`. Resposta: `Me
+          quedo porque estoy enfermo`. Ponha o motivo depois de `porque`."
+  - subskill_id: consequences
+    explanation: Uma situação pode explicar a ação tomada em resposta. `Por eso` retoma essa situação e
+      introduz o resultado. Aqui a chuva explica por que a pessoa leva um guarda-chuva.
+    examples:
+      - text: Llueve; por eso llevo paraguas.
+        meaning: "“Chove; por isso levo guarda-chuva.” `Llueve` afirma que chove; o espanhol não acrescenta
+          pronome sujeito para o tempo. `Por eso` significa por esse motivo. `Llevo paraguas` dá a
+          resposta: levo guarda-chuva."
+        note: "**Compare.** `Llevo paraguas porque llueve` apresenta a resposta antes do motivo. Com `por
+          eso`, a razão vem primeiro e o resultado depois. Não use a expressão para unir fatos sem
+          relação. **Pratique.** Chove, portanto você fica em casa. Resposta: `Llueve; por eso me
+          quedo en casa`. A segunda parte decorre da chuva."
+  - subskill_id: conditions
+    explanation: Alguns planos dependem do que acontecer. `Si` introduz a condição necessária para a
+      outra parte se aplicar. Aqui ficar em casa é o plano caso chova; a pessoa não afirma que a
+      chuva é certa.
+    examples:
+      - text: Si llueve, me quedo en casa.
+        meaning: “Se chover, fico em casa.” `Si llueve` apresenta a condição com o indicativo presente
+          `llueve`. `Me quedo en casa` é o plano dependente. Embora os verbos estejam no presente, o
+          contexto de planejamento pode apontar para o futuro.
+        note: "**Compare.** `Porque llueve, me quedo en casa` apresenta a chuva como motivo real. A condição
+          aberta usa `si llueve`, não `si llueva`. `Sí` com acento significa sim; o condicional `si`
+          não leva acento. **Pratique.** Faça a saída depender de não chover. Resposta: `Si no
+          llueve, salgo`. `No` nega a condição, e `salgo` apresenta o plano."
+  - subskill_id: contrast
+    explanation: Um preço pode ser desvantagem enquanto a utilidade é vantagem. `Pero` liga dois fatos
+      cuja combinação contraria uma expectativa. Aqui a pessoa equilibra uma avaliação negativa com
+      outra positiva.
+    examples:
+      - text: Es caro, pero es útil.
+        meaning: “É caro, mas é útil.” `Es caro` avalia o preço; `pero` introduz o contraste. `Es útil` dá a
+          vantagem. As duas descrições se referem ao mesmo objeto já mencionado.
+        note: "**Adapte.** `Es cara, pero es útil` descreve um nome feminino como `la herramienta`. `Útil`
+          não muda; `caro` vira `cara`. `Y` apenas acrescentaria um fato sem marcar contraste.
+          **Pratique.** Descreva uma ferramenta cara, mas útil. Resposta: `La herramienta es cara,
+          pero es útil`. Faça `cara` concordar com o nome feminino."
+  - subskill_id: supporting_claims
+    explanation: Quando você não vê diretamente se alguém está em casa, uma observação pode sustentar
+      sua hipótese. Use `creo que` para indicar a inferência e `porque` para apresentar a evidência.
+      A observação apoia a conclusão sem prová-la.
+    examples:
+      - text: Creo que está en casa porque la luz está encendida.
+        meaning: “Acho que a pessoa está em casa porque a luz está acesa.” `Creo que` marca a crença de quem
+          fala; `está en casa` é a conclusão sobre uma pessoa. `Porque la luz está encendida` dá a
+          observação. `Encendida` concorda com `luz` feminino.
+        note: "**Compare.** Repetir apenas `Está en casa` não dá evidência. `Sé que está en casa` afirma
+          saber, em vez de supor. A luz poderia ficar acesa sem a pessoa estar lá, então a frase
+          original admite erro. **Pratique.** Apoie a mesma hipótese com `su coche está aquí`.
+          Resposta: `Creo que está en casa porque su coche está aquí`. A presença do carro é
+          observação, não certeza."
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+provenance:
+  origin: ai
+  authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+    identidades e variedades preservados. Tradução sem revisão linguística independente.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-portuguese-2026-10-07
+    scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+      fundamentam o guia original, não certificam esta tradução.

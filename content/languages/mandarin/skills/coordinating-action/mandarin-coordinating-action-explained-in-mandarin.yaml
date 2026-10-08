@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: seven-language-grid-mandarin-2026-10-07
+language: mandarin
+skill_id: coordinating_action
+explanation_language: mandarin
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-mandarin.yaml
+sections:
+  - subskill_id: requests
+    explanation: 箱子挡住工作区时，请求可以明确说出箱子该搬到哪里。`请` 使直接的要求显得礼貌；`把` 把双方已经知道的对象放在动作和目的地前面。
+    examples:
+      - text: 请把这个箱子搬到门口。
+        meaning: "**例句。** 请把这个箱子搬到门口。`这个箱子` 指眼前这个箱子，由 `把` 引出。`搬` 用于移动或搬运较大的物件，`到` 引出目的地，`门口` 就是门边。`搬到门口` 说明箱子最后该在哪里。"
+        note: 试着请求对方把另一个箱子搬到相同地点。答案：`请把那个箱子搬到门口。` 把 `这个` 换成 `那个`，保留完整的动作和目的地。`请搬箱子` 只要求搬箱子，没有指出是哪一个，也没有说明该搬到哪里。
+  - subskill_id: offers_invitations
+    explanation: 同伴有工具要拿，你可以主动帮忙。`要不要` 询问对方是否需要这份帮助。帮忙的人明确是 `我`，所以你是在提出自己来做，而不是要求对方行动。
+    examples:
+      - text: 要不要我帮你拿工具？
+        meaning: "**例句。** 要不要我帮你拿工具？`要不要` 提出“要”或“不要”两个选择。`我帮你` 是我帮助你，`拿工具` 是拿工具。各人的角色很清楚：我提供帮助，你接受帮助，工具是要拿的东西。"
+        note: 试着提出帮忙拿包。答案：`要不要我帮你拿包？` 把 `工具` 换成 `包`。`你能帮我拿工具吗？` 则颠倒了角色，是请求对方帮你。
+  - subskill_id: suggestions
+    explanation: 走了一阵后，大家可能需要稍作休息。`我们` 把说话人和听话人都包括在提议的活动中。句末的 `吧` 表明后面这件事是在建议大家一起做。
+    examples:
+      - text: 我们在这里休息一下吧。
+        meaning: "**例句。** 我们在这里休息一下吧。`在这里` 表示地点，放在 `休息` 前面。`一下` 表示短暂休息，`吧` 则赋予句子提出建议的口吻。这句话不是在报告大家已经在休息。"
+        note: 试着建议去那边休息。答案：`我们在那里休息一下吧。` 把 `这里` 换成 `那里`，地点仍放在动作之前。`我们在这里休息` 可以陈述大家在哪里休息；这里句末的 `吧` 明确表示提议。
+  - subskill_id: commitments
+    explanation: 分配明天的任务时，主动表示自己带工具，就确定了这项工作由谁负责。在这种商量分工的语境里，`我来` 表示你接下任务。这里的 `来` 不要求你另外向听话人所在的地方移动。
+    examples:
+      - text: 明天我来带工具。
+        meaning: "**例句。** 明天我来带工具。`明天` 说明时间，`我来` 表示我负责这件事，`带工具` 说出任务。时间先说，然后是主动承担任务的人和动作；动词不需要添加将来时词尾。"
+        note: 试着主动提出改为带水。答案：`明天我来带水。` 把 `工具` 换成 `水`，在分工对话中保留 `我来`。`明天可能下雨` 预测可能发生的事，没有表示谁承担责任。
+  - subskill_id: accepting_declining
+    explanation: 今晚的邀请可能无法接受。先简短致歉，再说明自己到不了，便能清楚地婉拒。`来不了` 表示你没办法来。
+    examples:
+      - text: 不好意思，我今晚来不了。
+        meaning: "**例句。** 不好意思，我今晚来不了。`不好意思` 是带有歉意的开头，`我今晚` 指我在今晚，`来不了` 意为不能来。在这个表达里，`了` 读 `liǎo`，不是句末读 `le`
+          的语气词；整个结尾表示无法完成这个动作。"
+        note: 试着婉拒明晚的邀请。答案：`不好意思，我明晚来不了。` 把 `今晚` 换成 `明晚`。`我今晚不来` 只说今晚不来，没有像 `来不了` 那样表达遇到障碍或无法前来。
+  - subskill_id: negotiating_plans
+    explanation: 有人提议星期五见面，但你那天不方便。提出另一个日期，就能继续商量安排。在新日期后加 `怎么样`，是在问对方觉得这个选择如何。
+    examples:
+      - text: 周五不行，周六怎么样？
+        meaning: "**例句。** 星期五不行，星期六怎么样？`周五` 是星期五，`不行` 排除那一天；`周六` 是星期六，后面的 `怎么样` 意为“这样如何”。因为大家已经在谈见面，不必再把见面这件事说一遍。"
+        note: 试着改为提议星期日。答案：`周五不行，周日怎么样？` 只替换作为备选的日期。`周六可以` 说星期六可行；`周六怎么样` 则先征询对方意见，还没有把安排定下来。
+provenance:
+  origin: ai
+  authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+    examples, source keys and variety applicability preserved. Independent translation review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: seven-language-grid-mandarin-2026-10-07
+    scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+      Mandarin constructions, not independent translation validation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored simplified Mandarin localization of the current English guide; principal target
+        examples, source keys and variety applicability preserved. Independent translation review pending.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: seven-language-grid-mandarin-2026-10-07
+        scope: All Mandarin explanatory prose, meanings and practice notes; copied source keys support original
+          Mandarin constructions, not independent translation validation.

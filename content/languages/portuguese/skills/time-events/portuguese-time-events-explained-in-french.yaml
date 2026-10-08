@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: time_events
+explanation_language: french
+shared_explanation: skills/time-events/time-events-explained-in-french.yaml
+sections:
+  - subskill_id: present_events
+    explanation: "Quelqu’un demande ce que vous faites dans la cuisine en ce moment. `Estou preparando a massa do
+      pão` présente une activité en cours : `estou` est la première personne du présent de `estar`,
+      `preparando` le gérondif de `preparar` et `a massa do pão` la pâte à pain (`do` contracte `de` et `o`).
+      `Preparo pão toda semana` décrirait plutôt une habitude. La forme progressive met l’accent sur le
+      processus actuel."
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: Je prépare la pâte à pain.
+        note: Dites que vous cuisez le pain maintenant. `Estou assando o pão.` est une phrase complète exprimant
+          l’activité en cours ; `assando` remplace `preparando` comme action en cours.
+  - subskill_id: past_events
+    explanation: "Un ami demande ce que vous avez fait hier sur le vélo. `Ontem troquei o pneu da bicicleta`
+      rapporte une action passée achevée : `ontem` la situe hier, `troquei` signifie « j’ai changé » et `o
+      pneu da bicicleta` identifie le pneu du vélo. `Troquei` est le passé simple portugais à la première
+      personne de `trocar` ; l’écriture `qu` conserve la consonne dure devant `ei`. Le portugais n’exige pas
+      un auxiliaire équivalent à « avoir » pour cet événement accompli."
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: Hier, j’ai changé le pneu du vélo.
+        note: Rapportez le changement de la chaîne hier. `Ontem troquei a corrente da bicicleta.` exprime un événement
+          passé complet ; `troquei` garde l’action accomplie et `a corrente` change son objet.
+  - subskill_id: future_events
+    explanation: "Vous préparez un déplacement à la bibliothèque demain. `Amanhã vou levar os livros à biblioteca`
+      situe l’action plus tard avec `amanhã` et `vou levar` : `vou` est le présent de `ir` à la première
+      personne et `levar` reste à l’infinitif. `À biblioteca` signifie « à la bibliothèque » ; `à` unit la
+      préposition de destination `a` et l’article féminin `a`. `Hoje levo os livros` peut décrire un
+      arrangement pour aujourd’hui. Un projet futur n’est pas automatiquement une promesse faite à autrui."
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: Demain, je vais apporter les livres à la bibliothèque.
+        note: Prévoyez d’y apporter des boîtes demain. `Amanhã vou levar as caixas à biblioteca.` est complet ; `vou
+          levar` exprime l’action projetée et `as caixas` nomme le nouvel objet.
+  - subskill_id: duration_frequency
+    explanation: "Quelqu’un demande depuis combien de temps vous travaillez ici. `Trabalho aqui há seis meses`
+      signifie que le travail a commencé il y a six mois et continue : `trabalho` est au présent, `aqui`
+      signifie « ici » et `há seis meses` mesure la durée écoulée. La forme portugaise `tenho trabalhado`
+      suggère souvent une activité récente répétée ou continue ; elle ne traduit pas mécaniquement chaque
+      phrase anglaise en « have been working ». `Trabalho aqui toda sexta-feira` indique au contraire une
+      fréquence, pas une durée."
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: Je travaille ici depuis six mois.
+        note: Dites que vous travaillez ici depuis deux ans. `Trabalho aqui há dois anos.` est complet ; le présent
+          montre que la situation continue et `há dois anos` en donne la durée.
+  - subskill_id: event_sequence
+    explanation: "Vous expliquez les étapes d’une recette. `Primeiro misturo a farinha, depois acrescento a água`
+      fixe leur ordre : `primeiro` signifie « d’abord », `misturo` « je mélange », `depois` « ensuite » et
+      `acrescento` « j’ajoute ». Les deux verbes sont au présent pour décrire la procédure. `Depois` indique
+      qu’une action suit l’autre, sans expliquer à lui seul leur cause."
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: D’abord je mélange la farine, puis j’ajoute l’eau.
+        note: "Expliquez une préparation logique des légumes. `Primeiro lavo os legumes, depois corto os legumes.` est
+          une réponse complète : `primeiro` place le lavage avant la découpe et `depois` introduit l’étape
+          suivante."
+  - subskill_id: event_phase
+    explanation: "Quelqu’un demande si vous avez fini le livre. `Já terminei a leitura do livro` indique que le
+      terme est atteint : `já` signifie « déjà », `terminei` « j’ai terminé » et `a leitura do livro` nomme la
+      lecture. Le portugais emploie ici un passé simple, même si l’anglais utilise parfois « I have finished
+      ». Si la lecture continue, `Ainda estou lendo o livro` indique l’autre phase : `ainda` signifie « encore
+      » et `estou lendo` présente l’activité en cours. Ces réponses décrivent deux phases opposées de la même
+      tâche."
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: J’ai déjà fini de lire le livre.
+        note: Dites que vous avez déjà fini de lire l’article. `Já terminei a leitura do artigo.` est une phrase
+          complète d’achèvement ; `do artigo` remplace `do livro` et `já terminei` marque la fin.
+      - text: Ainda estou lendo o livro.
+        meaning: Je suis encore en train de lire le livre.
+        note: Dites que vous êtes encore en train de lire l’article. `Ainda estou lendo o artigo.` exprime
+          complètement une activité inachevée ; `ainda` et `estou lendo` indiquent la continuation, pas
+          l’achèvement.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

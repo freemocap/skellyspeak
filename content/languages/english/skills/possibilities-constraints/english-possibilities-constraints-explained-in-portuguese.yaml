@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-teaching-portuguese-2026-10-07
+skill_id: possibilities_constraints
+language: english
+explanation_language: portuguese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-portuguese.yaml
+sections:
+  - subskill_id: ability
+    explanation: Capacidade é o que alguém sabe ou consegue fazer numa situação. O inglês usa `can`
+      seguido de verbo de ação. Aqui quem fala consegue carregar as duas bolsas. Depois de `can`,
+      use a forma básica `carry`, não `carries` nem `to carry`.
+    examples:
+      - text: I can carry both bags.
+        meaning: "**Como funciona.** `Can` expressa capacidade; `carry` indica a ação. `Both bags` são as
+          duas bolsas juntas. Outra ação produz `I can lift this box`."
+        note: "**Mude a frase.** Para incapacidade, use `can't`: `I can't carry both bags`. Para perguntar,
+          ponha `can` primeiro: `Can you carry both bags?` Mantenha `carry`. **Contexto.** Se um
+          amigo luta com a bagagem, a frase original também oferece ajuda; o contexto lhe dá essa
+          função. **Pratique.** Transforme `She carries this box` em capacidade. Resposta: `She can
+          carry this box`. Depois de `can`, use `carry`, não `carries`."
+  - subskill_id: permission
+    explanation: Permissão é o consentimento de alguém para uma ação. `Can I`, `Could I` ou `May I` no
+      início de perguntas podem pedir isso antes da ação. `Can I` é cotidiano; `Could I` soa mais
+      cauteloso e `May I` mais formal. Cada forma é seguida do verbo básico.
+    examples:
+      - text: May I use this chair?
+        meaning: "**Como funciona.** `May I` pede permissão para quem fala. `Use this chair` nomeia a ação;
+          `use` não recebe `to`. Pergunte a quem pode decidir se a cadeira está disponível."
+        note: "**Compare.** `Can I use this chair?` também pede permissão aqui. `Can you move this chair?`
+          pede que o outro aja. Trocar `I` por `you` muda de quem é a ação. **Pratique.** Peça
+          permissão para abrir a janela. Uma resposta: `Could I open the window?` `Yes, go ahead`
+          permite; `Sorry, please keep it closed` recusa e orienta o que fazer."
+  - subskill_id: obligation
+    explanation: Uma exigência precisa ser cumprida por regra, acordo ou necessidade prática. O inglês
+      usa `have to` para isso. Aqui é preciso sair até um horário limite. Depois de `Have to`, vem o
+      verbo básico.
+    examples:
+      - text: We have to leave by eight.
+        meaning: "**Como funciona.** `Have to` exige a saída. `By eight` dá um prazo: oito é o horário
+          máximo, mas sair antes é possível. `At eight` indicaria a hora exata da partida."
+        note: "**Negação.** `We don't have to leave` torna a saída opcional. `We mustn't leave` a proíbe.
+          São instruções diferentes, embora `must` e `have to` expressem obrigações. **Pergunta.**
+          `Do we have to leave?` confere a necessidade. **Pratique.** A presença é opcional; escolha
+          entre `You don't have to come` e `You mustn't come`. Resposta: `You don't have to come`; a
+          pessoa ainda pode ir."
+  - subskill_id: possibility
+    explanation: Um evento possível pode ou não acontecer. O inglês usa `might` ou `may` antes do verbo
+      para manter outro desfecho em aberto. A entrega poderia chegar hoje, mas não há confirmação. O
+      verbo não muda depois de `might` ou `may`.
+    examples:
+      - text: The delivery might arrive today.
+        meaning: "**Como funciona.** `The delivery` nomeia o assunto. `Might arrive` deixa a chegada
+          incerta; `today` indica quando. Trocar `today` por `tomorrow` muda o tempo, não a
+          incerteza."
+        note: "**Compare.** `The delivery will arrive today` apresenta a chegada como expectativa ou
+          previsão. `might` admite outro desfecho. `might not` admite que ela não chegue: `The
+          delivery might not arrive today`; isso não diz que certamente não chegará. **Pratique.**
+          Sem data confirmada, torne `The parcel arrives tomorrow` menos certo. Uma resposta: `The
+          parcel might arrive tomorrow`. Depois de `might`, `arrives` vira `arrive`."
+  - subskill_id: certainty
+    explanation: Certeza é o grau de confiança de que algo é verdadeiro. `I'm not sure whether…`
+      identifica uma pergunta que você não consegue responder com segurança. Aqui não se sabe se a
+      porta está trancada; ambas as respostas ficam em aberto.
+    examples:
+      - text: I am not sure whether the door is locked.
+        meaning: "**Como funciona.** `Not sure` descreve sua confiança. `Whether the door is locked`
+          identifica a dúvida: trancada ou não. Depois de `whether`, mantenha a ordem de afirmação
+          `the door is`, não a ordem de pergunta direta `is the door`."
+        note: "**Compare.** `I'm sure the door is locked` afirma confiança de que está trancada; `I'm not
+          sure whether the door is locked` deixa ambas as opções em aberto. Não saber não é
+          acreditar no contrário. **Pratique.** Sem poder confirmar `Is the shop open?`, diga que
+          não sabe. Uma resposta: `I'm not sure whether the shop is open`. Depois de `whether`, use
+          a ordem `the shop is open`."
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: Localização pedagógica em português do guia inglês atual; exemplos da língua-alvo,
+        identidades e variedades preservados. Tradução sem revisão linguística independente.
+      sources:
+        - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: english-teaching-portuguese-2026-10-07
+        scope: Todo o texto explicativo, significados e exercícios em português; as referências herdadas
+          fundamentam o guia original, não certificam esta tradução.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

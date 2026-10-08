@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-french-2026-10-07
+language: portuguese
+skill_id: information_exchange
+explanation_language: french
+shared_explanation: skills/information-exchange/information-exchange-explained-in-french.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: "Avant de vous rendre à la bibliothèque demain, vous devez connaître son heure d’ouverture. `A
+      que horas a biblioteca abre amanhã?` demande une heure : `a que horas` signifie « à quelle heure », `a
+      biblioteca` est le sujet, `abre` signifie « ouvre » et `amanhã` « demain ». Dans cette question de
+      portugais brésilien, le sujet peut précéder le verbe ; on n’ajoute pas d’auxiliaire de question à
+      l’anglaise. `A biblioteca abre às oito?` propose au contraire huit heures à confirmer."
+    examples:
+      - text: A que horas a biblioteca abre amanhã?
+        meaning: À quelle heure la bibliothèque ouvre-t-elle demain ?
+        note: Demandez l’heure de fermeture de demain. `A que horas a biblioteca fecha amanhã?` est une question
+          ouverte complète ; `fecha` remplace `abre` tandis que `a que horas` demande toujours l’heure
+          inconnue.
+  - subskill_id: answering_information
+    explanation: Quelqu’un vient de demander l’heure d’ouverture de la bibliothèque. `Às oito` répond « à huit
+      heures » sans répéter toute la proposition. `Às` contracte la préposition horaire `a` et l’article
+      pluriel `as` devant `oito horas` ; « heures » peut rester implicite. La réponse courte fonctionne parce
+      que la question précédente donne l’événement. Isolée, elle ne préciserait pas ce qui ouvre.
+    examples:
+      - text: Às oito.
+        meaning: À huit heures.
+        note: Répondez qu’elle ouvre à neuf heures. `Às nove.` suffit après la question sur l’ouverture ; `nove`
+          remplace `oito` et la question commune fournit le reste.
+  - subskill_id: checking_facts
+    explanation: Vous avez entendu que la bibliothèque ouvre à huit heures et voulez le vérifier. `A biblioteca
+      abre às oito, não é?` énonce d’abord le fait supposé ; `não é?` invite ensuite à le confirmer, comme «
+      n’est-ce pas ? ». `Às oito` donne l’heure, avec `às` issu de `a` + `as`. L’autre personne peut confirmer
+      ou corriger huit heures. `A que horas a biblioteca abre?` demande plutôt l’heure sans en proposer une.
+    examples:
+      - text: A biblioteca abre às oito, não é?
+        meaning: La bibliothèque ouvre à huit heures, n’est-ce pas ?
+        note: Vérifiez une ouverture supposée à neuf heures. `A biblioteca abre às nove, não é?` donne le fait proposé
+          et en demande confirmation ; seule l’heure `nove` change.
+  - subskill_id: useful_detail
+    explanation: "Un visiteur connaît le bâtiment, mais pas l’entrée. `A entrada fica na lateral, ao lado do
+      jardim` donne deux repères utiles : `fica` situe l’entrée, `na lateral` signifie « sur le côté » (`em` +
+      `a`) et `ao lado do jardim` « près du jardin » (`a` + `o` ; `de` + `o`). Le second repère précise quel
+      côté chercher. `A entrada fica na lateral` peut encore laisser une hésitation ; `ao lado do jardim` rend
+      l’indication pratique. Les détails supplémentaires sont utiles quand ils lèvent une vraie ambiguïté."
+    examples:
+      - text: A entrada fica na lateral, ao lado do jardim.
+        meaning: L’entrée est sur le côté, près du jardin.
+        note: Prenez le jardin comme seul repère. `A entrada fica ao lado do jardim.` situe toujours l’entrée ; `ao
+          lado do` donne la relation au jardin sans mentionner plus largement le côté du bâtiment.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

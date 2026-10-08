@@ -24,7 +24,7 @@ fn reliability_default_changes_only_settings_and_is_transactional() {
         );
         assert_eq!(version(&db), 52);
         assert_eq!(rows(&db, "ai_config"), before);
-        run_chain(&mut db, 52, 53, &STEPS[..8], validate_current_schema).unwrap();
+        run_chain(&mut db, 52, 53, &STEPS[..8], v52_speech_default::validate).unwrap();
         // Compare immediately after migration: ordinary Store startup separately
         // increments the workspace metadata revision during recovery.
         for (table, expected) in tables.iter().zip(&history) {

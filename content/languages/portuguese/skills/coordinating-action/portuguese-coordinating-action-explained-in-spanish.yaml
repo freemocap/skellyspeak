@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-spanish-2026-10-07
+language: portuguese
+skill_id: coordinating_action
+explanation_language: spanish
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-spanish.yaml
+sections:
+  - subskill_id: requests
+    explanation: Estás entregando unos libros a un colega y necesitas que los guarde. `Você pode guardar
+      estes livros, por favor?` usa `você` para dirigirse a la otra persona, `pode` con el sentido
+      de poder y el infinitivo `guardar` para la acción solicitada. `Estes livros` identifica los
+      libros próximos a quien habla. En esta situación, la pregunta funciona como una petición
+      cortés, aunque `poder` también puede expresar capacidad. La misma estructura con otro
+      infinitivo, `Você pode fechar a porta, por favor?`, pide que la persona cierre la puerta.
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: ¿Puedes guardar estos libros, por favor?
+        note: Pide al colega que guarde estas cajas. `Você pode guardar estas caixas, por favor?` es una
+          petición completa. `Estas caixas` sustituye a `estes livros`; el demostrativo pasa al
+          femenino plural para concordar con `caixas`.
+  - subskill_id: offers_invitations
+    explanation: Tienes pan recién hecho y puedes ofrecerle un trozo a alguien. `Quer uma fatia de pão?`
+      pregunta si quiere una rebanada de pan. `Quer` es la forma de presente de `querer`
+      correspondiente a la persona a quien te diriges; `uma fatia` significa una rebanada y `de pão`
+      indica de qué es. Con el pan disponible, la pregunta invita a aceptar una oferta. Sin ese
+      contexto, las mismas palabras podrían preguntar simplemente por una preferencia. `Quer um
+      pouco de água?` reutiliza la estructura para ofrecer agua.
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: ¿Quieres una rebanada de pan?
+        note: Ofrece un vaso de agua. `Quer um copo de água?` es una oferta completa si puedes servirlo; `um
+          copo de` introduce la cantidad y su contenido.
+  - subskill_id: suggestions
+    explanation: "El grupo está eligiendo un día para un intercambio de libros. `Vamos organizar a troca
+      de livros no sábado?` propone hacerlo juntos: `vamos` significa vamos, `organizar` permanece
+      en infinitivo y `no sábado` significa el sábado (`em` + `o`). La entonación interrogativa
+      invita a los demás a considerar el plan. `Vamos organizar ...` también puede describir una
+      intención, por lo que la conversación sobre los planes permite reconocer la sugerencia. `Vamos
+      organizar a troca no domingo?` propone otro día."
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: ¿Organizamos el intercambio de libros el sábado?
+        note: Propón el domingo. `Vamos organizar a troca de livros no domingo?` mantiene la estructura de
+          acción conjunta y cambia `no sábado` por `no domingo`.
+  - subskill_id: commitments
+    explanation: "El grupo necesita que alguien lleve cajas. Al decir `Eu levo as caixas amanhã`, te
+      haces cargo de esa tarea: `eu` identifica expresamente a la persona responsable, `levo` es una
+      forma de presente de `levar` y `amanhã` sitúa la acción mañana. El portugués puede usar el
+      presente para un acuerdo futuro ya establecido. Fuera de un plan compartido, las mismas
+      palabras podrían limitarse a informar de un horario; aquí responden a quién se encargará."
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: Llevaré las cajas mañana.
+        note: Comprométete a llevar los libros mañana. `Eu levo os livros amanhã.` funciona porque `eu levo`
+          asume la tarea y `amanhã` fija el momento futuro.
+  - subskill_id: accepting_declining
+    explanation: "Te invitan a ayudar hoy en el intercambio, pero no puedes asistir. `Não posso ir hoje`
+      permite rechazar la invitación: `não` precede al verbo conjugado `posso`, `ir` es la acción
+      que no puedes realizar y `hoje` limita la negativa a hoy. La invitación ya indica el destino,
+      así que no es necesario repetirlo. En cambio, una respuesta breve como `Posso, sim` podría
+      aceptar una tarea conocida."
+    examples:
+      - text: Não posso ir hoje.
+        meaning: No puedo ir hoy.
+        note: Rechaza la invitación para mañana, en lugar de para hoy. `Não posso ir amanhã.` es una
+          respuesta completa a la invitación; cambiar `hoje` por `amanhã` cambia el día en que no
+          puedes asistir.
+  - subskill_id: negotiating_plans
+    explanation: Un amigo propone el viernes, pero ese día no te viene bien. `Na sexta não posso.
+      Podemos combinar no sábado?` primero expone la limitación y después ofrece una alternativa.
+      `Na sexta` significa el viernes (`em` + `a`); `não posso` deja implícita la reunión de la que
+      ya se estaba hablando. `Podemos` significa podemos y `combinar` propone concertar la reunión;
+      `no sábado` ofrece el sábado como alternativa. Es una negociación porque responde a un plan
+      existente. La alternativa pasa al domingo en `Podemos combinar no domingo?`
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: El viernes no puedo. ¿Podemos quedar el sábado?
+        note: "Mantén el viernes como día problemático y propón el domingo. `Na sexta não posso. Podemos
+          combinar no domingo?` es una respuesta completa: la primera oración rechaza el momento
+          propuesto y la segunda ofrece una alternativa viable."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Portuguese teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

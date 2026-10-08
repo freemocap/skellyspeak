@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-teaching-expanded-arabic-2026-10-07
+language: portuguese
+skill_id: possibilities_constraints
+explanation_language: arabic
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-arabic.yaml
+sections:
+  - subskill_id: ability
+    explanation: "يسألك جار هل تستطيع إصلاح دراجة. تقول `Sei consertar uma bicicleta` إنك تعرف الكيفية:
+      `sei` صيغة المتكلم المضارعة من `saber`، ويسمي المصدر `consertar` الفعل الذي تجيده. `Uma
+      bicicleta` هي الشيء الذي تستطيع إصلاحه. أما `Sei onde está a bicicleta` فتعني أنك تعرف معلومة
+      عن مكانها."
+    examples:
+      - text: Sei consertar uma bicicleta.
+        meaning: أعرف كيف أصلح دراجة.
+        note: "قل إنك تعرف إصلاح جهاز راديو. الإجابة: `Sei consertar um rádio.` وهي عبارة كاملة عن القدرة؛
+          فالمصدر بعد `sei` يحدد ما تعرف كيف تفعله."
+  - subskill_id: permission
+    explanation: توجد في مساحة عمل مشتركة، فتسأل المسؤول عن طاولة. تستخدم `Posso usar esta mesa?` صيغة
+      المتكلم المضارعة `posso` من `poder` مع المصدر `usar` لتسأل هل يجوز لي استخدامها. وتشير `Esta
+      mesa` إلى هذه الطاولة. يستطيع المخاطَب هنا السماح بالاستعمال أو منعه، لذلك يطلب السؤال الإذن.
+      وفي سياق آخر قد يسأل الفعل نفسه عن الإمكان العملي.
+    examples:
+      - text: Posso usar esta mesa?
+        meaning: هل يجوز لي استخدام هذه الطاولة؟
+        note: "اطلب الإذن باستخدام هذا الكرسي. الإجابة: `Posso usar esta cadeira?` وهي كاملة حين توجهها إلى
+          من يتحكم في استخدامها؛ تحل `cadeira` محل `mesa` وتبقى `esta` متفقةً مع اسم مؤنث."
+  - subskill_id: obligation
+    explanation: "يجب إعادة كتب المكتبة اليوم. تعبّر `Tenho que devolver os livros hoje` عن إلزام: تعني
+      `tenho` لدي، وتربط `que` الفعل بالمصدر `devolver`، وتحدد `hoje` الموعد. وليس بالضرورة أن تكون
+      الكتب قد أُعيدت. تعني `Não preciso devolver hoje` أن الإعادة ليست مطلوبة اليوم، ولا تمنعها.
+      `que` الرابطة جزء من تركيب `ter que` هذا."
+    examples:
+      - text: Tenho que devolver os livros hoje.
+        meaning: يجب عليّ إعادة الكتب اليوم.
+        note: "قل إن عليك إعادة الكتب غدًا. الإجابة: `Tenho que devolver os livros amanhã.` وهي عبارة إلزام
+          كاملة؛ تغيّر `amanhã` الموعد، وتبقى `tenho que devolver` مترابطة."
+  - subskill_id: possibility
+    explanation: تخطط لنشاط في الخارج واحتمال المطر غير محسوم. تعني `É possível que chova amanhã` أنه قد
+      تمطر غدًا. تقدم `É possível que` الحدث غير المؤكد، و`chova` صيغة المضارع الاحتمالية من `chover` في
+      هذا التركيب؛ وتحدد `amanhã` الوقت المستقبلي. أما `Está chovendo` فتخبر بهطول المطر الآن، لا
+      باحتماله.
+    examples:
+      - text: É possível que chova amanhã.
+        meaning: قد تمطر غدًا.
+        note: "قل إن المكتبة قد تغلق غدًا. الإجابة: `É possível que a biblioteca feche amanhã.` وهي جملة
+          احتمال كاملة؛ تستخدم `feche` بعد `é possível que` للإغلاق غير المؤكد."
+  - subskill_id: certainty
+    explanation: "قبل السفر لا تعرف هل المكتبة مفتوحة. تحدد `Não sei se a biblioteca está aberta` حدّ
+      معرفتك: تعني `não sei` لا أعرف، وتعني `se` «هل» في هذا السؤال غير المباشر ذي الإجابة بنعم أو
+      لا، وتخبر `está aberta` بحالة فتحها. المسألة غير محسومة؛ فلا تزعم أنها مغلقة. تختلف `se` هذه
+      عن شرط مستقبلي مثل `Se chover, fico em casa`."
+    examples:
+      - text: Não sei se a biblioteca está aberta.
+        meaning: لا أعرف هل المكتبة مفتوحة.
+        note: "قل إنك لا تعرف هل المكتبة مغلقة. الإجابة: `Não sei se a biblioteca está fechada.` وهي عبارة
+          عدم يقين كاملة؛ تغيّر `fechada` الحالة التي تسأل عنها."
+provenance: &a1
+  origin: ai
+  authorship: شرح عربي تعليمي من صياغة Codex مستند إلى دليل اللغة المستهدفة الإنجليزي الحالي. أمثلة
+    اللغة المستهدفة وفروع التنوع محفوظة؛ وتظل الترجمة بحاجة إلى مراجعة مستقلة.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-teaching-expanded-arabic-2026-10-07
+    scope: الشرح العربي والمعاني والتدريبات وفروع التنوع؛ أمثلة اللغة المستهدفة محفوظة وتظل بحاجة إلى
+      مراجعة مستقلة.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

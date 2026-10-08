@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-teaching-french-2026-10-07
+skill_id: reasons_connections
+language: spanish
+explanation_language: french
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-french.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Si quelqu’un demande pourquoi vous restez, donner votre raison rend ce choix compréhensible.
+      `Porque` relie l’action à son explication. Ici, la fatigue explique pourquoi la personne reste au lieu
+      de sortir.
+    examples:
+      - text: Me quedo porque estoy cansada.
+        meaning: « Je reste parce que je suis fatiguée. » `Me quedo` signifie « je reste » ; dans ce sens, le pronom
+          fait partie de `quedarse`. `Porque` introduit la raison et `estoy cansada` décrit l’état de la
+          personne qui parle. `Cansada` porte l’accord féminin.
+        note: >-
+          **Comparez.** `¿Por qué te quedas?` demande pourquoi : la question comporte deux mots et un accent.
+          Dans la réponse, `porque` s’écrit en un mot sans accent. Une personne employant l’accord masculin
+          dit `cansado`.
+
+
+          **À vous.** Répondez que vous restez parce que vous êtes malade avec `estoy enfermo`. Réponse : `Me
+          quedo porque estoy enfermo`. Placez la raison après `porque`.
+  - subskill_id: consequences
+    explanation: Une situation peut expliquer l’action prise en réponse. `Por eso` renvoie à cette situation et
+      introduit le résultat. Ici, la pluie explique pourquoi la personne qui parle porte un parapluie.
+    examples:
+      - text: Llueve; por eso llevo paraguas.
+        meaning: "« Il pleut, donc je porte un parapluie. » `Llueve` annonce la pluie ; l’espagnol n’ajoute pas de
+          pronom sujet météorologique. `Por eso` signifie « pour cette raison ». `Llevo paraguas` donne la
+          réaction : je porte un parapluie."
+        note: >-
+          **Comparez.** `Llevo paraguas porque llueve` commence par la réaction et donne ensuite la raison.
+          Avec `por eso`, la raison vient en premier et le résultat suit. Ne l’employez pas pour relier des
+          faits sans rapport.
+
+
+          **À vous.** Il pleut, donc vous restez chez vous. Réponse : `Llueve; por eso me quedo en casa`. La
+          seconde partie découle de la pluie.
+  - subskill_id: conditions
+    explanation: Certains projets dépendent de ce qui se produira. `Si` introduit la condition qui doit être
+      remplie pour que l’autre partie de la phrase s’applique. Ici, rester à la maison est le projet en cas de
+      pluie ; la personne ne dit pas qu’il pleuvra certainement.
+    examples:
+      - text: Si llueve, me quedo en casa.
+        meaning: « S’il pleut, je resterai à la maison. » `Si llueve` donne la condition avec le présent de
+          l’indicatif `llueve`. `Me quedo en casa` donne le projet qui en dépend. Les deux verbes sont au
+          présent, mais le contexte du projet peut viser l’avenir.
+        note: >-
+          **Comparez.** `Porque llueve, me quedo en casa` présente la pluie comme une raison réelle. La
+          condition ouverte emploie `si llueve`, et non `si llueva`. Avec un accent, `Sí` signifie « oui » ;
+          la condition `si` n’en porte pas.
+
+
+          **À vous.** Faites dépendre la sortie de l’absence de pluie. Réponse : `Si no llueve, salgo`. `No`
+          nie la condition et `salgo` exprime le projet.
+  - subskill_id: contrast
+    explanation: Un prix peut être un inconvénient alors que l’utilité demeure un avantage. `Pero` relie deux
+      faits dont la combinaison va à l’encontre d’une attente. Ici, la personne qui parle met en balance un
+      jugement négatif et un jugement positif.
+    examples:
+      - text: Es caro, pero es útil.
+        meaning: « C’est cher, mais c’est utile. » `Es caro` donne le jugement sur le prix ; `pero` introduit le
+          contraste. `Es útil` donne l’avantage. Les deux descriptions portent sur la même chose, déjà nommée
+          dans la conversation.
+        note: >-
+          **Adaptez.** `Es cara, pero es útil` décrit un nom féminin comme `la herramienta`. `Útil` reste
+          inchangé ; `caro` devient `cara`. `Y` ajouterait simplement un fait sans signaler le contraste.
+
+
+          **À vous.** Décrivez un outil cher mais utile. Réponse : `La herramienta es cara, pero es útil`.
+          Accordez `cara` avec le nom féminin.
+  - subskill_id: supporting_claims
+    explanation: Quand vous ne pouvez pas voir directement si quelqu’un est chez lui, une observation peut étayer
+      votre supposition. Vous pouvez introduire la déduction avec `creo que`, puis employer `porque` pour
+      expliquer l’indice. Celui-ci soutient la conclusion sans la prouver.
+    examples:
+      - text: Creo que está en casa porque la luz está encendida.
+        meaning: « Je pense que cette personne est chez elle parce que la lumière est allumée. » `Creo que` marque la
+          conviction de la personne qui parle ; `está en casa` est la conclusion concernant une personne.
+          `Porque la luz está encendida` donne l’observation. `Encendida` s’accorde avec le nom féminin `luz`.
+        note: >-
+          **Comparez.** Répéter seulement `Está en casa` ne donne aucun indice. `Sé que está en casa` prétend
+          savoir, plutôt que supposer. La lumière pourrait rester allumée pendant une absence ; la formulation
+          de départ laisse donc place à l’erreur.
+
+
+          **À vous.** Appuyez la même supposition avec `su coche está aquí`. Réponse : `Creo que está en casa
+          porque su coche está aquí`. La présence de la voiture est l’observation, pas une certitude.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+        scoped sources preserved. Independent review pending.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesParticiplesTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-teaching-french-2026-10-07
+        scope: French explanations, worked meanings and practice; original target text and variety applicability
+          unchanged.
+provenance:
+  origin: ai
+  authorship: AI-authored French pedagogical translation of the current English guide; target examples and
+    scoped sources preserved. Independent review pending.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesParticiplesTeaching20261007
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-teaching-french-2026-10-07
+    scope: French explanations, worked meanings and practice; original target text and variety applicability
+      unchanged.

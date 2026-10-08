@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-teaching-spanish-2026-10-07
+language: mandarin
+skill_id: time_events
+explanation_language: spanish
+shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Alguien pregunta qué estás haciendo mientras preparas unas indicaciones. `正在` delante
+      de la acción la presenta en curso. En esta conversación sucede ahora; otro contexto temporal
+      podría situar una acción en curso en otro momento.
+    examples:
+      - text: 我正在画地图。
+        meaning: "**El ejemplo.** Estoy dibujando un mapa. `我` significa yo, `正在` indica estar en plena
+          acción, `画` significa dibujar y `地图`, mapa. La marca de actividad en curso precede a la
+          acción y lo dibujado va después. `画` no cambia según la persona que realiza la acción."
+        note: "Prueba a decir que tu grupo está dibujando el mapa. Respuesta: `我们正在画地图。` Sustituye `我` por
+          `我们` y conserva `正在画`. En cambio, `我每周画地图` describe un hábito semanal, en vez de indicar
+          explícitamente una actividad actual."
+  - subskill_id: past_events
+    explanation: Después de una reparación, puedes decir cuándo la hiciste. `昨天` sitúa el suceso ayer y
+      `了` después de `修` presenta la reparación como un suceso que ocurrió. El verbo en sí no tiene
+      una terminación de pasado.
+    examples:
+      - text: 昨天我修了自行车。
+        meaning: "**El ejemplo.** Ayer reparé la bicicleta. `昨天` significa ayer, `我`, yo, y `修自行车`, reparar
+          la bicicleta. En `修了自行车`, la marca del suceso sigue al verbo y precede a su objeto.
+          Informa de la reparación sin expresar de manera específica que se hayan completado todos
+          sus pasos."
+        note: "Prueba a decir que ayer no la reparaste. Respuesta: `昨天我没修自行车。` Usa `没` delante de `修` y
+          elimina el `了` del suceso. `修好了自行车` diría explícitamente que arreglaste la bicicleta con
+          éxito; la oración original no contiene esa palabra de resultado."
+  - subskill_id: future_events
+    explanation: Un recado previsto puede situarse mañana simplemente nombrando el día. `明天` establece
+      cuándo piensas ir y la acción que sigue indica qué recogerás.
+    examples:
+      - text: 明天我去取零件。
+        meaning: "**El ejemplo.** Mañana iré a recoger las piezas. `明天` significa mañana, `我`, yo, `去`, ir,
+          `取`, recoger, y `零件`, piezas. `去取` combina el desplazamiento con el propósito de recoger.
+          Ninguno de los verbos lleva una terminación de futuro."
+        note: "Prueba a pasar el recado a pasado mañana. Respuesta: `后天我去取零件。` Sustituye `明天` por `后天`.
+          `我会修自行车` puede describir una habilidad aprendida para reparar; no es necesario añadir `会`
+          para situar el recado original en el futuro."
+  - subskill_id: duration_frequency
+    explanation: Al hablar de una rutina de ejercicio, la frecuencia indica cuántas veces se realiza la
+      actividad. `每周` establece el intervalo semanal y `两次`, después de la actividad, cuenta las
+      ocasiones dentro de ese intervalo.
+    examples:
+      - text: 我每周游泳两次。
+        meaning: "**El ejemplo.** Nado dos veces por semana. `我` significa yo, `每`, cada, `周`, semana, y
+          `游泳`, nadar. `两次` significa dos veces, con `次` contando las ocasiones. El intervalo va
+          antes de nadar y el número de ocasiones va después."
+        note: "Prueba a decir que nadas tres veces por semana. Respuesta: `我每周游泳三次。` Sustituye `两次` por
+          `三次`. En cambio, `我每次游泳半小时` dice que cada sesión de natación dura media hora: `每次` indica
+          cada ocasión y `半小时`, su duración."
+  - subskill_id: event_sequence
+    explanation: Un procedimiento de cocina necesita los pasos en el orden adecuado. `先` introduce la
+      primera acción y `再`, la que debe hacerse después. Puede quedar implícita la persona que
+      recibe las instrucciones y realiza el procedimiento.
+    examples:
+      - text: 先洗手，再准备食材。
+        meaning: "**El ejemplo.** Primero lávate las manos, después prepara los ingredientes. `洗手` significa
+          lavarse las manos y `准备食材`, preparar los ingredientes. Cada palabra de orden precede a su
+          acción. `食材` se refiere a los ingredientes usados para cocinar."
+        note: "Prueba a poner la preparación de herramientas como segundo paso. Respuesta: `先洗手，再准备工具。`
+          Sustituye `食材` por `工具`, herramientas. Aquí `再` indica la siguiente acción que debe
+          realizarse; `所以` introduciría una consecuencia y no expresaría el mismo orden sencillo de
+          pasos."
+  - subskill_id: event_phase
+    explanation: Alguien necesita saber si todavía te quedan instrucciones por leer. `看完` dice
+      explícitamente que la lectura ha llegado a su final y `已经` sitúa ese logro antes del momento
+      actual.
+    examples:
+      - text: 我已经看完说明书了。
+        meaning: "**El ejemplo.** He terminado de leer las instrucciones. `我已经` significa yo ya, `看`
+          significa leer aquí y `完` después del verbo indica terminar. `说明书` es el manual de
+          instrucciones. El `了` final presenta la lectura terminada como la situación actual."
+        note: "Prueba a decir que todavía no has terminado. Respuesta: `我还没看完说明书。` Sustituye `已经` por `还没` y
+          omite el `了` final. Conserva `完` porque llegar al final sigue siendo lo que está en
+          cuestión. `我看了说明书` informa de la lectura, pero no dice explícitamente que hayas terminado
+          todo el manual."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Spanish localization of the English Mandarin teaching guide. Principal
+    examples, inline target fragments and skill identities preserved. Sources inherited from the
+    source edition; independent linguistic review pending.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-teaching-spanish-2026-10-07
+    scope: Entire Spanish localization; sources support original guidance, not independent validation of
+      this translation.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1
