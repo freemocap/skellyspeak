@@ -1,17 +1,32 @@
 use super::*;
 use std::io::{Read, Write};
-fn server(count: usize) -> (String, std::thread::JoinHandle<()>, Arc<AtomicBool>) {
+fn server(
+    count: usize,
+) -> (
+    String,
+    std::thread::JoinHandle<()>,
+    Arc<AtomicBool>,
+    impl FnOnce(),
+) {
     let gate = Arc::new(AtomicBool::new(true));
     let response_gate = gate.clone();
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     listener.set_nonblocking(true).unwrap();
     let base = format!("http://{}/v1", listener.local_addr().unwrap());
+    let (start, started) = std::sync::mpsc::channel();
     let thread = std::thread::spawn(move || {
+        // Workspace creation is not part of the request deadline. Every caller
+        // starts this clock explicitly once its recording fixture is ready.
+        started
+            .recv()
+            .expect("Recording fixture did not start the server");
         for _ in 0..count {
             let began = Instant::now();
             let mut socket = loop {
-                if let Ok((socket, _)) = listener.accept() {
-                    break socket;
+                match listener.accept() {
+                    Ok((socket, _)) => break socket,
+                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {}
+                    Err(error) => panic!("Could not accept transcription request: {error}"),
                 }
                 assert!(
                     began.elapsed().as_secs() < 10,
@@ -52,7 +67,7 @@ fn server(count: usize) -> (String, std::thread::JoinHandle<()>, Arc<AtomicBool>
             write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",body.len(),body).unwrap();
         }
     });
-    (base, thread, gate)
+    (base, thread, gate, move || start.send(()).unwrap())
 }
 fn fixture(
     pcm: Vec<f32>,
@@ -103,10 +118,38 @@ fn takes(count: usize) -> Vec<f32> {
     }
     pcm
 }
+#[test]
+fn server_deadline_excludes_slow_fixture_setup() {
+    let (url, server, _gate, start) = server(1);
+    std::thread::sleep(std::time::Duration::from_millis(10100));
+    assert!(
+        !server.is_finished(),
+        "Server timed out during fixture setup"
+    );
+    start();
+    let mut socket = std::net::TcpStream::connect(
+        url.strip_prefix("http://")
+            .unwrap()
+            .strip_suffix("/v1")
+            .unwrap(),
+    )
+    .unwrap();
+    socket
+        .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+        .unwrap();
+    socket
+        .write_all(b"POST /v1/audio/transcriptions HTTP/1.1\r\nContent-Length: 0\r\n\r\n")
+        .unwrap();
+    let mut response = String::new();
+    socket.read_to_string(&mut response).unwrap();
+    server.join().unwrap();
+    assert!(response.starts_with("HTTP/1.1 200 OK"));
+}
 #[tokio::test]
 async fn three_takes_use_real_shared_transcription_receipts_and_attempt_publication() {
-    let (url, server, _gate) = server(3);
+    let (url, server, _gate, start) = server(3);
     let (_dir, app, session, item) = fixture(takes(3), &url);
+    start();
     listen(app.clone(), session.clone(), "continuous-fixture".into()).await;
     server.join().unwrap();
     let status = session.status.lock().unwrap();
@@ -147,9 +190,10 @@ async fn cancellation_discards_unaccepted_audio_without_dispatch() {
 }
 #[tokio::test]
 async fn queue_saturation_stops_capture_and_finishes_only_accepted_takes() {
-    let (url, server, gate) = server(3);
+    let (url, server, gate, start) = server(3);
     gate.store(false, Ordering::SeqCst);
     let (_dir, app, session, item) = fixture(takes(5), &url);
+    start();
     let worker = tokio::spawn(listen(
         app.clone(),
         session.clone(),
@@ -245,10 +289,11 @@ async fn expired_view_lease_discards_current_audio_and_releases_microphone() {
 
 #[tokio::test]
 async fn browser_pcm_uses_the_same_detector_receipts_and_publication() {
-    let (url, server, _gate) = server(1);
+    let (url, server, _gate, start) = server(1);
     let (_dir, app, session, item) = fixture(Vec::new(), &url);
     session.stop.store(0, Ordering::SeqCst);
     *session.browser.lock().unwrap() = Some(Default::default());
+    start();
     let worker = tokio::spawn(listen(
         app.clone(),
         session.clone(),
@@ -280,12 +325,13 @@ async fn browser_pcm_uses_the_same_detector_receipts_and_publication() {
 
 #[tokio::test]
 async fn silence_timeout_releases_capture_and_finishes_already_queued_takes() {
-    let (url, server, gate) = server(1);
+    let (url, server, gate, start) = server(1);
     gate.store(false, Ordering::SeqCst);
     let mut pcm = takes(1);
     pcm.extend(vec![0.0; 8000 * 10]);
     let (_dir, app, session, item) = fixture(pcm, &url);
     session.stop.store(0, Ordering::SeqCst);
+    start();
     let worker = tokio::spawn(listen(
         app.clone(),
         session.clone(),
