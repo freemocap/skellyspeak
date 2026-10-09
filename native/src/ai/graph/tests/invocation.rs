@@ -21,6 +21,12 @@ fn response() -> ResponseEvidence {
         }),
         additional: BTreeMap::from([
             (
+                "structured".into(),
+                EvidenceValue::ClassifiedJson(
+                    json!({"usage": {"cost": 0.01}, "timings": [1, null]}),
+                ),
+            ),
+            (
                 "extension".into(),
                 EvidenceValue::Omitted(EvidenceOmission::Unclassified),
             ),

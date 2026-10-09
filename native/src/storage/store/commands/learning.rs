@@ -30,6 +30,7 @@ impl Handlers<'_> {
             expected_revision,
         )?;
         self.conversation_scope = Some(conversation_id);
+        self.graph_admission = Some(turn_id.clone());
         Ok(turn_id)
     }
 

@@ -3,6 +3,7 @@ use super::*;
 #[test]
 fn coach_is_durable_and_excluded_from_persona_context() {
     let (_dir, mut store, conversation) = setup();
+    coach_provider(&store, &["Private coach explanation"]);
     let revision = store.snapshot().unwrap().conversations[0].revision;
     apply(
         &mut store,
@@ -20,16 +21,13 @@ fn coach_is_durable_and_excluded_from_persona_context() {
         })
         .unwrap();
     assert_eq!(channel, "coach");
-    let coach = store.dispatch().unwrap().unwrap();
     assert_eq!(
         crate::learning::effort::read(&store.connection, "spanish")
             .unwrap()
             .explorations,
         0
     );
-    store
-        .finish(&coach, Ok(reply("Private coach explanation")))
-        .unwrap();
+    finish_native_coach(&mut store);
     assert_eq!(
         crate::learning::effort::read(&store.connection, "spanish")
             .unwrap()

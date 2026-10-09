@@ -56,7 +56,7 @@ async fn dispatch_reserves_the_format_upgrade_before_exposing_an_invocation() {
 
 #[tokio::test]
 async fn every_previous_checkpoint_representation_can_continue_with_evidence() {
-    for (format, with_provisional) in (1..=4).flat_map(|format| [(format, false), (format, true)]) {
+    for (format, mode) in (1..=4).flat_map(|format| (0..=2).map(move |mode| (format, mode))) {
         let dir = tempfile::tempdir().unwrap();
         let mut store = SqlStore::open(&dir.path().join("owner.db"));
         let graph = graph();
@@ -130,7 +130,7 @@ async fn every_previous_checkpoint_representation_can_continue_with_evidence() {
             .unwrap()
             .execute(evidence_limits())
             .await;
-        if with_provisional {
+        if mode == 1 {
             report.provisional = Some(ProvisionalCapture {
                 session: uuid::Uuid::new_v4().to_string(),
                 sequence: 1,
@@ -138,10 +138,23 @@ async fn every_previous_checkpoint_representation_can_continue_with_evidence() {
                 failure: None,
             });
         }
+        if mode == 2 {
+            report.observations.push(ResponseEvidence {
+                additional: BTreeMap::from([(
+                    "nested".into(),
+                    EvidenceValue::ClassifiedJson(json!({"usage": [1, null, 0.5]})),
+                )]),
+                ..Default::default()
+            });
+        }
         host.settle_report(&report, &mut store).unwrap();
         assert_eq!(
             serde_json::from_slice::<serde_json::Value>(&store.bytes()).unwrap()["payload"]["format"],
-            if with_provisional { 6 } else { 5 }
+            match mode {
+                1 => 6,
+                2 => 7,
+                _ => 5,
+            }
         );
         let before = host
             .read_execution_evidence(report.identity.execution, &mut store)

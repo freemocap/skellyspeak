@@ -62,24 +62,41 @@ pub fn prompt(db: &Connection, turn: &str, captured: &Value) -> Result<Vec<Promp
         [turn],
         |r| r.get(0),
     )?;
-    let selected = selected(captured)?;
-    let skills: Vec<_> = super::assessment_adapter::skills(captured)?
-        .into_iter()
+    prompt_for_source(&source, captured)
+}
+
+pub(crate) fn prompt_for_source(source: &str, captured: &Value) -> Result<Vec<PromptMessage>> {
+    let config: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
+    prompt_for_selection(
+        source,
+        &selected(captured)?,
+        &super::assessment_adapter::skills(captured)?,
+        &config.attribution,
+    )
+}
+
+pub(crate) fn prompt_for_selection(
+    source: &str,
+    selected: &BTreeSet<String>,
+    catalog: &[crate::learning::practice_assessment::SkillPrompt],
+    config: &Config,
+) -> Result<Vec<PromptMessage>> {
+    let skills: Vec<_> = catalog
+        .iter()
         .filter(|s| selected.contains(&s.id))
         .collect();
     if skills.len() != selected.len() || skills.is_empty() {
         return Err(fail("skills", "selected skills in captured catalog"));
     }
-    let config: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
-    config.attribution.validate()?;
+    config.validate()?;
     let data = json!({"learnerMessage":source,"skills":skills});
-    if data.to_string().len() + config.attribution.instructions.len() > 96000 {
+    if data.to_string().len() + config.instructions.len() > 96000 {
         return Err(fail("input", "at most 96 KB"));
     }
     Ok(vec![
         PromptMessage {
             role: "system".into(),
-            content: config.attribution.instructions,
+            content: config.instructions.clone(),
         },
         PromptMessage {
             role: "user".into(),
@@ -133,7 +150,11 @@ pub fn validate(db: &Connection, turn: &str, output: &Completion) -> Result<Valu
     let captured: Value = serde_json::from_str(&raw)?;
     validate_source(&source, &selected(&captured)?, output)
 }
-fn validate_source(source: &str, ids: &BTreeSet<String>, output: &Completion) -> Result<Value> {
+pub(crate) fn validate_source(
+    source: &str,
+    ids: &BTreeSet<String>,
+    output: &Completion,
+) -> Result<Value> {
     if output.finish_reason == "error" || output.text.len() > 100000 {
         return Err(fail("response", "bounded completed response"));
     }

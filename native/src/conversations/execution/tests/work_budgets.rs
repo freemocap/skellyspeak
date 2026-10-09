@@ -74,7 +74,7 @@ fn queue_budget_counts_chat_coach_and_paused_work_transactionally() {
         )
         .unwrap();
     loop {
-        let outstanding: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE state IN ('ready','waiting_dependencies','running') AND kind NOT IN ('persona_context','coach_context')", [], |r| r.get(0)).unwrap();
+        let outstanding: i64 = store.connection.query_row("SELECT (SELECT count(*) FROM operations WHERE state IN ('ready','waiting_dependencies','running') AND kind NOT IN ('persona_context','coach_context')) + (SELECT count(*) FROM turn_execution_owners o JOIN turns t ON t.id=o.turn_id WHERE o.executor='graph' AND t.state IN ('pending','assisting'))", [], |r| r.get(0)).unwrap();
         if outstanding >= OUTSTANDING_NETWORK_LIMIT {
             break;
         }

@@ -130,3 +130,48 @@ fn rejects_cross_conversation_revision_and_preserves_other_context() {
         .unwrap();
     assert_eq!(score, 7);
 }
+
+#[test]
+fn native_receipts_preserve_revision_credit_and_reject_conflicting_delivery() {
+    let mut db = database();
+    db.execute_batch(
+        "CREATE TABLE conversation_graph_assessments(id TEXT PRIMARY KEY,turn_id TEXT,kind TEXT);",
+    )
+    .unwrap();
+    for (id, parent, text, expected) in [
+        ("a", None, "café 日本語", (1, 0)),
+        ("b", Some("a"), "café 日本語!", (0, 1)),
+        ("c", Some("b"), "café 日本語!", (0, 0)),
+    ] {
+        add(&db, id, parent, text);
+        db.execute("DELETE FROM attempts", []).unwrap();
+        db.execute("DELETE FROM operations", []).unwrap();
+        let receipt = format!("native:{id}");
+        let tx = db.transaction().unwrap();
+        tx.execute(
+            "INSERT INTO conversation_graph_assessments VALUES(?1,?2,'skill_assessment')",
+            params![receipt, id],
+        )
+        .unwrap();
+        let presence = present();
+        let ids = presence.keys().cloned().collect();
+        let observation = publish_graph(&tx, id, &receipt, presence.clone(), &ids).unwrap();
+        if expected == (0, 0) {
+            assert!(observation.credits.is_empty());
+        } else {
+            assert_eq!(observation.credits.len(), 2);
+            assert!(
+                observation
+                    .credits
+                    .iter()
+                    .all(|c| (c.experience, c.effort) == expected)
+            );
+        }
+        assert_eq!(
+            publish_graph(&tx, id, &receipt, presence.clone(), &ids).unwrap(),
+            observation
+        );
+        assert!(publish_graph(&tx, id, "another-attempt", presence, &ids).is_err());
+        tx.commit().unwrap();
+    }
+}

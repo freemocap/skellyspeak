@@ -369,6 +369,9 @@ pub enum Action {
     },
     RequestMessageSpeech {
         message_id: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        regenerate: Option<bool>,
     },
     CancelMessageSpeech {
         operation_id: String,
@@ -1046,6 +1049,21 @@ pub struct AttemptView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct TurnView {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub native_response: Option<serde_json::Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub channel: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "import('./graph-contracts').AttemptPreview")]
+    pub native_preview: Option<crate::ai::graph::AttemptPreview>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "import('./graph-contracts').InspectionSnapshot")]
+    pub native_graph: Option<crate::ai::graph::InspectionSnapshot>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub native_execution_available: Option<bool>,
     pub replaces_turn_id: Option<String>,
     pub replaced_by: Option<String>,
     pub route: ConnectionRoute,

@@ -22,16 +22,7 @@ impl Application {
             } else {
                 access::Capability::Chat
             };
-            let current = access::resolve(&store.connection, capability)?;
-            if current.route != dispatch.target.route
-                || current.url != dispatch.target.url
-                || current.credential != dispatch.target.credential
-            {
-                return Err(AppError::new(
-                    ErrorCode::Conflict,
-                    "AI destination or credentials changed before dispatch. Retry using current settings.",
-                ));
-            }
+            access::check_captured(&store.connection, capability, &dispatch.target)?;
         }
         Ok(())
     }
@@ -59,6 +50,10 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
         }
     };
     loop {
+        if let Err(error) = super::graph_execution::schedule(&state, &client) {
+            state.stop(error);
+            return;
+        }
         // Each dispatch carries the stream generation it was registered under.
         let mut groups: Vec<Vec<Scheduled>> = Vec::new();
         // Bounded local planning pass; no timer or artificial batch-fill delay.

@@ -38,6 +38,7 @@ mod settlement_capacity;
 mod staged_access;
 mod state;
 mod state_limits;
+mod stepping;
 mod transitions;
 
 pub use archive::HistoryLimits;
@@ -50,6 +51,7 @@ pub use execution_evidence::{EvidenceSnapshot, ExecutionEvidence};
 pub use fault_codes::CoreFaultCode;
 pub use history::{
     AttemptPage, HistoricalAttempt, HistoricalInspection, HistoricalLimits, HistoryCursor,
+    RunHistory,
 };
 pub use invocation::{
     BillingBasis, BillingEvidence, EvidenceLimits, EvidenceOmission, EvidenceValue,

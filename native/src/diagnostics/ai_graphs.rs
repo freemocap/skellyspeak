@@ -16,6 +16,9 @@ use ts_rs::TS;
 #[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AiGraphDefinition {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "import('./graph-contracts').DefinitionSnapshot")]
+    pub native_definition: Option<crate::ai::graph::DefinitionSnapshot>,
     pub id: String,
     pub description: String,
     pub operations: Vec<AiOperationDefinition>,
@@ -298,11 +301,6 @@ pub fn definitions() -> Result<Vec<AiGraphDefinition>> {
             "Partner opening and supporting operations. Optional speech depends on conversation settings.",
             turn_plan::OPENING_PLAN,
         ),
-        (
-            "private_coach",
-            "Private coach context and reply. This thread is separate from the partner exchange.",
-            turn_plan::COACH_PLAN,
-        ),
     ] {
         let operations = plan
             .iter()
@@ -320,11 +318,27 @@ pub fn definitions() -> Result<Vec<AiGraphDefinition>> {
             })
             .collect::<Result<Vec<_>>>()?;
         graphs.push(AiGraphDefinition {
+            native_definition: None,
             id: id.into(),
             description: description.into(),
             operations,
         });
     }
+    let runtime = crate::conversations::execution::graph_runtime::Runtime::new()?;
+    graphs.push(AiGraphDefinition {
+        id: "private_coach".into(),
+        description: String::new(),
+        operations: vec![],
+        native_definition: Some(
+            runtime
+                .graph
+                .inspection_definition(crate::ai::graph::ExportLimits {
+                    bytes: 4 * 1024 * 1024,
+                    attempts: 4096,
+                })
+                .map_err(crate::conversations::execution::graph_runtime::error)?,
+        ),
+    });
     for (kind, role) in [
         ("persona_generation", "standard"),
         ("speech_transcription", "transcription"),
@@ -333,6 +347,7 @@ pub fn definitions() -> Result<Vec<AiGraphDefinition>> {
         node.role = role.into();
         graphs.push(AiGraphDefinition {
             id: kind.into(),
+            native_definition: None,
             description: node.description.clone(),
             operations: vec![node],
         });
@@ -347,11 +362,10 @@ mod tests {
     fn definitions_cover_current_plans_without_dangling_dependencies() {
         let graphs = definitions().unwrap();
         assert_eq!(graphs.len(), 5);
-        for (graph, plan) in graphs.iter().zip([
-            turn_plan::PLAN,
-            turn_plan::OPENING_PLAN,
-            turn_plan::COACH_PLAN,
-        ]) {
+        for (graph, plan) in graphs
+            .iter()
+            .zip([turn_plan::PLAN, turn_plan::OPENING_PLAN])
+        {
             assert_eq!(graph.operations.len(), plan.len());
             for node in &graph.operations {
                 assert!(
@@ -376,6 +390,10 @@ mod tests {
                 }
             }
         }
+        let coach = graphs[2].native_definition.as_ref().unwrap();
+        assert!(graphs[2].operations.is_empty());
+        let executable = crate::conversations::execution::graph_runtime::Runtime::new().unwrap();
+        assert_eq!(coach.artifact_id, executable.graph.identity());
         let reply = &graphs[0];
         let assessment = reply
             .operations

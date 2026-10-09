@@ -46,7 +46,7 @@ impl Store {
     pub fn message_history(&self, conversation: &str, message: &str) -> Result<MessageHistory> {
         let db = &self.connection;
         let turn: String = db.query_row(
-            "SELECT m.turn_id FROM messages m WHERE m.id=?1 AND m.conversation_id=?2 AND m.role='user' AND EXISTS(SELECT 1 FROM operations WHERE turn_id=m.turn_id AND kind='persona_reply')",
+            "SELECT m.turn_id FROM messages m WHERE m.id=?1 AND m.conversation_id=?2 AND m.role='user' AND EXISTS(SELECT 1 FROM turn_execution_owners WHERE turn_id=m.turn_id AND channel='persona_reply')",
             params![message, conversation], |r| r.get(0),
         ).optional()?.ok_or_else(|| AppError::new(ErrorCode::NotFound, "Message history is unavailable in this conversation."))?;
         let root: String = db.query_row(

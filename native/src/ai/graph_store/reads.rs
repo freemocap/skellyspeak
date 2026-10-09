@@ -1,11 +1,75 @@
 use super::*;
 
+/// Read native history inside an existing domain transaction. This borrows its
+/// snapshot and never commits, recovers, or reconstructs state using SQL rules.
+pub struct BorrowedReadStore<'a> {
+    db: &'a Connection,
+    partition: Partition,
+}
+impl<'a> BorrowedReadStore<'a> {
+    pub fn new(db: &'a Connection, partition: Partition) -> Result<Self> {
+        if db.is_autocommit() {
+            return Err(fault("transaction_required", "graph_read"));
+        }
+        Ok(Self { db, partition })
+    }
+    pub fn checkpoint(&self, limits: CheckpointLimits) -> Result<Option<Checkpoint>> {
+        read_checkpoint(self.db, &self.partition, limits)
+    }
+}
+impl RecordStore for BorrowedReadStore<'_> {
+    fn record_count(&mut self, expected: &Stamp) -> Result<usize> {
+        count(self.db, &self.partition, expected)
+    }
+    fn read_record(
+        &mut self,
+        expected: &Stamp,
+        key: &RecordKey,
+        max_bytes: usize,
+    ) -> Result<Vec<u8>> {
+        record(self.db, &self.partition, expected, key, max_bytes)
+    }
+}
+impl HistoryStore for BorrowedReadStore<'_> {
+    fn read_archive(&mut self, expected: &Stamp, max_bytes: usize) -> Result<Vec<u8>> {
+        archive(self.db, &self.partition, expected, max_bytes)
+    }
+}
+
+fn read_checkpoint(
+    db: &Connection,
+    partition: &Partition,
+    limits: CheckpointLimits,
+) -> Result<Option<Checkpoint>> {
+    let Some(expected) = stamp(db, partition)? else {
+        return Ok(None);
+    };
+    let body = blob(
+        db,
+        "graph_engines",
+        "checkpoint",
+        "id=?1",
+        &[&expected.engine],
+        limits.bytes,
+    )?;
+    let checkpoint = Checkpoint::decode(&body, limits)?;
+    if checkpoint.stamp() != &expected
+        || catalog_id(checkpoint.artifact_ids())? != partition.catalog
+    {
+        return Err(fault("checkpoint_identity", "checkpoint"));
+    }
+    Ok(Some(checkpoint))
+}
+
 /// A stable protected read snapshot. No recovery, mutation or fallback to cache.
 pub struct ReadStore<'a> {
     tx: Transaction<'a>,
     partition: Partition,
 }
 impl<'a> ReadStore<'a> {
+    pub fn from_transaction(tx: Transaction<'a>, partition: Partition) -> Self {
+        Self { tx, partition }
+    }
     pub fn new(db: &'a mut Connection, partition: Partition) -> Result<Self> {
         Ok(Self {
             tx: db.transaction().map_err(|e| sql(e, "read_begin"))?,
@@ -13,24 +77,7 @@ impl<'a> ReadStore<'a> {
         })
     }
     pub fn checkpoint(&self, limits: CheckpointLimits) -> Result<Option<Checkpoint>> {
-        let Some(expected) = stamp(&self.tx, &self.partition)? else {
-            return Ok(None);
-        };
-        let body = blob(
-            &self.tx,
-            "graph_engines",
-            "checkpoint",
-            "id=?1",
-            &[&expected.engine],
-            limits.bytes,
-        )?;
-        let checkpoint = Checkpoint::decode(&body, limits)?;
-        if checkpoint.stamp() != &expected
-            || catalog_id(checkpoint.artifact_ids())? != self.partition.catalog
-        {
-            return Err(fault("checkpoint_identity", "checkpoint"));
-        }
-        Ok(Some(checkpoint))
+        read_checkpoint(&self.tx, &self.partition, limits)
     }
 }
 impl RecordStore for ReadStore<'_> {

@@ -43,6 +43,8 @@ mod commands;
 use crate::ai::policy::retry;
 mod audio_analysis;
 mod coaching_results;
+mod graph_execution;
+mod graph_speech;
 mod reading_results;
 mod scheduled_reading;
 mod scheduler;

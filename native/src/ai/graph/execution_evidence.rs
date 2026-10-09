@@ -31,6 +31,14 @@ pub struct ExecutionEvidence {
     pub provisional: Option<ProvisionalCapture>,
 }
 
+impl ExecutionEvidence {
+    pub(super) fn has_structured(&self) -> bool {
+        self.observations
+            .iter()
+            .any(ResponseEvidence::has_structured)
+    }
+}
+
 impl Engine {
     pub(super) fn record_evidence(
         &mut self,
@@ -89,6 +97,19 @@ impl Engine {
 }
 
 impl Event {
+    pub(super) fn has_structured_evidence(&self) -> bool {
+        match self {
+            Self::Observe(snapshot) => snapshot
+                .observations
+                .iter()
+                .any(ResponseEvidence::has_structured),
+            Self::SettleObserved(report) => report
+                .observations
+                .iter()
+                .any(ResponseEvidence::has_structured),
+            _ => false,
+        }
+    }
     pub(super) fn provisional(&self) -> Option<&ProvisionalCapture> {
         match self {
             Self::Observe(snapshot) => snapshot.provisional.as_ref(),

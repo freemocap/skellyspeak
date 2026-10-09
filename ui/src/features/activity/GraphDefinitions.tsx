@@ -10,6 +10,8 @@ import { useI18n } from '../../components/localization/i18n'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { DefinitionGraph } from './ActivityGraph'
+import { NativeGraph } from './NativeGraph'
+import { NativeInspector } from './NativeInspector'
 
 function DefinitionDetails({ graph, node, onSelect }: { graph: AiGraphDefinition; node: AiOperationDefinition; onSelect: (kind: string) => void }) {
   const tr = useI18n()
@@ -65,7 +67,7 @@ export function GraphDefinitions({ selection, onSelect, renderHeader }: { select
         {!graph && <option value="">{graphs ? tr('Choose a graph') : tr('Loading…')}</option>}
         {graphs?.map(item => <option key={item.id} value={item.id}>{humanizeKind(item.id)}</option>)}
       </select></label>
-      {graph && <label>{tr('Operation')} <select className="field" aria-label={tr('Operation')} value={node?.kind ?? ''} onChange={event => pick(event.target.value)}>
+      {graph && !graph.nativeDefinition && <label>{tr('Operation')} <select className="field" aria-label={tr('Operation')} value={node?.kind ?? ''} onChange={event => pick(event.target.value)}>
         {graph.operations.map(item => <option key={item.kind} value={item.kind}>{humanizeKind(item.kind)}</option>)}
       </select></label>}
     </div>
@@ -73,12 +75,12 @@ export function GraphDefinitions({ selection, onSelect, renderHeader }: { select
     {renderHeader(controls)}
     {error && <ErrorNotice as="p" error={error} className="ai-error">{error} <button type="button" className="btn" onClick={() => setRequest(value => value + 1)}>{tr('Retry')}</button></ErrorNotice>}
     {!graph && graphs && <p className="ai-error" role="alert">{tr('Choose a graph')}</p>}
-    {graph && <AiSplit inspector={node && <aside className="ai-inspector" aria-label={tr('Selected operation')}>
+    {graph && <AiSplit inspector={graph.nativeDefinition ? <NativeInspector graph={graph.nativeDefinition} selected={selection.operationKind} /> : node && <aside className="ai-inspector" aria-label={tr('Selected operation')}>
         <header className="ai-inspector-head"><h3>{humanizeKind(node.kind)}</h3><button type="button" className="ai-chip" onClick={() => setExpanded(true)}>{tr('Expand')}</button></header>
         <DefinitionDetails graph={graph} node={node} onSelect={pick} />
       </aside>}>
       <div className="ai-view-main">
-        <DefinitionGraph graph={graph} selectedKind={node?.kind ?? null} onSelect={pick} />
+        {graph.nativeDefinition ? <NativeGraph graph={graph.nativeDefinition} selected={selection.operationKind} onSelect={pick} /> : <DefinitionGraph graph={graph} selectedKind={node?.kind ?? null} onSelect={pick} />}
       </div>
 
     </AiSplit>}

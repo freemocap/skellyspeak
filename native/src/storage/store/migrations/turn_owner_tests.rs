@@ -23,13 +23,20 @@ fn source(path: &Path) -> Connection {
 }
 
 #[test]
-fn turn_ownership_backfill_preserves_sources_and_unknowns_and_matches_fresh_schema() {
+fn turn_ownership_backfill_preserves_sources_and_unknowns_at_format_58() {
     let dir = tempfile::tempdir().unwrap();
     let mut db = source(&dir.path().join("source"));
     let turns = rows(&db, "turns");
     let operations = rows(&db, "operations");
     let awards = rows(&db, "effort_awards");
-    run_chain(&mut db, 57, 58, STEPS, schema::validate_current_schema).unwrap();
+    run_chain(
+        &mut db,
+        57,
+        58,
+        &STEPS[..13],
+        v58_turn_execution_owners::validate,
+    )
+    .unwrap();
     assert_eq!(rows(&db, "turns"), turns);
     assert_eq!(rows(&db, "operations"), operations);
     assert_eq!(rows(&db, "effort_awards"), awards);
@@ -68,7 +75,7 @@ fn ambiguous_history_and_final_validation_failure_roll_back_owner_migration() {
         }
         let before = rows(&db, "operations");
         assert!(
-            run_chain(&mut db, 57, 58, STEPS, |_| Err(AppError::new(
+            run_chain(&mut db, 57, 58, &STEPS[..13], |_| Err(AppError::new(
                 ErrorCode::Storage,
                 "injected"
             )))
@@ -81,6 +88,13 @@ fn ambiguous_history_and_final_validation_failure_roll_back_owner_migration() {
             db.execute("DELETE FROM operations WHERE id='conflict'", [])
                 .unwrap();
         }
-        run_chain(&mut db, 57, 58, STEPS, schema::validate_current_schema).unwrap();
+        run_chain(
+            &mut db,
+            57,
+            58,
+            &STEPS[..13],
+            v58_turn_execution_owners::validate,
+        )
+        .unwrap();
     }
 }

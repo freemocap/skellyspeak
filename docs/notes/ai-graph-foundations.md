@@ -13,7 +13,9 @@ govern subsequent design and implementation work.
 **Implementation authorized; foundation incomplete:** the user approved proceeding
 with the architecture-first plan. The definitions below govern that work. An
 isolated [initial core profile](ai-graph-core-semantics.md) is implemented under
-`native/src/ai/graph/`; production workflows do not use it yet. Detailed integration
+`native/src/ai/graph/`; coach commands, application execution and native-artifact
+inspection are now connected in source. Their running-application acceptance and
+the remaining workflow conversions are unfinished. Detailed integration
 contracts and their verification remain open, and the application runtime does not
 yet satisfy this specification. See the [audit and staged plan](executable-ai-graphs-audit-and-plan-2026-10-08.md)
 for existing behavior, limitations and verification results.
@@ -116,6 +118,13 @@ payload eviction is distinct from deleting durable provenance or accepted result
 Fresh generation, exact reuse and pending sharing are explicit operation policies,
 not global assumptions. Source equality includes the contract's full semantic
 scope; equal text alone does not establish interchangeability.
+
+**Revision policy (user correction, 2026-10-09):** message edits remove dependent
+exchanges from the active conversation and revoke their product publication
+authority. Superseded native inputs/results/history may remain. Physical selective
+graph erasure is not required for workflow conversion. Whole-conversation and
+workspace deletion retain their existing ownership behavior. See the
+[decision correction](ai-graph-source-erasure-review.md).
 
 ## Execution semantics
 

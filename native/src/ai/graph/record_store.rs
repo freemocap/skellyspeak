@@ -41,14 +41,20 @@ impl RecordWrite<'_> {
         &self.key
     }
 
-    /// Execution format 3 with provisional content, 2 with metadata only;
-    /// other native records retain format 1.
+    /// Execution format 4 with structured metadata, 3 with provisional content,
+    /// 2 with scalar metadata only;
+    /// run format 2 carries a step permission; other records retain format 1.
     /// Only exact primary records are serialized; indexes
     /// rebuild on load. Adapters must never log this content-bearing envelope.
     pub fn bytes(&self, max_bytes: usize) -> Result<Vec<u8>> {
         bounded_json(
             &Envelope {
-                format: if matches!(&self.value, Value::Execution(e) if e.evidence.as_ref().is_some_and(|e| e.provisional.is_some()))
+                format: if matches!(&self.value, Value::Run(r) if r.stepping.is_some()) {
+                    2
+                } else if matches!(&self.value, Value::Execution(e) if e.evidence.as_ref().is_some_and(ExecutionEvidence::has_structured))
+                {
+                    4
+                } else if matches!(&self.value, Value::Execution(e) if e.evidence.as_ref().is_some_and(|e| e.provisional.is_some()))
                 {
                     3
                 } else if matches!(&self.value, Value::Execution(e) if e.evidence.is_some()) {

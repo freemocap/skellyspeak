@@ -3,6 +3,7 @@ use super::{durable_store::SqlStore, *};
 mod live_capture;
 mod live_read;
 mod provisional;
+mod structured;
 
 #[tokio::test]
 async fn rejected_adoption_does_not_discard_the_completed_execution_evidence() {

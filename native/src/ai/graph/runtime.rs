@@ -57,6 +57,9 @@ pub enum Event {
         run: String,
         paused: bool,
     },
+    Step {
+        run: String,
+    },
     Cancel {
         run: String,
         node: Option<String>,
@@ -113,6 +116,8 @@ pub struct Inspection<'a, A = BTreeMap<String, Vec<&'a Attempt>>> {
     pub nodes: BTreeMap<String, Disposition>,
     pub activation: &'a BTreeMap<String, Activation>,
     pub attempts: A,
+    pub stepping: Option<String>,
+    pub step_available: bool,
 }
 
 #[derive(Clone, Default)]
@@ -319,6 +324,8 @@ impl Engine {
             nodes,
             activation: &r.policy,
             attempts,
+            stepping: r.stepping.clone(),
+            step_available: self.step_candidate(records, r)?.is_some(),
         })
     }
     pub fn outputs(&self, run: &str) -> Result<Option<Values>> {

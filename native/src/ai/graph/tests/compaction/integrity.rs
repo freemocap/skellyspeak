@@ -129,7 +129,7 @@ fn history_reads_are_bounded_and_future_snapshot_fields_are_not_ignored() {
             .code,
         "invalid_checkpoint"
     );
-    value["payload"]["format"] = json!(7);
+    value["payload"]["format"] = json!(10);
     assert_eq!(
         Checkpoint::decode(&serde_json::to_vec(&value).unwrap(), limits().checkpoint)
             .err()

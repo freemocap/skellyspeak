@@ -104,7 +104,8 @@ impl<S: RecordStore> StoredAccess<'_, S> {
         let row: Envelope<RecordKey, T> = serde_json::from_slice(&bytes)
             .map_err(|_| fault(CoreFaultCode::RecordMismatch, "record"))?;
         if !(row.format == 1
-            || (matches!(row.format, 2 | 3) && matches!(&key, RecordKey::Execution(_))))
+            || (row.format == 2 && matches!(&key, RecordKey::Run(_)))
+            || (matches!(row.format, 2..=4) && matches!(&key, RecordKey::Execution(_))))
             || row.key != key
         {
             return Err(fault(CoreFaultCode::RecordMismatch, "record"));

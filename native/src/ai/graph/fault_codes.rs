@@ -62,6 +62,7 @@ pub enum CoreFaultCode {
     InputsUnavailable,
     InterruptedBeforeDispatch,
     InvalidAdoption,
+    InvalidStep,
     InvalidCheckpoint,
     InvalidConstant,
     InvalidDemand,

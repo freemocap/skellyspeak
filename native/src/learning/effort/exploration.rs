@@ -50,6 +50,24 @@ pub(crate) fn conversation(db: &Connection, operation: &str) -> Result<()> {
     )
 }
 
+/// A native graph adoption has published this explicit coach inquiry. Award
+/// attribution comes from its immutable domain effect, never the latest settings
+/// or producer/attempt identity. Legacy award sources and policy are unchanged.
+pub(crate) fn graph_coach_reply(db: &Connection, effect: &str) -> Result<()> {
+    let (source, language, variety, conversation): (String, String, String, String) = db.query_row(
+        "SELECT e.award_source,e.language_id,e.variety_id,t.conversation_id FROM conversation_graph_effects e JOIN conversation_graph_publications p ON p.effect_id=e.id JOIN turn_execution_owners o ON o.turn_id=e.turn_id JOIN turns t ON t.id=e.turn_id WHERE e.id=?1 AND e.role='coach_reply' AND o.executor='graph' AND o.channel='coach'",
+        [effect], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?)),
+    )?;
+    award(
+        db,
+        EffortDimension::Explorations,
+        &source,
+        &language,
+        &variety,
+        Some(&conversation),
+    )
+}
+
 /// Only accepted fresh text generation qualifies. A stable content identity prevents
 /// repairs, explicit retries and cache eviction from minting another point for the same aid.
 pub(crate) fn reading(

@@ -11,18 +11,28 @@ use uuid::Uuid;
 
 mod admission;
 mod assistance;
+pub mod coach_graph;
 mod connections;
+pub mod context;
 mod dispatch;
 mod feedback_context;
 mod graph;
+pub mod graph_authority;
+pub mod graph_publication;
+pub(crate) mod graph_runtime;
+pub mod graph_text_request;
 pub use feedback_context::reassess_feedback;
 mod holds;
 mod optional_help;
 pub use optional_help::{MessageHelp, request_message_help};
+pub mod partner_graph;
+pub mod prose;
 mod publication;
 mod reading;
 mod recovery;
+pub mod reply_reading_graph;
 mod snapshots;
+mod source_authority;
 mod speech;
 mod turns;
 

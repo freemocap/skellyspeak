@@ -25,6 +25,7 @@ pub(crate) use workspace::{
 };
 
 pub struct Store {
+    pub(crate) graph_runtime: crate::conversations::execution::graph_runtime::Runtime,
     pub(crate) config: crate::configuration::Registry,
     pub(crate) connection: Connection,
     pub(crate) session_id: String,

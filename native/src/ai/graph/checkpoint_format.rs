@@ -30,7 +30,7 @@ pub(super) struct SnapshotPayload<S = SavedState> {
     pub events: Vec<Event>,
 }
 
-/// Formats 5/6 explicitly select the optional base representation. Older payloads
+/// Formats 5–9 explicitly select the optional base representation. Older payloads
 /// retain their exact encoding/checksum; no untagged state decoder is used.
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -69,6 +69,17 @@ pub(super) enum SavedState {
 }
 
 impl SavedState {
+    fn has_structured_evidence(&self) -> bool {
+        match self {
+            Self::Inline(saved) => saved.has_structured_evidence(),
+            Self::Records(saved) => saved.executions.iter().any(|(_, e)| {
+                e.evidence
+                    .as_ref()
+                    .is_some_and(ExecutionEvidence::has_structured)
+            }),
+            Self::Commitments(_) => false, // audited against archive replay
+        }
+    }
     fn has_provisional(&self) -> bool {
         match self {
             Self::Inline(saved) => saved.has_provisional(),
@@ -136,6 +147,26 @@ impl Payload {
         matches!(self, Self::Evidence(_))
     }
     pub fn version_valid(&self) -> bool {
+        if self.evidence_format() < 9
+            && self
+                .artifacts()
+                .values()
+                .any(|artifact| artifact.types.values().any(Shape::needs_format_nine))
+        {
+            return false;
+        }
+        if self.evidence_format() < 8 && (self.events().iter().any(|e| matches!(e, Event::Step { .. }))
+            || self.base().is_some_and(|b| matches!(&b.state, SavedState::Records(s) if s.runs.iter().any(|(_, r)| r.stepping.is_some())))) {
+            return false;
+        }
+        if self.evidence_format() < 7
+            && (self.events().iter().any(Event::has_structured_evidence)
+                || self
+                    .base()
+                    .is_some_and(|b| b.state.has_structured_evidence()))
+        {
+            return false;
+        }
         if self.evidence_format() < 6
             && (self.events().iter().any(|e| e.provisional().is_some())
                 || self.base().is_some_and(|b| b.state.has_provisional()))
@@ -153,7 +184,7 @@ impl Payload {
         }
         match self {
             Self::Evidence(p) => {
-                matches!(p.format, 5 | 6)
+                matches!(p.format, 5..=9)
                     && p.base_format == p.base.as_ref().map(|b| b.state.format())
             }
             Self::Journal(p) => p.format == 1,
@@ -254,7 +285,7 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Envelope> {
                 checksum: wire.checksum,
             })
         }
-        5 | 6 => {
+        5..=9 => {
             let payload = match header.payload.base_format {
                 None | Some(4) => {
                     let wire: Wire<EvidencePayload<super::checkpoint_records::RecordState>> =

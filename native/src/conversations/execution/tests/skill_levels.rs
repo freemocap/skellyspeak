@@ -45,7 +45,7 @@ fn upgrades_preserve_actual_skill_awards_and_claims_from_both_supported_formats(
             progression::snapshot(&store, "spanish").unwrap()["profile"]["credits"].clone();
         store
             .connection
-            .execute_batch("DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
+            .execute_batch("DROP VIEW graph_conversation_runs; DROP TABLE graph_speech_requests; DROP TRIGGER graph_engine_speech_owners; DROP TABLE graph_audio_deliveries; DROP TABLE graph_audio_cache; DROP TABLE graph_audio_receipts; DROP TABLE conversation_graph_disclosures; DROP TABLE conversation_graph_assessments; DROP TABLE conversation_graph_reply_sources; DROP TRIGGER conversation_graph_publication_reserved; DROP TABLE graph_transport_identities; DROP TABLE conversation_graph_publications; DROP TABLE conversation_graph_effects; DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
             .unwrap();
         store
             .connection

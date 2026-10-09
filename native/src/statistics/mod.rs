@@ -3,11 +3,13 @@ use crate::storage::store::Store;
 use rusqlite::{Connection, params};
 fn summary(
     db: &Connection,
+    graphs: &crate::conversations::execution::graph_runtime::Runtime,
     id: &str,
     label: &str,
     language: Option<&str>,
     persona: Option<&str>,
 ) -> Result<UsageSummary> {
+    let graph_usage = graphs.usage(db, language, persona)?;
     let predicate = "(?1 IS NULL OR c.language_id=?1) AND (?2 IS NULL OR r.persona_id=?2)";
     let conversations=db.query_row(&format!("SELECT count(*) FROM conversations c JOIN contacts r ON r.id=c.contact_id WHERE {predicate}"),params![language,persona],|r|r.get(0))?;
     let (learner_messages,persona_messages)=db.query_row(&format!("SELECT COALESCE(SUM(m.role='user'),0),COALESCE(SUM(m.role='assistant'),0) FROM messages m JOIN conversations c ON c.id=m.conversation_id JOIN contacts r ON r.id=c.contact_id WHERE EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='persona_reply') AND {predicate}"),params![language,persona],|r|Ok((r.get(0)?,r.get(1)?)))?;
@@ -41,14 +43,28 @@ fn summary(
         conversations,
         learner_messages,
         persona_messages,
-        attempts: attempts + audio + generation.attempts + reading_attempts + shared_attempts,
-        input_tokens: input_tokens + generation.input_tokens + reading_input + shared_input,
-        output_tokens: output_tokens + generation.output_tokens + reading_output + shared_output,
+        attempts: attempts
+            + audio
+            + generation.attempts
+            + reading_attempts
+            + shared_attempts
+            + graph_usage.attempts,
+        input_tokens: input_tokens
+            + generation.input_tokens
+            + reading_input
+            + shared_input
+            + graph_usage.input,
+        output_tokens: output_tokens
+            + generation.output_tokens
+            + reading_output
+            + shared_output
+            + graph_usage.output,
         unknown_usage: unknown_usage
             + audio
             + generation.unknown_usage
             + reading_unknown
-            + shared_unknown,
+            + shared_unknown
+            + graph_usage.unknown,
     })
 }
 
@@ -58,11 +74,27 @@ impl Store {
     pub fn profile(&self) -> Result<ProfileSnapshot> {
         let snapshot = self.snapshot()?;
         let db = &self.connection;
-        let global = summary(db, "global", "All retained activity", None, None)?;
+        let global = summary(
+            db,
+            &self.graph_runtime,
+            "global",
+            "All retained activity",
+            None,
+            None,
+        )?;
         let languages = snapshot
             .languages
             .iter()
-            .map(|language| summary(db, &language.id, &language.name, Some(&language.id), None))
+            .map(|language| {
+                summary(
+                    db,
+                    &self.graph_runtime,
+                    &language.id,
+                    &language.name,
+                    Some(&language.id),
+                    None,
+                )
+            })
             .collect::<Result<Vec<_>>>()?;
         let personas = snapshot
             .personas
@@ -70,6 +102,7 @@ impl Store {
             .map(|persona| {
                 summary(
                     db,
+                    &self.graph_runtime,
                     &persona.id,
                     &persona.details.name,
                     None,

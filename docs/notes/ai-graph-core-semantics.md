@@ -1,5 +1,39 @@
 # Executable graph core: initial semantic profile
 
+## Single-step extension (2026-10-09)
+
+Specification review against the foundations: stepping changes scheduling permission,
+not topology, activation, operation identity, result equivalence or adoption authority.
+The user authorized this extension. Source implementation and verification are recorded
+separately in the production integration checkpoint.
+
+`Step(run)` requires an active paused run, no outstanding step, and no running
+attempt. It selects exactly one eligible node: an available result first, then a
+prepared attempt, then a dependency-ready paused node; ties use ascending node
+identity. Available work counts as a step through adoption, including retained
+results. Disabled, unrequested, guarded-out, blocked and terminal nodes are not
+eligible. Step does not implicitly demand or retry a node.
+
+The run remains paused and records the selected node as its sole step permission.
+Ordinary Advance, capacity admission, sharing, dispatch, settlement and owner-checked
+adoption remain authoritative. Only that node can bypass the run pause. Other runs
+continue under their own policies; joining a shared producer does not imply an
+additional provider call. Already dispatched shared work can still settle for its
+other consumers under the existing sharing contract.
+
+Adoption or failure consumes the permission. Explicit Pause/Resume, cancellation of
+the selected node/run and Recover revoke it. Recovery never silently resumes a step;
+existing prepared/running recovery rules still apply. A repeated Step while permission
+is outstanding is rejected; command receipt replay remains idempotent. Resource holds
+retain the permission, without admitting additional work. Global pause, refusal holds
+and current access/source authority remain host gates and cannot be bypassed by Step.
+
+Inspection exports the selected node and native-computed step availability. The UI
+does not calculate dependency readiness or select a node. Checkpoint format 8 carries
+Step events; run record format 2 carries a nonempty permission. Older run records
+decode with no permission and retain their exact encoding. No SQL schema change is
+required. New formats must reject downgrade into older checkpoint envelopes.
+
 Status: implementation specification for the isolated native core, 2026-10-08.
 The user authorized proceeding with the architecture-first plan. This refines
 [the foundations](ai-graph-foundations.md); it does not claim production workflow
@@ -26,7 +60,9 @@ external permission by inspecting a string; the adapter must inspect trusted
 current source/access state and the supplied inputs/work.
 
 Contract identity is `(name, positive version)`. Registration is unique. The initial
-closed type algebra is boolean, signed integer, text, list and exact-field record;
+closed type algebra is boolean, signed integer, finite JSON number, text, list,
+nullable value, string-keyed map and exact-field record (see the
+[value-type specification review](ai-graph-value-types.md));
 contracts with equal shapes but different identities are incompatible. Optional
 ports use explicit absence rather than JSON null. Every declared input is bound,
 including optional ones. Unknown input/output fields are errors. Semantic source
@@ -225,6 +261,26 @@ bounded typed failure metadata and explicit redaction before exporting this data
 Preserve useful non-content provider metadata rather than replacing failures with
 generic categories. This core API is not a diagnostics endpoint. There is no
 parallel inspector registry.
+
+### Structured response evidence extension — 2026-10-09
+
+Implementation contract: `EvidenceValue::ClassifiedJson` retains a JSON tree whose
+keys and values have already passed the owning adapter's bounded sensitivity
+policy. Objects, arrays, null, booleans and numeric values retain their structure;
+redaction and truncation markers remain explicit. This is response evidence, not
+a new graph port type, an output value, or permission to retain raw provider data.
+The existing observation, settlement, checkpoint and record byte limits apply.
+The core cannot determine sensitivity; adapters must test their classification.
+
+Checkpoint format 7 and execution-record format 4 identify this representation.
+Formats 1–6 and execution formats 1–3 keep their existing encodings and readers;
+new structure must be rejected under an older enclosing format. Upgrade occurs
+atomically with the first structured observation/settlement; compaction and
+recovery retain the enclosing version and original archive bytes. No historical
+metadata is fabricated or rewritten. This extends G8/G9 without changing graph
+topology, producer identity, adoption or scheduling semantics. Verification must
+cover structured success/failure, byte rejection, old-version rejection, archive
+recovery and protected inspection before a production adapter uses it.
 
 ## Verification and remaining integration contracts
 

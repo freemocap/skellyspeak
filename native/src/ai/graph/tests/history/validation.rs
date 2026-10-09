@@ -98,6 +98,14 @@ fn historical_reader_audits_all_evidence_even_after_the_requested_cut() {
             .code,
         "snapshot_mismatch"
     );
+    assert_eq!(
+        forged
+            .run_history("a", Some(2), 1, read_limits(), export(100), &mut store)
+            .err()
+            .unwrap()
+            .code,
+        "snapshot_mismatch"
+    );
     store.conn.execute("DELETE FROM archive", []).unwrap();
     assert!(
         checkpoint

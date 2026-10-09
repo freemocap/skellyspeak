@@ -68,7 +68,17 @@ function time(value: string | null | undefined): number | null {
 
 /// A pure summary of one turn's recorded operations. It names nothing itself:
 /// every word comes from the operations' own kinds and states.
-export function turnActivity(turn: Pick<TurnView, 'operations' | 'attempts'>, replyText: string | null = null, locale?: string): TurnActivity {
+export function turnActivity(turn: Pick<TurnView, 'operations' | 'attempts' | 'nativeGraph'>, replyText: string | null = null, locale?: string): TurnActivity {
+  if (turn.nativeGraph) {
+    const entries = Object.entries(turn.nativeGraph.nodes)
+    const count = (...states: string[]) => entries.filter(([, state]) => states.includes(state)).length
+    const running = entries.filter(([, state]) => state === 'Running').map(([name]) => name)
+    const waiting = count('Ready', 'Waiting', 'Prepared', 'Available')
+    const held = count('Paused', 'Held')
+    return { total: entries.length, done: count('Adopted'), waiting, held, failed: count('Failed', 'Unknown'),
+      running, replyRunning: false, replyWords: null, lastFinished: null,
+      settled: !waiting && !held && !running.length, elapsedMs: null }
+  }
   const phases = turn.operations.map(operation => ({ operation, phase: operationPhase(operation.state) }))
   const started = (operation: OperationView) => time(latestAttempt(turn, operation.id)?.startedAt) ?? Number.MAX_SAFE_INTEGER
   const running = phases.filter(item => item.phase === 'running').map(item => item.operation)

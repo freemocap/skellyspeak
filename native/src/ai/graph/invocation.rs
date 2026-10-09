@@ -23,6 +23,9 @@ pub struct InvocationIdentity {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum EvidenceValue {
     PublicText(String),
+    /// A bounded, already-classified tree, never a raw provider body. The adapter
+    /// owns sensitivity handling for keys and values, including unknown fields.
+    ClassifiedJson(serde_json::Value),
     Integer(i64),
     Boolean(bool),
     Omitted(EvidenceOmission),
@@ -91,6 +94,14 @@ pub struct ResponseEvidence {
     pub billing: Option<BillingEvidence>,
     pub validation: Option<ValidationEvidence>,
     pub additional: BTreeMap<String, EvidenceValue>,
+}
+
+impl ResponseEvidence {
+    pub(super) fn has_structured(&self) -> bool {
+        self.additional
+            .values()
+            .any(|value| matches!(value, EvidenceValue::ClassifiedJson(_)))
+    }
 }
 
 #[derive(Clone, Copy)]

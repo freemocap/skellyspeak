@@ -6,7 +6,7 @@ import { humanizeKind, type OperationPhase } from '../../domain/conversation/act
 import { useI18n } from '../../components/localization/i18n'
 import { attemptDuration, layoutOperations, layoutTurn, NODE_HEIGHT, NODE_WIDTH } from './graph-layout'
 
-interface OperationNodeData extends Record<string, unknown> {
+export interface OperationNodeData extends Record<string, unknown> {
   label: string
   state: string
   phase: OperationPhase | null
@@ -111,7 +111,7 @@ export function DefinitionGraph({ graph, selectedKind, onSelect }: { graph: AiGr
   return <GraphCanvas id={graph.id} nodes={nodes} edges={layout.edges.map(edge => ({ ...edge, className: 'ai-edge', animated: false }))} />
 }
 
-function GraphCanvas({ id, nodes, edges, orientation = 'across', focus = '' }: { id: string; nodes: Node<OperationNodeData, 'operation'>[]; edges: Edge[]; orientation?: 'across' | 'down'; focus?: string }) {
+export function GraphCanvas({ id, nodes, edges, orientation = 'across', focus = '' }: { id: string; nodes: Node<OperationNodeData, 'operation'>[]; edges: Edge[]; orientation?: 'across' | 'down'; focus?: string }) {
   const box = useRef<HTMLDivElement>(null)
   const shape = nodes.map(node => node.id).join(' ')
   return <div className="ai-graph" data-orientation={orientation} ref={box}>

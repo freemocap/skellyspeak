@@ -55,41 +55,27 @@ impl Store {
                 serde_json::from_value(captured["messages"].clone())?;
             let sources: Vec<String> = serde_json::from_value(captured["sourceIds"].clone())?;
             let partner_opening = captured["opening"]["kind"] == "partner";
-            if messages.first().map(|m| m.role.as_str()) != Some("system")
-                || if partner_opening {
-                    kind != "persona_context"
-                        || messages.len()
-                            != if captured.get("phraseSeed").is_some() {
-                                2
-                            } else {
-                                1
-                            }
-                        || !sources.is_empty()
-                        || (captured.get("phraseSeed").is_some()
-                            && messages.last().map(|m| m.role.as_str()) != Some("user"))
+            let prompt_context = context::Captured {
+                kind: if partner_opening {
+                    if captured.get("phraseSeed").is_some() {
+                        context::Kind::SeededOpening
+                    } else {
+                        context::Kind::Opening
+                    }
                 } else {
-                    messages.last().map(|m| m.role.as_str()) != Some("user")
-                }
-                // System + optional history initialization + 40 sources + input.
-                || messages.len() > 43
-                || messages
-                    .iter()
-                    .skip(1)
-                    .any(|m| m.role != "user" && m.role != "assistant")
-                || messages.iter().map(|m| m.content.len()).sum::<usize>() > 96000
+                    context::Kind::Reply
+                },
+                messages,
+                source_ids: sources,
+            };
+            if (partner_opening && kind != "persona_context")
+                || context::validate(&prompt_context).is_err()
             {
                 return Err(fail(
                     "Captured context violates the persona-reply input contract.",
                 ));
             }
-            for source in sources {
-                let permitted: bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM messages m JOIN turns t ON t.conversation_id=m.conversation_id WHERE m.id=?1 AND t.id=?2)",params![source,turn],|r|r.get(0))?;
-                if !permitted {
-                    return Err(fail(
-                        "A captured conversation source is unavailable or outside this turn's scope.",
-                    ));
-                }
-            }
+            source_authority::check(&tx, &turn, &prompt_context.source_ids)?;
             tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) VALUES(?1,?2,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now'))",params![attempt,operation])?;
             tx.execute(
                 "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",

@@ -18,7 +18,7 @@ pub struct Source {
     pub voice: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ReadyAudio {
     pub operation_id: String,
     pub attempt_id: String,
@@ -62,6 +62,13 @@ impl DeliveryBuffer {
         let index = entries.iter().position(|a| a.attempt_id == attempt_id)?;
         entries.remove(index)
     }
+    pub fn peek(&self, attempt_id: &str) -> Option<ReadyAudio> {
+        self.entries
+            .borrow()
+            .iter()
+            .find(|audio| audio.attempt_id == attempt_id)
+            .cloned()
+    }
     pub fn discard(&self, attempt_id: &str) {
         self.get(attempt_id);
     }
@@ -100,6 +107,14 @@ impl crate::storage::store::Store {
         attempt: &str,
         audio: &crate::speech::alignment::SpeechAudio,
     ) -> Result<crate::speech::recording::owner::RecordingOwner> {
+        if operation.starts_with("graph:") || operation.starts_with("graph-request:") {
+            return self.graph_runtime.delivered_speech_owner(
+                &self.connection,
+                operation,
+                attempt,
+                audio,
+            );
+        }
         use rusqlite::OptionalExtension;
         let conversation: String = self.connection.query_row(
             "SELECT m.conversation_id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id JOIN messages m ON m.turn_id=t.id AND m.role='assistant' WHERE a.id=?1 AND a.operation_id=?2 AND a.state='succeeded' AND o.kind='persona_speech' AND o.state='succeeded' AND t.state NOT IN ('cancelled','invalidated')",

@@ -201,6 +201,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
         session_id: store.session_id.clone(),
         action_id: id(),
         action: Action::RequestMessageSpeech {
+            regenerate: None,
             message_id: message.clone(),
         },
     };
@@ -220,6 +221,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
         let receipt = apply(
             &mut store,
             Action::RequestMessageSpeech {
+                regenerate: None,
                 message_id: message.clone(),
             },
         );
@@ -241,6 +243,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
     apply(
         &mut store,
         Action::RequestMessageSpeech {
+            regenerate: None,
             message_id: message.clone(),
         },
     );
@@ -253,6 +256,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
     apply(
         &mut store,
         Action::RequestMessageSpeech {
+            regenerate: None,
             message_id: message,
         },
     );

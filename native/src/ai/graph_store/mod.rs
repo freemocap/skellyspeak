@@ -7,7 +7,7 @@ use sha2::{Digest, Sha256};
 mod reads;
 #[cfg(test)]
 mod tests;
-pub use reads::ReadStore;
+pub use reads::{BorrowedReadStore, ReadStore};
 
 #[derive(Clone)]
 pub struct Partition {

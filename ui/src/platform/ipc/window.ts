@@ -1,6 +1,7 @@
 import { isTauri } from './tauri'
 import { invoke } from './native'
 import type { AiViewSelection, AiWindowState, AiGraphDefinition } from '../../generated/contracts'
+import type { RunHistory } from '../../generated/graph-contracts'
 
 /// The label of the webview this bundle runs in, or null outside Tauri.
 ///
@@ -58,6 +59,10 @@ export async function onAiWindowEvent(handler: (event: AiWindowEvent) => void): 
 /** Static native declarations; this command cannot dispatch work. */
 export function getAiGraphDefinitions(): Promise<AiGraphDefinition[]> {
   return invoke<AiGraphDefinition[]>('get_ai_graph_definitions')
+}
+
+export function readGraphHistory(conversationId: string, runId: string, before: string | null = null): Promise<RunHistory> {
+  return invoke<RunHistory>('read_graph_history', { conversationId, runId, before, limit: 32 })
 }
 
 /** A reading question is a local draft, never a coach request sent automatically. */

@@ -162,14 +162,11 @@ fn accept_turn(
         opening.is_some(),
         conversation_id,
     )?;
-    let channel = if coach {
-        "coach_reply"
-    } else {
-        "persona_reply"
-    };
+    // Channel belongs to the turn, independently of its execution machinery.
+    let channel = if coach { "coach" } else { "persona_reply" };
     if coach {
-        let exchange = db.prepare("SELECT m.role,m.text FROM messages m WHERE m.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=m.turn_id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) ORDER BY m.sequence DESC LIMIT 20")?.query_map([conversation_id],|r|Ok(PromptMessage{role:r.get(0)?,content:r.get(1)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
-        let saved: Vec<(String,String)> = db.prepare("SELECT t.id,t.context FROM turns t WHERE t.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=t.id AND o.kind IN ('persona_reply','persona_opening')) ORDER BY t.rowid DESC LIMIT 4")?.query_map([conversation_id], |r|Ok((r.get(0)?,r.get(1)?)))?.collect::<rusqlite::Result<_>>()?;
+        let exchange = db.prepare("SELECT m.role,m.text FROM messages m WHERE m.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=m.turn_id) AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=m.turn_id AND o.channel IN ('persona_reply','persona_opening')) ORDER BY m.sequence DESC LIMIT 20")?.query_map([conversation_id],|r|Ok(PromptMessage{role:r.get(0)?,content:r.get(1)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let saved: Vec<(String,String)> = db.prepare("SELECT t.id,t.context FROM turns t WHERE t.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=t.id AND o.channel IN ('persona_reply','persona_opening')) ORDER BY t.rowid DESC LIMIT 4")?.query_map([conversation_id], |r|Ok((r.get(0)?,r.get(1)?)))?.collect::<rusqlite::Result<_>>()?;
         let mut support = saved.iter().map(|(turn, raw)| -> Result<serde_json::Value> {
             let context: serde_json::Value = serde_json::from_str(raw)?;
             let feedback = crate::conversations::assessments::feedback(db, turn)?;
@@ -220,7 +217,7 @@ fn accept_turn(
         .map(|skill| serde_json::json!({"id":skill.id,"label":skill.name,"criterion":skill.overview,"opportunity":skill.boundary}))
         .collect();
 
-    let mut history=db.prepare("SELECT role,text,id FROM messages m WHERE conversation_id=?1 AND (?3 IS NULL OR m.turn_id!=?3) AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=m.turn_id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND (o.kind=?2 OR (?2='persona_reply' AND o.kind='persona_opening'))) ORDER BY sequence DESC LIMIT 40")?.query_map(params![conversation_id,channel,replaced],|r|Ok((PromptMessage{role:r.get(0)?,content:r.get(1)?},r.get::<_,String>(2)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let mut history=db.prepare("SELECT role,text,id FROM messages m WHERE conversation_id=?1 AND (?3 IS NULL OR m.turn_id!=?3) AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=m.turn_id) AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=m.turn_id AND (o.channel=?2 OR (?2='persona_reply' AND o.channel='persona_opening'))) ORDER BY sequence DESC LIMIT 40")?.query_map(params![conversation_id,channel,replaced],|r|Ok((PromptMessage{role:r.get(0)?,content:r.get(1)?},r.get::<_,String>(2)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
     if coach {
         // A guide belongs to its original question in the coach thread. Carry it
         // with that history message so follow-ups retain their referent, while
@@ -290,17 +287,19 @@ fn accept_turn(
     } else {
         PLAN
     };
-    admit_network_work(
-        db,
-        plan.iter()
-            .filter(|node| {
-                node.role != "local"
-                    && node.activation.enabled(speech_enabled)
-                    && snapshot.learner.preferences.execution.automatic(node.kind)
-            })
-            .count() as i64,
-    )?;
-    let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    if !coach {
+        admit_network_work(
+            db,
+            plan.iter()
+                .filter(|node| {
+                    node.role != "local"
+                        && node.activation.enabled(speech_enabled)
+                        && snapshot.learner.preferences.execution.automatic(node.kind)
+                })
+                .count() as i64,
+        )?;
+    }
+    let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=m.turn_id AND o.channel='coach') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let presence_skills = registry
         .skills_for_language(&conversation.language_id)?
         .iter()
@@ -322,21 +321,26 @@ fn accept_turn(
     captured["executionPreferencesRevision"] = snapshot.learner.revision.into();
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,target.model,serde_json::to_string(&captured)?,profile.route.label()])?;
     use crate::conversations::execution_owner::{self, Channel};
-    execution_owner::legacy(
-        db,
-        &turn,
-        if coach {
-            Channel::Coach
-        } else if opening.is_some() {
-            Channel::PersonaOpening
-        } else {
-            Channel::PersonaReply
-        },
-    )?;
+    if !coach {
+        execution_owner::legacy(
+            db,
+            &turn,
+            if coach {
+                Channel::Coach
+            } else if opening.is_some() {
+                Channel::PersonaOpening
+            } else {
+                Channel::PersonaReply
+            },
+        )?;
+    }
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     }
     for node in plan {
+        if coach {
+            continue;
+        }
         if !node.activation.enabled(speech_enabled)
             || !snapshot.learner.preferences.execution.automatic(node.kind)
         {

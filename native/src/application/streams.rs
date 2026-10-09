@@ -308,6 +308,10 @@ impl Application {
 
     /// A new workspace generation (factory reset): drop every stream.
     pub(crate) fn reset_streams(&self) {
+        self.graph_reports
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner())
+            .clear();
         if let Ok(mut streams) = self.streams.lock() {
             streams.reset();
         }

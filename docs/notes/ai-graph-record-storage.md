@@ -29,7 +29,7 @@ engine. Derived indexes are omitted. This is private, content-bearing persistenc
 data and must never be used as an inspection DTO or logged. No frontend catalog or
 renderer model is introduced.
 
-Runs, attempts and executions without evidence retain physical format 1 and its
+Runs without step permission, attempts and executions without evidence retain physical format 1 and its
 exact encoding. Executions with the native optional evidence field use format 2.
 The same changed-row transaction, hash verification and typed decoder apply; there
 is no independently maintained evidence table. Explicit null evidence is invalid;
@@ -43,7 +43,19 @@ checkpoint format 6. They still use this same native record, changed-row selecti
 and integrity checks. Metadata-only format 2 and absent-evidence format 1 retain
 their exact encodings. The optional capture cannot be silently erased with null.
 
-The row envelope version is independent of checkpoint formats 1/2/3/4/5/6 and production
+Executions with adapter-classified structured metadata use physical format 4 and
+checkpoint format 7, including when provisional capture is also present. Scalar
+metadata and absent-evidence records retain their previous encodings. Structured
+evidence remains protected native data and does not enter graph inspection DTOs.
+See the [structured evidence contract](ai-graph-core-semantics.md#structured-response-evidence-extension--2026-10-09).
+
+Runs with a single-step permission use physical run format 2; checkpoint format 8
+introduces the Step event. Omitted permission decodes as none and preserves old
+record bytes. Replay checks the permission against the event history; recovery
+revokes it. These are native envelope upgrades, with no SQL rewrite or change to
+released workspace migrations. See the [step contract](ai-graph-core-semantics.md#single-step-extension-2026-10-09).
+
+The row envelope version is independent of checkpoint formats 1/2/3/4/5/6/7/8 and production
 workspace format versions. The fixture's `graph_record` table is not a production
 migration. Production adoption requires its own consecutive workspace migration.
 Future physical row changes must preserve this format or introduce a versioned
@@ -520,3 +532,14 @@ failures must not appear as absent graph inputs, skipped nodes or an incomplete 
   and migration reading-default mismatch remain. Their assertions/policies were
   not weakened; the full suite is not green. Documentation entry-point links and
   whitespace checks pass.
+
+
+### Protected node-output reads
+
+The host can read one current adopted node's outputs through the same native
+source resolver used for whole-run outputs, with stamp-bound record integrity and
+read budgets. Pending independent branches do not hide that adopted value. This
+read does not demand, dispatch, adopt or mutate any node; missing, available,
+failed and unrequested attempts return no adopted value. Whole-run output
+completion semantics remain unchanged. Coverage includes cold records, compaction
+and recovery.

@@ -110,7 +110,7 @@ fn coaching_is_automatic_and_reply_publication_does_not_wait_for_it() {
 }
 
 #[test]
-fn defaults_schedule_reply_coaching_and_assessment_without_backfill() {
+fn defaults_schedule_reply_coaching_assessment_and_reading_without_backfill() {
     let (_dir, mut store, conversation) = setup();
     policy(&mut store, ExecutionPreferences::default());
     let revision = store.snapshot().unwrap().learner.revision;
@@ -122,8 +122,12 @@ fn defaults_schedule_reply_coaching_and_assessment_without_backfill() {
         "coach_feedback",
         "persona_context",
         "persona_reply",
+        "persona_word_gloss",
+        "reply_translation",
         "skill_assessment",
         "skill_attribution",
+        "user_translation",
+        "user_word_gloss",
     ];
     assert_eq!(kinds(&store, &turn), expected);
     let captured = wave2_context(&store, &turn);
@@ -147,7 +151,8 @@ fn late_assessment_shares_pending_work_preserves_source_and_credits_once() {
     let (dir, mut store, conversation) = setup();
     let manual = ExecutionPreferences {
         assessment: ExecutionMode::OnDemand,
-        ..Default::default()
+        reply_brief: ExecutionMode::OnDemand,
+        reading: ExecutionMode::OnDemand,
     };
     policy(&mut store, manual.clone());
     let turn = store
@@ -220,7 +225,8 @@ fn opening_failed_help_is_a_read_and_retry_is_explicit() {
         &mut store,
         ExecutionPreferences {
             assessment: ExecutionMode::OnDemand,
-            ..Default::default()
+            reply_brief: ExecutionMode::OnDemand,
+            reading: ExecutionMode::OnDemand,
         },
     );
     let turn = store
@@ -264,7 +270,8 @@ fn requesting_reading_before_reply_does_not_schedule_other_helpers() {
         &mut store,
         ExecutionPreferences {
             assessment: ExecutionMode::OnDemand,
-            ..Default::default()
+            reply_brief: ExecutionMode::OnDemand,
+            reading: ExecutionMode::OnDemand,
         },
     );
     let turn = store
@@ -319,7 +326,8 @@ fn late_helpers_bind_current_access_and_reject_unavailable_sources() {
         &mut store,
         ExecutionPreferences {
             assessment: ExecutionMode::OnDemand,
-            ..Default::default()
+            reply_brief: ExecutionMode::OnDemand,
+            reading: ExecutionMode::OnDemand,
         },
     );
     let turn = store

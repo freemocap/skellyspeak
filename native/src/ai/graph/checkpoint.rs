@@ -158,13 +158,30 @@ impl Checkpoint {
             .iter()
             .map(|(id, g)| (id.clone(), g.artifact().clone()))
             .collect();
+        let new_shapes = engine.graphs.values().any(|graph| {
+            graph
+                .artifact()
+                .types
+                .values()
+                .any(Shape::needs_format_nine)
+        });
         let events = engine.journal().to_vec();
-        let payload = if evidence_format > 0
+        let payload = if new_shapes
+            || evidence_format > 0
             || events.iter().any(|e| e.evidence_identity().is_some())
+            || events.iter().any(|e| matches!(e, Event::Step { .. }))
         {
             Payload::Evidence(Box::new(EvidencePayload {
-                format: if evidence_format >= 6 || events.iter().any(|e| e.provisional().is_some())
+                format: if new_shapes || evidence_format >= 9 {
+                    9
+                } else if evidence_format >= 8
+                    || events.iter().any(|e| matches!(e, Event::Step { .. }))
                 {
+                    8
+                } else if evidence_format >= 7 || events.iter().any(Event::has_structured_evidence)
+                {
+                    7
+                } else if evidence_format >= 6 || events.iter().any(|e| e.provisional().is_some()) {
                     6
                 } else {
                     5
@@ -287,6 +304,24 @@ impl Checkpoint {
         engine: &mut Engine,
         observe: &mut impl FnMut(&Engine),
     ) -> Result<()> {
+        if self.envelope.payload.evidence_format() < 8
+            && engine
+                .state
+                .runs
+                .iter()
+                .any(|(_, run)| run.stepping.is_some())
+        {
+            return Err(fault(CoreFaultCode::CheckpointVersion, "checkpoint"));
+        }
+        if self.envelope.payload.evidence_format() < 7
+            && engine.state.executions.iter().any(|(_, e)| {
+                e.evidence
+                    .as_ref()
+                    .is_some_and(ExecutionEvidence::has_structured)
+            })
+        {
+            return Err(fault(CoreFaultCode::CheckpointVersion, "checkpoint"));
+        }
         if self.envelope.payload.evidence_format() < 6
             && engine
                 .state

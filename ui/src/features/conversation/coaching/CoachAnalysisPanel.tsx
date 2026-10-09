@@ -38,11 +38,11 @@ export function CoachAnalysisPanel({ chatId, targetLanguageName, conversationBus
   }, [chatId])
   const currentSnapshot = snapshot?.conversationId === chatId ? snapshot : null
   const thread = currentSnapshot?.coachMessages ?? []
-  const coachTurns = currentSnapshot?.turns.filter(turn => turn.operations.some(operation => operation.kind === 'coach_reply')) ?? []
+  const coachTurns = currentSnapshot?.turns.filter(turn => turn.channel === 'coach' || turn.operations.some(operation => operation.kind === 'coach_reply')) ?? []
   const running = coachTurns.some(turn => turn.state === 'pending' || turn.state === 'assisting')
   const busy = submitting || running
   const lastCoachTurn = coachTurns[0]
-  const executionError = lastCoachTurn?.hold?.message ?? (lastCoachTurn?.state === 'failed' || lastCoachTurn?.state === 'unknown_outcome'
+  const executionError = lastCoachTurn?.hold?.message ?? (lastCoachTurn?.state === 'failed' || lastCoachTurn?.state === 'unknown' || lastCoachTurn?.state === 'unknown_outcome'
     ? lastCoachTurn.attempts.filter(attempt => attempt.error).at(-1)?.error ?? 'Coach request failed. Open AI activity for details.' : null)
   useEffect(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, [thread, busy])
   const ask = async (text = input): Promise<void> => {
@@ -84,6 +84,7 @@ export function CoachAnalysisPanel({ chatId, targetLanguageName, conversationBus
     thread={<div className="coach-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
       {thread.length > 0 && <h3 className="coach-group-label">{tr("You asked")}</h3>}
       {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} />{message.guideContext != null && <details><summary>{tr('Skill guide')}</summary><ResponseDetails value={message.guideContext} /></details>}</div>)}
+      {lastCoachTurn?.nativePreview?.live && <div className="coach-msg coach"><Markdown text={lastCoachTurn.nativePreview.capture.text} /></div>}
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
     </div>}
     notices={<>{readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}

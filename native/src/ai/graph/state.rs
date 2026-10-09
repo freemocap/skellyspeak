@@ -16,6 +16,14 @@ pub struct Run {
     pub(super) current: BTreeMap<String, AttemptId>,
     pub(super) paused: bool,
     pub(super) active: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) stepping: Option<String>,
+}
+
+impl Run {
+    pub(super) fn permits(&self, node: &str) -> bool {
+        !self.paused || self.stepping.as_deref() == Some(node)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -29,7 +37,7 @@ pub(super) struct AttemptRecord {
 impl AttemptRecord {
     pub fn eligible_consumer(&self, owner: &Run, allow_paused: bool) -> bool {
         owner.active
-            && (allow_paused || !owner.paused)
+            && (allow_paused || owner.permits(&self.node))
             && !owner.cancelled.contains(&self.node)
             && matches!(
                 self.attempt.state,

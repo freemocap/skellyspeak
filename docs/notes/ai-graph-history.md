@@ -1,9 +1,39 @@
 # Native historical graph inspection
 
-Status: isolated implementation contract, 2026-10-08. Extends the
+Status: native read contract with coach IPC/viewer integration, updated 2026-10-09. Extends the
 [retention contract](ai-graph-retention.md) and [inspection protocol](ai-graph-inspection.md).
-This implements historical reads and bounded attempt exports. It does not yet
-implement cold-state paging, a production storage adapter, IPC or the viewer.
+Historical reads, bounded attempt exports and run-state history are implemented.
+The production graph-store adapter and coach activity surface now use these reads.
+Cold-state paging and whole-application conversion remain incomplete.
+
+## Run timeline integration — 2026-10-09
+
+`Checkpoint::run_history` replays the same native transitions and exports a
+chronological page of state changes for one run. A change is a difference in node
+dispositions, reasons, activation policy, latest attempts, active/pause state or single-step permission
+and eligibility. Streaming evidence alone does not create a graph-state frame.
+Each frame is a complete `InspectionSnapshot`, including nodes that never ran and
+the exact retained artifact. This is a presentation sampling rule over native
+facts, not another scheduler or an alternative event log.
+
+Pages select revisions strictly before an optional canonical decimal cut. The
+response's `before` cursor names the oldest returned frame when earlier frames
+remain. Counts and serialized bytes bound each page; older frames remain available
+through pagination. An oversized single frame fails explicitly. The reader audits
+the entire retained chain and uses the existing history/state limits; this does
+not make historical reads constant-cost or disk-paged. No handler is invoked and
+no recovery or publication is performed.
+
+The workspace command binds conversation, run and persisted engine/catalog before
+reading. Missing executable implementations still permit retained inspection;
+execution controls are unavailable for those runs. The UI consumes Rust-generated
+contracts and switches structure, live state and recorded frames in the same
+renderer. A historical selection receives neither current response text nor live
+controls. Node/edge geometry continues to derive only from the artifact.
+
+Verification covers frame equality with native cuts, pagination across compaction,
+redaction, read-only storage, invalid bounds/cursors, multi-catalog restart and UI
+selection/identity checks. Rendered desktop/phone/pop-out acceptance remains open.
 
 ## Shared semantics and separate capabilities
 

@@ -165,6 +165,11 @@ impl Store {
     /// Resolve only a currently authorized consumer; no request can read another
     /// operation's shared stream merely by knowing its execution identifier.
     pub(crate) fn speech_stream_execution(&self, operation: &str) -> Result<Option<String>> {
+        if operation.starts_with("graph:") || operation.starts_with("graph-request:") {
+            return self
+                .graph_runtime
+                .speech_stream_execution(&self.connection, operation);
+        }
         let (_, message, text, state, context) = speech_owner(&self.connection, operation)?;
         let captured = serde_json::from_str(&context)?;
         speech_binding(&self.connection, &message, &text, &captured)?;
@@ -292,6 +297,9 @@ impl Store {
         operation: &str,
         cache: &crate::speech::delivery::DeliveryBuffer,
     ) -> Result<SpeechAudioState> {
+        if operation.starts_with("graph:") || operation.starts_with("graph-request:") {
+            return self.graph_runtime.speech_audio(&self.connection, operation);
+        }
         let result = self.resolve_speech_audio(operation, cache)?;
         self.remember_speech_delivery(&result)?;
         Ok(result)

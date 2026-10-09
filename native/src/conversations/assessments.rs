@@ -4,6 +4,7 @@
 use crate::model::*;
 use rusqlite::{Connection, OptionalExtension, params};
 use serde_json::Value;
+mod native;
 
 /// Message-level judgments from the current, source-owned assessment. Numeric
 /// evidence remains readable for saved attempts that used that result shape.
@@ -66,6 +67,9 @@ pub(crate) fn publish(
 
 /// A pending/failed reassessment does not expose an older success as current.
 pub(crate) fn current(db: &Connection, turn: &str, kind: &str) -> Result<Option<(String, Value)>> {
+    if native::owns(db, turn)? {
+        return native::current(db, turn, kind);
+    }
     let saved: Option<(String, String)> = db.query_row(
         "SELECT s.attempt_id,s.result FROM message_assessments s JOIN messages m ON m.id=s.message_id JOIN attempts a ON a.id=s.attempt_id JOIN operations o ON o.id=a.operation_id WHERE m.turn_id=?1 AND s.kind=?2 AND o.state='succeeded' AND a.state='succeeded' AND a.id=(SELECT id FROM attempts WHERE operation_id=o.id ORDER BY rowid DESC LIMIT 1)",
         params![turn,kind], |r| Ok((r.get(0)?,r.get(1)?)),
@@ -84,13 +88,16 @@ pub(crate) fn context(db: &Connection, turn: &str) -> Result<Value> {
     let mut context: Value = serde_json::from_str(&raw)?;
     if let Some((attempt, result)) = current(db, turn, "coach_feedback")? {
         context["coachObservation"] = result["observation"].clone();
-        let disclosed: Option<String> = db
-            .query_row(
+        let disclosed: Option<String> = if native::owns(db, turn)? {
+            native::disclosure(db, &attempt)?
+        } else {
+            db.query_row(
                 "SELECT decision FROM assessment_disclosures WHERE attempt_id=?1",
                 [&attempt],
                 |r| r.get(0),
             )
-            .optional()?;
+            .optional()?
+        };
         context["coachDecision"] = match disclosed {
             Some(raw) => serde_json::from_str(&raw)?,
             None => result["decision"].clone(),
@@ -111,4 +118,21 @@ pub(crate) fn context(db: &Connection, turn: &str) -> Result<Value> {
         }
     }
     Ok(context)
+}
+
+/// The policy selected the current receipt immediately before this call in the
+/// command transaction. Native and historical disclosures retain separate FKs.
+pub(crate) fn disclose(db: &Connection, turn: &str, receipt: &str, decision: &Value) -> Result<()> {
+    if native::owns(db, turn)? {
+        if !native::current(db, turn, "coach_feedback")?.is_some_and(|(id, _)| id == receipt) {
+            return Err(AppError::new(
+                ErrorCode::Conflict,
+                "The feedback disclosure source is no longer current.",
+            ));
+        }
+        native::disclose(db, receipt, decision)
+    } else {
+        db.execute("INSERT INTO assessment_disclosures(attempt_id,decision) VALUES(?1,?2) ON CONFLICT(attempt_id) DO UPDATE SET decision=excluded.decision",params![receipt,decision.to_string()])?;
+        Ok(())
+    }
 }

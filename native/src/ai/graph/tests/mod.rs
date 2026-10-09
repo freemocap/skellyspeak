@@ -26,9 +26,11 @@ mod scheduling_reads;
 mod settlement_capacity;
 mod sql_records;
 mod state_limits;
+mod stepping;
 mod stored_records;
 mod transition_reads;
 mod validation;
+mod value_types;
 
 fn contract(name: &str) -> Contract {
     Contract::new(name, 1)

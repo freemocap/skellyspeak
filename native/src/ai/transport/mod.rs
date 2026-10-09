@@ -6,6 +6,10 @@ pub(super) mod service_audio;
 
 #[cfg(test)]
 mod boundary_tests;
+pub mod graph_evidence;
+pub mod graph_identity;
+pub mod graph_request;
+pub(crate) mod graph_text;
 pub mod text_request;
 mod transcription_adapters;
 mod transcription_confidence;

@@ -289,6 +289,24 @@ pub(in crate::application) fn list_turn_history(
         .turn_history(&conversation_id, before.as_deref(), limit)
 }
 
+#[tauri::command]
+pub(in crate::application) fn read_graph_history(
+    state: tauri::State<'_, Arc<Application>>,
+    conversation_id: String,
+    run_id: String,
+    before: Option<String>,
+    limit: u32,
+) -> Result<crate::ai::graph::RunHistory> {
+    let store = state.lock()?;
+    store.graph_runtime.history(
+        &store.connection,
+        &conversation_id,
+        &run_id,
+        before.as_deref(),
+        limit,
+    )
+}
+
 /// Conditional full snapshots combine observation and hydration without an event gap.
 #[tauri::command]
 pub(in crate::application) async fn watch_conversation(

@@ -58,6 +58,7 @@ impl Engine {
                         current: BTreeMap::new(),
                         paused: false,
                         active: true,
+                        stepping: None,
                     },
                 );
             }
@@ -78,7 +79,9 @@ impl Engine {
                 let owner = records.run(run)?;
                 self.state.runs.load(run.clone(), owner);
                 self.state.runs.get_mut(run).unwrap().paused = *paused;
+                self.state.runs.get_mut(run).unwrap().stepping = None;
             }
+            Event::Step { run } => self.step(records, run)?,
             Event::Cancel { run, node } => {
                 let owner = records.run(run)?;
                 if let Some(node) = node {
@@ -86,6 +89,9 @@ impl Engine {
                 }
                 self.state.runs.load(run.clone(), owner.clone());
                 let r = self.state.runs.get_mut(run).unwrap();
+                if node.is_none() || node.as_ref() == r.stepping.as_ref() {
+                    r.stepping = None;
+                }
                 if let Some(node) = node {
                     r.cancelled.insert(node.clone());
                 } else {
@@ -204,7 +210,11 @@ impl Engine {
                 self.settle(records, *execution, outcome)?;
             }
             Event::Adopt { run, node, attempt } => {
-                self.adoption(records, run, node, *attempt)?;
+                let adoption = self.adoption(records, run, node, *attempt)?;
+                if adoption.owner.stepping.as_deref() == Some(node) {
+                    self.state.runs.load(run.clone(), adoption.owner);
+                    self.state.runs.get_mut(run).unwrap().stepping = None;
+                }
                 self.state.attempts.load(records.attempt(*attempt)?);
                 self.state
                     .attempts
@@ -229,9 +239,10 @@ impl Engine {
                 for run_id in runs {
                     let owner = records.run(&run_id)?;
                     let attempts: Vec<_> = owner.current.values().copied().collect();
-                    if !owner.paused {
+                    if !owner.paused || owner.stepping.is_some() {
                         self.state.runs.load(run_id.clone(), owner.clone());
                         self.state.runs.get_mut(&run_id).unwrap().paused = true;
+                        self.state.runs.get_mut(&run_id).unwrap().stepping = None;
                     }
                     for id in attempts {
                         let row = records.attempt(id)?;
@@ -304,6 +315,13 @@ impl Engine {
             }
         })?;
         for row in affected {
+            if matches!(to, AttemptState::Failed(_) | AttemptState::Unknown) {
+                let owner = records.run(&row.run)?;
+                if owner.stepping.as_deref() == Some(&row.node) {
+                    self.state.runs.load(row.run.clone(), owner);
+                    self.state.runs.get_mut(&row.run).unwrap().stepping = None;
+                }
+            }
             let id = row.attempt.id;
             self.state.attempts.load(row);
             self.state.attempts.set_state(&id, to.clone());

@@ -1,6 +1,9 @@
 use super::*;
 
 pub(crate) struct Application {
+    /// Protected reports whose storage acknowledgement failed. Never diagnostics
+    /// and never automatically resubmitted; reset explicitly clears this buffer.
+    pub(super) graph_reports: Mutex<Vec<crate::ai::graph::InvocationReport>>,
     pub(super) coaching_pending:
         crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) reading_pending: crate::ai::results::pending::Registry<crate::ai::results::Retained>,
@@ -63,6 +66,7 @@ impl Application {
             Err(error) => (None, Some(error)),
         };
         Arc::new(Self {
+            graph_reports: Mutex::new(Vec::new()),
             speech_streams: Default::default(),
             speech_pending: Default::default(),
             transcription_pending: Default::default(),

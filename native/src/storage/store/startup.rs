@@ -85,7 +85,8 @@ impl Store {
         validate_current_schema(&connection)?;
         crate::conversations::execution_owner::validate_complete(&connection)?;
         crate::language::reading::preloaded::install_bundled(&mut connection, &config)?;
-        let store = Self {
+        let mut store = Self {
+            graph_runtime: crate::conversations::execution::graph_runtime::Runtime::new()?,
             config,
             connection,
             session_id: id(),
@@ -99,6 +100,7 @@ impl Store {
         store.snapshot()?;
         crate::ai::results::recover(&store.connection)?;
         store.reconcile_execution()?;
+        store.graph_runtime.recover(&mut store.connection)?;
         crate::drill::sessions::recover(&store.connection)?;
         crate::ai::generation::generation_receipts::recover(&store.connection)?;
         crate::language::reading::recover(&store.connection)?;

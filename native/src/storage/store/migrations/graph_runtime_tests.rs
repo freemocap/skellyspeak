@@ -19,7 +19,14 @@ fn graph_storage_upgrade_preserves_every_supported_start_and_reopens() {
         assert_eq!(rows(&store.connection, "effort_awards"), awards);
         assert_eq!(rows(&store.connection, "saved_topics"), topics);
         assert_eq!(rows(&store.connection, "reading_attempts"), reading);
-        for table in ["graph_engines", "graph_records", "graph_archives"] {
+        for table in [
+            "graph_engines",
+            "graph_records",
+            "graph_archives",
+            "graph_transport_identities",
+            "conversation_graph_effects",
+            "conversation_graph_publications",
+        ] {
             assert!(rows(&store.connection, table).is_empty());
         }
         schema::validate_current_schema(&store.connection).unwrap();

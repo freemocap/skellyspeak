@@ -75,6 +75,32 @@ pub struct DurableEngine {
 }
 
 impl DurableEngine {
+    /// Current checkpoint suffix footprint. Compaction policy is host-owned;
+    /// these counters never reinterpret run or attempt state.
+    pub fn checkpoint_usage(&self) -> (usize, usize) {
+        (self.checkpoint.bytes().len(), self.engine.journal().len())
+    }
+
+    /// Original protected producer inputs, read through committed integrity
+    /// evidence. Hosts use these for current authority, never current settings.
+    pub fn read_execution_work(
+        &self,
+        execution: ExecutionId,
+        store: &mut impl RecordStore,
+    ) -> Result<Work> {
+        self.check_live()?;
+        let store = &mut BudgetedStore::new(store, self.limits.record_reads);
+        let mut records = super::record_access::StoredAccess {
+            evidence: &self.evidence,
+            max_bytes: self.limits.checkpoint.bytes,
+            store,
+        };
+        Ok(
+            super::record_access::RecordAccess::execution(&mut records, execution)?
+                .work
+                .clone(),
+        )
+    }
     /// Protected native evidence read against the current committed stamp.
     pub fn read_execution_evidence(
         &self,
@@ -297,6 +323,50 @@ impl DurableEngine {
                 store,
             },
             run,
+        )
+    }
+
+    /// Protected current adopted node outputs, even when other branches are
+    /// pending or unrequested. Uses the same resolver as whole-run outputs.
+    pub fn read_node_outputs(
+        &self,
+        run: &str,
+        node: &str,
+        store: &mut impl RecordStore,
+    ) -> Result<Option<Values>> {
+        self.check_live()?;
+        let store = &mut BudgetedStore::new(store, self.limits.record_reads);
+        self.engine.node_outputs_using(
+            &mut super::record_access::StoredAccess {
+                evidence: &self.evidence,
+                max_bytes: self.limits.checkpoint.bytes,
+                store,
+            },
+            run,
+            node,
+        )
+    }
+
+    /// Resolve an actual input binding without activating its consumer. This is
+    /// protected source data, suitable for source-owner checks, never diagnostics.
+    pub fn read_node_input(
+        &self,
+        run: &str,
+        node: &str,
+        port: &str,
+        store: &mut impl RecordStore,
+    ) -> Result<Option<serde_json::Value>> {
+        self.check_live()?;
+        let store = &mut BudgetedStore::new(store, self.limits.record_reads);
+        self.engine.node_input_using(
+            &mut super::record_access::StoredAccess {
+                evidence: &self.evidence,
+                max_bytes: self.limits.checkpoint.bytes,
+                store,
+            },
+            run,
+            node,
+            port,
         )
     }
 

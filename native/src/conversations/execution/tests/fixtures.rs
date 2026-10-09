@@ -10,6 +10,71 @@ pub(super) fn apply(store: &mut Store, action: Action) -> Receipt {
         .unwrap()
 }
 
+pub(super) fn coach_provider(store: &Store, replies: &[&str]) {
+    use std::sync::{Arc, Mutex};
+    let replies = Arc::new(Mutex::new(
+        replies
+            .iter()
+            .map(|s| s.to_string())
+            .collect::<std::collections::VecDeque<_>>(),
+    ));
+    store
+        .graph_runtime
+        .bind_provider(Arc::new(move |context, _| {
+            let text = replies
+                .lock()
+                .unwrap()
+                .pop_front()
+                .expect("unexpected provider call");
+            Box::pin(async move {
+                context.observe(crate::ai::graph::ResponseEvidence {
+                    usage: Some(crate::ai::graph::UsageEvidence {
+                        input_tokens: Some(21),
+                        output_tokens: Some(8),
+                        total_tokens: None,
+                        provenance: "test_provider".into(),
+                    }),
+                    ..Default::default()
+                })?;
+                Ok(text)
+            })
+        }));
+}
+
+pub(super) fn finish_native_coach(store: &mut Store) {
+    tokio::runtime::Runtime::new().unwrap().block_on(async {
+        for _ in 0..8 {
+            if let Some(claim) = store
+                .graph_runtime
+                .next(
+                    &mut store.connection,
+                    true,
+                    &store.config,
+                    &store.session_id,
+                )
+                .unwrap()
+            {
+                let report = claim
+                    .invocation
+                    .execute(crate::ai::graph::EvidenceLimits {
+                        observations: 16,
+                        bytes: 64_000,
+                    })
+                    .await;
+                store
+                    .graph_runtime
+                    .finish(
+                        &mut store.connection,
+                        &claim.conversation,
+                        &claim.run,
+                        report,
+                    )
+                    .unwrap();
+            }
+        }
+    });
+}
+
 pub(super) fn setup() -> (tempfile::TempDir, Store, String) {
     let dir = tempfile::tempdir().unwrap();
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();

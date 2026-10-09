@@ -126,6 +126,25 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
                 "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3) WHERE conversation_id=?1",
                 params![conversation, later, store.config.language(later).unwrap().default_variety],
             ).unwrap();
+            if coach {
+                let context: String = store
+                    .connection
+                    .query_row(
+                        "SELECT context FROM turns ORDER BY rowid DESC LIMIT 1",
+                        [],
+                        |r| r.get(0),
+                    )
+                    .unwrap();
+                let context: serde_json::Value = serde_json::from_str(&context).unwrap();
+                let instruction = context["messages"][0]["content"].as_str().unwrap();
+                assert_eq!(instruction.contains("Target-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), target == "mandarin");
+                assert_eq!(instruction.contains("Explanation-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), explanation == "mandarin");
+                assert_eq!(
+                    context["messages"].as_array().unwrap().last().unwrap()["content"],
+                    "Explain this quotation: 漢字。"
+                );
+                continue;
+            }
             assert!(store.dispatch().unwrap().is_none());
             let primary = store.dispatch().unwrap().unwrap();
             let instruction = &primary.messages[0].content;

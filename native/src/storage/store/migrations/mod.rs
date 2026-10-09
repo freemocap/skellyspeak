@@ -16,6 +16,15 @@ mod v55_reading_preloads;
 mod v56_reading_review;
 mod v57_graph_runtime;
 mod v58_turn_execution_owners;
+mod v59_graph_publications;
+mod v60_graph_transport;
+mod v61_graph_reply_roles;
+mod v62_graph_reply_sources;
+mod v63_graph_assessments;
+mod v64_graph_audio;
+mod v65_graph_audio_delivery;
+mod v66_compatibility;
+mod v67_graph_speech_requests;
 
 const MIN_VERSION: i32 = 45;
 const BASELINE: &str = include_str!("v45.sql");
@@ -92,6 +101,51 @@ const STEPS: &[Step] = &[
         from: 57,
         apply: v58_turn_execution_owners::apply,
         validate: v58_turn_execution_owners::validate,
+    },
+    Step {
+        from: 58,
+        apply: v59_graph_publications::apply,
+        validate: v59_graph_publications::validate,
+    },
+    Step {
+        from: 59,
+        apply: v60_graph_transport::apply,
+        validate: v60_graph_transport::validate,
+    },
+    Step {
+        from: 60,
+        apply: v61_graph_reply_roles::apply,
+        validate: v61_graph_reply_roles::validate,
+    },
+    Step {
+        from: 61,
+        apply: v62_graph_reply_sources::apply,
+        validate: v62_graph_reply_sources::validate,
+    },
+    Step {
+        from: 62,
+        apply: v63_graph_assessments::apply,
+        validate: v63_graph_assessments::validate,
+    },
+    Step {
+        from: 63,
+        apply: v64_graph_audio::apply,
+        validate: v64_graph_audio::validate,
+    },
+    Step {
+        from: 64,
+        apply: v65_graph_audio_delivery::apply,
+        validate: v65_graph_audio_delivery::validate,
+    },
+    Step {
+        from: 65,
+        apply: v66_compatibility::apply,
+        validate: v65_graph_audio_delivery::validate,
+    },
+    Step {
+        from: 66,
+        apply: v67_graph_speech_requests::apply,
+        validate: v67_graph_speech_requests::validate,
     },
 ];
 

@@ -2,6 +2,7 @@ use super::durable_store::SqlStore;
 use super::*;
 
 mod pages;
+mod timeline;
 mod validation;
 
 fn read_limits() -> HistoricalLimits {

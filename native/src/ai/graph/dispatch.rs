@@ -21,7 +21,11 @@ impl Engine {
             .current
             .get(node)
             .ok_or_else(|| fault(CoreFaultCode::UnknownAttempt, "attempt"))?;
-        if !owner.active || owner.paused || owner.cancelled.contains(node) || *current != attempt {
+        if !owner.active
+            || !owner.permits(node)
+            || owner.cancelled.contains(node)
+            || *current != attempt
+        {
             return Err(fault(CoreFaultCode::InvalidDispatch, "attempt"));
         }
         let row = records.attempt(attempt)?;

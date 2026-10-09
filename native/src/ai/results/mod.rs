@@ -60,6 +60,13 @@ pub fn initialize(db: &Connection) -> Result<()> {
         }
     }
     db.execute_batch(schema)?;
+    if !db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='graph_audio_receipts')",
+        [],
+        |r| r.get::<_, bool>(0),
+    )? {
+        db.execute_batch(include_str!("../../storage/schemas/graph_audio.sql"))?;
+    }
     db.execute_batch(
         "DROP TABLE IF EXISTS drill_references; DROP TABLE IF EXISTS inference_profiles;",
     )?;
@@ -78,7 +85,7 @@ pub(crate) fn recover(db: &Connection) -> Result<()> {
     Ok(())
 }
 
-fn tick(db: &Connection) -> Result<i64> {
+pub(crate) fn tick(db: &Connection) -> Result<i64> {
     Ok(db.query_row(
         "UPDATE inference_cache_settings SET clock=clock+1 WHERE singleton=1 RETURNING clock",
         [],
@@ -99,7 +106,7 @@ pub fn settings(db: &Connection) -> Result<CacheSettings> {
             |r| r.get::<_, i64>(0),
         )? + crate::speech::analysis::signal_cache::bytes(db, "inference")?)
             as u64,
-        result_count: db.query_row("SELECT count(*) FROM inference_results", [], |r| {
+        result_count: db.query_row("SELECT (SELECT count(*) FROM inference_results)+(SELECT count(*) FROM graph_audio_cache)", [], |r| {
             r.get::<_, i64>(0)
         })? as u64,
     })
@@ -124,8 +131,8 @@ pub fn set_capacity(db: &Connection, bytes: u64) -> Result<CacheSettings> {
 
 pub(crate) fn prune(db: &Connection) -> Result<()> {
     loop {
-        db.execute("DELETE FROM inference_blobs WHERE NOT EXISTS(SELECT 1 FROM inference_results WHERE blob_digest=inference_blobs.digest)", [])?;
-        let removed = db.prepare("SELECT id FROM audio_signal_sources WHERE kind='inference' AND NOT EXISTS(SELECT 1 FROM inference_results r WHERE r.id=audio_signal_sources.id)")?
+        db.execute("DELETE FROM inference_blobs WHERE NOT EXISTS(SELECT 1 FROM inference_results WHERE blob_digest=inference_blobs.digest) AND NOT EXISTS(SELECT 1 FROM graph_audio_cache WHERE blob_digest=inference_blobs.digest)", [])?;
+        let removed = db.prepare("SELECT id FROM audio_signal_sources WHERE kind='inference' AND NOT EXISTS(SELECT 1 FROM inference_results r WHERE r.id=audio_signal_sources.id) AND NOT EXISTS(SELECT 1 FROM graph_audio_cache g WHERE g.receipt_id=audio_signal_sources.id)")?
             .query_map([], |r| r.get::<_, String>(0))?.collect::<rusqlite::Result<Vec<_>>>()?;
         for id in removed {
             crate::speech::analysis::signal_cache::release(db, "inference", &id)?;
@@ -134,7 +141,15 @@ pub(crate) fn prune(db: &Connection) -> Result<()> {
         if current.used_bytes <= current.capacity_bytes {
             return Ok(());
         }
-        db.execute("DELETE FROM inference_results WHERE id=(SELECT id FROM inference_results ORDER BY last_used,id LIMIT 1)", [])?;
+        let (native, id): (bool, String) = db.query_row("SELECT native,id FROM (SELECT 0 AS native,id,last_used FROM inference_results UNION ALL SELECT 1 AS native,receipt_id AS id,last_used FROM graph_audio_cache) ORDER BY last_used,id,native LIMIT 1", [], |r| Ok((r.get(0)?,r.get(1)?)))?;
+        db.execute(
+            if native {
+                "DELETE FROM graph_audio_cache WHERE receipt_id=?1"
+            } else {
+                "DELETE FROM inference_results WHERE id=?1"
+            },
+            [id],
+        )?;
     }
 }
 

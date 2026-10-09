@@ -15,6 +15,7 @@ import { getAiViewSelection, setAiViewSelection } from '../../platform/ipc/windo
 import { nativeError } from '../../platform/ipc/workspace'
 import { useConversationActivity } from './useConversationActivity'
 import { ActivityGraph } from './ActivityGraph'
+import { NativeRunView } from './NativeRunView'
 import { GraphDefinitions } from './GraphDefinitions'
 import { OperationInspector } from './OperationInspector'
 import { AttemptBodies } from './AttemptBodies'
@@ -158,7 +159,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
     {!definition && <AiExecutionSettings {...executionPreferences} />}
     {(!definition && activity.error || selectionError) && <ErrorNotice as="p" className="ai-error" error={selectionError || activity.error}>{selectionError || activity.error}</ErrorNotice>}
     {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} renderHeader={renderHeader} /> : <>
-    <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => { if (selectedAttempt) bindRewardOrigin(`inspection:${selectedAttempt.id}`); setInspectedAttempt(selectedAttempt?.id ?? null); setDetailOpen(true) }}>
+    {turn?.nativeGraph && conversationId ? <NativeRunView key={turn.id} conversationId={conversationId} turn={turn} selected={selection.kind} onSelect={kind => setSelection(current => ({ ...current, kind }))} down={phone} globallyPaused={snapshot?.connection.paused ?? false} /> : <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => { if (selectedAttempt) bindRewardOrigin(`inspection:${selectedAttempt.id}`); setInspectedAttempt(selectedAttempt?.id ?? null); setDetailOpen(true) }}>
         {selectedAttempt && <AttemptBodies attempt={selectedAttempt} deliberate={selectedAttempt.id === inspectedAttempt} />}
       </OperationInspector>}>
       <div className="ai-view-main">
@@ -170,15 +171,14 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
           setInspectedAttempt(chosen ? latestAttempt(turn, chosen.id)?.id ?? null : null)
         }} now={now} />
           : <p className="ai-muted">{conversationId && !activity.error && !selectionError && (!selectionReady || (restoring && activity.hasOlder)) ? tr('Loading…') : tr('No recorded AI operations.')}</p>}
-        {turn && (mode === 'expanded' || mode === 'window') && <ExchangeTimeline turn={turn} now={now} />}
+        {turn && !turn.nativeGraph && (mode === 'expanded' || mode === 'window') && <ExchangeTimeline turn={turn} now={now} />}
+      </div>
+    </AiSplit>}
         {!phone && <details className="ai-other">
           <summary>{tr('Other AI activity')}</summary>
           {snapshot?.transcriptionAttempts.map(attempt => <details key={attempt.id}><summary>{attempt.model} · {attempt.state}</summary>{attempt.error && <p>{attempt.error}</p>}<ResponseDetails value={attempt.diagnostics} /></details>)}
           <GenerationActivity /><ReadingActivity />
         </details>}
-      </div>
-
-    </AiSplit>
     {detailOpen && turn && operation && <OperationDetailDialog turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onClose={() => setDetailOpen(false)} />}
     </>}
   </section>

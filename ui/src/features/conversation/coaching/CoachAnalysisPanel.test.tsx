@@ -22,6 +22,14 @@ beforeEach(() => {
   backend.execute.mockResolvedValue({ revision: 20 })
 })
 describe('native private coaching', () => {
+  it('uses declared coach ownership and native previews without legacy operations', async () => {
+    backend.watch.mockReset().mockResolvedValueOnce({ ...snapshot, turns: [{ id: 'native', channel: 'coach', state: 'pending', operations: [], attempts: [],
+      nativePreview: { live: true, capture: { text: 'Streaming native reply' } } }] }).mockImplementation(() => new Promise(() => {}))
+    render(panel())
+    await waitFor(() => expect(screen.getByLabelText('Coach conversation')).toHaveTextContent('Streaming native reply'))
+    expect(screen.getByLabelText('Message your coach')).toBeDisabled()
+    expect(backend.execute).not.toHaveBeenCalled()
+  })
   it('observes saved messages without requesting AI and exposes unavailable lesson controls', async () => {
     backend.watch.mockReset().mockResolvedValueOnce({ ...snapshot, coachMessages: [{ id: 'm', role: 'assistant', text: 'Saved private answer' }] }).mockImplementation(() => new Promise(() => {}))
     render(panel())

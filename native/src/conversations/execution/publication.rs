@@ -1,6 +1,13 @@
 use super::*;
 
 pub(crate) fn refresh_turn(db: &Connection, turn: &str) -> Result<()> {
+    if db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM turn_execution_owners WHERE turn_id=?1 AND executor='graph')",
+        [turn],
+        |r| r.get::<_, bool>(0),
+    )? {
+        return Ok(());
+    }
     db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state IN ('ready','running')) THEN CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind IN ('persona_reply','persona_opening','coach_reply') AND state IN ('ready','waiting_dependencies','running')) THEN 'pending' ELSE 'assisting' END WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='unknown') THEN 'unknown' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='failed') THEN 'failed' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='invalidated') THEN 'invalidated' ELSE 'succeeded' END WHERE id=?1", [turn])?;
     db.execute(
         "UPDATE turns SET refusal_hold=NULL WHERE id=?1 AND state='succeeded'",

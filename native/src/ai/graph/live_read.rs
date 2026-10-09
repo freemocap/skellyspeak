@@ -1,6 +1,6 @@
 //! Materialized protected reads. Scheduling and topology remain native facts.
 use super::{encoding::bounded_json, model::fault, record_access::RecordAccess, *};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use ts_rs::TS;
 
@@ -19,7 +19,7 @@ pub struct LiveInspection {
     pub previews: BTreeMap<String, AttemptPreview>,
 }
 
-#[derive(Serialize, TS)]
+#[derive(Clone, Debug, Serialize, Deserialize, TS)]
 pub struct PreviewCapture {
     pub session: String,
     pub sequence: String,
@@ -27,7 +27,7 @@ pub struct PreviewCapture {
     pub failure: Option<FaultDisclosure>,
 }
 
-#[derive(Serialize, TS)]
+#[derive(Clone, Debug, Serialize, Deserialize, TS)]
 pub struct AttemptPreview {
     pub attempt: String,
     pub execution: String,

@@ -33,6 +33,13 @@ pub(super) struct InlineState {
 }
 
 impl InlineState {
+    pub fn has_structured_evidence(&self) -> bool {
+        self.executions.values().any(|e| {
+            e.evidence
+                .as_ref()
+                .is_some_and(ExecutionEvidence::has_structured)
+        })
+    }
     pub fn has_provisional(&self) -> bool {
         self.executions
             .values()

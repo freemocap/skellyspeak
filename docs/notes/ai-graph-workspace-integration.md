@@ -1,8 +1,8 @@
 # Graph workspace integration design
 
-Date: 2026-10-08. Status: **atomic first admission, native SQL adapter, format-57
-storage and format-58 turn ownership implemented; accepted effects/publication
-and workflow wiring remain unfinished**.
+Date: 2026-10-08. Status: **native SQL storage, turn ownership, accepted-effect
+publication and format-60 producer wire identities implemented; production workflow, access
+callback and scheduler wiring remain unfinished**.
 This makes step 2 of the
 [production integration plan](ai-graph-production-integration.md) concrete.
 The [foundations](ai-graph-foundations.md), [durability](ai-graph-durability.md)
@@ -47,21 +47,24 @@ Scope must encode the relevant captured access/configuration authority without
 credentials. It is an equality key, not proof that access is still authorized.
 Dispatch and adoption recheck current ownership and access in the transaction.
 
-## Persisted records and remaining ownership proposal
+## Persisted records and domain ownership
 
 The first three tables below are installed by **56 -> 57**, with the matching
 `ai/graph_store/` adapter. `turn_execution_owners` is installed by **57 -> 58**,
 with historical backfill and explicit writes in current turn admission. The last
-two records remain a proposal for the next consecutive migration with publication
-integration. Native checkpoint/record encodings are unchanged.
+two records are installed by **58 -> 59**, with coach-reply declaration/publication
+adapters under `conversations/execution/graph_publication.rs`. These adapters are
+verified through the real native commit boundary but are not yet called by the
+production coach command. Native checkpoint/record encodings are unchanged.
 
 | Record | Identity and meaning | Required constraints |
 | --- | --- | --- |
 | `graph_engines` | Engine UUID; conversation owner; catalog identity; current exact stamp and checkpoint BLOB. Checkpoint already retains immutable artifacts. | Unique conversation/catalog; immutable owner; conversation FK with cascade. Decode and verify stamp engine, revision and checksum against bytes. |
 | `graph_records` | Engine plus canonical serialized native `RecordKey`; exact `RecordWrite::bytes` BLOB. | Composite primary key; engine FK with cascade; no provider-specific columns or scheduler state. Verify native key, envelope and commitment on reads. |
 | `graph_archives` | Engine plus exact archived stamp; original checkpoint bytes. | Immutable insert; identical reinsertion may succeed, conflicting bytes fail. Engine FK with cascade; native chain verification remains mandatory. |
+| `graph_transport_identities` | Native engine/producer, artifact and operation contract mapped to wire attempt/operation IDs. | Immutable, unique wire IDs; engine FK with cascade. Stage inside provider Dispatch; no binding for local work. Missing identities fail, recovery preserves IDs, explicit retry binds a new producer. No scheduler state or claim that HTTP was sent. |
 | `turn_execution_owners` | One row per turn; executor `legacy` or `graph`; durable channel classification; graph engine/run/artifact when applicable. | Turn FK; graph tuple all present or all absent; graph run unique within engine; owner conversation must agree with engine. No mutable attempt status. |
-| `conversation_graph_effects` | Stable domain effect UUID for a run/node/result role, captured language/variety and award source identity. | Unique owner/node/result role; immutable attribution. Not an execution/attempt ID. |
+| `conversation_graph_effects` | Stable domain effect UUID for a turn/node/result role, declared output port, captured scope, language/variety and award source identity. | Unique owner/node/result role; immutable attribution. Turn ownership supplies engine/run/artifact. Format 59 admits the reviewed `coach_reply` role only. Not an execution/attempt ID. |
 | `conversation_graph_publications` | Accepted effect, graph attempt/execution identity and resulting message. | One accepted publication per effect; message belongs to the same turn/conversation; append-only adoption provenance. |
 
 The last three records belong to conversation persistence, not the graph core.
@@ -93,6 +96,24 @@ produce a migration diagnostic and rollback, not a guessed classification.
 Historical graphs without immutable artifacts remain explicitly unavailable.
 Keep old rows, IDs, receipts, message text, metadata, settings and award policy
 provenance unchanged. Empty graph tables are the correct migration result.
+
+Migration 59 adds empty effect and publication tables. It backfills no publications
+or awards and leaves legacy source identities unchanged. The current coach-reply
+adapter declares its effect in Begin after its graph turn association, captures
+attribution from the turn, and publishes only matching native Adopt values. Its
+required authority callback must recheck current access in the same transaction.
+Accepted text passes the existing conversation reply validator without altering
+the retained native result. Message, provenance, existing exploration-policy award,
+conversation/workspace revisions and native adoption commit together. Returned
+`AppError` diagnostics must be retained by the future host when bridging a domain
+rejection to the core's bounded fault; do not discard them during that conversion.
+
+Attempt and producer identities are canonical decimal text through `u64::MAX`,
+without SQLite or JavaScript numeric narrowing. Publication stores the exact native
+consumer/producer pair; it does not create an operation or decide graph state.
+The stable `graph-effect:<UUID>` source uses the existing exploration policy and
+remains unchanged across retries. Cascading source deletion removes effect and
+publication content/provenance, while detached lifetime awards remain intact.
 
 Keep existing unfinished legacy work under its recorded executor/recovery rules;
 never manufacture graph attempts for it. New converted coach turns use only the
@@ -136,11 +157,9 @@ belongs to completion of the workflow inventory.
    reset uses the existing reset owner. Earned awards follow the existing retained
    credit policy; deleting source content does not implicitly reverse credit.
 
-Conversation partitioning does **not** solve deletion of selected turns from a
-mixed engine. Coach dialogue is currently retained during persona revision, so
-the first slice can preserve that behavior. Converting persona suffix deletion
-requires its own source-erasure design before that workflow joins an engine.
-Compaction is not selective erasure and cancellation does not delete source bytes.
+Message edits remove product exchanges and revoke publication ownership. The user
+approved retaining superseded graph history; rewriting archives is not required
+for persona conversion. Coach history retains its existing ownership.
 
 ## Required caller conversions for the coach slice
 
@@ -148,12 +167,12 @@ Paths below are relative to `native/src/`. These findings are source inspection.
 
 | Caller | Dependency to replace and acceptance case |
 | --- | --- |
-| `conversations/execution/turns.rs` | Prompt history filters messages through `operations.kind`. Use the stored channel owner; a second coach request must include the first graph-produced exchange and attached guide. |
-| `conversations/revision.rs::accept` | Suffix deletion preserves coach turns only through `operations.kind='coach_reply'`. Use channel ownership before enabling graph coach admission, or revising persona text would delete coach history. |
+| `conversations/execution/turns.rs` | Implemented: prompt history, partner-exchange context and coach evidence sources use declared channels. Follow-up questions retain graph-owned coach text and its attached guide without putting either in the persona prompt. |
+| `conversations/revision.rs` and `message_history.rs` | Implemented: revision eligibility/counts, version-history entry and coach suffix preservation use declared ownership. Graph coach messages, receipts and native storage survive persona revision. Persona admission conversion remains unfinished; graph-owned suffix removal no longer requires physical archive erasure. |
 | `conversations/execution/publication.rs` | `refresh_turn` infers state from legacy operations. Graph-owned summaries use native facts and accepted domain results; absence of legacy rows must never imply success. |
-| `learning/effort/exploration.rs` | Qualification joins operation success. Add an owner-validated accepted-effect entry point using the same policy and stable effect source across retries. Preserve all old award sources. |
+| `learning/effort/exploration.rs` | Implemented publication adapter: qualification reads accepted graph effects using the same policy and stable effect source across retries. Legacy qualification and old award sources remain unchanged. |
 | `conversations/execution/recovery.rs` | Broad turn pause/recovery SQL must respect executor ownership; graph recovery supplies graph facts. |
-| `conversations/execution/snapshots.rs` | Channel, controls, attempt detail and activity must accept graph owners without fabricated legacy operations or silently empty activity. |
+| `conversations/execution/snapshots.rs` | Message-channel selection and pagination now use declared ownership. Controls, turn execution status, attempt detail and activity still need native graph projection before production admission; the old turn builder remains a legacy reader. |
 | `statistics/mod.rs` | Count new provider executions once, not once per consumer. Combine legacy facts and graph producer evidence without duplicating shared inference results; unknown usage stays unknown. |
 | `storage/store/commands/` and `application/scheduler.rs` | Receipt replay, controls, current access, local/provider capacity, host captures and post-commit notifications follow explicit executor ownership. |
 
@@ -168,9 +187,12 @@ Do not implement a view that pretends graph attempts are legacy operation rows.
 2. The additive format-57 storage migration and native SQLite adapter are
    implemented. Their verification is recorded in the delivery checkpoint.
    Turn/channel ownership now has its format-58 migration and command writes.
-   Accepted-effect/publication records remain the next migration, together with
-   the actual owner publication adapter and credit qualification.
-3. Add owner/channel/effect integration and the coach path. Verify conversation
+   Accepted effects/publications now have their format-59 migration, a coach-reply
+   transaction adapter and existing-policy credit qualification. Production host
+   authority/error delivery and invocation adapters remain unwired.
+3. Channel/history/revision consumers are implemented. Add the actual coach host,
+   current authority, provider/evidence adapter and native turn-state projection.
+   Verify conversation
    deletion, persona revision preserving coach history, retry credit identity,
    follow-up prompt history, usage accounting and no legacy coach operations.
 4. Wire native read delivery and the generic viewer; run the actual coach flow and
@@ -182,8 +204,10 @@ histories. Record the fixtures and headroom, test exact bounds, and reject exces
 explicitly. Fixture constants from isolated tests are not production defaults.
 Capacity exhaustion must not trigger hidden rollover or deletion.
 
-Storage and legacy command ownership writes are installed; graph command routing
-and UI behavior remain unconnected. Existing history/revision/status queries still
-need conversion to ownership/native facts before graph coach admission is enabled.
+Storage, legacy command ownership writes and graph publication adapters are
+implemented; graph command routing and UI behavior remain unconnected.
+History, message-channel and revision readers now use ownership. Turn status,
+controls, activity, recovery and accounting still need native facts and explicit
+executor routing before graph coach admission is enabled.
 The [production integration checkpoints](ai-graph-production-integration.md)
 separate storage verification from the remaining actual workflow conversion.

@@ -64,7 +64,24 @@ pub fn validate(
         r.get(0)
     })?;
     let captured: Value = serde_json::from_str(&raw)?;
-    let ids: BTreeSet<_> = skills(&captured)?.into_iter().map(|s| s.id).collect();
+    validate_captured(
+        output,
+        &skills(&captured)?,
+        &serde_json::from_value(captured["presenceInstructions"].clone())?,
+    )
+}
+
+/// Pure result validation and credit eligibility projection. Publication and
+/// source authority remain the owner's transaction; no current settings lookup.
+pub fn validate_captured(
+    output: &Completion,
+    skills: &[SkillPrompt],
+    config: &Instructions,
+) -> Result<Value> {
+    if output.finish_reason == "error" || output.text.len() > 100000 {
+        return Err(fail("Skill presence requires a bounded Jev completion."));
+    }
+    let ids: BTreeSet<_> = skills.iter().map(|s| s.id.clone()).collect();
     let raw: Value = serde_json::from_str(&output.text).map_err(|cause| {
         crate::diagnostics::response::json_context(
             &cause,
@@ -74,7 +91,6 @@ pub fn validate(
     })?;
     let assessment = crate::learning::turn_assessment::validate(&raw, &ids)?;
     let answers = &assessment.skills;
-    let config: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
     config.attribution.validate()?;
     let presence = answers
         .iter()

@@ -72,7 +72,7 @@ impl Artifact {
 /// Protocol 1. Structural identifiers are authored public schema, never source
 /// content. Runtime values and arbitrary adapter faults are not exposed here.
 /// Artifact/attempt/reason types are the same generic types used by execution.
-#[derive(Serialize, TS)]
+#[derive(Clone, Debug, Serialize, Deserialize, TS)]
 pub struct InspectionSnapshot<A = BTreeMap<String, Vec<Attempt<FaultDisclosure, String, String>>>> {
     pub protocol: u32,
     pub engine: String,
@@ -84,6 +84,8 @@ pub struct InspectionSnapshot<A = BTreeMap<String, Vec<Attempt<FaultDisclosure, 
     pub activation: BTreeMap<String, Activation>,
     pub paused: bool,
     pub active: bool,
+    pub stepping: Option<String>,
+    pub step_available: bool,
     pub attempts: A,
     pub reasons: BTreeMap<String, Vec<Reason<FaultDisclosure, String>>>,
 }
@@ -225,6 +227,8 @@ impl Engine {
             activation: view.activation.clone(),
             paused: owner.paused,
             active: owner.active,
+            stepping: view.stepping,
+            step_available: view.step_available,
             attempts,
             reasons: view
                 .reasons
@@ -294,6 +298,7 @@ pub fn bindings() -> String {
         HistoryCursor::decl(&config),
         HistoricalAttempt::decl(&config),
         AttemptPage::decl(&config),
+        RunHistory::decl(&config),
         serde_json::Value::decl(&config),
     ];
     format!(

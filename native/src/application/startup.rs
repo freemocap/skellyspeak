@@ -230,6 +230,7 @@ pub fn run() {
             commands::workspace::get_practice_view,
             commands::workspace::set_practice_view,
             commands::workspace::list_turn_history,
+            commands::workspace::read_graph_history,
             commands::workspace::get_attempt_detail,
             commands::workspace::read_attempt_streams,
             commands::workspace::ai_window_state,

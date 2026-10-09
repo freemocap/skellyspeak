@@ -19,6 +19,26 @@ pub enum Capability {
     Transcription,
     Speech,
 }
+
+/// Recheck the captured destination after asynchronous credential/protocol work.
+/// Model choice remains captured; profile changes are handled by owner authority.
+pub fn check_captured(
+    db: &Connection,
+    capability: Capability,
+    captured: &ResolvedTarget,
+) -> Result<()> {
+    let current = resolve(db, capability)?;
+    if current.route != captured.route
+        || current.url != captured.url
+        || current.credential != captured.credential
+    {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "AI destination or credentials changed before dispatch. Retry using current settings.",
+        ));
+    }
+    Ok(())
+}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolvedTarget {
     #[serde(default, skip_serializing_if = "Option::is_none")]

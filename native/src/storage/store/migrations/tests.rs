@@ -4,8 +4,22 @@ use super::*;
 mod assessment;
 #[path = "execution_tests.rs"]
 mod execution;
+#[path = "graph_assessment_tests.rs"]
+mod graph_assessments;
+#[path = "graph_audio_tests.rs"]
+mod graph_audio;
+#[path = "graph_audio_delivery_tests.rs"]
+mod graph_audio_delivery;
+#[path = "graph_publication_tests.rs"]
+mod graph_publication;
+#[path = "graph_reply_role_tests.rs"]
+mod graph_reply_roles;
+#[path = "graph_reply_source_tests.rs"]
+mod graph_reply_sources;
 #[path = "graph_runtime_tests.rs"]
 mod graph_runtime;
+#[path = "graph_transport_tests.rs"]
+mod graph_transport;
 #[path = "reading_preload_tests.rs"]
 mod reading_preload;
 #[path = "skill_direction_tests.rs"]
@@ -152,10 +166,9 @@ fn baseline_upgrade_preserves_history_settings_and_has_a_recovery_copy() {
                     let mut value: serde_json::Value = serde_json::from_str(raw).unwrap();
                     assert_eq!(
                         value.as_object_mut().unwrap().remove("execution").unwrap(),
-                        serde_json::to_value(
-                            crate::configuration::execution::ExecutionPreferences::default()
-                        )
-                        .unwrap()
+                        // Format 47 captured the then-current policy. Later fresh
+                        // defaults must not rewrite saved learner preferences.
+                        serde_json::json!({"assessment":"automatic", "replyBrief":"on_demand", "reading":"on_demand"})
                     );
                     *raw = value.to_string();
                 } else {
@@ -415,7 +428,7 @@ fn upgrade_preserves_conversation_graph_and_allows_continued_workspace_use() {
     // their version-45 contracts, while milestone receipts were introduced later.
     store
         .connection
-        .execute_batch("DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
+        .execute_batch("DROP VIEW graph_conversation_runs; DROP TABLE graph_speech_requests; DROP TRIGGER graph_engine_speech_owners; DROP TABLE graph_audio_deliveries; DROP TABLE graph_audio_cache; DROP TABLE graph_audio_receipts; DROP TABLE conversation_graph_disclosures; DROP TABLE conversation_graph_assessments; DROP TABLE conversation_graph_reply_sources; DROP TRIGGER conversation_graph_publication_reserved; DROP TABLE graph_transport_identities; DROP TABLE conversation_graph_publications; DROP TABLE conversation_graph_effects; DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
         .unwrap();
     store
         .connection
@@ -487,4 +500,35 @@ fn step_validation_failure_rolls_back_and_retry_can_succeed() {
     }];
     run_chain(&mut db, 45, 46, &steps, noop).unwrap();
     assert_eq!(version(&db), 46);
+}
+
+#[test]
+fn requested_speech_upgrade_preserves_records_and_rolls_back() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut db = baseline(&dir.path().join("speech-requests"), true);
+    run_chain(
+        &mut db,
+        45,
+        66,
+        &STEPS[..21],
+        v65_graph_audio_delivery::validate,
+    )
+    .unwrap();
+    let before = rows(&db, "messages");
+    assert!(
+        run_chain(&mut db, 66, 67, STEPS, |_| Err(AppError::new(
+            ErrorCode::Storage,
+            "injected"
+        )))
+        .is_err()
+    );
+    assert_eq!(version(&db), 66);
+    assert!(db.prepare("SELECT * FROM graph_speech_requests").is_err());
+    run_chain(&mut db, 66, 67, STEPS, schema::validate_current_schema).unwrap();
+    assert_eq!(before, rows(&db, "messages"));
+    assert!(rows(&db, "graph_speech_requests").is_empty());
+    assert_eq!(
+        include_str!("v67_graph_speech_requests.sql").replace("\r\n", "\n"),
+        include_str!("../../schemas/graph_speech_requests.sql").replace("\r\n", "\n")
+    );
 }

@@ -117,7 +117,10 @@ impl Contract {
 pub enum Shape {
     Boolean,
     Integer,
+    Number,
     Text,
+    Nullable(Box<Shape>),
+    Map(Box<Shape>),
     List(Box<Shape>),
     Record(BTreeMap<String, Shape>),
 }
@@ -126,7 +129,12 @@ impl Shape {
         match self {
             Self::Boolean => value.is_boolean(),
             Self::Integer => value.as_i64().is_some(),
+            Self::Number => value.as_f64().is_some_and(f64::is_finite),
             Self::Text => value.is_string(),
+            Self::Nullable(item) => value.is_null() || item.accepts(value),
+            Self::Map(item) => value
+                .as_object()
+                .is_some_and(|xs| xs.values().all(|x| item.accepts(x))),
             Self::List(item) => value
                 .as_array()
                 .is_some_and(|xs| xs.iter().all(|x| item.accepts(x))),
@@ -136,6 +144,15 @@ impl Shape {
                         .iter()
                         .all(|(k, t)| xs.get(k).is_some_and(|v| t.accepts(v)))
             }),
+        }
+    }
+
+    pub(super) fn needs_format_nine(&self) -> bool {
+        match self {
+            Self::Number | Self::Nullable(_) | Self::Map(_) => true,
+            Self::List(item) => item.needs_format_nine(),
+            Self::Record(fields) => fields.values().any(Self::needs_format_nine),
+            Self::Boolean | Self::Integer | Self::Text => false,
         }
     }
 }

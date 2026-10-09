@@ -128,7 +128,7 @@ impl Engine {
         }
         for id in self.state.runs.keys() {
             let run = records.run(id)?;
-            if !run.paused {
+            if !run.paused || run.stepping.is_some() {
                 return Ok(true);
             }
             for id in run.current.values() {

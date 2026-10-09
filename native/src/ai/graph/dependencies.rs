@@ -10,6 +10,71 @@ pub(super) enum Resolved {
 }
 
 impl Engine {
+    pub(super) fn node_input_using(
+        &self,
+        records: &mut impl RecordAccess,
+        run: &str,
+        node: &str,
+        port: &str,
+    ) -> Result<Option<serde_json::Value>> {
+        let owner = records.run(run)?;
+        let artifact = &self.graphs[&owner.artifact].artifact;
+        let definition = artifact
+            .definition
+            .nodes
+            .get(node)
+            .ok_or_else(|| fault(CoreFaultCode::UnknownNode, node))?;
+        let source = definition
+            .inputs
+            .get(port)
+            .ok_or_else(|| fault(CoreFaultCode::UnknownInput, port))?;
+        let states = self.states_using(records, &owner)?;
+        Ok(
+            match self.resolve_using(records, &owner, source, &states)? {
+                Resolved::Value(value) => Some(value),
+                Resolved::Absent | Resolved::Waiting | Resolved::Blocked => None,
+            },
+        )
+    }
+    /// Protected adopted output from one node. Independent pending branches do
+    /// not make an already adopted result unavailable to its product consumer.
+    pub(super) fn node_outputs_using(
+        &self,
+        records: &mut impl RecordAccess,
+        run: &str,
+        node: &str,
+    ) -> Result<Option<Values>> {
+        let owner = records.run(run)?;
+        let artifact = &self.graphs[&owner.artifact].artifact;
+        let definition = artifact
+            .definition
+            .nodes
+            .get(node)
+            .ok_or_else(|| fault(CoreFaultCode::UnknownNode, node))?;
+        let states = self.states_using(records, &owner)?;
+        if states[node] != Disposition::Adopted {
+            return Ok(None);
+        }
+        let mut values = Values::new();
+        for (port, contract) in &artifact.operations[&definition.operation].outputs {
+            match self.resolve_using(
+                records,
+                &owner,
+                &Source::Output {
+                    node: node.into(),
+                    port: port.clone(),
+                },
+                &states,
+            )? {
+                Resolved::Value(value) => {
+                    values.insert(port.clone(), value);
+                }
+                Resolved::Absent if contract.optional => (),
+                _ => return Err(fault(CoreFaultCode::MissingResult, node)),
+            }
+        }
+        Ok(Some(values))
+    }
     pub(super) fn resolve_using(
         &self,
         records: &mut impl RecordAccess,
@@ -154,7 +219,7 @@ impl Engine {
         }
         Ok(if waiting {
             Disposition::Waiting
-        } else if run.paused {
+        } else if !run.permits(node) {
             Disposition::Paused
         } else {
             Disposition::Ready

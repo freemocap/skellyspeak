@@ -2,6 +2,17 @@ use super::{model::fault, *};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+/// Chronological native state changes. Topology and overlays are projected
+/// by the same exporter as live inspection, without executable handlers.
+#[derive(Serialize, TS)]
+pub struct RunHistory {
+    pub engine: String,
+    pub run: String,
+    pub current_revision: String,
+    pub frames: Vec<InspectionSnapshot>,
+    pub before: Option<String>,
+}
+
 /// Independent archive input and resident-record reconstruction ceilings.
 #[derive(Clone, Copy)]
 pub struct HistoricalLimits {
@@ -46,6 +57,112 @@ pub struct HistoricalInspection {
 }
 
 impl Checkpoint {
+    pub fn run_history(
+        &self,
+        run: &str,
+        before: Option<u64>,
+        count: usize,
+        limits: HistoricalLimits,
+        export: ExportLimits,
+        store: &mut impl HistoryStore,
+    ) -> Result<RunHistory> {
+        use std::collections::VecDeque;
+        if count == 0 || before.is_some_and(|cut| cut == 0 || cut > self.stamp().revision) {
+            return Err(fault(CoreFaultCode::HistoryCursor, "run"));
+        }
+        let mut engine = Engine::recorded(self.envelope.payload.artifacts(), limits.state)?;
+        let (segments, _) = self.retained_segments(limits.history, store)?;
+        let mut frames = VecDeque::new();
+        let mut bytes = 0;
+        let mut omitted = false;
+        let mut previous = None;
+        let mut failure = None;
+        let mut observe = |engine: &Engine| {
+            if failure.is_some() || before.is_some_and(|cut| engine.revision() >= cut) {
+                return;
+            }
+            let Some(owner) = engine.state.runs.get(run) else {
+                return;
+            };
+            let observed = (|| -> Result<()> {
+                let view = engine.inspect(run)?;
+                let current: Vec<_> = view
+                    .attempts
+                    .iter()
+                    .filter_map(|(node, attempts)| {
+                        attempts
+                            .last()
+                            .map(|attempt| (node.clone(), (*attempt).clone()))
+                    })
+                    .collect();
+                let key = (
+                    view.nodes,
+                    view.reasons,
+                    view.activation.clone(),
+                    current,
+                    owner.paused,
+                    owner.active,
+                    owner.stepping.clone(),
+                    view.step_available,
+                );
+                if previous.as_ref() == Some(&key) {
+                    return Ok(());
+                }
+                previous = Some(key);
+                let snapshot = engine.project(
+                    &Stamp {
+                        engine: self.stamp().engine.clone(),
+                        revision: engine.revision(),
+                        checksum: String::new(),
+                    },
+                    run,
+                    export,
+                )?;
+                let size = super::encoding::bounded_json(
+                    &snapshot,
+                    export.bytes,
+                    CoreFaultCode::InspectionLimit,
+                )?
+                .len();
+                frames.push_back((snapshot, size));
+                bytes += size;
+                while frames.len() > count || bytes > export.bytes / 2 {
+                    if frames.len() == 1 {
+                        break;
+                    }
+                    let (_, size) = frames.pop_front().unwrap();
+                    bytes -= size;
+                    omitted = true;
+                }
+                Ok(())
+            })();
+            if let Err(cause) = observed {
+                failure = Some(cause);
+            }
+        };
+        for segment in segments.iter().rev() {
+            segment.replay_observed_into(&mut engine, &mut observe)?;
+        }
+        self.replay_observed_into(&mut engine, &mut observe)?;
+        if let Some(cause) = failure {
+            return Err(cause);
+        }
+        engine.run(run)?;
+        let history = RunHistory {
+            engine: self.stamp().engine.clone(),
+            run: run.into(),
+            current_revision: self.stamp().revision.to_string(),
+            before: if omitted {
+                frames.front().map(|(frame, _)| frame.revision.clone())
+            } else {
+                None
+            },
+            frames: frames.into_iter().map(|(frame, _)| frame).collect(),
+        };
+        super::encoding::bounded_json(&history, export.bytes, CoreFaultCode::InspectionLimit)?;
+        Ok(history)
+    }
+
     /// Audit formats 1/2/3 with the shared version-1 transition semantics,
     /// capturing the requested logical cut. This bounds input history but still
     /// replays all records and holds all native state; it is not cold-state paging.
@@ -79,6 +196,19 @@ impl Checkpoint {
 }
 
 impl HistoricalInspection {
+    /// The same bounded native projection used by live inspection. No executable
+    /// capability is needed to inspect an unavailable or superseded artifact.
+    pub fn snapshot(&self, run: &str, limits: ExportLimits) -> Result<InspectionSnapshot> {
+        self.engine.project(
+            &Stamp {
+                engine: self.identity.clone(),
+                revision: self.engine.revision(),
+                checksum: String::new(),
+            },
+            run,
+            limits,
+        )
+    }
     pub fn execution_evidence(&self, execution: ExecutionId) -> Result<Option<ExecutionEvidence>> {
         self.engine.execution_evidence(execution)
     }

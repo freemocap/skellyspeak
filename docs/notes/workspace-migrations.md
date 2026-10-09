@@ -4,14 +4,64 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **58**. Format 57 → 58 adds immutable turn executor/channel
+Current format: **67**. Format 66 → 67 adds message-owned native playback requests and a read-only union of conversation run owners. Format 65 → 66 is a no-op compatibility marker retained for development workspaces that may already have opened at 66. It changes no data, checkpoint contracts or SQL ownership. Format 64 → 65 adds native consumer-owned audio delivery
+evidence: the delivered audio digest, exact source message, adopted attempt and
+receipt. It adds no permanent audio copy and preserves all historical rows.
+Delivery records follow native engine, turn, message and receipt deletion; cache
+eviction leaves them intact so inspection can verify already-delivered audio.
+
+ Format 63 → 64 adds native audio receipts and evictable
+cache associations under the existing cache budget. Format 62 → 63 adds native assessment receipts and
+receipt-owned disclosure decisions without rewriting historical assessment data.
+
+Format 64 is additive: it does not convert or delete legacy execution receipts,
+cached audio, recordings, messages or learning evidence. Native audio receipts
+belong to their graph engine/execution and retain original/normalized alignment
+as protected source data. Cache eviction removes only the payload association;
+receipt deletion follows graph ownership, under the current revision-retention
+policy when that host integration is completed. Audio bytes share the existing
+blob store and capacity setting. Provider response and billing evidence stay in
+the native execution log. Fresh SQL and the frozen migration are kept identical.
+
+Format 61 → 62 adds optional effect-owned reply source
+reservations. New graph reply publication uses the identity admitted for downstream
+reading; existing messages and effects are unchanged. See the format-62 section
+below for ownership and validation details.
+
+Format 60 → 61 extends native reply effect roles to partner
+replies and openings. It transactionally rebuilds the effects/publications tables,
+preserving every effect ID, publication, message link, captured attribution and
+award. At that historical format, publications are the only foreign-key children of effects and are copied
+before either table is replaced. Historical attribution is restored without
+rechecking admission against mutable current turn settings; new inserts retain
+the owner/channel/attribution checks. Existing coach records are not reclassified.
+This enables publication for subsequent workflow conversion; it does not switch
+partner execution to the graph runtime by itself.
+
+Format 59 → 60 adds initially empty native producer-to-wire
+identity bindings. Engine/execution, artifact and operation contract identify the
+producer; immutable unique wire attempt/operation IDs are staged in its Dispatch
+transaction. Existing graph bytes, publications, messages and learner credit remain
+unchanged. Historical requests are not inferred or backfilled. Bindings share the
+engine's lifetime and conversation deletion cascade; they are transport provenance,
+not independently earned learner evidence. See the
+[wire identity checkpoint](ai-graph-production-integration.md#producer-wire-identity-checkpoint).
+
+Format 58 → 59 adds initially empty graph effect and
+publication tables. Stable domain effects capture owner, output binding and credit
+attribution independently of attempts. Publication provenance binds the accepted
+message to exact native attempt/producer IDs. Legacy messages and awards are
+unchanged; migration does not manufacture historical graph results. See the
+[publication checkpoint](ai-graph-production-integration.md#accepted-publication-checkpoint).
+
+Format 57 → 58 adds immutable turn executor/channel
 ownership. Existing turns remain legacy; retained primary operations establish
 their channels, missing evidence becomes unknown, and conflicting evidence rejects
 the migration. Original turns, attempts and credit are unchanged. New turn admission
 writes ownership in its command transaction, and startup rejects missing ownership.
 Graph references are deferred until commit so first engine admission remains atomic;
-constraints reject cross-conversation ownership. Accepted-effect/publication records
-and graph workflow routing remain subsequent work. See the
+constraints reject cross-conversation ownership. Graph workflow routing remains
+subsequent work. See the
 [turn ownership checkpoint](ai-graph-production-integration.md#turn-execution-ownership-checkpoint).
 
 Format 56 → 57 adds initially empty native graph engine,
@@ -218,3 +268,73 @@ this migration. The existing transaction and recovery-copy protocol applies.
 Tests cover every supported start, all non-settings tables across the new step,
 unchanged custom models, rollback, fresh-default equivalence, repeated startup
 and learner changes after migration. Tests use temporary workspaces only.
+
+
+## Format 62: graph reply source reservations
+
+Implemented: format 61 → 62 adds `conversation_graph_reply_sources` and guards
+linking each optional reservation to its declared reply effect. The message ID is
+reserved at native Begin and used by publication at Adopt, so downstream graph
+reading inputs and the actual conversation message refer to the same source.
+The reservation is not an execution ID, an award ID, or a placeholder message.
+
+Ownership review: the effect owns the reservation and deletes it by cascade.
+No message, effect, publication, learner evidence or award is rewritten or removed.
+Existing effects have no reservation and retain their established publication
+behavior; previously published IDs remain unchanged. New declarations derive
+reservations from the executable's actual reply-source bindings, not node names
+maintained by the viewer. Conflicting source bindings and already-used message IDs
+are rejected within the owner transaction. Publication cannot use another ID.
+
+This is an additive workspace-format migration, not an application release bump.
+Historical migration SQL remains unchanged. The normal recovery-copy and atomic
+chain protocol applies. Tests cover rollback, preservation of existing publications,
+fresh-schema equivalence, immutable reservations and exact-source publication.
+Broader verification and running-application conversion remain separately tracked
+in [production integration](ai-graph-production-integration.md).
+
+## Format 63: native assessment receipts
+
+Implemented: format 62 → 63 adds `conversation_graph_assessments` and
+`conversation_graph_disclosures`. A receipt binds the domain result to its exact
+learner message, graph turn owner, node, native attempt and execution. Its opaque
+ID is used by existing product receipt fields, including the historically named
+`inferenceAttemptId`; it does not identify or create a legacy attempt. Native
+history decides whether a receipt is current; these tables do not mirror runtime
+state or scheduling. Disclosure choices belong to that receipt, never to the next
+assessment of the same message.
+
+Ownership review: source deletion cascades through its native assessment receipts
+and their disclosures. This follows domain ownership and does
+not remove earned lifetime awards. Existing legacy assessment/disclosure tables,
+messages, learning evidence and awards are unchanged. Historical results remain
+readable through their existing ownership route. No backfill invents native
+provenance for old attempts. Current graph and historical domain reads share one
+database transaction; invalid native history fails rather than falling back to a
+legacy result.
+
+The migration has rollback, preservation, source-ownership, immutability and
+cascade tests. Product publication tests exercise real application captures and
+native adoption, including rejected adoption, disclosure and restart without
+duplicate credit. Full verification is tracked in the production integration note.
+
+
+## Format 67: requested speech ownership
+
+`graph_speech_requests` binds an explicit playback run to its existing assistant
+message, turn, native engine/artifact and scope. It contains no runtime state or
+audio bytes. `graph_conversation_runs` is a SQL union of these owners and existing
+turn owners for host routing; executable artifacts still own topology and state.
+Engine ownership is deferred until the same Begin transaction commits, matching
+existing native admission. Immutable ownership and source/conversation checks
+prevent retargeting requests.
+
+Ownership review: deleting a source message or its turn removes its playback
+ownership and deliveries through existing foreign keys. Graph execution history
+may remain, as approved; no selective history-erasure mechanism is introduced.
+Existing messages, receipts, learner evidence, awards, cached audio and execution
+history are unchanged by migration. There is no backfill or fabricated legacy row.
+The new request flag `regenerate` is optional and omitted when absent, preserving
+old serialized command receipts. Migration failure rollback and preservation are
+covered by the format-67 test; supported-start and repeated-startup coverage is
+part of the full native suite.

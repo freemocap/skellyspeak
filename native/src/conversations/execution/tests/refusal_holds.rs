@@ -172,7 +172,7 @@ fn audio_refusal_does_not_block_new_chat_or_survive_as_an_access_lockout() {
     // Simulate the version-45 table; retirement now belongs to its migration.
     store
         .connection
-        .execute_batch("DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution'); CREATE TABLE inference_holds(id TEXT PRIMARY KEY, error TEXT NOT NULL); PRAGMA user_version=45;")
+        .execute_batch("DROP VIEW graph_conversation_runs; DROP TABLE graph_speech_requests; DROP TRIGGER graph_engine_speech_owners; DROP TABLE graph_audio_deliveries; DROP TABLE graph_audio_cache; DROP TABLE graph_audio_receipts; DROP TABLE conversation_graph_disclosures; DROP TABLE conversation_graph_assessments; DROP TABLE conversation_graph_reply_sources; DROP TRIGGER conversation_graph_publication_reserved; DROP TABLE graph_transport_identities; DROP TABLE conversation_graph_publications; DROP TABLE conversation_graph_effects; DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution'); CREATE TABLE inference_holds(id TEXT PRIMARY KEY, error TEXT NOT NULL); PRAGMA user_version=45;")
         .unwrap();
     store
         .connection

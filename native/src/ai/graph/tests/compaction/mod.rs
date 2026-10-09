@@ -2,6 +2,8 @@ use super::{durable_store::SqlStore, *};
 
 mod continuation;
 mod integrity;
+mod node_outputs;
+mod stepping;
 mod transactions;
 
 fn limits() -> DurableLimits {

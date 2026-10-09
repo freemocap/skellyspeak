@@ -22,6 +22,18 @@ problem. Declarative language-config overrides are a documented last resort,
 only after the shared approach has been shown insufficient. Preserve original
 text; normalization belongs only to the operation that requires it.
 
+## Native graph integration
+
+Native graph publication adapters now cover reading helpers and assessment/feedback
+with receipt-owned disclosure and transactional learning credit (workspace format
+63). Format 64 adds native audio receipts separately from evictable payloads under
+the existing shared cache budget. Format 65 records delivered-audio identity
+against native consumers without retaining another audio copy. Format 66 is a no-op compatibility marker; it changes no persisted data.
+Format 67 adds message-owned native playback requests, without duplicating audio
+or conversation turns. Explicit playback uses the shared speech graph.
+Partner host and speech playback cutover remain
+in progress; see the [production checklist](../docs/notes/ai-graph-production-integration.md).
+
 ## Source folder map
 
 | Folder | Responsibility |
@@ -74,16 +86,74 @@ Workspace migration 57 adds conversation/catalog-owned engines, primary records
 and immutable archives; historical operations and awards are unchanged. The
 adapter consumes an owned transaction and requires the domain owner to check
 authority and stage publication before its single commit. Protected reads use a
-stable transaction and native byte/stamp/integrity checks. Production command,
-owner/publication and scheduler wiring remain unfinished; no workflow uses this
-adapter yet. See the [workspace integration status](../docs/notes/ai-graph-workspace-integration.md).
+stable transaction and native byte/stamp/integrity checks. Coach commands use this
+adapter through application admission and scheduling; partner and remaining
+workflow conversion is incomplete. See the [workspace integration status](../docs/notes/ai-graph-workspace-integration.md).
 Format 58 adds `turn_execution_owners`. Current commands declare the legacy executor
 and channel atomically with the turn; migration preserves unknown historical
 channels and rejects conflicting primary-operation evidence. Startup validates
 ownership completeness. The SQL adapter's owner callback receives the borrowed
 native commit request, including the exact new engine identity, so first admission
-can stage the deferred association before inserting the engine. Domain publication
-and graph workflow routing remain unfinished; channel consumers still need conversion.
+can stage the deferred association before inserting the engine.
+Format 59 adds stable conversation effects and accepted-publication provenance.
+Format 61 extends those effects to partner replies and openings without changing
+existing publication, message or credit identities. Format 62 adds optional
+reply-source reservations owned by those effects. New source-bound replies publish
+the ID admitted by their executable source-binding operation; historical effects
+without reservations keep their established identities and behavior.
+`conversations/execution/graph_publication.rs` declares a channel-owned reply effect at
+Begin and publishes matching native Adopt values with a required current-authority
+callback. Message, exact attempt/producer provenance, existing-policy one-time
+exploration credit for coach inquiries and revisions share the native storage
+transaction. Ordinary partner replies/openings do not earn coach exploration credit. The host
+must retain returned domain diagnostics when rejecting a commit. Prompt history, message
+channel selection/pagination, version-history entry and revision coach preservation
+now read `turn_execution_owners` rather than operation kinds. Missing historical
+channel evidence remains unknown. Persona revision is still legacy-only and
+allows removal of graph-owned suffixes while retaining superseded native history.
+Converted coach commands use `execution/graph_runtime/` for admission, native
+status/control, recovery, publication and usage reads. `application/graph_execution.rs`
+supplies shared admission, credentials, transport, bounded streaming capture and
+post-await authority checks. Single-step and full inspection acceptance remain open;
+see the [integration checklist](../docs/notes/ai-graph-production-integration.md).
+`conversations/execution/context.rs` owns the shared prompt-context refinement
+used by legacy dispatch and the registered local native graph operation. Captured
+and validated context have distinct versioned port contracts. Validation preserves
+text and source IDs; source authorization remains the transaction owner's job and
+must also run when a validated context is reused. Production coach graph admission
+and provider execution are not wired by this registration alone.
+`conversations/execution/coach_graph.rs` compiles the coach artifact from this
+context operation and the typed prose operation in `execution/prose.rs`. Their
+dependency is the validated-context output binding. The provider callback receives
+native producer identity and evidence/preview sinks; the host must supply current
+authority, durable wire IDs, credentials and classified response information.
+The SQL publication tests use this executable with a fixture provider. Actual
+command admission and application provider-host binding now use this same artifact.
+Format 60 adds `graph_transport_identities`. The adapter in
+`ai/transport/graph_identity.rs` stages immutable wire request IDs per native
+producer inside the Dispatch transaction and loads them by exact invocation
+identity. Recovery retains them; explicit retry gets a new producer and new IDs.
+Missing bindings fail rather than minting replacements. This association neither
+authorizes external work nor proves dispatch/billing. It shares the engine's
+conversation lifetime and contains no source text, credentials or learner credit.
+`conversations/execution/graph_authority.rs` checks current coach ownership,
+sources, pauses/holds and destination/credential in the owner transaction. It
+shares access comparison with the existing scheduler and source membership with
+legacy dispatch. Adoption checks current authority separately from dispatch;
+pausing alone does not revoke an available result. The host must also recheck
+native cancellation/current-consumer state after asynchronous boundaries. The
+application graph scheduler performs these rechecks. `ai/transport/graph_evidence.rs`
+classifies partial diagnostics, completions and errors with the shared redaction
+policy and retains their nested structure in native execution evidence. Callers
+must supply prompt/source/credential strings for exact redaction. This adapter
+performs no I/O; the application provider host calls it at each response boundary. Structured
+evidence uses checkpoint format 7 and execution-record format 4; older encodings
+remain readable and unchanged. Evidence does not enter the public graph projection.
+`ai/transport/graph_request.rs` connects an authorized producer to the existing
+grouped streaming transport and native evidence/provisional capture. It retains
+item, enclosing-stream and capture outcomes separately. Permits, committed IDs,
+secret/protocol waits and post-await authority checks remain the host's job;
+the bridge commits nothing; the application host persists its native reports.
 `DurableLimits` requires an explicit maximum serialized settlement-event size.
 Admission reserves checkpoint space for running outcomes, consumer adoption and
 recovery. Oversized outcomes fail without truncation; callers must retain them.
@@ -99,8 +169,9 @@ evidence; live recovery still requires compatible implementations. The
 and atomic compaction. Compaction retains exact old checkpoint bytes, preserves
 absolute revisions and checks settlement reservations against the new footprint.
 Recovery audits the full bounded archive chain through native replay. Explicit
-record eviction and cold payload reads work in the isolated owner fixture;
-production storage, automatic eviction policy and history deletion are not implemented.
+record eviction and cold payload reads work through the native SQLite adapter;
+production workflow wiring, automatic eviction policy and selective history deletion
+are not implemented.
 The [historical reader](../docs/notes/ai-graph-history.md) reconstructs selected
 logical cuts without handlers, using the same validated structure and reducer.
 Attempt pages retain full topology and native node facts with explicit continuation
@@ -132,8 +203,8 @@ enumerate IDs without dereferencing payloads; required rows use typed access.
 The [native record transaction boundary](../docs/notes/ai-graph-record-storage.md)
 adds changed primary rows to the same owner commit as checkpoint/publication.
 Executable recovery audits bounded, stamp-bound record reads against native replay
-before writing recovery state. The disposable SQLite fixture implements this
-contract. Durable adoption now loads its three typed native records through
+before writing recovery state. The workspace SQL adapter and isolated fixtures
+implement this contract. Durable adoption loads its three typed native records through
 `record_access.rs` and uses the same adoption decision as resident replay.
 Durable dispatch also loads the selected owner, producer, shared consumers and
 unresolved capacity records through that interface. `dispatch.rs` owns the shared

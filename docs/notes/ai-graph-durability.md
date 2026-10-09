@@ -265,9 +265,12 @@ bytes(s)  = |U(s)| * (maximumSettlementEventBytes + 1)
 Every commit must leave `J(s).bytes + bytes(s)` and
 `journal(s).events + events(s)` within their respective hard ceilings. Arithmetic
 overflow rejects admission. Each extra byte accounts conservatively for a JSON
-array separator. The first observed event upgrades formats 1–4 to format 5, so
+array separator. The first observed event upgrades formats 1–4 to an evidence
+envelope (format 5 for scalar metadata, 6 for provisional content, 7 for structured
+metadata), so
 dispatch also reserves the exact additional enclosing header bytes once, before
-exposing an invocation. Format 5 needs no further header reservation. Intermediate
+exposing an invocation. Formats 5–7 share the same header size and need no further
+header reservation when advancing between them. Intermediate
 observations may exhaust unreserved space and be refused, but may not consume the
 remaining settlement/adoption/recovery reserve. All supported formats have an
 immutable manifest and fixed-width checksum; snapshot bases remain fixed between

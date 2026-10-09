@@ -98,7 +98,9 @@ impl Store {
         rows.truncate(limit as usize);
         let turns = rows
             .into_iter()
-            .map(|(id, state, paused, route, hold)| turn_view(db, id, state, paused, route, hold))
+            .map(|(id, state, paused, route, hold)| {
+                self.turn_view(db, id, state, paused, route, hold)
+            })
             .collect::<Result<Vec<_>>>()?;
         Ok(crate::model::TurnHistoryPage { turns, has_older })
     }
@@ -119,7 +121,7 @@ impl Store {
                 "Conversation no longer exists.",
             ));
         }
-        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{guide_context:None,feedback_context:None,reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=m.turn_id AND o.channel IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{guide_context:None,feedback_context:None,reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         messages.reverse();
         for message in &mut messages {
             let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachReplies" }], |r|r.get(0))?;
@@ -207,10 +209,11 @@ impl Store {
             message.gloss_state = state;
             message.gloss_operation_id = operation;
             (message.translation, message.translation_state) = db.query_row("SELECT json_extract(t.context,?2),o.state FROM turns t JOIN messages m ON m.turn_id=t.id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind=?3 WHERE m.id=?1", params![message.id,translation_path(translation_kind),translation_kind], |r| Ok((r.get(0)?,r.get(1)?)))?;
+            self.graph_runtime.message_status(db, message)?;
         }
         let first = messages.first().map(|m| m.sequence).unwrap_or(0);
         let has_older = db.query_row(
-            "SELECT EXISTS(SELECT 1 FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2)",
+            "SELECT EXISTS(SELECT 1 FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=m.turn_id AND o.channel IN ('persona_reply','persona_opening')) AND sequence<?2)",
             params![conversation, first],
             |r| r.get(0),
         )?;
@@ -225,9 +228,11 @@ impl Store {
         let rows=db.prepare("SELECT id,state,paused,route,refusal_hold FROM turns WHERE conversation_id=?1 AND (id IN (SELECT id FROM turns WHERE conversation_id=?1 ORDER BY rowid DESC LIMIT 50) OR id IN (SELECT value FROM json_each(?2))) ORDER BY rowid DESC")?.query_map(params![conversation,page_turns],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,bool>(2)?,r.get::<_,String>(3)?,r.get::<_,Option<String>>(4)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
         let turns = rows
             .into_iter()
-            .map(|(id, state, paused, route, hold)| turn_view(db, id, state, paused, route, hold))
+            .map(|(id, state, paused, route, hold)| {
+                self.turn_view(db, id, state, paused, route, hold)
+            })
             .collect::<Result<Vec<_>>>()?;
-        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{guide_context:None,feedback_context:None,reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=m.turn_id AND o.channel='coach') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{guide_context:None,feedback_context:None,reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         for message in &mut coach_messages {
             if message.role == "user" {
@@ -284,82 +289,128 @@ impl Store {
 /// One turn's operations and attempts, exactly as the scheduler recorded them.
 /// The conversation snapshot and turn history share this builder, so the AI
 /// View never sees two descriptions of the same turn.
-pub(super) fn turn_view(
-    db: &Connection,
-    id: String,
-    state: String,
-    paused: bool,
-    route: String,
-    hold: Option<String>,
-) -> Result<TurnView> {
-    let mut ops = db
-        .prepare("SELECT id,kind,state,permit FROM operations WHERE turn_id=?1 ORDER BY rowid")?
-        .query_map([&id], |r| {
-            Ok((
-                r.get::<_, String>(0)?,
-                r.get::<_, String>(1)?,
-                r.get::<_, String>(2)?,
-                r.get::<_, bool>(3)?,
-            ))
-        })?
-        .collect::<rusqlite::Result<Vec<_>>>()?;
-    let plan = plan_for(db, &id)?;
-    ops.sort_by_key(|(_, kind, _, _)| {
-        plan.iter()
-            .chain(crate::conversations::turn_plan::RETAINED)
-            .position(|node| node.kind == kind)
-            .unwrap_or(usize::MAX)
-    });
-    let mut operations = Vec::new();
-    for (op, kind, status, permit) in &ops {
-        let declaration = super::graph::declaration_for(db, &id, kind)?;
-        let dependencies = declaration
-            .dependencies
-            .iter()
-            .map(|dep| {
-                ops.iter()
-                    .find(|(_, k, _, _)| k == dep)
-                    .map(|(id, _, _, _)| id.clone())
-                    .ok_or_else(|| fail("Missing graph dependency."))
-            })
-            .collect::<Result<Vec<_>>>()?;
-        operations.push(OperationView {
-            reply_help_kind: crate::learning::coaching::conversation_support::ReplyHelpKind::from_operation(kind),
-            source_message_id: if kind == "persona_speech" || crate::learning::coaching::conversation_support::owns(kind) {
-                db.query_row(
-                    "SELECT id FROM messages WHERE turn_id=?1 AND role='assistant'",
+impl Store {
+    #[allow(clippy::too_many_arguments)]
+    fn turn_view(
+        &self,
+        db: &Connection,
+        id: String,
+        state: String,
+        paused: bool,
+        route: String,
+        hold: Option<String>,
+    ) -> Result<TurnView> {
+        let mut ops = db
+            .prepare("SELECT id,kind,state,permit FROM operations WHERE turn_id=?1 ORDER BY rowid")?
+            .query_map([&id], |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, String>(2)?,
+                    r.get::<_, bool>(3)?,
+                ))
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        let plan = plan_for(db, &id)?;
+        ops.sort_by_key(|(_, kind, _, _)| {
+            plan.iter()
+                .chain(crate::conversations::turn_plan::RETAINED)
+                .position(|node| node.kind == kind)
+                .unwrap_or(usize::MAX)
+        });
+        let mut operations = Vec::new();
+        for (op, kind, status, permit) in &ops {
+            let declaration = super::graph::declaration_for(db, &id, kind)?;
+            let dependencies = declaration
+                .dependencies
+                .iter()
+                .map(|dep| {
+                    ops.iter()
+                        .find(|(_, k, _, _)| k == dep)
+                        .map(|(id, _, _, _)| id.clone())
+                        .ok_or_else(|| fail("Missing graph dependency."))
+                })
+                .collect::<Result<Vec<_>>>()?;
+            operations.push(OperationView {
+                reply_help_kind:
+                    crate::learning::coaching::conversation_support::ReplyHelpKind::from_operation(
+                        kind,
+                    ),
+                source_message_id: if kind == "persona_speech"
+                    || crate::learning::coaching::conversation_support::owns(kind)
+                {
+                    db.query_row(
+                        "SELECT id FROM messages WHERE turn_id=?1 AND role='assistant'",
+                        [&id],
+                        |r| r.get(0),
+                    )
+                    .optional()?
+                } else {
+                    None
+                },
+                id: op.clone(),
+                kind: kind.clone(),
+                contract_version: declaration.contract_version,
+                dependencies,
+                role: declaration.role.into(),
+                state: if status == "ready" && (config(db)?.paused || (paused && !permit)) {
+                    "held".into()
+                } else {
+                    status.clone()
+                },
+            });
+        }
+        if let Some(speech) = self.graph_runtime.speech_product_operation(db, &id)? {
+            operations.push(speech);
+        }
+        // A prose reply's text that never became a message stays visible: failed,
+        // cancelled, invalidated or interrupted attempts keep what they received.
+        let attempts=db.prepare("SELECT a.id,a.operation_id,a.state,a.requested_model,a.actual_model,a.provider_id,a.started_at,a.finished_at,a.input_tokens,a.output_tokens,a.error,a.diagnostics,CASE WHEN a.state NOT IN ('succeeded','running') AND o.kind IN ('persona_reply','persona_opening','coach_reply') THEN COALESCE(a.response_text,a.preview_text) END FROM attempts a JOIN operations o ON a.operation_id=o.id WHERE o.turn_id=?1 ORDER BY a.rowid")?.query_map([&id],|r|Ok(AttemptView { diagnostics: crate::diagnostics::response::column(r,11)?,id:r.get(0)?,operation_id:r.get(1)?,state:r.get(2)?,requested_model:r.get(3)?,actual_model:r.get(4)?,provider_id:r.get(5)?,started_at:r.get(6)?,finished_at:r.get(7)?,input_tokens:r.get(8)?,output_tokens:r.get(9)?,error:r.get(10)?,unpublished_text:r.get(12)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let (replaces_turn_id, replaced_by) = db.query_row("SELECT replaces_turn_id,(SELECT id FROM turns child WHERE child.replaces_turn_id=turns.id) FROM turns WHERE id=?1", [&id], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        Ok(TurnView {
+            native_execution_available: {
+                let owner: Option<String> = db.query_row("SELECT t.conversation_id FROM turns t JOIN turn_execution_owners o ON o.turn_id=t.id WHERE t.id=?1 AND o.executor='graph'",[&id],|r|r.get(0)).optional()?;
+                owner
+                    .map(|conversation| self.graph_runtime.owns(db, &conversation, &id))
+                    .transpose()?
+            },
+            native_response: {
+                let owner: Option<String> = db.query_row("SELECT t.conversation_id FROM turns t JOIN turn_execution_owners o ON o.turn_id=t.id WHERE t.id=?1 AND o.executor='graph'",[&id],|r|r.get(0)).optional()?;
+                owner
+                    .map(|conversation| self.graph_runtime.response(db, &conversation, &id))
+                    .transpose()?
+                    .flatten()
+            },
+            channel: db
+                .query_row(
+                    "SELECT channel FROM turn_execution_owners WHERE turn_id=?1",
                     [&id],
                     |r| r.get(0),
                 )
-                .optional()?
-            } else {
-                None
+                .optional()?,
+            native_preview: {
+                let owner: Option<String> = db.query_row("SELECT t.conversation_id FROM turns t JOIN turn_execution_owners o ON o.turn_id=t.id WHERE t.id=?1 AND o.executor='graph'",[&id],|r|r.get(0)).optional()?;
+                owner
+                    .map(|conversation| self.graph_runtime.preview(db, &conversation, &id))
+                    .transpose()?
+                    .flatten()
             },
-            id: op.clone(),
-            kind: kind.clone(),
-            contract_version: declaration.contract_version,
-            dependencies,
-            role: declaration.role.into(),
-            state: if status == "ready" && (config(db)?.paused || (paused && !permit)) {
-                "held".into()
-            } else {
-                status.clone()
+            native_graph: {
+                let owner: Option<String> = db.query_row("SELECT t.conversation_id FROM turns t JOIN turn_execution_owners o ON o.turn_id=t.id WHERE t.id=?1 AND o.executor='graph'",[&id],|r|r.get(0)).optional()?;
+                owner
+                    .map(|conversation| self.graph_runtime.inspection(db, &conversation, &id))
+                    .transpose()?
+                    .flatten()
             },
-        });
+            replaces_turn_id,
+            replaced_by,
+            route: ConnectionRoute::parse(&route)?,
+            id: id.clone(),
+            state,
+            paused,
+            hold: hold.map(|json| serde_json::from_str(&json)).transpose()?,
+            operations,
+            attempts,
+        })
     }
-    // A prose reply's text that never became a message stays visible: failed,
-    // cancelled, invalidated or interrupted attempts keep what they received.
-    let attempts=db.prepare("SELECT a.id,a.operation_id,a.state,a.requested_model,a.actual_model,a.provider_id,a.started_at,a.finished_at,a.input_tokens,a.output_tokens,a.error,a.diagnostics,CASE WHEN a.state NOT IN ('succeeded','running') AND o.kind IN ('persona_reply','persona_opening','coach_reply') THEN COALESCE(a.response_text,a.preview_text) END FROM attempts a JOIN operations o ON a.operation_id=o.id WHERE o.turn_id=?1 ORDER BY a.rowid")?.query_map([&id],|r|Ok(AttemptView { diagnostics: crate::diagnostics::response::column(r,11)?,id:r.get(0)?,operation_id:r.get(1)?,state:r.get(2)?,requested_model:r.get(3)?,actual_model:r.get(4)?,provider_id:r.get(5)?,started_at:r.get(6)?,finished_at:r.get(7)?,input_tokens:r.get(8)?,output_tokens:r.get(9)?,error:r.get(10)?,unpublished_text:r.get(12)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    let (replaces_turn_id, replaced_by) = db.query_row("SELECT replaces_turn_id,(SELECT id FROM turns child WHERE child.replaces_turn_id=turns.id) FROM turns WHERE id=?1", [&id], |r| Ok((r.get(0)?, r.get(1)?)))?;
-    Ok(TurnView {
-        replaces_turn_id,
-        replaced_by,
-        route: ConnectionRoute::parse(&route)?,
-        id: id.clone(),
-        state,
-        paused,
-        hold: hold.map(|json| serde_json::from_str(&json)).transpose()?,
-        operations,
-        attempts,
-    })
 }

@@ -16,10 +16,11 @@ pub(super) fn budget_error(message: &str) -> AppError {
 }
 
 pub(super) fn admit_network_work(db: &Connection, additional: i64) -> Result<()> {
-    let outstanding: i64 = db.query_row(
+    let mut outstanding: i64 = db.query_row(
         "SELECT count(*) FROM operations o JOIN turns t ON t.id=o.turn_id WHERE t.state IN ('pending','assisting') AND o.state IN ('ready','waiting_dependencies','running') AND o.kind NOT IN ('persona_context','coach_context')",
         [], |r| r.get(0),
     )?;
+    outstanding += graph_runtime::outstanding(db)?;
     if additional < 0 || additional > OUTSTANDING_NETWORK_LIMIT - outstanding {
         return Err(budget_error(
             "AI work queue is full. Let pending work finish or cancel it before submitting again. This action was not accepted.",

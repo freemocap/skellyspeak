@@ -231,6 +231,10 @@ fn guide_example_uses_exact_authored_text_and_rejects_stale_references() {
 #[test]
 fn guide_coach_context_is_inspectable_and_stays_out_of_partner_history() {
     let (_dir, mut store, conversation) = setup();
+    coach_provider(
+        &store,
+        &["Here is the explanation.", "Because of its role here."],
+    );
     let guide = reference(&store, &conversation);
     let revision = store
         .snapshot()
@@ -267,11 +271,7 @@ fn guide_coach_context_is_inspectable_and_stays_out_of_partner_history() {
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert!(view.messages.is_empty());
     assert!(view.coach_messages[0].guide_context.is_some());
-    store.dispatch().unwrap();
-    let task = store.dispatch().unwrap().unwrap();
-    store
-        .finish(&task, Ok(reply("Here is the explanation.")))
-        .unwrap();
+    finish_native_coach(&mut store);
     let revision = store
         .snapshot()
         .unwrap()
@@ -299,11 +299,7 @@ fn guide_coach_context_is_inspectable_and_stays_out_of_partner_history() {
                 .unwrap()
                 .contains("Attached guide (reference data"))
     );
-    store.dispatch().unwrap();
-    let task = store.dispatch().unwrap().unwrap();
-    store
-        .finish(&task, Ok(reply("Because of its role here.")))
-        .unwrap();
+    finish_native_coach(&mut store);
     let partner_turn = store
         .execute(send(&store, &conversation))
         .unwrap()
