@@ -40,6 +40,80 @@ operation definitions, implementation version IDs and type shapes. The identity
 does not hash machine code; changing implementation semantics requires a new
 implementation identity. It is not safe to reuse IDs for changed implementations.
 
+### Invocation identity and evidence capture
+
+Implemented in `native/src/ai/graph/invocation.rs`: a bound handler now receives
+`InvocationContext` alongside its declared input values. Context identity comes
+from the claimed native work, not a handler-supplied run/node lookup. It contains
+engine-local execution ID, artifact ID and operation contract. Durable claims also
+bind the engine UUID; unhosted invocations carry no durable namespace. The current profile claims one
+invocation per producer; it does not introduce automatic provider retries.
+
+`Invocation::execute(EvidenceLimits)` returns `InvocationReport`, separately owning
+validated output outcome, ordered response observations, optional provisional source
+capture and any capture failure. Output validation occurs after the handler returns and cannot discard
+accepted observations. Evidence never becomes an output port or a dependency.
+Sharing still has one producer report; consumer cancellation does not rewrite it.
+
+Response observations have typed fields for request/model identity, finish/error
+details, timing, usage, billing basis and validation location. Missing counts remain
+optional; reported charge, estimate and allowance are distinct. Adapter extensions
+require an explicit value classification or an omission reason (content, credential,
+unclassified, truncated or unreadable). These types record adapter assertions; they
+do not prove that arbitrary strings are safe. Adapters must use their owning
+redaction policy before recording metadata. Raw bodies, prompts, transcripts,
+credentials and echoed request content do not belong in response evidence.
+
+The capture capability accepts at most the declared count and aggregate encoded
+observation bytes. Admission failure preserves the accepted prefix and latches a
+separate failure; subsequent writes cannot replace it. Even if the adapter ignores
+that error, a successful output becomes a failed report. An existing handler or
+output-validation failure remains the primary outcome, with the capture failure
+retained separately. Bounds concern retained observations and encoding work, not
+allocations already made by a provider adapter before calling `observe`.
+
+Context clones share one ordered capture. `snapshot()` copies the cumulative
+accepted prefix for an explicit host commit; taking the snapshot is not an
+acknowledgement of persistence. Returning from execution closes it before
+the report is handed to the caller. Dropping the running future also closes it;
+late callbacks fail explicitly and cannot mutate a completed report. Concurrent
+observations are ordered by accepted lock acquisition, not inferred wall-clock
+causality. It does not itself send transport events or acknowledge a database write.
+
+`execute_with_provisional(EvidenceLimits, ProvisionalLimits)` additionally supplies
+an explicit UTF-8 byte ceiling for cumulative source text. `provisional_text(&str)`
+accepts corrections, including replacements that are not prefix extensions. Exact
+duplicates after an accepted capture are no-ops. Each accepted replacement raises
+a checked `u64` sequence; sequence exhaustion and byte exhaustion latch a separate
+failure while preserving the last accepted text and sequence. A first rejected
+capture has sequence zero, empty retained text and an explicit failure. Even an
+ignored capture error prevents a successful outcome; an existing handler/output
+validation failure remains primary. Metadata observations remain independently
+available. The ordinary `execute` entry point has a zero-byte provisional budget.
+
+The callback-lifetime UUID, sequence, text and latched failure form one native
+`ProvisionalCapture`. This UUID is not the UI's future host/subscription identity.
+Snapshots and final reports copy that same capture under the existing lock and
+close it with the same invocation guard. Content is protected workspace data, not
+redacted metadata. It grants no dependency availability or consumer authority.
+
+The [durable evidence contract](ai-graph-durability.md#execution-evidence-and-report-settlement)
+now implements `Observe` and `SettleObserved` with protected serialization,
+checkpoint format 5 and execution-row format 2 for metadata alone; provisional
+content explicitly extends them with formats 6 and 3. Evidence is a native execution
+record field, not a second receipt database or a diagnostic export. Plain `Settle`
+is rejected after observations have been recorded; it cannot silently finish an
+observed producer while omitting its report.
+
+**Boundary still incomplete:** a production adapter must classify/redact metadata,
+deliver snapshots to the host and acknowledge their commits. Only acknowledged
+prefixes survive process loss; unsaved tail observations remain unknown. Provider
+adapters, stream/snapshot ordering, enclosing command transactions, production SQL
+migration and public evidence inspection are not connected yet. Existing synthetic
+tests that extract only outcome are not examples of a complete production adapter.
+
+### Composition and activation
+
 Composition accepts a compiled child and captures its source, artifact identity
 and caller bindings. Parent compilation recompiles and verifies that child, then
 expands its namespaced nodes and validates all boundary bindings. Boundary metadata
@@ -78,7 +152,9 @@ Journal entries are ordered source-containing checkpoint data, not diagnostics.
 | Pause | Known run | Change scheduling pause | Does not erase already submitted outcomes |
 | Advance | Explicit local/provider capacity | Admit ready nodes; append attempts; join/reuse or prepare producer | Returns eligible prepared work descriptors; no handler called by reducer |
 | Dispatch / claim | Prepared producer, active unpaused consumer, current capacity | Mark producer and subscribing attempts Running | Claim returns a single-use invocation with recorded inputs; edited descriptors cannot alter them |
-| Settle | Dispatched unsettled execution, not recovered unknown | Validate result ports; settle producer and eligible pending attempts | Invalid output becomes a recorded validation failure; cancelled consumers stay cancelled |
+| Settle | Dispatched unsettled execution, not recovered unknown, with no recorded observations | Validate result ports; settle producer and eligible pending attempts | Legacy/synthetic output-only event; observed producers require a complete report |
+| Observe | Dispatched unsealed producer; matching engine/artifact/operation; preserved metadata prefix and valid capture watermark | Commit the observation prefix, provisional replacement and latched failures | No result availability or adoption; recovered unknown work may retain late evidence without becoming successful |
+| SettleObserved | Dispatched unsettled producer, not recovered unknown; matching identity, metadata prefix and capture watermark | Seal evidence and provisional capture, validate outcome and settle eligible consumers atomically | Evidence survives output validation failure and cancellation; a capture failure cannot become successful output |
 | Adopt | Active owner/node, exact current Available attempt | Mark attempt Adopted | Adapter must commit this with domain publication; only then do data/control successors advance |
 | Cancel node/run | Known identity | Revoke affected consumer adoption; preserve prior accepted work | Other consumers and dispatched producer settlement survive |
 | Retry | Active node whose last attempt failed/is unknown | Record fresh retry demand | Advance still enforces pause, inputs and capacity; new attempt preserves old outcome |
@@ -131,9 +207,14 @@ Recorded graph definitions can now be inspected directly from a validated
 checkpoint without any executable handlers. This shares the live definition
 projection and does not permit runtime recovery without compatible bindings.
 The [retention contract](ai-graph-retention.md) separates absolute revision from
-resident suffix length. Format 2 compaction archives exact old checkpoint bytes
+resident suffix length. Snapshot compaction archives exact old checkpoint bytes
 atomically with a native state snapshot; recovery audits every cut by replay.
-Cold-state paging and production migration remain open.
+The [historical reader](ai-graph-history.md) uses the same validated native structure
+and reducer without handlers. It exports complete topology and native node facts
+with explicitly paged attempts at a selected logical cut. Cold-state paging and
+production migration remain open. Format 3 stores independent attempt records and
+current per-node references in the canonical native state; format 2 retains its
+historical inline encoding through a reader without alternative execution semantics.
 
 Inspection borrows the exact artifact held by execution. It exports native node
 dispositions, dependency/admission reasons, activation policy, acquisition modes,
@@ -169,9 +250,9 @@ production workflows merely because the isolated core tests pass.
 | G5: demand/readiness/admission | Activation overlay, capacity, fresh retry and checked dispatch tests | Production admission adapters and fairness policy |
 | G6: current adoption authority | Exact Available-attempt read/adoption; durable owner transaction interface; SQLite source/authority and publication rollback tests | Concrete product source, access, reset/replacement rules and production adapter |
 | G7: sharing | Independent attempt IDs and acquisition modes; cross-artifact reuse; cancellation permutations | Billing/credit provenance and bounded payload retention |
-| G8: history | Immutable artifact IDs; append-only attempts; versioned bounded checkpoints; UUID engine namespace; CAS and uncertain-commit recovery; reserved settlement/adoption/recovery capacity; atomic archive compaction and replay-validated snapshots | Production migration, retained historical implementations and cold-state/history paging |
+| G8: history | Immutable artifact IDs; append-only attempts; versioned bounded checkpoints; UUID engine namespace; CAS and uncertain-commit recovery; reserved settlement/adoption/recovery capacity; atomic archive compaction and replay-validated snapshots; handler-free historical attempt pages | Production migration, future semantic-version readers and cold-state paging |
 | G9: failure evidence | Closed native fault vocabulary; explicit export disclosure; internal records preserved | Bounded typed provider metadata and shared sensitivity handling; raw inspection does not satisfy G9 |
-| G10: refinement | Deterministic reducer and enumerated finite interleavings | Separate abstract model and systematic transition-conformance evidence; current unit tests are not a formal proof |
+| G10: refinement | Deterministic reducer, enumerated interleavings and an [independent finite lifecycle model](ai-graph-refinement.md) with exhaustive reachable-state conformance | Extend beyond two existing shared consumers to scheduling, retry, authority, durable failure and storage loading; not proof of the complete core |
 | G11: visualization fidelity | Shared generic artifact/attempt/reason types; generated bounded snapshot; nested topology parity and native reason tests | Viewer integration and real rendered-edge tests |
 
 No stage-completion claim follows merely from passing the core unit tests.

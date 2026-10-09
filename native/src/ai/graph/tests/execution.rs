@@ -10,8 +10,9 @@ async fn actual_handler_execution_requires_adoption_before_downstream_dispatch()
     let result = engine
         .claim(work[0].execution)
         .unwrap()
-        .execute()
+        .execute(evidence_limits())
         .await
+        .outcome
         .unwrap();
     assert_eq!(result, values(41));
     engine
@@ -27,8 +28,9 @@ async fn actual_handler_execution_requires_adoption_before_downstream_dispatch()
     let result = engine
         .claim(work[0].execution)
         .unwrap()
-        .execute()
+        .execute(evidence_limits())
         .await
+        .outcome
         .unwrap();
     engine
         .apply(Event::Settle {

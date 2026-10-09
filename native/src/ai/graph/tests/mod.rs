@@ -2,25 +2,61 @@ use super::*;
 use serde_json::json;
 use std::{collections::BTreeMap, sync::Arc};
 
+mod attempt_records;
 mod compaction;
 mod dispatch;
 mod durability;
 mod durable_store;
+mod enlistment;
+mod eviction;
+mod evidence_persistence;
 mod execution;
+mod execution_queries;
+mod history;
 mod interleavings;
+mod invocation;
 mod projection;
+mod read_budget;
+mod record_access;
+mod record_evidence;
+mod records;
+mod refinement;
 mod retained_definitions;
+mod scheduling_reads;
 mod settlement_capacity;
+mod sql_records;
+mod state_limits;
+mod stored_records;
+mod transition_reads;
 mod validation;
 
 fn contract(name: &str) -> Contract {
     Contract::new(name, 1)
+}
+fn evidence_limits() -> EvidenceLimits {
+    EvidenceLimits {
+        observations: 16,
+        bytes: 32_768,
+    }
 }
 fn history_limits() -> HistoryLimits {
     HistoryLimits {
         bytes: 10_000_000,
         events: 10_000,
         segments: 100,
+    }
+}
+fn record_read_limits() -> RecordReadLimits {
+    RecordReadLimits {
+        records: 100_000,
+        bytes: 100_000_000,
+    }
+}
+fn state_limits() -> StateLimits {
+    StateLimits {
+        runs: 1000,
+        attempts: 10_000,
+        executions: 10_000,
     }
 }
 fn port(optional: bool) -> Port {
@@ -81,7 +117,7 @@ fn registry() -> Registry {
                 resource: Resource::Provider,
                 reuse: Reuse::Exact,
             },
-            Arc::new(|input| {
+            Arc::new(|_, input| {
                 Box::pin(async move {
                     Ok(values(
                         input["value"]

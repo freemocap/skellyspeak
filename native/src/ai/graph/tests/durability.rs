@@ -8,9 +8,11 @@ fn limits() -> CheckpointLimits {
 }
 fn durable_limits() -> DurableLimits {
     DurableLimits {
+        record_reads: record_read_limits(),
         checkpoint: limits(),
         settlement_event_bytes: 4096,
         history: history_limits(),
+        state: state_limits(),
     }
 }
 fn start(host: &mut DurableEngine, store: &mut SqlStore, graph: &Executable, run: &str) {
@@ -58,8 +60,9 @@ async fn authority_checks_and_publication_share_the_checkpoint_transaction() {
     let output = host
         .claim("run", "first", id, &mut store)
         .unwrap()
-        .execute()
+        .execute(evidence_limits())
         .await
+        .outcome
         .unwrap();
     host.apply(
         Event::Settle {
@@ -146,8 +149,9 @@ async fn uncertain_adoption_freezes_host_and_reload_does_not_republish() {
     let outcome = host
         .claim("run", "first", id, &mut store)
         .unwrap()
-        .execute()
-        .await;
+        .execute(evidence_limits())
+        .await
+        .outcome;
     host.apply(
         Event::Settle {
             execution: work.execution,
@@ -201,7 +205,8 @@ fn stale_host_and_uncommitted_dispatch_cannot_produce_effects() {
             .err()
             .unwrap()
             .code,
-        "stale_checkpoint"
+        // Typed reads reject the stale revision before the commit CAS.
+        "record_stamp"
     );
     assert_eq!(
         Checkpoint::decode(&store.bytes(), limits())
@@ -351,12 +356,14 @@ fn begin_authority_and_checkpoint_limits_reject_without_changing_history() {
     let mut host = DurableEngine::create(
         [graph.clone()],
         DurableLimits {
+            record_reads: record_read_limits(),
             checkpoint: CheckpointLimits {
                 bytes: 1_000_000,
                 events: 2,
             },
             settlement_event_bytes: 4096,
             history: history_limits(),
+            state: state_limits(),
         },
         &mut store,
     )
@@ -406,9 +413,11 @@ fn begin_authority_and_checkpoint_limits_reject_without_changing_history() {
             checkpoint,
             [graph],
             DurableLimits {
+                record_reads: record_read_limits(),
                 checkpoint: small,
                 settlement_event_bytes: 4096,
                 history: history_limits(),
+                state: state_limits(),
             },
             &mut store
         )

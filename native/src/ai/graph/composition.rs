@@ -18,6 +18,7 @@ impl Definition {
             return Err(fault(CoreFaultCode::BindingSet, prefix));
         }
         let results = child
+            .plan
             .artifact
             .definition
             .results
@@ -27,7 +28,7 @@ impl Definition {
         self.compositions.insert(
             prefix.into(),
             Boundary {
-                artifact: child.identity.clone(),
+                artifact: child.plan.identity.clone(),
                 source: Box::new(child.source.clone()),
                 bindings: inputs,
             },
@@ -62,13 +63,13 @@ impl Registry {
         for (prefix, boundary) in &definition.compositions {
             valid_name(prefix)?;
             let child = self.compile_at(*boundary.source.clone(), depth + 1)?;
-            if child.identity != boundary.artifact {
+            if child.plan.identity != boundary.artifact {
                 return Err(fault(CoreFaultCode::CompositionChanged, prefix));
             }
             if child.source.inputs.keys().ne(boundary.bindings.keys()) {
                 return Err(fault(CoreFaultCode::BindingSet, prefix));
             }
-            for (name, node) in child.artifact.definition.nodes {
+            for (name, node) in child.plan.artifact.definition.nodes.clone() {
                 let id = format!("{prefix}/{name}");
                 if definition.nodes.contains_key(&id) {
                     return Err(fault(CoreFaultCode::DuplicateNode, &id));

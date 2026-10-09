@@ -257,19 +257,39 @@ typed DAGs, composition and the isolated transition machine. This is a bounded
 implementation checkpoint within stages 2–3, not completion of their exit gates.
 
 1. Extend the implemented [durable transaction boundary](ai-graph-durability.md)
-   and its reserved settlement/adoption/recovery capacity with bounded historical
-   reads and production migration treatment of historical evidence. The
-   [retention contract](ai-graph-retention.md) now implements format 2 snapshots
+   and its reserved settlement/adoption/recovery capacity with bounded active state
+   and production migration treatment of historical evidence. The
+   [retention contract](ai-graph-retention.md) now implements formats 2/3/4 snapshots
    and atomic archive compaction in the isolated foundation. Recovery still audits
-   the entire retained chain; cold-state paging and production migration remain open.
+   the entire retained chain. [Historical attempt pages](ai-graph-history.md) now
+   use handler-free native replay and the shared projection. Explicit
+   [retained record ceilings](ai-graph-state-bounds.md) now prevent unbounded record
+   admission/reconstruction. Runs now reference independent attempt records; execution
+   and historical pages read those same records. The [record boundary](ai-graph-record-storage.md)
+   implements explicit payload eviction and verified cold continuation. Aggregate
+   memory budgets, disk-backed indexes, startup loading and production migration
+   remain open.
 2. Specify and verify current external authority and atomic domain adoption, without
    product-specific exceptions in the core.
 3. Extend the implemented [redacted inspection snapshot](ai-graph-inspection.md)
-   with typed bounded provider metadata and stream events, including
-   snapshot/stream ordering. The generated snapshot contract alone does not
-   complete provider evidence retention or viewer integration.
-4. Extend the invariant matrix into a separate abstract transition model and bounded
-   conformance checks; distinguish those results from ordinary implementation tests.
+   with reviewed provider-metadata disclosure and stream events, including
+   snapshot/stream ordering. Typed bounded capture,
+   [native evidence persistence](ai-graph-durability.md#execution-evidence-and-report-settlement),
+   [provisional-content handoff](ai-graph-durability.md#provisional-content-handoff)
+   and [materialized live reads](ai-graph-inspection.md#implemented-protected-materialized-read)
+   are implemented in the isolated core; production adapter classification, host
+   delivery and viewer integration remain
+   open. The generated snapshot contract alone does not complete those obligations.
+4. Extend the [independent finite lifecycle model](ai-graph-refinement.md) beyond
+   two existing consumers of one shared producer. Its exhaustive reachable-state
+   checks are a first bounded conformance result; scheduling, retries, authority,
+   durable failures and storage loading still require independent model coverage.
 5. Verify these contracts before any production workflow reconstruction.
 
 This document establishes a reviewable foundation, not an already proven system.
+
+The [production integration checkpoint](ai-graph-production-integration.md) maps
+these outstanding contracts to actual admission, streaming, publication and viewer
+owners. The next delivery target is one complete production workflow after its
+shared foundation prerequisites, with explicit acceptance evidence and old-path
+removal. Additional isolated infrastructure is not itself that milestone.

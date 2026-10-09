@@ -89,6 +89,9 @@ fn accepted_lookup_excludes_archived_invalidated_and_replaced_sources() {
         let query = query(&store, &gloss);
         assert_eq!(sources(&store, &query).unwrap().len(), 1);
         store.connection.execute(change, []).unwrap();
+        if change.starts_with("INSERT INTO turns") {
+            store.connection.execute("INSERT INTO turn_execution_owners(turn_id,executor,channel) VALUES('replacement','legacy','unknown')", []).unwrap();
+        }
         assert!(sources(&store, &query).unwrap().is_empty());
     }
 }

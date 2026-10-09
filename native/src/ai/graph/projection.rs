@@ -42,9 +42,6 @@ pub struct DefinitionSnapshot {
 }
 
 impl Executable {
-    fn projected_definition(&self) -> DefinitionSnapshot {
-        self.artifact().projected_definition(self.identity())
-    }
     pub fn inspection_definition(&self, limits: ExportLimits) -> Result<DefinitionSnapshot> {
         self.artifact()
             .inspection_definition(self.identity(), limits)
@@ -76,7 +73,7 @@ impl Artifact {
 /// content. Runtime values and arbitrary adapter faults are not exposed here.
 /// Artifact/attempt/reason types are the same generic types used by execution.
 #[derive(Serialize, TS)]
-pub struct InspectionSnapshot {
+pub struct InspectionSnapshot<A = BTreeMap<String, Vec<Attempt<FaultDisclosure, String, String>>>> {
     pub protocol: u32,
     pub engine: String,
     pub revision: String,
@@ -87,11 +84,11 @@ pub struct InspectionSnapshot {
     pub activation: BTreeMap<String, Activation>,
     pub paused: bool,
     pub active: bool,
-    pub attempts: BTreeMap<String, Vec<Attempt<FaultDisclosure, String, String>>>,
+    pub attempts: A,
     pub reasons: BTreeMap<String, Vec<Reason<FaultDisclosure, String>>>,
 }
 
-fn disclose_fault(f: &Fault, artifact: &Artifact) -> FaultDisclosure {
+pub(super) fn disclose_fault(f: &Fault, artifact: &Artifact) -> FaultDisclosure {
     let code: Option<CoreFaultCode> =
         serde_json::from_value(serde_json::Value::String(f.code.clone())).ok();
     // Only closed machine codes and known structural selectors are public. An
@@ -116,6 +113,7 @@ fn disclose_fault(f: &Fault, artifact: &Artifact) -> FaultDisclosure {
         "checkpoint",
         "identifier",
         "event",
+        "provisional",
     ]
     .contains(&f.path.as_str())
         || artifact.definition.nodes.contains_key(&f.path)
@@ -147,25 +145,79 @@ impl Engine {
         run: &str,
         limits: ExportLimits,
     ) -> Result<InspectionSnapshot> {
-        let view = self.inspect(run)?;
-        if view.revision != stamp.revision {
+        self.project_using(&mut &self.state, stamp, run, limits)
+    }
+
+    pub(super) fn project_using(
+        &self,
+        records: &mut impl super::record_access::RecordAccess,
+        stamp: &Stamp,
+        run: &str,
+        limits: ExportLimits,
+    ) -> Result<InspectionSnapshot> {
+        let owner = records.run(run)?;
+        if self.revision() != stamp.revision {
             return Err(fault(CoreFaultCode::InspectionRevision, "snapshot"));
         }
-        let count = view
-            .attempts
-            .values()
-            .try_fold(0usize, |count, a| count.checked_add(a.len()))
-            .ok_or_else(|| fault(CoreFaultCode::InspectionLimit, "attempts"))?;
+        let count = self.state.attempts.ids(run).len();
         if count > limits.attempts {
             return Err(fault(CoreFaultCode::InspectionLimit, "attempts"));
         }
-        let owner = self.run(run)?;
-        let definition = self.graphs[&owner.artifact].projected_definition();
+        let artifact = self.graphs[&owner.artifact].artifact();
+        let mut attempts = BTreeMap::<String, Vec<_>>::new();
+        for id in self.state.attempts.ids(run) {
+            let row = records.attempt(*id)?;
+            if row.run != run || row.attempt.id != *id {
+                return Err(fault(CoreFaultCode::RecordMismatch, "attempt"));
+            }
+            attempts
+                .entry(row.node.clone())
+                .or_default()
+                .push(project_attempt(&row.attempt, artifact));
+        }
+        self.project_with_attempts_using(
+            records,
+            &stamp.engine,
+            stamp.revision,
+            run,
+            attempts,
+            limits,
+        )
+    }
+
+    pub(super) fn project_with_attempts<A: Serialize>(
+        &self,
+        engine: &str,
+        revision: u64,
+        run: &str,
+        attempts: A,
+        limits: ExportLimits,
+    ) -> Result<InspectionSnapshot<A>> {
+        self.project_with_attempts_using(&mut &self.state, engine, revision, run, attempts, limits)
+    }
+
+    fn project_with_attempts_using<A: Serialize>(
+        &self,
+        records: &mut impl super::record_access::RecordAccess,
+        engine: &str,
+        revision: u64,
+        run: &str,
+        attempts: A,
+        limits: ExportLimits,
+    ) -> Result<InspectionSnapshot<A>> {
+        let owner = records.run(run)?;
+        let view = self.inspect_with_attempts_using(records, run, &owner, ())?;
+        if view.revision != revision {
+            return Err(fault(CoreFaultCode::InspectionRevision, "snapshot"));
+        }
+        let definition = self.graphs[&owner.artifact]
+            .artifact()
+            .projected_definition(&owner.artifact);
         let failure = |f: &Fault| disclose_fault(f, view.artifact);
         let snapshot = InspectionSnapshot {
             protocol: 1,
-            engine: stamp.engine.clone(),
-            revision: stamp.revision.to_string(),
+            engine: engine.into(),
+            revision: revision.to_string(),
             run: run.into(),
             artifact_id: definition.artifact_id,
             artifact: definition.artifact,
@@ -173,24 +225,7 @@ impl Engine {
             activation: view.activation.clone(),
             paused: owner.paused,
             active: owner.active,
-            attempts: view
-                .attempts
-                .iter()
-                .map(|(id, attempts)| {
-                    (
-                        id.clone(),
-                        attempts
-                            .iter()
-                            .map(|a| Attempt {
-                                id: a.id.0.to_string(),
-                                execution: a.execution.0.to_string(),
-                                state: a.state.map_fault(&failure),
-                                acquisition: a.acquisition,
-                            })
-                            .collect(),
-                    )
-                })
-                .collect(),
+            attempts,
             reasons: view
                 .reasons
                 .iter()
@@ -207,6 +242,18 @@ impl Engine {
         };
         super::encoding::bounded_json(&snapshot, limits.bytes, CoreFaultCode::InspectionLimit)?;
         Ok(snapshot)
+    }
+}
+
+pub(super) fn project_attempt(
+    a: &Attempt,
+    artifact: &Artifact,
+) -> Attempt<FaultDisclosure, String, String> {
+    Attempt {
+        id: a.id.0.to_string(),
+        execution: a.execution.0.to_string(),
+        state: a.state.map_fault(&|f| disclose_fault(f, artifact)),
+        acquisition: a.acquisition,
     }
 }
 
@@ -240,7 +287,13 @@ pub fn bindings() -> String {
         Disclosure::<String>::decl(&config),
         FaultDisclosure::decl(&config),
         DefinitionSnapshot::decl(&config),
-        InspectionSnapshot::decl(&config),
+        <InspectionSnapshot>::decl(&config),
+        PreviewCapture::decl(&config),
+        AttemptPreview::decl(&config),
+        LiveInspection::decl(&config),
+        HistoryCursor::decl(&config),
+        HistoricalAttempt::decl(&config),
+        AttemptPage::decl(&config),
         serde_json::Value::decl(&config),
     ];
     format!(

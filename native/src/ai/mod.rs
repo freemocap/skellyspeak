@@ -1,6 +1,7 @@
 pub(crate) mod audio;
 pub mod connections;
 pub mod graph;
+pub mod graph_store;
 pub mod hosted;
 pub(crate) mod policy;
 pub mod transport;

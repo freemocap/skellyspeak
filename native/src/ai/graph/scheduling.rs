@@ -1,143 +1,38 @@
-use super::{compile::digest, model::fault, runtime::Execution, *};
+use super::{
+    compile::digest,
+    dependencies::Resolved,
+    model::fault,
+    record_access::RecordAccess,
+    staged_access::StagedAccess,
+    state::{AttemptRecord, Execution, RuntimeState},
+    *,
+};
 
-pub(super) enum Resolved {
-    Value(serde_json::Value),
-    Absent,
-    Waiting,
-    Blocked,
-}
 impl Engine {
-    pub(super) fn resolve(&self, run: &Run, source: &Source) -> Resolved {
-        self.resolve_with(run, source, &self.states(run))
-    }
-    pub(super) fn resolve_with(
-        &self,
-        run: &Run,
-        source: &Source,
-        states: &std::collections::BTreeMap<String, Disposition>,
-    ) -> Resolved {
-        match source {
-            Source::Input(name) => run
-                .inputs
-                .get(name)
-                .cloned()
-                .map_or(Resolved::Absent, Resolved::Value),
-            Source::Constant { value, .. } => Resolved::Value(value.clone()),
-            Source::Absent(_) => Resolved::Absent,
-            Source::Output { node, port } => {
-                if let Some(a) = run.attempts.get(node).and_then(|xs| xs.last()) {
-                    return match &a.state {
-                        AttemptState::Adopted => self.executions[&a.execution]
-                            .outcome
-                            .as_ref()
-                            .and_then(|r| r.as_ref().ok())
-                            .and_then(|xs| xs.get(port))
-                            .cloned()
-                            .map_or(Resolved::Absent, Resolved::Value),
-                        AttemptState::Failed(_)
-                        | AttemptState::Unknown
-                        | AttemptState::Cancelled => Resolved::Blocked,
-                        _ => Resolved::Waiting,
-                    };
-                }
-                match states[node] {
-                    Disposition::Disabled | Disposition::Skipped => Resolved::Absent,
-                    Disposition::Blocked
-                    | Disposition::Cancelled
-                    | Disposition::Failed
-                    | Disposition::Unknown => Resolved::Blocked,
-                    _ => Resolved::Waiting,
-                }
-            }
-        }
-    }
-    pub fn disposition(&self, run: &str, node: &str) -> Result<Disposition> {
-        self.node(run, node)?;
-        Ok(self.states(self.run(run)?)[node].clone())
-    }
-    // One topological pass avoids exponential revisits through diamond graphs.
-    pub(super) fn states(&self, r: &Run) -> std::collections::BTreeMap<String, Disposition> {
-        let mut states = std::collections::BTreeMap::new();
-        for node in &self.graphs[&r.artifact].order {
-            let state = self.state_with(r, node, &states);
-            states.insert(node.clone(), state);
-        }
-        states
-    }
-    fn state_with(
-        &self,
-        r: &Run,
+    fn schedule_node(
+        &mut self,
+        run: &str,
         node: &str,
-        states: &std::collections::BTreeMap<String, Disposition>,
-    ) -> Disposition {
-        let graph = &self.graphs[&r.artifact];
-        let n = &graph.artifact.definition.nodes[node];
-        if !r.retry_requested.contains(node)
-            && let Some(a) = r.attempts.get(node).and_then(|xs| xs.last())
-        {
-            return match a.state {
-                AttemptState::Prepared => Disposition::Prepared,
-                AttemptState::Running => Disposition::Running,
-                AttemptState::Available => Disposition::Available,
-                AttemptState::Adopted => Disposition::Adopted,
-                AttemptState::Failed(_) => Disposition::Failed,
-                AttemptState::Unknown => Disposition::Unknown,
-                AttemptState::Cancelled => Disposition::Cancelled,
-            };
+        capacity: Capacity,
+        base: &RuntimeState,
+        records: &mut impl RecordAccess,
+    ) -> Result<()> {
+        let mut records = StagedAccess {
+            base,
+            candidate: &self.state,
+            records,
+        };
+        let r = records.run(run)?;
+        let states = self.states_using(&mut records, &r)?;
+        if states[node] != Disposition::Ready {
+            return Ok(());
         }
-        if !r.active || r.cancelled.contains(node) {
-            return Disposition::Cancelled;
-        }
-        if r.policy[node] == Activation::Disabled {
-            return Disposition::Disabled;
-        }
-        if r.policy[node] == Activation::OnDemand && !r.demanded.contains(node) {
-            return Disposition::Unrequested;
-        }
-        if let Some(guard) = &n.guard {
-            match self.resolve_with(r, guard, states) {
-                Resolved::Value(v) if v == false => return Disposition::Skipped,
-                Resolved::Value(_) => (),
-                Resolved::Blocked | Resolved::Absent => return Disposition::Blocked,
-                Resolved::Waiting => return Disposition::Waiting,
-            }
-        }
-        let mut waiting = false;
-        for parent in &n.after {
-            match states[parent] {
-                Disposition::Adopted => (),
-                Disposition::Failed
-                | Disposition::Unknown
-                | Disposition::Cancelled
-                | Disposition::Skipped
-                | Disposition::Disabled
-                | Disposition::Blocked => return Disposition::Blocked,
-                _ => waiting = true,
-            }
-        }
-        for (port, source) in &n.inputs {
-            match self.resolve_with(r, source, states) {
-                Resolved::Value(_) => (),
-                Resolved::Absent if graph.operation(node).inputs[port].optional => (),
-                Resolved::Absent | Resolved::Blocked => return Disposition::Blocked,
-                Resolved::Waiting => waiting = true,
-            }
-        }
-        if waiting {
-            Disposition::Waiting
-        } else if r.paused {
-            Disposition::Paused
-        } else {
-            Disposition::Ready
-        }
-    }
-    pub(super) fn start(&mut self, run: &str, node: &str, fresh: bool) -> Result<()> {
-        let r = self.run(run)?;
+        let fresh = r.retry_requested.contains(node);
         let graph = &self.graphs[&r.artifact];
         let n = &graph.artifact.definition.nodes[node];
         let mut inputs = Values::new();
         for (name, source) in &n.inputs {
-            match self.resolve(r, source) {
+            match self.resolve_using(&mut records, &r, source, &states)? {
                 Resolved::Value(v) => {
                     inputs.insert(name.clone(), v);
                 }
@@ -155,13 +50,13 @@ impl Engine {
             .map(|p| (&p.contract, &graph.artifact.types[&p.contract]))
             .collect();
         let key = digest(&(op, contracts, &inputs, &r.scope))?;
-        let shared = if !fresh && op.reuse == Reuse::Exact {
-            self.executions
-                .iter()
-                .find(|(_, e)| e.key == key && !e.unknown && !matches!(e.outcome, Some(Err(_))))
-                .map(|(id, e)| {
-                    (
-                        *id,
+        let mut shared = None;
+        if !fresh && op.reuse == Reuse::Exact {
+            for id in self.state.executions.key_ids(&key) {
+                let e = records.execution(id)?;
+                if !e.unknown && !matches!(e.outcome, Some(Err(_))) {
+                    shared = Some((
+                        id,
                         if e.outcome.is_some() {
                             AttemptState::Available
                         } else if e.dispatched {
@@ -169,19 +64,48 @@ impl Engine {
                         } else {
                             AttemptState::Prepared
                         },
-                    )
-                })
-        } else {
-            None
-        };
+                    ));
+                    break;
+                }
+            }
+        }
+        // Preserve the existing allocator-overflow rejection even for held work,
+        // without assigning IDs or constructing speculative records.
+        self.state
+            .next_id
+            .checked_add(1 + u64::from(shared.is_none()))
+            .ok_or_else(|| fault(CoreFaultCode::IdentityLimit, "engine"))?;
+        // A resource hold creates no records. Decide it before record admission,
+        // while a pending join or retained result needs no additional resource slot.
+        if shared.is_none() {
+            let limit = match op.resource {
+                Resource::Local => capacity.local,
+                Resource::Provider => capacity.provider,
+            };
+            let mut busy = 0;
+            for id in self.state.executions.unresolved_ids() {
+                let e = records.execution(id)?;
+                if e.work.resource == op.resource
+                    && (e.dispatched || self.has_consumer_using(&mut records, id, false)?)
+                {
+                    busy += 1;
+                }
+            }
+            if busy >= limit {
+                self.state.held.insert((run.into(), node.into()));
+                return Ok(());
+            }
+        }
+        self.admit_records(0, 1, usize::from(shared.is_none()))?;
         let artifact = r.artifact.clone();
         let operation = op.contract.clone();
         let resource = op.resource;
-        self.next_id = self
+        self.state.next_id = self
+            .state
             .next_id
             .checked_add(1)
             .ok_or_else(|| fault(CoreFaultCode::IdentityLimit, "engine"))?;
-        let attempt = AttemptId(self.next_id);
+        let attempt = AttemptId(self.state.next_id);
         let (execution, state, acquisition) = if let Some((id, state)) = shared {
             let mode = if state == AttemptState::Available {
                 Acquisition::Retained
@@ -190,12 +114,13 @@ impl Engine {
             };
             (id, state, mode)
         } else {
-            self.next_id = self
+            self.state.next_id = self
+                .state
                 .next_id
                 .checked_add(1)
                 .ok_or_else(|| fault(CoreFaultCode::IdentityLimit, "engine"))?;
-            let execution = ExecutionId(self.next_id);
-            self.executions.insert(
+            let execution = ExecutionId(self.state.next_id);
+            self.state.executions.insert(
                 execution,
                 Execution {
                     key,
@@ -209,81 +134,75 @@ impl Engine {
                     outcome: None,
                     unknown: false,
                     dispatched: false,
+                    evidence: None,
                 },
             );
             (execution, AttemptState::Prepared, Acquisition::Produced)
         };
-        self.runs
+        self.state.attempts.insert(
+            attempt,
+            AttemptRecord {
+                run: run.into(),
+                node: node.into(),
+                attempt: Attempt {
+                    id: attempt,
+                    execution,
+                    state,
+                    acquisition,
+                },
+            },
+        );
+        self.state.runs.load(run.into(), r.clone());
+        self.state
+            .runs
             .get_mut(run)
             .unwrap()
-            .attempts
-            .entry(node.into())
-            .or_default()
-            .push(Attempt {
-                id: attempt,
-                execution,
-                state,
-                acquisition,
-            });
-        self.runs.get_mut(run).unwrap().retry_requested.remove(node);
+            .current
+            .insert(node.into(), attempt);
+        self.state
+            .runs
+            .get_mut(run)
+            .unwrap()
+            .retry_requested
+            .remove(node);
         Ok(())
     }
-    pub(super) fn advance(&mut self, capacity: Capacity) -> Result<Vec<Work>> {
-        self.capacity = capacity;
-        self.held.clear();
-        let candidates: Vec<_> = self
-            .runs
-            .iter()
-            .flat_map(|(id, r)| {
-                self.graphs[&r.artifact]
-                    .artifact
-                    .definition
-                    .nodes
-                    .keys()
-                    .map(move |n| (id.clone(), n.clone()))
-            })
-            .collect();
-        for (run, node) in candidates {
-            if self.disposition(&run, &node)? != Disposition::Ready {
-                continue;
+    pub(super) fn advance(
+        &mut self,
+        capacity: Capacity,
+        base: &RuntimeState,
+        records: &mut impl RecordAccess,
+    ) -> Result<Vec<Work>> {
+        self.state.capacity = capacity;
+        self.state.held.clear();
+        let mut candidates = Vec::new();
+        for id in self.state.runs.keys() {
+            let owner = records.run(id)?;
+            for node in self.graphs[&owner.artifact]
+                .artifact
+                .definition
+                .nodes
+                .keys()
+            {
+                candidates.push((id.clone(), node.clone()));
             }
-            let before = self.next_id;
-            // Prepare speculatively: a cache hit or pending join needs no slot.
-            let mut planned = self.clone();
-            planned.start(&run, &node, self.runs[&run].retry_requested.contains(&node))?;
-            let a = planned.runs[&run].attempts[&node].last().unwrap();
-            let ex = &planned.executions[&a.execution];
-            if a.execution.0 > before {
-                let limit = match ex.work.resource {
-                    Resource::Local => capacity.local,
-                    Resource::Provider => capacity.provider,
-                };
-                let busy = self
-                    .executions
-                    .iter()
-                    .filter(|(id, e)| {
-                        e.outcome.is_none()
-                            && !e.unknown
-                            && e.work.resource == ex.work.resource
-                            && (e.dispatched || self.execution_eligible(**id))
-                    })
-                    .count();
-                if busy >= limit {
-                    self.held.insert((run, node));
-                    continue;
-                }
-            }
-            *self = planned;
         }
-        // A new subscriber can make a paused producer eligible again. Collect
-        // after all subscriptions are applied, once per execution identity.
-        Ok(self
-            .executions
-            .iter()
-            .filter(|(id, e)| {
-                !e.dispatched && e.outcome.is_none() && !e.unknown && self.execution_eligible(**id)
-            })
-            .map(|(_, e)| e.work.clone())
-            .collect())
+        for (run, node) in candidates {
+            self.schedule_node(&run, &node, capacity, base, records)?;
+        }
+        // Include subscriptions and producers staged earlier in this same event.
+        let mut records = StagedAccess {
+            base,
+            candidate: &self.state,
+            records,
+        };
+        let mut work = Vec::new();
+        for id in self.state.executions.unresolved_ids() {
+            let producer = records.execution(id)?;
+            if !producer.dispatched && self.has_consumer_using(&mut records, id, false)? {
+                work.push(producer.work.clone());
+            }
+        }
+        Ok(work)
     }
 }

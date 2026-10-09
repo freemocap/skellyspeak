@@ -3,9 +3,54 @@
 Date: 2026-10-08. Status: **isolated implementation contract and remaining
 preservation requirements**. Extends [the foundations](ai-graph-foundations.md)
 and [the durable owner boundary](ai-graph-durability.md). Historical definition
-reading, absolute revisions, format 2 snapshots and atomic archive compaction are
-implemented in the foundation with a disposable SQLite owner. Production workspace
+reading, absolute revisions, formats 2/3/4 snapshots and atomic archive compaction are
+implemented in the foundation with a disposable SQLite owner. Handler-free
+[historical attempt pages](ai-graph-history.md) now share native replay and projection.
+Production workspace
 formats and existing workflow ownership remain unchanged.
+
+## Evidence format extension
+
+Checkpoint format **5** adds the observed-event profile: `Observe` and
+`SettleObserved`, carrying protected native evidence. It uses the same artifact
+manifest and ordered native replay. Its optional base has an explicit
+`base_format` discriminator selecting retained inline (2), primary-record (3) or
+commitment (4) representation; a journal-only root has no base/discriminator.
+This avoids an untagged decoder and preserves numeric record identities.
+
+The first observed event upgrades the active payload to 5. Subsequent captures and
+compaction retain that version, even when its current suffix is empty. Formats 1–4
+retain their exact historical encoding, reject observed events/extended execution
+payloads and cannot resume a format-5 evidence-bearing prefix under an older label.
+The existing archive chain remains readable and its original bytes are preserved
+when archived. Unknown base representations, versions and fields are errors.
+
+The optional native execution evidence field is omitted when absent. Explicit null
+is rejected rather than silently normalized away from a historical record. Present
+evidence uses physical execution-row format **2**, participates in the same native
+record commitments and survives compaction, eviction, replay and recovery. Other
+rows keep format 1. These numbers are independent of workspace format 56; this
+checkpoint does not change production SQL or the application version.
+
+See [report settlement](ai-graph-durability.md#execution-evidence-and-report-settlement)
+for partial-prefix, finalization, identity and recovery rules.
+
+### Provisional-content extension
+
+Checkpoint format **6** extends format 5's explicitly selected base representation
+with optional protected provisional capture on observed events and execution
+evidence. The first such event upgrades the payload; later captures/compaction keep
+6 even with an empty suffix. Formats 1–5 retain their exact encoding when the field
+is absent. They reject provisional-bearing events or inline/native bases; archive
+replay also rejects relabeling a provisional-bearing commitment base as format 5.
+Explicit null provisional fields are rejected rather than silently omitted.
+
+Execution rows containing provisional capture use physical format **3**. Metadata-only
+rows remain format 2 and no-evidence rows remain format 1. The sequence acknowledges
+an exact source-text replacement, not a text prefix or accepted domain result.
+Correction history remains in the native event/archive chain. No production SQL or
+workspace format change is made here; workspace integration still needs its explicit
+consecutive migration. See the [handoff contract](ai-graph-durability.md#provisional-content-handoff).
 
 ## Ownership and observable behavior
 
@@ -130,11 +175,11 @@ artifact fingerprint algorithm. Decoding rejects a mismatched manifest identity
 even if the envelope checksum is internally consistent. The stored checkpoint is
 unchanged by reading it. Live and retained exports share one projection function.
 
-This establishes definition readability, not handler-free historical runtime
-replay. The remaining runtime-history reader must use versioned transition semantics
-or validated native snapshots, preserve native reasons, and identify unsupported
-versions explicitly. Reading older source formats cannot silently mean running the
-latest reducer against whatever schema happens to deserialize.
+Definition reading alone does not reconstruct runtime state. The implemented
+[historical reader](ai-graph-history.md) now uses the same native transition semantics
+without handlers and preserves native reasons at a selected logical cut. Unsupported
+formats fail. Future semantic changes must retain explicit version compatibility;
+they cannot silently reinterpret old records with changed transitions.
 
 Checkpoint integrity does not authenticate a workspace, and a definition read is
 not a new proof of graph validity. Historical records describe what was stored.
@@ -169,43 +214,61 @@ versions must fail explicitly rather than quietly restart a cursor.
    add the explicit consecutive workspace migration with the established recovery
    copy and one-transaction chain. Do not overwrite released migration steps.
 
-Steps 1–3 are implemented in the isolated foundation. Steps 4–5 remain open.
+Steps 1–3 and step 4's historical attempt export are implemented in the isolated
+foundation. [Resident record admission](ai-graph-state-bounds.md) now enforces
+explicit count ceilings without eviction. Cold-state loading, strict peak-memory
+bounds and step 5 remain open.
 Checkpoint format versions, workspace format versions and application releases are
 different identities. Production migration, cache eviction and history deletion
 are not implemented.
 
-## Implemented format 2 and recovery contract
+## Implemented snapshot formats and recovery contract
 
-Creation still writes format 1. Explicit `DurableEngine::compact` performs the
-consecutive transition to format 2, retaining the exact old checkpoint bytes as
-an immutable archive segment in the same transaction as the replacement root.
-Later compactions retain the exact preceding format 2 checkpoint. Each archived
+Creation still writes format 1. Explicit `DurableEngine::compact` now writes format 4,
+retaining the exact old checkpoint bytes as an immutable archive segment in the
+same transaction as the replacement root. Formats 2/3 remain supported historical
+encodings. Later compactions retain the exact preceding checkpoint of any snapshot
+format. Each archived
 checkpoint contributes its suffix range `[baseRevision, revision)`; snapshots can
 repeat state, but event ranges are contiguous and original events are not rewritten.
-Empty suffixes make compaction a no-op. Logical revisions use checked `u64`
+Empty format-4 suffixes make compaction a no-op. An empty legacy snapshot is repacked
+against its existing archive parent, preserving every event without introducing an
+empty archive segment. Logical revisions use checked `u64`
 arithmetic; the resident journal exposes only its suffix after compaction.
 
-The format 2 base records the native runs, executions, allocator, capacities and
-holds, its absolute revision and the exact parent archive stamp. Between cuts,
+The format 2 base records runs with embedded attempt histories, executions, allocator,
+capacities and holds. Format 3 uses the canonical runtime state directly: independent
+run, attempt and execution tables, with one current attempt reference per run/node.
+Format 4 contains canonical primary-row SHA-256 commitments and allocation/control
+scalars, without primary payloads. All record their absolute revision and exact parent
+archive stamp. Between cuts,
 this base and the artifact manifest are immutable. Recovery loads the bounded
 archive chain, verifies stamps and checksums, and replays oldest to newest using
-the native reducer. At each cut it compares the complete captured native state
-with the stored snapshot before rebasing. It never installs an unvalidated
+the native reducer. At each cut it compares the complete native state with the
+stored snapshot before rebasing. Format 2 uses a frozen physical-layout adapter
+with no scheduling or execution logic; format 3 compares canonical state directly.
+Format 4 recomputes commitments from the replayed native rows and compares every
+identity/digest, allocator, capacity and hold. Hashes are private content-derived
+evidence, not diagnostics or a substitute for archived source records.
+The version-specific decoder preserves original serialization for integrity hashes.
+It never installs an unvalidated
 deserialized state. Missing history, changed artifacts, malformed snapshots,
 unknown versions and differing replay state are errors before a recovery write.
 Handlers are required for executable recovery but are never invoked by replay.
 
 This deliberately retains full-history replay on restart. It shortens the active
-event suffix; it does not yet accelerate startup, page cold records, or bound the
-number of lifetime runs and executions in memory. Snapshots of all state still
-grow. Efficient validated loading is a separate contract, not an implied feature.
+event suffix; it does not yet accelerate startup or bound peak working memory.
+The [record boundary](ai-graph-record-storage.md) now supports explicit payload
+eviction and cold reads. Identity/index/commitment metadata still grows with retained
+records; logical record ceilings are unchanged.
 
 `HistoryLimits` bounds total archived bytes, events and segment count separately
 from the active checkpoint. `CommitStore::read_archive` must check the stored
 length before allocating a body. Recovery and compaction reject budget exhaustion
 without deletion. Compaction checks the replacement checkpoint plus every reserved
 settlement, adoption and recovery event before committing. Its larger snapshot can
-therefore cause a valid refusal. Ordinary format 2 appends retain the fixed base,
+therefore cause a valid refusal. Ordinary snapshot appends retain the fixed base
+and its format, including an old format-2 base until the next compaction,
 so only serialized suffix events and separators grow under those reservations.
 
 The SQLite fixture inserts the immutable archive and replaces the root in one CAS
@@ -213,6 +276,12 @@ transaction. Conflicting archive content is an error. A rollback keeps both old
 storage and memory intact; a lost acknowledgment freezes the host until reload.
 The unchanged logical revision and changed checksum reject pre-compaction writers.
 Neither compaction nor replay publishes domain results or issues provider work.
+
+Format 4 is an isolated foundation checkpoint format, not a workspace database
+format bump. Production adoption still requires the explicit consecutive workspace
+migration. Refer to the [attempt-record verification](ai-graph-state-bounds.md)
+for the legacy format-1/2/3 checks and the [record boundary](ai-graph-record-storage.md)
+for format-4 commitment, continuation and eviction verification.
 
 ## Acceptance evidence required before enabling compaction
 

@@ -1,12 +1,13 @@
-use super::{scheduling::Resolved, *};
+use super::{dependencies::Resolved, *};
 use std::collections::BTreeMap;
 
 impl Engine {
     pub(super) fn reasons(
         &self,
+        records: &mut impl super::record_access::RecordAccess,
         run: &Run,
         states: &BTreeMap<String, Disposition>,
-    ) -> BTreeMap<String, Vec<Reason>> {
+    ) -> Result<BTreeMap<String, Vec<Reason>>> {
         let graph = &self.graphs[&run.artifact];
         graph
             .artifact
@@ -23,7 +24,10 @@ impl Engine {
                     Disposition::Skipped => reasons.push(Reason::GuardFalse),
                     Disposition::Waiting | Disposition::Blocked => {
                         if let Some(guard) = &node.guard
-                            && !matches!(self.resolve_with(run, guard, states), Resolved::Value(_))
+                            && !matches!(
+                                self.resolve_using(records, run, guard, states)?,
+                                Resolved::Value(_)
+                            )
                         {
                             reasons.push(Reason::GuardUnavailable);
                         }
@@ -36,7 +40,9 @@ impl Engine {
                             }
                         }
                         for (port, source) in &node.inputs {
-                            let availability = match self.resolve_with(run, source, states) {
+                            let availability = match self
+                                .resolve_using(records, run, source, states)?
+                            {
                                 Resolved::Value(_) => None,
                                 Resolved::Absent if graph.operation(id).inputs[port].optional => {
                                     None
@@ -59,13 +65,15 @@ impl Engine {
                     }
                     _ => (),
                 }
-                if let Some(a) = run.attempts.get(id).and_then(|a| a.last()) {
+                if let Some(attempt) = run.current.get(id) {
+                    let row = records.attempt(*attempt)?;
+                    let a = &row.attempt;
                     reasons.push(Reason::Attempt {
                         id: a.id,
                         state: a.state.clone(),
                     });
                 }
-                (id.clone(), reasons)
+                Ok((id.clone(), reasons))
             })
             .collect()
     }

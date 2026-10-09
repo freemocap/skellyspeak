@@ -5,6 +5,13 @@ Status: implementation contract for the isolated foundation, protocol 1,
 [durable owner boundary](ai-graph-durability.md). No production workflow, IPC
 command or activity viewer is connected by this change.
 
+The [invocation capture contract](ai-graph-core-semantics.md#invocation-identity-and-evidence-capture)
+now keeps typed, bounded response observations separately from output values.
+Those observations are native-only adapter assertions, not part of protocol 1.
+Their [native persistence](ai-graph-durability.md#execution-evidence-and-report-settlement)
+is implemented. Production sensitivity validation and snapshot/stream export remain open;
+do not serialize the report into this protocol as an unreviewed extension.
+
 ## One structural representation
 
 `Artifact<V>`, `Definition<V>`, `Node<V>`, `Boundary<V>` and `Source<V>` are the
@@ -37,9 +44,10 @@ structural projection; changing run selection cannot change that artifact.
 artifact. No registry or executable handlers are needed, even after the original
 implementation has been removed. `artifact_ids` lists the retained manifest; decode
 checks each artifact's identity with the compiler's unchanged fingerprint algorithm.
-This is historical definition access, not handler-free runtime reconstruction or
-permission to resume old work. Runtime recovery still requires exact executable
-bindings. See the [retention contract](ai-graph-retention.md).
+This entry point is historical definition access, not permission to resume old
+work. The separate [historical reader](ai-graph-history.md) now reconstructs native
+runtime facts without handlers and exports bounded attempt pages. Executable
+recovery still requires exact bindings. See the [retention contract](ai-graph-retention.md).
 
 All attempt/execution IDs and the revision are decimal strings in this protocol,
 avoiding JavaScript integer rounding. Internal checkpoint IDs remain unchanged.
@@ -76,8 +84,141 @@ validation details and explicit redaction/truncation. Existing provider diagnost
 are not changed or routed through this exporter.
 
 Export limits fail explicitly on excessive attempts or bytes. They never return
-half a graph, drop edges, or truncate history without disclosure. A future paged
-history protocol must retain complete structure and identify omitted history.
+half a graph, drop edges, or truncate history without disclosure. Historical pages
+retain complete structure and node facts with explicit attempt totals, offsets
+and continuation cursors in `InspectionSnapshot<AttemptPage>`.
+
+## Stream ordering: production implementation design
+
+Status: bounded capture, its versioned durable watermark and materialized native
+live reads are implemented in the isolated core. **Host delivery, IPC and the UI
+are not connected.** The content-free graph protocol remains unchanged; protected
+live reads have a separate generated wrapper. The source audit found that `useReplyStream` currently tests text
+prefixes to infer whether a terminal snapshot has retained the live text. That
+heuristic must disappear with the converted workflow. Cleaned accepted output and
+original streamed text can differ without either being incomplete.
+
+There are two independent orders: committed engine revision and provisional
+producer sequence. Neither substitutes for the other. A token arriving after a
+cancellation is a later producer observation, not permission to undo cancellation.
+
+The following contract uses the existing ontology:
+
+1. A producer stream is identified by engine UUID and execution ID, plus an opaque
+   host-session identity for ephemeral delivery. One claimed invocation exists per
+   execution in the current semantic profile; do not invent an independently
+   scheduled invocation entity. Retry creates another execution. Workspace reset
+   or host restart invalidates the old session; identity changes are established by
+   an authoritative read, never by accepting an arbitrary event as a new workspace.
+2. The native capture owns a checked monotonic sequence and bounded cumulative
+   provisional text. Equal text is a no-op. Replacements need not be prefixes:
+   source adapters can correct provisional output. Bounds fail explicitly and keep
+   the previously accepted content; they do not silently truncate it. Sequence
+   exhaustion is an error, not wrapping arithmetic. A capture failure retains the
+   last accepted text sequence rather than inventing another text replacement.
+   The native callback-lifetime UUID is distinct from the UI delivery session.
+   Preview wire counters are decimal
+   strings, as with existing graph IDs and revisions.
+3. Consumers refer to that producer through the existing native attempt records.
+   No stream supplies topology or an operation-kind-to-node lookup. The native
+   projection uses current consumer authority/state to decide which preview can be
+   presented as live. A cancelled consumer never becomes live because a sibling
+   still needs the same producer. Late text can remain protected execution evidence.
+4. Persisted preview content has an explicit retained-through sequence. The native
+   owner advances that watermark only in the transaction that retains the exact
+   capture, including a complete replacement if the adapter corrected text. This
+   is protected source content, separate from redacted response metadata. It must
+   not be added to the public graph inspection export or diagnostics by default.
+5. Final report capture closes the producer callback capability. A final snapshot
+   carries the retained capture watermark and durable outcome after settlement
+   commits. Consumer cancellation can precede producer closure; these are separate
+   facts. `Available` still means computed and unadopted. Only committed adoption
+   supplies accepted domain output. The accepted text can differ from retained
+   source text after validation/cleanup; no prefix comparison establishes handoff.
+6. Native reads assemble committed graph facts with the eligible provisional
+   overlay under the same serialized workspace owner. The read must not combine
+   an older committed revision with a newer authority interpretation. Transport
+   notifications invalidate a read; they do not carry an independent terminal
+   state machine. Coalesce high-frequency notifications. A window serializes its
+   refreshes and rejects responses from an obsolete selection/session, rendering
+   only native-projected state. It never calculates readiness or adoption.
+7. Subscribe before the initial read and refresh after subscription/reconnection.
+   A bounded refresh while native state reports outstanding execution handles a
+   dropped final notification. Retained state is authoritative even if the process
+   died without delivering its final event. After restart, only acknowledged
+   capture is recoverable; missing tail text is unknown, not an empty successful
+   result. Historical inspection never mixes in today's ephemeral streams.
+
+This chooses native materialized reads plus invalidation notifications for the
+converted path, instead of reproducing graph/consumer reconciliation in TypeScript.
+The client still owns ordinary subscription, refresh and rendering mechanics.
+The immutable artifact and its complete nodes/edges are unchanged by every case
+above. Selecting a run selects native overlays within that artifact version.
+
+Implementation must test reordered/duplicate invalidations and reads, corrected
+text, missing final delivery, separate windows, reset/restart, cancelled shared
+consumers, settlement/adoption rollback and acknowledgement loss. A combined
+snapshot must fail explicitly on its declared bounds; it cannot hide nodes or
+silently discard response information to fit. Extending persisted preview content
+requires explicit checkpoint/record format evolution and capacity reservations.
+The production workspace migration must include that representation. Capture,
+watermark, versioning and native recovery now have tests described in the
+[handoff contract](ai-graph-durability.md#provisional-content-handoff). Host
+transport/UI cases remain implementation obligations.
+
+## Implemented protected materialized read
+
+`DurableEngine::read_live_inspection` returns `LiveInspection`: the unchanged
+`InspectionSnapshot` plus a node-keyed map of `AttemptPreview` values. It reads the
+run's actual current-attempt references and the referenced execution records under
+the same committed stamp. It never reconstructs a current attempt by sorting IDs
+or matching operation names. It does not write an event, start work or adopt output.
+Dormant nodes and all artifact connections remain in the exact shared projection.
+
+Each preview carries native attempt/execution IDs, a callback-session identity,
+decimal-string sequence, source text and a disclosed capture fault. The native
+read also supplies `retained_sequence`, `uncommitted`, `live` and `complete`:
+
+- `live` means this current consumer is eligible to show running source text. It
+  requires a running, noncancelled active consumer and a dispatched producer with
+  no outcome, unknown flag or complete report. Pausing prevents new work but does
+  not revoke an already-running consumer. This is not a claim that network bytes
+  are arriving or that the provider connection is healthy.
+- A live consumer can use its latest native capture. An older same-session capture
+  cannot replace a newer retained replacement. Equal-sequence conflicting text,
+  changed callback session or changes after a latched failure are errors.
+- Cancelled, failed, available, adopted and recovered-unknown consumers use retained
+  capture only. They never receive uncommitted tail text from a shared producer.
+  `complete` means final report retention, independently of adoption or success.
+- `uncommitted` compares the whole selected capture with retained capture, including
+  its failure. A newly latched failure can therefore be uncommitted even at the
+  retained text sequence. No text-prefix comparison determines handoff.
+- A retried node uses its new current attempt; an old execution's cached text cannot
+  become its live preview. Old source remains available through protected evidence
+  reads and history, rather than being attached to the new attempt.
+
+The host supplies a bounded batch of native `EvidenceSnapshot` values. All entries
+must belong to this engine and have unique execution IDs. Entries for other current
+or historical executions in the same host cache are not exported for the selected
+run. Selected producer artifact/operation identities must match. Response metadata
+in those inputs is not exported; capture faults use the existing disclosure policy.
+The wrapper deliberately contains source text and is **not a diagnostic export**.
+An authorized content-inspection command must opt into it; the public graph snapshot
+and definition exporters remain content-free. Rust generates the wrapper's client
+types; no IPC command is registered by this foundation change.
+
+`LiveReadLimits` bounds capture count, encoded input bytes and the complete encoded
+response. The existing attempt export bound still applies. One native record-read
+budget covers graph projection and the preview join, including cold reads. Corrupt,
+missing, stale or over-budget records fail the whole read; no partial graph or
+resident fallback is returned. These bounds are not an aggregate RSS guarantee.
+
+The host must serialize workspace/reset authority with native capture collection
+and this synchronous read. The core's engine identity is not a UI subscription
+epoch. Host-session invalidation, selection changes, refresh coalescing, reconnects
+and notification-loss recovery remain host/IPC/UI integration work. Arbitrary
+external source/access changes must already have been reflected through the owner;
+this read does not invent a second domain authorization check or scheduler.
 
 ## Generated client contract and verification
 

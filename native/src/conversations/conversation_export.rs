@@ -213,6 +213,7 @@ mod tests {
     fn turn(store: &Store, conversation: &str, index: i32, kind: &str, text: &str) -> String {
         let id = format!("turn-{conversation}-{index}");
         store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'SECRET_CREDENTIAL','custom','fixture-model',?3)",params![id,conversation,json!({"messages":[{"role":"system","content":"SECRET_PROMPT"}],"customEndpoint":"https://SECRET_ENDPOINT","configHash":"fixture-hash"}).to_string()]).unwrap();
+        store.connection.execute("INSERT INTO turn_execution_owners(turn_id,executor,channel) VALUES(?1,'legacy',?2)",params![id,match kind { "coach_reply" => "coach", "persona_reply" => "persona_reply", "persona_opening" => "persona_opening", _ => "unknown" }]).unwrap();
         store
             .connection
             .execute(

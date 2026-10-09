@@ -83,6 +83,7 @@ impl Store {
         migrations::upgrade(&mut connection, path, &config)?;
         validate_database(&connection)?;
         validate_current_schema(&connection)?;
+        crate::conversations::execution_owner::validate_complete(&connection)?;
         crate::language::reading::preloaded::install_bundled(&mut connection, &config)?;
         let store = Self {
             config,

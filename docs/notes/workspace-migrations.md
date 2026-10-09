@@ -4,7 +4,25 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **56**. Format 54 → 55 adds imported-reading records; 55 → 56
+Current format: **58**. Format 57 → 58 adds immutable turn executor/channel
+ownership. Existing turns remain legacy; retained primary operations establish
+their channels, missing evidence becomes unknown, and conflicting evidence rejects
+the migration. Original turns, attempts and credit are unchanged. New turn admission
+writes ownership in its command transaction, and startup rejects missing ownership.
+Graph references are deferred until commit so first engine admission remains atomic;
+constraints reject cross-conversation ownership. Accepted-effect/publication records
+and graph workflow routing remain subsequent work. See the
+[turn ownership checkpoint](ai-graph-production-integration.md#turn-execution-ownership-checkpoint).
+
+Format 56 → 57 adds initially empty native graph engine,
+record and archive tables. It does not convert historical turns or execution rows,
+alter preferences, rewrite learner evidence or award credit. Each engine belongs
+to one conversation and exact artifact catalog; conversation deletion cascades to
+its protected native records and archives. See the
+[graph storage checkpoint](ai-graph-production-integration.md#workspace-graph-storage-checkpoint).
+This is a workspace format change, not an application release version change.
+
+Format 54 → 55 adds imported-reading records; 55 → 56
 preserves both imported tables while admitting explicit editorial review alongside
 source checking. See [the reading expansion](reading-preload-plan.md#expansion-checkpoint-2026-10-07). Format 53 → 54 restores v4 Turbo for saved v3 selections after listening tests reproduced an accent regression; plain-source synthesis remains in place. See the format-54 section below. The 51 → 52 step adopts the bundled v4 Turbo synthesis default while preserving historical receipts and custom model IDs. The preceding format 51 introduced explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
 preference: coaching is required on new turns. Captured turn policy, operations,

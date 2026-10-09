@@ -13,6 +13,13 @@ fn coach_is_durable_and_excluded_from_persona_context() {
         },
     );
     assert!(store.dispatch().unwrap().is_none());
+    let channel: String = store
+        .connection
+        .query_row("SELECT channel FROM turn_execution_owners", [], |r| {
+            r.get(0)
+        })
+        .unwrap();
+    assert_eq!(channel, "coach");
     let coach = store.dispatch().unwrap().unwrap();
     assert_eq!(
         crate::learning::effort::read(&store.connection, "spanish")

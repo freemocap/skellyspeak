@@ -14,6 +14,8 @@ mod v53_speech_reliability;
 mod v54_speech_fidelity;
 mod v55_reading_preloads;
 mod v56_reading_review;
+mod v57_graph_runtime;
+mod v58_turn_execution_owners;
 
 const MIN_VERSION: i32 = 45;
 const BASELINE: &str = include_str!("v45.sql");
@@ -80,6 +82,16 @@ const STEPS: &[Step] = &[
         from: 55,
         apply: v56_reading_review::apply,
         validate: v56_reading_review::validate,
+    },
+    Step {
+        from: 56,
+        apply: v57_graph_runtime::apply,
+        validate: v57_graph_runtime::validate,
+    },
+    Step {
+        from: 57,
+        apply: v58_turn_execution_owners::apply,
+        validate: v58_turn_execution_owners::validate,
     },
 ];
 

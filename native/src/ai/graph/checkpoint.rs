@@ -1,6 +1,4 @@
-use super::{
-    checkpoint_format::*, compile::digest, model::fault, state_snapshot::StateSnapshot, *,
-};
+use super::{checkpoint_format::*, compile::digest, model::fault, *};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -26,6 +24,16 @@ pub struct Checkpoint {
 }
 
 impl Checkpoint {
+    pub(super) fn evidence_header_reservation(&self) -> usize {
+        if self.envelope.payload.supports_evidence() {
+            0
+        } else if self.archive_parent().is_some() {
+            b",\"base_format\":4".len()
+        } else {
+            b",\"base_format\":null,\"base\":null".len()
+        }
+    }
+
     pub fn stamp(&self) -> &Stamp {
         &self.stamp
     }
@@ -57,7 +65,7 @@ impl Checkpoint {
         identity: &str,
         limits: CheckpointLimits,
     ) -> Result<Self> {
-        Self::capture_base(engine, identity, None, limits)
+        Self::capture_base(engine, identity, None, limits, 0)
     }
 
     pub fn archive_parent(&self) -> Option<&Stamp> {
@@ -76,16 +84,60 @@ impl Checkpoint {
             &self.stamp.engine,
             self.envelope.payload.base().cloned(),
             limits,
+            self.envelope.payload.evidence_format(),
         )
     }
 
+    #[cfg(test)]
     pub(super) fn compacted(&self, engine: &Engine, limits: CheckpointLimits) -> Result<Self> {
         let base = Base {
             revision: engine.revision(),
-            state: StateSnapshot::capture(engine),
+            state: SavedState::Records(Box::new(engine.state.clone())),
             archive: self.stamp.clone(),
         };
-        Self::capture_base(engine, &self.stamp.engine, Some(base), limits)
+        Self::capture_base(
+            engine,
+            &self.stamp.engine,
+            Some(base),
+            limits,
+            self.envelope.payload.evidence_format(),
+        )
+    }
+
+    pub(super) fn compacted_records(
+        &self,
+        engine: &Engine,
+        evidence: &super::record_evidence::RecordEvidence,
+        limits: CheckpointLimits,
+    ) -> Result<Self> {
+        let base = Base {
+            revision: engine.revision(),
+            state: SavedState::Commitments(super::checkpoint_records::RecordState::capture(
+                &engine.state,
+                evidence,
+            )),
+            archive: if self.suffix_len() == 0 {
+                self.archive_parent()
+                    .ok_or_else(|| fault(CoreFaultCode::HistoryRequired, "checkpoint"))?
+                    .clone()
+            } else {
+                self.stamp.clone()
+            },
+        };
+        Self::capture_base(
+            engine,
+            &self.stamp.engine,
+            Some(base),
+            limits,
+            self.envelope.payload.evidence_format(),
+        )
+    }
+
+    pub(super) fn has_inline_records(&self) -> bool {
+        self.envelope
+            .payload
+            .base()
+            .is_some_and(|base| base.state.format() < 4)
     }
 
     fn capture_base(
@@ -93,6 +145,7 @@ impl Checkpoint {
         identity: &str,
         base: Option<Base>,
         limits: CheckpointLimits,
+        evidence_format: u32,
     ) -> Result<Self> {
         if engine.journal_start != base.as_ref().map_or(0, |base| base.revision) {
             return Err(fault(CoreFaultCode::HistoryRequired, "checkpoint"));
@@ -106,20 +159,38 @@ impl Checkpoint {
             .map(|(id, g)| (id.clone(), g.artifact().clone()))
             .collect();
         let events = engine.journal().to_vec();
-        let payload = match base {
-            None => Payload::Journal(JournalPayload {
-                format: 1,
+        let payload = if evidence_format > 0
+            || events.iter().any(|e| e.evidence_identity().is_some())
+        {
+            Payload::Evidence(Box::new(EvidencePayload {
+                format: if evidence_format >= 6 || events.iter().any(|e| e.provisional().is_some())
+                {
+                    6
+                } else {
+                    5
+                },
                 engine: identity.into(),
                 artifacts,
-                events,
-            }),
-            Some(base) => Payload::Snapshot(SnapshotPayload {
-                format: 2,
-                engine: identity.into(),
-                artifacts,
+                base_format: base.as_ref().map(|b| b.state.format()),
                 base,
                 events,
-            }),
+            }))
+        } else {
+            match base {
+                None => Payload::Journal(JournalPayload {
+                    format: 1,
+                    engine: identity.into(),
+                    artifacts,
+                    events,
+                }),
+                Some(base) => Payload::Snapshot(Box::new(SnapshotPayload {
+                    format: base.state.format(),
+                    engine: identity.into(),
+                    artifacts,
+                    base,
+                    events,
+                })),
+            }
         };
         // Bound serialization before hashing, so a large outcome cannot allocate
         // an unlimited serialized checkpoint merely to discover it exceeds limits.
@@ -148,6 +219,13 @@ impl Checkpoint {
         let p = &envelope.payload;
         if !p.version_valid() {
             return Err(fault(CoreFaultCode::CheckpointVersion, "checkpoint"));
+        }
+        if p.events()
+            .iter()
+            .filter_map(Event::evidence_identity)
+            .any(|id| id.engine.as_deref() != Some(p.engine()))
+        {
+            return Err(fault(CoreFaultCode::EvidenceIdentity, "engine"));
         }
         if !uuid::Uuid::parse_str(p.engine()).is_ok_and(|id| id.to_string() == p.engine()) {
             return Err(fault(CoreFaultCode::CheckpointIdentity, "checkpoint"));
@@ -193,13 +271,40 @@ impl Checkpoint {
     pub(super) fn replay(
         &self,
         graphs: impl IntoIterator<Item = Arc<Executable>>,
+        limits: StateLimits,
     ) -> Result<Engine> {
-        let mut engine = Engine::new(graphs)?;
+        let mut engine = Engine::new(graphs)?.with_state_limits(limits)?;
         self.replay_into(&mut engine)?;
         Ok(engine)
     }
 
     pub(super) fn replay_into(&self, engine: &mut Engine) -> Result<()> {
+        self.replay_observed_into(engine, &mut |_| {})
+    }
+
+    pub(super) fn replay_observed_into(
+        &self,
+        engine: &mut Engine,
+        observe: &mut impl FnMut(&Engine),
+    ) -> Result<()> {
+        if self.envelope.payload.evidence_format() < 6
+            && engine
+                .state
+                .executions
+                .iter()
+                .any(|(_, e)| e.evidence.as_ref().is_some_and(|e| e.provisional.is_some()))
+        {
+            return Err(fault(CoreFaultCode::CheckpointVersion, "checkpoint"));
+        }
+        if !self.envelope.payload.supports_evidence()
+            && engine
+                .state
+                .executions
+                .iter()
+                .any(|(_, e)| e.evidence.is_some())
+        {
+            return Err(fault(CoreFaultCode::CheckpointVersion, "checkpoint"));
+        }
         if engine.graphs.len() != self.envelope.payload.artifacts().len() {
             return Err(fault(
                 CoreFaultCode::CheckpointArtifactMismatch,
@@ -218,7 +323,7 @@ impl Checkpoint {
             if engine.revision() != base.revision {
                 return Err(fault(CoreFaultCode::HistoryRequired, "checkpoint"));
             }
-            if StateSnapshot::capture(engine) != base.state {
+            if !base.state.matches(&engine.state)? {
                 return Err(fault(CoreFaultCode::SnapshotMismatch, "checkpoint"));
             }
             engine.rebase();
@@ -227,6 +332,7 @@ impl Checkpoint {
         }
         for event in self.envelope.payload.events() {
             engine.apply(event.clone())?;
+            observe(engine);
         }
         Ok(())
     }

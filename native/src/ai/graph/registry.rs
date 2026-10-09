@@ -1,8 +1,11 @@
 use super::{model::fault, *};
 use std::{collections::BTreeMap, future::Future, pin::Pin, sync::Arc};
 
-pub type Handler =
-    Arc<dyn Fn(Values) -> Pin<Box<dyn Future<Output = Result<Values>> + Send>> + Send + Sync>;
+pub type Handler = Arc<
+    dyn Fn(InvocationContext, Values) -> Pin<Box<dyn Future<Output = Result<Values>> + Send>>
+        + Send
+        + Sync,
+>;
 
 #[derive(Default)]
 pub struct Registry {

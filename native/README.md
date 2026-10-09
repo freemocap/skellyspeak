@@ -69,9 +69,21 @@ it. Graph topology belongs to the executable artifact; run state overlays that
 artifact. Do not add an independently maintained visualization graph definition.
 `graph::DurableEngine` wraps that same reducer with the
 [checkpoint and owner-transaction contract](../docs/notes/ai-graph-durability.md).
-Production use requires an owner adapter that checks current authority and commits
-publication with the checkpoint. The disposable SQLite fixture is verification,
-not a production workspace migration or storage adapter.
+`ai/graph_store/` supplies the SQLite storage adapter outside the pure graph core.
+Workspace migration 57 adds conversation/catalog-owned engines, primary records
+and immutable archives; historical operations and awards are unchanged. The
+adapter consumes an owned transaction and requires the domain owner to check
+authority and stage publication before its single commit. Protected reads use a
+stable transaction and native byte/stamp/integrity checks. Production command,
+owner/publication and scheduler wiring remain unfinished; no workflow uses this
+adapter yet. See the [workspace integration status](../docs/notes/ai-graph-workspace-integration.md).
+Format 58 adds `turn_execution_owners`. Current commands declare the legacy executor
+and channel atomically with the turn; migration preserves unknown historical
+channels and rejects conflicting primary-operation evidence. Startup validates
+ownership completeness. The SQL adapter's owner callback receives the borrowed
+native commit request, including the exact new engine identity, so first admission
+can stage the deferred association before inserting the engine. Domain publication
+and graph workflow routing remain unfinished; channel consumers still need conversion.
 `DurableLimits` requires an explicit maximum serialized settlement-event size.
 Admission reserves checkpoint space for running outcomes, consumer adoption and
 recovery. Oversized outcomes fail without truncation; callers must retain them.
@@ -83,11 +95,78 @@ do not add a frontend graph catalog. Its protocol is not yet wired to an IPC com
 Saved checkpoints expose the same definition projection without executable
 handlers through `Checkpoint::inspection_definition`. This reads historical
 evidence; live recovery still requires compatible implementations. The
-[retention contract](../docs/notes/ai-graph-retention.md) describes format 2 snapshots
+[retention contract](../docs/notes/ai-graph-retention.md) describes formats 2/3/4 snapshots
 and atomic compaction. Compaction retains exact old checkpoint bytes, preserves
 absolute revisions and checks settlement reservations against the new footprint.
-Recovery audits the full bounded archive chain through native replay. Cold-state
-paging, production storage and history deletion are not implemented.
+Recovery audits the full bounded archive chain through native replay. Explicit
+record eviction and cold payload reads work in the isolated owner fixture;
+production storage, automatic eviction policy and history deletion are not implemented.
+The [historical reader](../docs/notes/ai-graph-history.md) reconstructs selected
+logical cuts without handlers, using the same validated structure and reducer.
+Attempt pages retain full topology and native node facts with explicit continuation
+cursors. It accepts a read-only `HistoryStore`; executable recovery still requires
+exact handlers. Opening a reader still audits and holds the retained native state.
+Declare `DurableLimits.state` and `HistoricalLimits.state` explicitly. Their
+[retained record ceilings](../docs/notes/ai-graph-state-bounds.md) reject new run,
+attempt or execution allocation atomically while leaving admitted settlement,
+adoption and recovery possible. Cancellation and compaction do not free record
+allowances; eviction does not free them either. These are logical count limits,
+not loaded-payload counts or RSS bounds.
+`state.rs` owns canonical run, attempt and execution records. Runs hold current
+attempt references; retry history lives in independent attempt rows. Format-4
+checkpoint bases retain primary-row commitments and allocation/control scalars.
+Formats 2/3 remain readable and audited by native replay. `records.rs` separates
+stable identities from optional loaded records with copy-on-write payload ownership.
+Transactions share unchanged loaded payloads and load cold rows before mutation.
+`attempts.rs` derives a per-run sorted ID
+index from primary rows, rebuilding it on decode without changing checkpoint encoding.
+Historical pages seek within that index and read only selected attempt rows; node
+facts follow current references. The index adds no scheduling or visualization rules.
+`executions.rs` indexes producer IDs by immutable reuse key; attempts also index
+their immutable execution association. The reducer uses these queries for reuse
+and current consumers while retaining eligibility and oldest-producer selection.
+Indexes rebuild from primary records and are not separately persisted. An unresolved
+execution-ID index narrows resource occupancy, dispatch, cancellation cleanup,
+producer recovery and settlement reservations to unfinished producers. Queries
+enumerate IDs without dereferencing payloads; required rows use typed access.
+The [native record transaction boundary](../docs/notes/ai-graph-record-storage.md)
+adds changed primary rows to the same owner commit as checkpoint/publication.
+Executable recovery audits bounded, stamp-bound record reads against native replay
+before writing recovery state. The disposable SQLite fixture implements this
+contract. Durable adoption now loads its three typed native records through
+`record_access.rs` and uses the same adoption decision as resident replay.
+Durable dispatch also loads the selected owner, producer, shared consumers and
+unresolved capacity records through that interface. `dispatch.rs` owns the shared
+dispatch decision; invocation uses the loaded work only after the owner commit.
+Advance now uses stored reads for dependencies, reuse and admission through the
+same native scheduler as replay. `dependencies.rs` separates read errors from
+graph availability, and `staged_access.rs` reads records created earlier within
+the same atomic event without requiring premature persistence.
+Other event decisions now use typed reads too. `consumer_reads.rs` resolves current
+membership from loaded records selected by immutable associations. Stored inspection
+and output methods use the same native projection/resolution as resident access.
+`record_evidence.rs` verifies stored rows against a revision-bound key/digest catalog
+rebuilt from validated replay and updated only after acknowledged commits. Reads no
+longer require resident payloads for integrity comparison. `evict_records` archives
+the event suffix before dropping all primary payloads; it preserves IDs, indexes,
+commitments and complete history. `resident_usage` reports loaded counts separately
+from `state_usage`. Use `read_inspection` and `read_outputs` after eviction; resident
+helpers return `record_not_resident` when required data is unloaded. Subsequent
+events load required rows and retain mutated rows until the next explicit eviction.
+Startup still replays full history. An aggregate working-set budget, disk-backed
+indexes and production integration remain open.
+Declare `DurableLimits.record_reads` explicitly. It caps the number of native row
+reads and their aggregate encoded bytes across each owner operation, including
+mutation and final reservations. The remaining byte allowance reaches the adapter
+before body allocation. Budget exhaustion rejects the complete operation; it does
+not hide nodes or commit partial fanout. `set_record_read_limits` changes only owner
+admission policy and allows an explicit retry. This bounds stored-read work, not
+decoded heap/RSS, resident payloads or checkpoint allocation. Startup recovery's
+row audit and Recover event share one outer allowance; full replay still precedes it.
+The [finite refinement check](../docs/notes/ai-graph-refinement.md) compares the
+native reducer with an independent model of two consumers sharing one producer.
+It exhausts that lifecycle's reachable states; broader scheduling, durable storage
+and production integration remain outside its verified scope.
 
 ### Reply-help execution
 

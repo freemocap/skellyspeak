@@ -154,7 +154,7 @@ fn attempt_and_execution_ids_are_lossless_strings_and_state_is_native() {
     let graph = Arc::new(registry().compile(definition()).unwrap());
     let mut engine = Engine::new([graph.clone()]).unwrap();
     begin(&mut engine, &graph, "run", 40);
-    engine.next_id = 9_007_199_254_740_991;
+    engine.state.next_id = 9_007_199_254_740_991;
     let work = engine.apply(capacity(1)).unwrap().remove(0);
     engine
         .apply(Event::Pause {
@@ -322,12 +322,14 @@ fn durable_snapshot_is_revision_bound_and_refuses_uncertain_hosts() {
     let mut host = DurableEngine::create(
         [graph.clone()],
         DurableLimits {
+            record_reads: record_read_limits(),
             checkpoint: CheckpointLimits {
                 bytes: 1_000_000,
                 events: 100,
             },
             settlement_event_bytes: 4096,
             history: history_limits(),
+            state: state_limits(),
         },
         &mut store,
     )

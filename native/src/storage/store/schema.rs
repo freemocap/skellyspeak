@@ -2,7 +2,7 @@ use super::*;
 
 /// Workspace format, including persisted JSON; every bump requires a migration.
 /// Bump when required stored fields or their meaning change, not only for SQL DDL.
-pub(crate) const SCHEMA_VERSION: i32 = 56;
+pub(crate) const SCHEMA_VERSION: i32 = 58;
 pub(super) const GENERATION_SCHEMA: &str = include_str!("../schemas/generation_schema.sql");
 
 pub(crate) fn validate_database(connection: &Connection) -> Result<()> {
@@ -45,6 +45,8 @@ pub(super) fn create_extensions(connection: &Connection) -> Result<()> {
         include_str!("../schemas/inference_results.sql"),
         include_str!("../schemas/recording_results.sql"),
         include_str!("../schemas/skill_level_events.sql"),
+        include_str!("../schemas/graph_runtime.sql"),
+        include_str!("../schemas/turn_execution_owners.sql"),
     ] {
         connection.execute_batch(sql)?;
     }

@@ -13,7 +13,7 @@ fn compacted(store: &mut SqlStore) -> Arc<Executable> {
 
 #[test]
 fn forged_native_state_is_rejected_even_with_a_recomputed_integrity_hash() {
-    for field in ["next_id", "runs", "executions", "capacity", "held"] {
+    for field in ["next_id", "rows", "capacity", "held"] {
         let dir = tempfile::tempdir().unwrap();
         let mut store = SqlStore::open(&dir.path().join("owner.db"));
         let graph = compacted(&mut store);
@@ -21,16 +21,18 @@ fn forged_native_state_is_rejected_even_with_a_recomputed_integrity_hash() {
         let mut cp = checkpoint(&store);
         let super::super::super::checkpoint_format::Payload::Snapshot(p) = &mut cp.envelope.payload
         else {
-            panic!("expected format 2")
+            panic!("expected snapshot")
         };
         let mut state = serde_json::to_value(&p.base.state).unwrap();
         state[field] = match field {
             "next_id" => json!(999),
-            "runs" | "executions" => json!({}),
+            "rows" => json!([]),
             "capacity" => json!({"local":999,"provider":999}),
             _ => json!([["run", "first"]]),
         };
-        p.base.state = serde_json::from_value(state).unwrap();
+        p.base.state = crate::ai::graph::checkpoint_format::SavedState::Commitments(
+            serde_json::from_value(state).unwrap(),
+        );
         cp.envelope.checksum = crate::ai::graph::compile::digest(&cp.envelope.payload).unwrap();
         let bytes = serde_json::to_vec(&cp.envelope).unwrap();
         let cp = Checkpoint::decode(&bytes, limits().checkpoint).unwrap();
@@ -127,7 +129,7 @@ fn history_reads_are_bounded_and_future_snapshot_fields_are_not_ignored() {
             .code,
         "invalid_checkpoint"
     );
-    value["payload"]["format"] = json!(3);
+    value["payload"]["format"] = json!(7);
     assert_eq!(
         Checkpoint::decode(&serde_json::to_vec(&value).unwrap(), limits().checkpoint)
             .err()
@@ -136,7 +138,11 @@ fn history_reads_are_bounded_and_future_snapshot_fields_are_not_ignored() {
         "checkpoint_version"
     );
     assert_eq!(
-        checkpoint(&store).replay([graph]).err().unwrap().code,
+        checkpoint(&store)
+            .replay([graph], state_limits())
+            .err()
+            .unwrap()
+            .code,
         "history_required"
     );
 }

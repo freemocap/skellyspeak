@@ -31,7 +31,7 @@ async fn claim_uses_captured_inputs_and_cannot_be_repeated() {
     descriptor.inputs = values(900);
     let invocation = engine.claim(descriptor.execution).unwrap();
     assert!(engine.claim(descriptor.execution).is_err());
-    let output = invocation.execute().await.unwrap();
+    let output = invocation.execute(evidence_limits()).await.outcome.unwrap();
     assert_eq!(output, values(41));
     engine
         .apply(Event::Settle {
@@ -40,7 +40,7 @@ async fn claim_uses_captured_inputs_and_cannot_be_repeated() {
         })
         .unwrap();
     let attempt = engine.inspect("run").unwrap().attempts["first"][0].id;
-    assert_eq!(engine.available("run", "first", attempt).unwrap(), &output);
+    assert_eq!(engine.available("run", "first", attempt).unwrap(), output);
     assert_eq!(
         engine.disposition("run", "second").unwrap(),
         Disposition::Waiting

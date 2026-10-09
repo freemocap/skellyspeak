@@ -2,9 +2,11 @@ use super::{durable_store::SqlStore, *};
 
 fn limits(bytes: usize, events: usize) -> DurableLimits {
     DurableLimits {
+        record_reads: record_read_limits(),
         checkpoint: CheckpointLimits { bytes, events },
         settlement_event_bytes: 256,
         history: history_limits(),
+        state: state_limits(),
     }
 }
 
@@ -31,7 +33,9 @@ fn graph(reuse: Reuse) -> Arc<Executable> {
                 resource: Resource::Provider,
                 reuse,
             },
-            Arc::new(|_| Box::pin(async { Ok(BTreeMap::from([("value".into(), json!("text"))])) })),
+            Arc::new(|_, _| {
+                Box::pin(async { Ok(BTreeMap::from([("value".into(), json!("text"))])) })
+            }),
         )
         .unwrap();
     let mut definition = definition();
@@ -130,7 +134,7 @@ fn shared_settlement_adoptions_and_restart_fit_at_the_exact_event_ceiling() {
         assert_eq!(host.stamp().revision, 8);
     }
     let cp = Checkpoint::decode(&bytes, limits.checkpoint).unwrap();
-    let replay = cp.replay([graph]).unwrap();
+    let replay = cp.replay([graph], state_limits()).unwrap();
     assert!(replay.journal().contains(&outcome));
     assert_eq!(
         host.inspect("a").unwrap().nodes["first"],
@@ -294,7 +298,7 @@ fn oversized_evidence_and_rejected_commits_preserve_the_pending_execution() {
     host.apply(outcome.clone(), &mut store).unwrap();
     let replay = Checkpoint::decode(&store.bytes(), limits.checkpoint)
         .unwrap()
-        .replay([graph])
+        .replay([graph], state_limits())
         .unwrap();
     assert!(replay.journal().contains(&outcome));
 }
@@ -411,7 +415,7 @@ fn bounded_failure_releases_adoption_capacity_and_retains_original_evidence() {
     assert_eq!(host.stamp().revision, 6);
     let replay = Checkpoint::decode(&store.bytes(), limits.checkpoint)
         .unwrap()
-        .replay([graph])
+        .replay([graph], state_limits())
         .unwrap();
     assert!(replay.journal().contains(&event));
     assert!(store.publications().is_empty());
@@ -436,6 +440,7 @@ fn unchanged_recovery_checks_actual_stored_bytes_under_new_limits() {
         .unwrap();
     let cp = Checkpoint::decode(&pretty, limits.checkpoint).unwrap();
     let smaller = DurableLimits {
+        record_reads: record_read_limits(),
         checkpoint: CheckpointLimits {
             bytes: compact.len(),
             events: 10,

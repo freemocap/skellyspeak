@@ -4,6 +4,7 @@ pub(crate) mod conversation_export;
 pub(crate) mod conversation_prompt;
 pub mod direction;
 pub mod execution;
+pub(crate) mod execution_owner;
 pub(crate) mod message_history;
 pub(crate) mod openers;
 mod persona_projection;

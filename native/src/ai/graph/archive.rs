@@ -39,12 +39,27 @@ impl Checkpoint {
         &self,
         graphs: impl IntoIterator<Item = Arc<Executable>>,
         limits: HistoryLimits,
+        state: StateLimits,
         store: &mut impl CommitStore,
     ) -> Result<(Engine, HistoryUsage)> {
-        let mut usage = HistoryUsage::default();
         if self.archive_parent().is_none() {
-            return Ok((self.replay(graphs)?, usage));
+            return Ok((self.replay(graphs, state)?, HistoryUsage::default()));
         }
+        let (segments, usage) = self.retained_segments(limits, store)?;
+        let mut engine = Engine::new(graphs)?.with_state_limits(state)?;
+        for segment in segments.iter().rev() {
+            segment.replay_into(&mut engine)?;
+        }
+        self.replay_into(&mut engine)?;
+        Ok((engine, usage))
+    }
+
+    pub(super) fn retained_segments(
+        &self,
+        limits: HistoryLimits,
+        store: &mut impl HistoryStore,
+    ) -> Result<(Vec<Checkpoint>, HistoryUsage)> {
+        let mut usage = HistoryUsage::default();
         let mut segments = Vec::new();
         let mut parent = self.archive_parent().cloned();
         let mut seen = BTreeSet::from([self.stamp().checksum.clone()]);
@@ -71,11 +86,6 @@ impl Checkpoint {
             parent = segment.archive_parent().cloned();
             segments.push(segment);
         }
-        let mut engine = Engine::new(graphs)?;
-        for segment in segments.iter().rev() {
-            segment.replay_into(&mut engine)?;
-        }
-        self.replay_into(&mut engine)?;
-        Ok((engine, usage))
+        Ok((segments, usage))
     }
 }

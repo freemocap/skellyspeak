@@ -321,6 +321,18 @@ fn accept_turn(
         serde_json::to_value(&snapshot.learner.preferences.execution)?;
     captured["executionPreferencesRevision"] = snapshot.learner.revision.into();
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,target.model,serde_json::to_string(&captured)?,profile.route.label()])?;
+    use crate::conversations::execution_owner::{self, Channel};
+    execution_owner::legacy(
+        db,
+        &turn,
+        if coach {
+            Channel::Coach
+        } else if opening.is_some() {
+            Channel::PersonaOpening
+        } else {
+            Channel::PersonaReply
+        },
+    )?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     }

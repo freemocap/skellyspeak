@@ -6,6 +6,12 @@ implementation; an isolated native core now implements the
 [initial semantic profile](ai-graph-core-semantics.md). Production workflows,
 preferences and stored workspace formats have not been migrated by this work.
 
+The [production integration checkpoint](ai-graph-production-integration.md) records
+the current source audit and concrete next delivery: close shared execution-evidence,
+stream and transaction gaps, then convert one complete coach workflow through durable
+publication and the native-artifact viewer. Its proposed sequence does not waive the
+foundation gates below. Original audit observations and checks remain historical.
+
 ## Supersession and architectural authority
 
 The user rejected the original reading-first sequence. The corrected plan below

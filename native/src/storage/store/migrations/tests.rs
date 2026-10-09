@@ -4,6 +4,8 @@ use super::*;
 mod assessment;
 #[path = "execution_tests.rs"]
 mod execution;
+#[path = "graph_runtime_tests.rs"]
+mod graph_runtime;
 #[path = "reading_preload_tests.rs"]
 mod reading_preload;
 #[path = "skill_direction_tests.rs"]
@@ -14,6 +16,8 @@ mod speech_default;
 mod speech_fidelity;
 #[path = "speech_reliability_tests.rs"]
 mod speech_reliability;
+#[path = "turn_owner_tests.rs"]
+mod turn_owner;
 
 fn baseline(path: &Path, extras: bool) -> Connection {
     let db = Connection::open(path).unwrap();
@@ -411,7 +415,7 @@ fn upgrade_preserves_conversation_graph_and_allows_continued_workspace_use() {
     // their version-45 contracts, while milestone receipts were introduced later.
     store
         .connection
-        .execute_batch("DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
+        .execute_batch("DROP TRIGGER turn_execution_conversation_fixed; DROP TABLE turn_execution_owners; DROP TABLE graph_archives; DROP TABLE graph_records; DROP TABLE graph_engines; DROP TABLE reading_dictionary; DROP TABLE reading_packages; DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
         .unwrap();
     store
         .connection

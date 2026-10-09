@@ -1,8 +1,13 @@
-use super::{model::fault, registry::valid_name, *};
+use super::{model::fault, record_access::RecordAccess, registry::valid_name, *};
 use std::collections::{BTreeMap, BTreeSet};
 
 impl Engine {
-    pub(super) fn transition(&mut self, event: &Event) -> Result<Vec<Work>> {
+    pub(super) fn transition(
+        &mut self,
+        event: &Event,
+        base: &super::state::RuntimeState,
+        records: &mut impl super::record_access::RecordAccess,
+    ) -> Result<Vec<Work>> {
         match event {
             Event::Begin {
                 run,
@@ -13,7 +18,7 @@ impl Engine {
             } => {
                 valid_name(run)?;
                 valid_name(scope)?;
-                if self.runs.contains_key(run) {
+                if self.state.runs.contains_key(run) {
                     return Err(fault(CoreFaultCode::DuplicateRun, "run"));
                 }
                 let graph = self
@@ -27,6 +32,7 @@ impl Engine {
                 {
                     return Err(fault(CoreFaultCode::UnknownPolicyNode, "policy"));
                 }
+                self.admit_records(1, 0, 0)?;
                 let policy = graph
                     .artifact
                     .definition
@@ -39,7 +45,7 @@ impl Engine {
                         )
                     })
                     .collect();
-                self.runs.insert(
+                self.state.runs.insert(
                     run.clone(),
                     Run {
                         artifact: artifact.clone(),
@@ -49,206 +55,259 @@ impl Engine {
                         demanded: BTreeSet::new(),
                         retry_requested: BTreeSet::new(),
                         cancelled: BTreeSet::new(),
-                        attempts: BTreeMap::new(),
+                        current: BTreeMap::new(),
                         paused: false,
                         active: true,
                     },
                 );
             }
             Event::Demand { run, node } => {
-                self.node(run, node)?;
-                if self.run(run)?.policy[node] != Activation::OnDemand || !self.run(run)?.active {
+                let owner = self.read_node(records, run, node)?;
+                if owner.policy[node] != Activation::OnDemand || !owner.active {
                     return Err(fault(CoreFaultCode::InvalidDemand, "node"));
                 }
-                self.runs
+                self.state.runs.load(run.clone(), owner);
+                self.state
+                    .runs
                     .get_mut(run)
                     .unwrap()
                     .demanded
                     .insert(node.clone());
             }
             Event::Pause { run, paused } => {
-                self.run(run)?;
-                self.runs.get_mut(run).unwrap().paused = *paused;
+                let owner = records.run(run)?;
+                self.state.runs.load(run.clone(), owner);
+                self.state.runs.get_mut(run).unwrap().paused = *paused;
             }
             Event::Cancel { run, node } => {
-                self.run(run)?;
+                let owner = records.run(run)?;
                 if let Some(node) = node {
-                    self.node(run, node)?;
+                    self.read_node(records, run, node)?;
                 }
-                let r = self.runs.get_mut(run).unwrap();
+                self.state.runs.load(run.clone(), owner.clone());
+                let r = self.state.runs.get_mut(run).unwrap();
                 if let Some(node) = node {
                     r.cancelled.insert(node.clone());
                 } else {
                     r.active = false;
                 }
-                for (id, attempts) in &mut r.attempts {
-                    if node.as_ref().is_none_or(|n| n == id)
-                        && let Some(a) = attempts.last_mut()
-                        && matches!(
-                            a.state,
-                            AttemptState::Prepared
-                                | AttemptState::Running
-                                | AttemptState::Available
-                        )
-                    {
-                        a.state = AttemptState::Cancelled;
+                let affected: Vec<_> = owner
+                    .current
+                    .iter()
+                    .filter(|(id, _)| node.as_ref().is_none_or(|n| n == *id))
+                    .map(|(_, id)| *id)
+                    .collect();
+                for id in affected {
+                    let row = records.attempt(id)?;
+                    let a = &row.attempt;
+                    if matches!(
+                        a.state,
+                        AttemptState::Prepared | AttemptState::Running | AttemptState::Available
+                    ) {
+                        self.state.attempts.load(row);
+                        self.state.attempts.set_state(&id, AttemptState::Cancelled);
                     }
                 }
-                let abandoned: Vec<_> = self
-                    .executions
-                    .iter()
-                    .filter(|(id, e)| {
-                        !e.dispatched && e.outcome.is_none() && !self.has_consumer(**id, true)
-                    })
-                    .map(|(id, _)| *id)
-                    .collect();
-                for id in abandoned {
-                    self.executions.get_mut(&id).unwrap().outcome = Some(Err(fault(
-                        CoreFaultCode::CancelledBeforeDispatch,
-                        "execution",
-                    )));
+                let mut staged = super::staged_access::StagedAccess {
+                    base,
+                    candidate: &self.state,
+                    records,
+                };
+                let mut abandoned = Vec::new();
+                for id in self.state.executions.unresolved_ids() {
+                    let producer = staged.execution(id)?;
+                    if !producer.dispatched && !self.has_consumer_using(&mut staged, id, true)? {
+                        abandoned.push(producer);
+                    }
+                }
+                for producer in abandoned {
+                    let id = producer.work.execution;
+                    self.state.executions.load(producer);
+                    self.state.executions.set_outcome(
+                        &id,
+                        Err(fault(CoreFaultCode::CancelledBeforeDispatch, "execution")),
+                    );
                 }
             }
             Event::Retry { run, node } => {
-                self.node(run, node)?;
-                let r = self.run(run)?;
+                let r = self.read_node(records, run, node)?;
                 if !r.active || r.cancelled.contains(node) {
                     return Err(fault(CoreFaultCode::InvalidRetry, "node"));
                 }
-                let previous = r
-                    .attempts
+                let id = r
+                    .current
                     .get(node)
-                    .and_then(|a| a.last())
                     .ok_or_else(|| fault(CoreFaultCode::InvalidRetry, "node"))?;
+                let previous = records.attempt(*id)?;
                 if !matches!(
-                    previous.state,
+                    previous.attempt.state,
                     AttemptState::Failed(_) | AttemptState::Unknown
                 ) {
                     return Err(fault(CoreFaultCode::InvalidRetry, "node"));
                 }
+                let owner = r;
                 // Fresh retry records a new attempt; previous outcome remains immutable.
-                self.runs
+                self.state.runs.load(run.clone(), owner);
+                self.state
+                    .runs
                     .get_mut(run)
                     .unwrap()
                     .retry_requested
                     .insert(node.clone());
             }
-            Event::Advance(capacity) => return self.advance(*capacity),
+            Event::Advance(capacity) => return self.advance(*capacity, base, records),
             Event::Dispatch { execution } => {
-                let ex = self
-                    .executions
-                    .get(execution)
-                    .ok_or_else(|| fault(CoreFaultCode::UnknownExecution, "execution"))?;
-                if ex.dispatched || ex.unknown || ex.outcome.is_some() {
-                    return Err(fault(CoreFaultCode::InvalidDispatch, "execution"));
-                }
-                if !self.execution_eligible(*execution) {
-                    return Err(fault(CoreFaultCode::RevokedOrPaused, "execution"));
-                }
-                let limit = match ex.work.resource {
-                    Resource::Local => self.capacity.local,
-                    Resource::Provider => self.capacity.provider,
-                };
-                let busy = self
-                    .executions
-                    .values()
-                    .filter(|e| {
-                        e.dispatched
-                            && e.outcome.is_none()
-                            && !e.unknown
-                            && e.work.resource == ex.work.resource
-                    })
-                    .count();
-                if busy >= limit {
-                    return Err(fault(CoreFaultCode::AdmissionHeld, "execution"));
-                }
-                let work = ex.work.clone();
-                self.executions.get_mut(execution).unwrap().dispatched = true;
-                for run in self.runs.values_mut() {
-                    for attempts in run.attempts.values_mut() {
-                        if let Some(a) = attempts.last_mut()
-                            && a.execution == *execution
-                            && a.state == AttemptState::Prepared
-                        {
-                            a.state = AttemptState::Running;
-                        }
-                    }
+                let dispatch = self.dispatch(records, *execution)?;
+                let work = dispatch.producer.work.clone();
+                self.state.executions.load(dispatch.producer);
+                self.state.executions.set_dispatched(execution);
+                for id in dispatch.consumers {
+                    self.state.attempts.load(records.attempt(id)?);
+                    self.state.attempts.set_state(&id, AttemptState::Running);
                 }
                 return Ok(vec![work]);
             }
-            Event::Settle { execution, outcome } => {
-                let ex = self
-                    .executions
-                    .get(execution)
-                    .ok_or_else(|| fault(CoreFaultCode::UnknownExecution, "execution"))?;
-                if !ex.dispatched || ex.outcome.is_some() || ex.unknown {
-                    return Err(fault(CoreFaultCode::AlreadySettled, "execution"));
-                }
-                let graph = &self.graphs[&ex.work.artifact];
-                let op = &graph.artifact.operations[&ex.work.operation];
-                // Malformed success settles as a validation failure and releases
-                // capacity. It can never reach adoption or downstream consumers.
-                let validated = outcome.clone().and_then(|values| {
-                    graph.values(&op.outputs, &values)?;
-                    Ok(values)
-                });
-                self.executions.get_mut(execution).unwrap().outcome = Some(validated.clone());
-                for run in self.runs.values_mut() {
-                    for attempts in run.attempts.values_mut() {
-                        if let Some(a) = attempts.last_mut()
-                            && a.execution == *execution
-                            && a.state == AttemptState::Running
-                        {
-                            a.state = match &validated {
-                                Ok(_) => AttemptState::Available,
-                                Err(e) => AttemptState::Failed(e.clone()),
-                            };
+            Event::Observe(snapshot) => {
+                self.record_evidence(
+                    records,
+                    &snapshot.identity,
+                    &snapshot.observations,
+                    &snapshot.evidence_failure,
+                    &snapshot.provisional,
+                    false,
+                )?;
+            }
+            Event::SettleObserved(report) => {
+                self.record_evidence(
+                    records,
+                    &report.identity,
+                    &report.observations,
+                    &report.evidence_failure,
+                    &report.provisional,
+                    true,
+                )?;
+                let outcome =
+                    report.outcome.clone().and_then(|values| {
+                        match report.evidence_failure.as_ref().or_else(|| {
+                            report.provisional.as_ref().and_then(|p| p.failure.as_ref())
+                        }) {
+                            Some(error) => Err(error.clone()),
+                            None => Ok(values),
                         }
-                    }
+                    });
+                self.settle(records, report.identity.execution, &outcome)?;
+            }
+            Event::Settle { execution, outcome } => {
+                if records.execution(*execution)?.evidence.is_some() {
+                    return Err(fault(CoreFaultCode::EvidenceRequired, "execution"));
                 }
+                self.settle(records, *execution, outcome)?;
             }
             Event::Adopt { run, node, attempt } => {
-                self.available(run, node, *attempt)?;
-                self.runs
-                    .get_mut(run)
-                    .unwrap()
+                self.adoption(records, run, node, *attempt)?;
+                self.state.attempts.load(records.attempt(*attempt)?);
+                self.state
                     .attempts
-                    .get_mut(node)
-                    .unwrap()
-                    .last_mut()
-                    .unwrap()
-                    .state = AttemptState::Adopted;
+                    .set_state(attempt, AttemptState::Adopted);
             }
             Event::Recover => {
-                for ex in self.executions.values_mut() {
-                    if ex.outcome.is_none() {
-                        if ex.dispatched {
-                            ex.unknown = true;
-                        } else {
-                            ex.outcome = Some(Err(fault(
-                                CoreFaultCode::InterruptedBeforeDispatch,
-                                "execution",
-                            )));
-                        }
+                let unresolved: Vec<_> = self.state.executions.unresolved_ids().collect();
+                for id in unresolved {
+                    let producer = records.execution(id)?;
+                    let dispatched = producer.dispatched;
+                    self.state.executions.load(producer);
+                    if dispatched {
+                        self.state.executions.set_unknown(&id);
+                    } else {
+                        self.state.executions.set_outcome(
+                            &id,
+                            Err(fault(CoreFaultCode::InterruptedBeforeDispatch, "execution")),
+                        );
                     }
                 }
-                for run in self.runs.values_mut() {
-                    run.paused = true;
-                    for attempts in run.attempts.values_mut() {
-                        if let Some(a) = attempts.last_mut() {
-                            if a.state == AttemptState::Running {
-                                a.state = AttemptState::Unknown;
-                            } else if a.state == AttemptState::Prepared {
-                                a.state = AttemptState::Failed(fault(
-                                    CoreFaultCode::InterruptedBeforeDispatch,
-                                    "execution",
-                                ));
-                            }
+                let runs: Vec<_> = self.state.runs.keys().cloned().collect();
+                for run_id in runs {
+                    let owner = records.run(&run_id)?;
+                    let attempts: Vec<_> = owner.current.values().copied().collect();
+                    if !owner.paused {
+                        self.state.runs.load(run_id.clone(), owner.clone());
+                        self.state.runs.get_mut(&run_id).unwrap().paused = true;
+                    }
+                    for id in attempts {
+                        let row = records.attempt(id)?;
+                        let next = match row.attempt.state {
+                            AttemptState::Running => Some(AttemptState::Unknown),
+                            AttemptState::Prepared => Some(AttemptState::Failed(fault(
+                                CoreFaultCode::InterruptedBeforeDispatch,
+                                "execution",
+                            ))),
+                            _ => None,
+                        };
+                        if let Some(next) = next {
+                            self.state.attempts.load(row);
+                            self.state.attempts.set_state(&id, next);
                         }
                     }
                 }
             }
         }
         Ok(Vec::new())
+    }
+
+    fn settle(
+        &mut self,
+        records: &mut impl RecordAccess,
+        execution: ExecutionId,
+        outcome: &Result<Values>,
+    ) -> Result<()> {
+        let ex = records.execution(execution)?;
+        if !ex.dispatched || ex.outcome.is_some() || ex.unknown {
+            return Err(fault(CoreFaultCode::AlreadySettled, "execution"));
+        }
+        let graph = &self.graphs[&ex.work.artifact];
+        let op = &graph.artifact.operations[&ex.work.operation];
+        // Malformed success settles as a validation failure and releases
+        // capacity. It can never reach adoption or downstream consumers.
+        let validated = outcome.clone().and_then(|values| {
+            graph.values(&op.outputs, &values)?;
+            Ok(values)
+        });
+        self.state.executions.load(ex);
+        self.state
+            .executions
+            .set_outcome(&execution, validated.clone());
+        self.transition_consumers(
+            records,
+            execution,
+            AttemptState::Running,
+            match validated {
+                Ok(_) => AttemptState::Available,
+                Err(error) => AttemptState::Failed(error),
+            },
+        )?;
+        Ok(())
+    }
+
+    /// Select current consumers before taking mutable records. Unrelated runs
+    /// remain shared with the previous committed state and historical readers.
+    fn transition_consumers(
+        &mut self,
+        records: &mut impl super::record_access::RecordAccess,
+        execution: ExecutionId,
+        from: AttemptState,
+        to: AttemptState,
+    ) -> Result<()> {
+        let mut affected = Vec::new();
+        self.visit_consumers(records, execution, |_, row| {
+            if row.attempt.state == from {
+                affected.push(std::sync::Arc::new(row.clone()));
+            }
+        })?;
+        for row in affected {
+            let id = row.attempt.id;
+            self.state.attempts.load(row);
+            self.state.attempts.set_state(&id, to.clone());
+        }
+        Ok(())
     }
 }

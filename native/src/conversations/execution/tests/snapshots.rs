@@ -52,6 +52,12 @@ fn audit_older_message_page_contains_its_failed_turn_state() {
     for index in 2..=130 {
         let turn = format!("later-{index}");
         store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'fixture','hosted','fixture',?3)",params![turn,conversation,context]).unwrap();
+        crate::conversations::execution_owner::legacy(
+            &store.connection,
+            &turn,
+            crate::conversations::execution_owner::Channel::PersonaReply,
+        )
+        .unwrap();
         store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) SELECT ?1||kind,?2,kind,CASE WHEN kind IN ('persona_context','persona_reply') THEN 'succeeded' ELSE 'cancelled' END FROM operations WHERE turn_id=?3",params![format!("operation-{index}-"),turn,first]).unwrap();
         store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) VALUES(?1,?2,?3,?4,'assistant','Later reply')",params![format!("message-{index}"),conversation,turn,index]).unwrap();
     }
@@ -179,6 +185,12 @@ fn turn_history_pages_every_turn_independent_of_messages() {
     for index in 2..=130 {
         let turn = format!("later-{index}");
         store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'fixture','hosted','fixture',?3)",params![turn,conversation,context]).unwrap();
+        crate::conversations::execution_owner::legacy(
+            &store.connection,
+            &turn,
+            crate::conversations::execution_owner::Channel::PersonaReply,
+        )
+        .unwrap();
         store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) SELECT ?1||kind,?2,kind,CASE WHEN kind IN ('persona_context','persona_reply') THEN 'succeeded' ELSE 'cancelled' END FROM operations WHERE turn_id=?3",params![format!("operation-{index}-"),turn,first]).unwrap();
         if index % 2 == 0 {
             store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) VALUES(?1,?2,?3,?4,'assistant','Later reply')",params![format!("message-{index}"),conversation,turn,index]).unwrap();

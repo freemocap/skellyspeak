@@ -1,9 +1,6 @@
 use super::{model::fault, *};
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    sync::Arc,
-};
+use std::{collections::BTreeMap, sync::Arc};
 use ts_rs::TS;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -23,30 +20,6 @@ pub struct Attempt<F = Fault, I = AttemptId, E = ExecutionId> {
     pub execution: E,
     pub state: AttemptState<F>,
     pub acquisition: Acquisition,
-}
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Run {
-    pub(super) artifact: String,
-    pub(super) inputs: Values,
-    /// Caller-supplied validated authority/configuration scope, opaque to the core.
-    pub(super) scope: String,
-    pub(super) policy: BTreeMap<String, Activation>,
-    pub(super) demanded: BTreeSet<String>,
-    pub(super) retry_requested: BTreeSet<String>,
-    pub(super) cancelled: BTreeSet<String>,
-    pub(super) attempts: BTreeMap<String, Vec<Attempt>>,
-    pub(super) paused: bool,
-    pub(super) active: bool,
-}
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(super) struct Execution {
-    pub work: Work,
-    pub key: String,
-    pub outcome: Option<Result<Values>>,
-    pub unknown: bool,
-    pub dispatched: bool,
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -100,6 +73,8 @@ pub enum Event {
         execution: ExecutionId,
         outcome: Result<Values>,
     },
+    Observe(EvidenceSnapshot),
+    SettleObserved(InvocationReport),
     Adopt {
         run: String,
         node: String,
@@ -130,24 +105,22 @@ pub enum Disposition {
 /// Internal inspection only: constants and adapter faults can contain source
 /// data. An explicit sensitivity policy is required before diagnostic export.
 #[derive(Serialize)]
-pub struct Inspection<'a> {
+pub struct Inspection<'a, A = BTreeMap<String, Vec<&'a Attempt>>> {
     pub reasons: BTreeMap<String, Vec<Reason>>,
     pub artifact_id: &'a str,
     pub artifact: &'a Artifact,
     pub revision: u64,
     pub nodes: BTreeMap<String, Disposition>,
     pub activation: &'a BTreeMap<String, Activation>,
-    pub attempts: &'a BTreeMap<String, Vec<Attempt>>,
+    pub attempts: A,
 }
 
 #[derive(Clone, Default)]
 pub struct Engine {
-    pub(super) graphs: BTreeMap<String, Arc<Executable>>,
-    pub(super) runs: BTreeMap<String, Run>,
-    pub(super) executions: BTreeMap<ExecutionId, Execution>,
-    pub(super) next_id: u64,
-    pub(super) capacity: Capacity,
-    pub(super) held: BTreeSet<(String, String)>,
+    pub(super) graphs: BTreeMap<String, Arc<super::plan::Plan>>,
+    executables: BTreeMap<String, Arc<Executable>>,
+    pub(super) state_limits: Option<StateLimits>,
+    pub(super) state: super::state::RuntimeState,
     pub(super) journal_start: u64,
     journal: Vec<Event>,
 }
@@ -156,71 +129,85 @@ pub struct Engine {
 pub struct Invocation {
     graph: Arc<Executable>,
     work: Work,
+    pub(super) engine: Option<String>,
 }
 impl Invocation {
-    pub async fn execute(self) -> Result<Values> {
-        self.graph.execute(&self.work).await
+    pub async fn execute(self, limits: EvidenceLimits) -> InvocationReport {
+        self.execute_with_provisional(limits, ProvisionalLimits { bytes: 0 })
+            .await
+    }
+    pub async fn execute_with_provisional(
+        self,
+        limits: EvidenceLimits,
+        provisional: ProvisionalLimits,
+    ) -> InvocationReport {
+        let context = InvocationContext::new(&self.work, self.engine, limits, provisional);
+        let _guard = context.guard();
+        let outcome = self.graph.execute(&self.work, context.clone()).await;
+        context.finish(outcome)
     }
 }
 impl Engine {
     pub fn claim(&mut self, execution: ExecutionId) -> Result<Invocation> {
         let work = self
-            .apply(Event::Dispatch { execution })?
-            .pop()
-            .ok_or_else(|| fault(CoreFaultCode::MissingWork, "execution"))?;
+            .state
+            .executions
+            .get(&execution)
+            .ok_or_else(|| fault(CoreFaultCode::UnknownExecution, "execution"))?
+            .work
+            .clone();
+        let invocation = self.bind_invocation(work)?;
+        self.apply(Event::Dispatch { execution })?;
+        Ok(invocation)
+    }
+    pub(super) fn bind_invocation(&self, work: Work) -> Result<Invocation> {
+        let graph = self
+            .executables
+            .get(&work.artifact)
+            .ok_or_else(|| fault(CoreFaultCode::ExecutableRequired, "artifact"))?
+            .clone();
         Ok(Invocation {
-            graph: self.graphs[&work.artifact].clone(),
+            graph,
             work,
-        })
-    }
-    pub(super) fn execution_eligible(&self, execution: ExecutionId) -> bool {
-        self.has_consumer(execution, false)
-    }
-    pub(super) fn has_consumer(&self, execution: ExecutionId, allow_paused: bool) -> bool {
-        self.runs.values().any(|r| {
-            r.active
-                && (allow_paused || !r.paused)
-                && r.attempts.iter().any(|(node, attempts)| {
-                    !r.cancelled.contains(node)
-                        && attempts.last().is_some_and(|a| {
-                            a.execution == execution
-                                && matches!(a.state, AttemptState::Prepared | AttemptState::Running)
-                        })
-                })
+            engine: None,
         })
     }
     /// Read the exact validated value before atomically adopting it with domain
     /// publication. No raw completion is reconstructed or parsed a second time.
-    pub fn available(&self, run: &str, node: &str, attempt: AttemptId) -> Result<&Values> {
-        self.node(run, node)?;
-        let r = self.run(run)?;
-        if !r.active || r.cancelled.contains(node) {
-            return Err(fault(CoreFaultCode::Revoked, "node"));
-        }
-        let a = r
-            .attempts
-            .get(node)
-            .and_then(|xs| xs.last())
-            .ok_or_else(|| fault(CoreFaultCode::UnknownAttempt, "attempt"))?;
-        if a.id != attempt || a.state != AttemptState::Available {
-            return Err(fault(CoreFaultCode::InvalidAdoption, "attempt"));
-        }
-        self.executions[&a.execution]
-            .outcome
-            .as_ref()
-            .and_then(|r| r.as_ref().ok())
-            .ok_or_else(|| fault(CoreFaultCode::MissingResult, "execution"))
+    pub fn available(&self, run: &str, node: &str, attempt: AttemptId) -> Result<Values> {
+        Ok(self
+            .adoption(&mut &self.state, run, node, attempt)?
+            .values()
+            .clone())
     }
     pub fn new(graphs: impl IntoIterator<Item = Arc<Executable>>) -> Result<Self> {
         let mut engine = Self::default();
         for graph in graphs {
             if engine
                 .graphs
-                .insert(graph.identity.clone(), graph)
+                .insert(graph.identity().into(), graph.plan.clone())
                 .is_some()
             {
                 return Err(fault(CoreFaultCode::DuplicateArtifact, "graphs"));
             }
+            engine.executables.insert(graph.identity().into(), graph);
+        }
+        Ok(engine)
+    }
+    pub(super) fn recorded(
+        artifacts: &BTreeMap<String, Artifact>,
+        limits: StateLimits,
+    ) -> Result<Self> {
+        let mut engine = Self::default().with_state_limits(limits)?;
+        for (id, artifact) in artifacts {
+            let plan = super::plan::Plan::new(artifact.clone())?;
+            if plan.identity != *id {
+                return Err(fault(
+                    CoreFaultCode::CheckpointArtifactMismatch,
+                    "artifacts",
+                ));
+            }
+            engine.graphs.insert(id.clone(), Arc::new(plan));
         }
         Ok(engine)
     }
@@ -228,14 +215,25 @@ impl Engine {
     /// This in-memory transaction must be committed with owner adoption when
     /// integrated with persistence; it is not a replacement for SQL transactions.
     pub fn apply(&mut self, event: Event) -> Result<Vec<Work>> {
+        let (next, work) = self.candidate(event, &mut &self.state)?;
+        *self = next;
+        Ok(work)
+    }
+    /// Build one atomic event candidate using typed reads. Advance and cancellation
+    /// also read records staged earlier within this event.
+    pub(super) fn candidate(
+        &self,
+        event: Event,
+        records: &mut impl super::record_access::RecordAccess,
+    ) -> Result<(Self, Vec<Work>)> {
         self.revision()
             .checked_add(1)
             .ok_or_else(|| fault(CoreFaultCode::RevisionLimit, "event"))?;
         let mut next = self.clone();
-        let work = next.transition(&event)?;
+        let work = next.transition(&event, &self.state, records)?;
+        next.admit_records(0, 0, 0)?;
         next.journal.push(event);
-        *self = next;
-        Ok(work)
+        Ok((next, work))
     }
     /// Resident suffix only. Retired prefixes belong to the durable archive;
     /// its length must not be used as the engine's logical revision.
@@ -267,12 +265,27 @@ impl Engine {
         Ok(engine)
     }
     pub fn inspect(&self, run: &str) -> Result<Inspection<'_>> {
+        self.state.require_resident()?;
+        self.run(run)?;
+        self.inspect_with_attempts(run, self.state.attempt_history(run))
+    }
+    fn inspect_with_attempts<A>(&self, run: &str, attempts: A) -> Result<Inspection<'_, A>> {
         let r = self.run(run)?;
+        self.inspect_with_attempts_using(&mut &self.state, run, r, attempts)
+    }
+    pub(super) fn inspect_with_attempts_using<'a, A>(
+        &'a self,
+        records: &mut impl super::record_access::RecordAccess,
+        run: &str,
+        r: &'a Run,
+        attempts: A,
+    ) -> Result<Inspection<'a, A>> {
         let graph = &self.graphs[&r.artifact];
-        let states = self.states(r);
-        let mut reasons = self.reasons(r, &states);
+        let states = self.states_using(records, r)?;
+        let mut reasons = self.reasons(records, r, &states)?;
         for (node, state) in &states {
-            if *state == Disposition::Ready && self.held.contains(&(run.into(), node.clone())) {
+            if *state == Disposition::Ready && self.state.held.contains(&(run.into(), node.clone()))
+            {
                 reasons
                     .get_mut(node)
                     .unwrap()
@@ -288,7 +301,9 @@ impl Engine {
                 let state = states[n].clone();
                 (
                     n.clone(),
-                    if state == Disposition::Ready && self.held.contains(&(run.into(), n.clone())) {
+                    if state == Disposition::Ready
+                        && self.state.held.contains(&(run.into(), n.clone()))
+                    {
                         Disposition::Held
                     } else {
                         state
@@ -303,19 +318,27 @@ impl Engine {
             revision: self.revision(),
             nodes,
             activation: &r.policy,
-            attempts: &r.attempts,
+            attempts,
         })
     }
     pub fn outputs(&self, run: &str) -> Result<Option<Values>> {
-        let r = self.run(run)?;
+        self.outputs_using(&mut &self.state, run)
+    }
+    pub(super) fn outputs_using(
+        &self,
+        records: &mut impl super::record_access::RecordAccess,
+        run: &str,
+    ) -> Result<Option<Values>> {
+        let r = records.run(run)?;
         let graph = &self.graphs[&r.artifact];
+        let states = self.states_using(records, &r)?;
         let mut values = Values::new();
         for (port, source) in &graph.artifact.definition.results {
-            match self.resolve(r, source) {
-                super::scheduling::Resolved::Value(value) => {
+            match self.resolve_using(records, &r, source, &states)? {
+                super::dependencies::Resolved::Value(value) => {
                     values.insert(port.clone(), value);
                 }
-                super::scheduling::Resolved::Absent
+                super::dependencies::Resolved::Absent
                     if graph.artifact.definition.outputs[port].optional => {}
                 _ => return Ok(None),
             }
@@ -323,7 +346,8 @@ impl Engine {
         Ok(Some(values))
     }
     pub(super) fn run(&self, id: &str) -> Result<&Run> {
-        self.runs
+        self.state
+            .runs
             .get(id)
             .ok_or_else(|| fault(CoreFaultCode::UnknownRun, "run"))
     }

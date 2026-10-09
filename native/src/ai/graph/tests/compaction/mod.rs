@@ -1,5 +1,4 @@
 use super::{durable_store::SqlStore, *};
-use crate::ai::graph::state_snapshot::StateSnapshot;
 
 mod continuation;
 mod integrity;
@@ -7,12 +6,14 @@ mod transactions;
 
 fn limits() -> DurableLimits {
     DurableLimits {
+        record_reads: record_read_limits(),
         checkpoint: CheckpointLimits {
             bytes: 1_000_000,
             events: 100,
         },
         settlement_event_bytes: 4096,
         history: history_limits(),
+        state: state_limits(),
     }
 }
 fn start(host: &mut DurableEngine, store: &mut SqlStore, graph: &Executable) {

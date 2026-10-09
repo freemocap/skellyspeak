@@ -74,6 +74,7 @@ fn every_cut_preserves_state_identity_and_all_remaining_transitions() {
                 expected: None,
                 next: &old,
                 intent: CommitIntent::Record,
+                records: RecordChanges::between(None, &original.state),
             })
             .unwrap();
         let mut compacted = original.clone();
@@ -88,6 +89,7 @@ fn every_cut_preserves_state_identity_and_all_remaining_transitions() {
                 expected: Some(old.stamp()),
                 next: &next,
                 intent: CommitIntent::Compact { archive: &old },
+                records: RecordChanges::default(),
             })
             .unwrap();
         assert_eq!(
@@ -98,15 +100,16 @@ fn every_cut_preserves_state_identity_and_all_remaining_transitions() {
         );
         let decoded = checkpoint(&store);
         let (mut restored, _) = decoded
-            .replay_history([graph.clone()], limits().history, &mut store)
+            .replay_history(
+                [graph.clone()],
+                limits().history,
+                state_limits(),
+                &mut store,
+            )
             .unwrap();
-        assert_eq!(
-            StateSnapshot::capture(&restored),
-            StateSnapshot::capture(&original),
-            "cut {cut}"
-        );
+        assert_eq!(restored.state.clone(), original.state.clone(), "cut {cut}");
         for run in ["a", "b"] {
-            if original.runs.contains_key(run) {
+            if original.state.runs.contains_key(run) {
                 assert_eq!(
                     serde_json::to_value(restored.inspect(run).unwrap()).unwrap(),
                     serde_json::to_value(original.inspect(run).unwrap()).unwrap()
@@ -120,10 +123,7 @@ fn every_cut_preserves_state_identity_and_all_remaining_transitions() {
                 expected,
                 "continuation at cut {cut}"
             );
-            assert_eq!(
-                StateSnapshot::capture(&restored),
-                StateSnapshot::capture(&original)
-            );
+            assert_eq!(restored.state.clone(), original.state.clone());
             assert_eq!(restored.revision(), original.revision());
         }
         assert_eq!(restored.outputs("a").unwrap(), Some(values(42)));
@@ -154,7 +154,7 @@ async fn an_inflight_invocation_and_later_demand_survive_compaction() {
     host.apply(
         Event::Settle {
             execution: work.execution,
-            outcome: invocation.execute().await,
+            outcome: invocation.execute(evidence_limits()).await.outcome,
         },
         &mut store,
     )
@@ -182,8 +182,9 @@ async fn an_inflight_invocation_and_later_demand_survive_compaction() {
     let output = host
         .claim("run", "second", second, &mut store)
         .unwrap()
-        .execute()
-        .await;
+        .execute(evidence_limits())
+        .await
+        .outcome;
     host.apply(
         Event::Settle {
             execution: work.execution,

@@ -17,7 +17,7 @@ fn fan_in_waits_for_all_adoptions_in_every_independent_completion_order() {
             resource: Resource::Local,
             reuse: Reuse::Fresh,
         },
-        Arc::new(|xs| {
+        Arc::new(|_, xs| {
             Box::pin(async move { Ok(values(xs.values().map(|v| v.as_i64().unwrap()).sum())) })
         }),
     )
@@ -160,7 +160,7 @@ fn all_cancellation_and_settlement_orders_preserve_other_consumers() {
             Disposition::Available
         );
         adopt(&mut engine, "survivor", "first");
-        assert_eq!(engine.executions.len(), 1);
+        assert_eq!(engine.state.executions.len(), 1);
     }
 }
 

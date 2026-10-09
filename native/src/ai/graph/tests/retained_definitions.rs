@@ -61,7 +61,7 @@ fn recorded_definition_is_available_after_all_handlers_are_dropped() {
     // Evidence readability does not weaken the requirement for exact executable
     // bindings when recovering a live engine.
     assert_eq!(
-        checkpoint.replay([]).err().unwrap().code,
+        checkpoint.replay([], state_limits()).err().unwrap().code,
         "checkpoint_artifact_mismatch"
     );
 }
@@ -109,7 +109,11 @@ fn changed_current_code_cannot_rewrite_the_retained_definition() {
         "unknown_artifact"
     );
     assert_eq!(
-        checkpoint.replay([current]).err().unwrap().code,
+        checkpoint
+            .replay([current], state_limits())
+            .err()
+            .unwrap()
+            .code,
         "checkpoint_artifact_mismatch"
     );
 }
