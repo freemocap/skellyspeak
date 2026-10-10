@@ -230,8 +230,7 @@ async fn native_stream_prefix_survives_cancellation_without_publication_or_doubl
             .clone(),
     )
     .unwrap();
-    tick(&mut store).await;
-    tick(&mut store).await;
+    tick(&mut store).await; // finish context; the next call adopts and claims reply
     let claim = store
         .graph_runtime
         .next(
@@ -322,7 +321,6 @@ async fn coach_command_replay_executes_and_publishes_once_without_legacy_operati
             .unwrap(),
         0
     );
-    refresh_turn(&store.connection, &turn).unwrap();
     assert_eq!(
         store
             .connection
@@ -337,6 +335,22 @@ async fn coach_command_replay_executes_and_publishes_once_without_legacy_operati
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.coach_messages.len(), 2);
     assert_eq!(snapshot.coach_messages[1].text, "A useful explanation.");
+    let award: String = store
+        .connection
+        .query_row(
+            "SELECT source_id FROM effort_awards WHERE source_id LIKE 'graph-effect:%'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert!(
+        snapshot.turns[0]
+            .award_sources
+            .as_ref()
+            .unwrap()
+            .contains(&award)
+    );
+
     assert_eq!(snapshot.turns[0].state, "succeeded");
     assert_eq!(
         store
@@ -378,7 +392,7 @@ async fn interrupted_native_coach_recovers_unknown_and_requires_explicit_retry()
     let (dir, mut store, conversation) = setup();
     let turn = store.execute(ask(&store, &conversation)).unwrap().entity_id;
     assert!(tick(&mut store).await); // local context
-    assert!(!tick(&mut store).await); // adopt context
+    // The next claim adopts context and dispatches the provider in one pass.
     let claim = store
         .graph_runtime
         .next(
@@ -423,4 +437,108 @@ async fn interrupted_native_coach_recovers_unknown_and_requires_explicit_retry()
             .text,
         "Retried explicitly."
     );
+}
+
+#[tokio::test]
+async fn selected_native_attempt_inspection_is_read_only_and_revision_bound() {
+    let (_dir, mut store, conversation) = setup();
+    coach_provider(&store, &["Retained inspection reply."]);
+    let run = store.execute(ask(&store, &conversation)).unwrap().entity_id;
+    for _ in 0..4 {
+        tick(&mut store).await;
+    }
+    let snapshot = store
+        .graph_runtime
+        .inspection(&store.connection, &conversation, &run)
+        .unwrap()
+        .unwrap();
+    let attempt = snapshot.attempts["reply"].last().unwrap();
+    crate::ai::inspection::verify_workspace_reads(&store);
+    let changes = store.connection.total_changes();
+    let detail = crate::ai::inspection::attempt(
+        &store.connection,
+        &snapshot.engine,
+        &run,
+        &snapshot.revision,
+        "reply",
+        &attempt.id,
+    )
+    .unwrap();
+    assert_eq!(detail.execution, attempt.execution);
+    assert_eq!(detail.owner, conversation);
+    assert_eq!(detail.artifact, snapshot.artifact_id);
+    assert!(
+        crate::ai::inspection::attempt(
+            &store.connection,
+            &snapshot.engine,
+            &run,
+            "0",
+            "reply",
+            &attempt.id
+        )
+        .is_err()
+    );
+    assert!(
+        crate::ai::inspection::attempt(
+            &store.connection,
+            &snapshot.engine,
+            &run,
+            &snapshot.revision,
+            "context",
+            &attempt.id
+        )
+        .is_err()
+    );
+    assert!(
+        crate::ai::inspection::attempt(
+            &store.connection,
+            "other",
+            &run,
+            &snapshot.revision,
+            "reply",
+            &attempt.id
+        )
+        .is_err()
+    );
+    assert_eq!(store.connection.total_changes(), changes);
+    use crate::learning::effort::bot;
+    assert!(
+        bot::inspect(
+            &mut store.connection,
+            &snapshot.engine,
+            &run,
+            &snapshot.revision,
+            "context",
+            &attempt.id
+        )
+        .is_err()
+    );
+    let earned = bot::inspect(
+        &mut store.connection,
+        &snapshot.engine,
+        &run,
+        &snapshot.revision,
+        "reply",
+        &attempt.id,
+    )
+    .unwrap()
+    .unwrap();
+    assert_eq!(
+        earned.conversation_id.as_deref(),
+        Some(conversation.as_str())
+    );
+    let changes = store.connection.total_changes();
+    assert!(
+        bot::inspect(
+            &mut store.connection,
+            &snapshot.engine,
+            &run,
+            &snapshot.revision,
+            "reply",
+            &attempt.id
+        )
+        .unwrap()
+        .is_none()
+    );
+    assert_eq!(store.connection.total_changes(), changes);
 }

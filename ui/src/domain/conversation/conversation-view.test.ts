@@ -16,7 +16,7 @@ function snapshot(messages: ChatMessage[]): ConversationSnapshot {
 describe('durable conversation projection', () => {
   it('keeps the learner source identity and exposes pending assessment independently of coaching', () => {
     const source = snapshot([message(1, 'user', 'Hola')])
-    source.turns = [{ id: 'turn-1', operations: [{ kind: 'skill_assessment', state: 'running' }] }] as unknown as ConversationSnapshot['turns']
+    source.messages[0].assessmentState = 'running'
     const turn = conversationTurns(source)[0]
     expect(turn.userMessageId).toBe('source-1')
     expect(turn.analysisState).toBe('pending')
@@ -135,10 +135,10 @@ it('groups by durable identity despite interleaving and retains repeated revisio
 
 it('retains reply failure and pause state independently of successful saved assistance', () => {
   const source = snapshot([message(1, 'user', 'Question')])
-  source.turns = [{ id: 'turn-1', state: 'failed', paused: false, hold: null, route: 'hosted', replacesTurnId: null, replacedBy: null, operations: [{ id: 'reply', kind: 'persona_reply', state: 'failed', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }], attempts: [] }]
+  source.turns = [{ id: 'turn-1', state: 'failed', paused: false, hold: null, route: 'hosted', replacesTurnId: null, replacedBy: null,   }]
   source.messages[0].feedback = { issues: [], corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 1, itemsReturned: 0 }
   expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', assistant: null, replyState: { state: 'failed', control: 'retry' } })
-  source.turns[0].state = 'pending'; source.turns[0].operations[0].state = 'ready'; source.turns[0].paused = true
+  source.turns[0].state = 'pending'; source.turns[0].paused = true
   expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', replyState: { state: 'paused', control: 'resume' } })
 })
 

@@ -95,7 +95,7 @@ pub(super) fn adopted_owner(
         return Err(rejected());
     }
     let (turn, conversation, role): (String,String,String) = db.query_row(
-        "SELECT t.id,t.conversation_id,m.role FROM graph_conversation_runs o JOIN turns t ON t.id=o.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts contact ON contact.id=c.contact_id JOIN messages m ON m.turn_id=t.id WHERE o.channel IN ('persona_reply','persona_opening','speech') AND o.engine_id=?1 AND o.run_id=?2 AND o.artifact_id=?3 AND m.id=?4 AND m.text=?5 AND c.archived=0 AND contact.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)",
+        "SELECT t.id,t.conversation_id,m.role FROM graph_conversation_runs o JOIN turns t ON t.id=o.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts contact ON contact.id=c.contact_id JOIN messages m ON m.turn_id=t.id WHERE o.channel IN ('persona_reply','persona_opening','speech','helper') AND o.engine_id=?1 AND o.run_id=?2 AND o.artifact_id=?3 AND m.id=?4 AND m.text=?5 AND c.archived=0 AND contact.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)",
         params![request.next.stamp().engine,authority.run,authority.artifact,source.id,source.text],
         |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
 

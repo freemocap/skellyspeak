@@ -37,21 +37,20 @@ impl Handlers<'_> {
         if let Some(operation) = self.native_help(&message_id, contract, retry)? {
             return Ok(operation);
         }
-        let (conversation, operation) = crate::conversations::execution::request_message_help(
-            self.tx,
-            &message_id,
-            help,
-            retry,
-        )?;
-        self.conversation_scope = Some(conversation);
-        Ok(operation)
+        Err(missing_owner())
     }
 
     pub(super) fn reassess_feedback(&mut self, turn_id: String, note: String) -> Result<String> {
-        self.conversation_scope = Some(crate::conversations::execution::reassess_feedback(
-            self.tx, &turn_id, &note,
-        )?);
-        Ok(turn_id)
+        if let Some(request) = self
+            .graph_runtime
+            .resolve_feedback_context(self.tx, &turn_id, &note)?
+        {
+            self.conversation_scope = Some(request.conversation.clone());
+            self.graph_help = Some(request);
+            return Ok(turn_id);
+        }
+
+        Err(missing_owner())
     }
 
     pub(super) fn request_message_speech(
@@ -71,31 +70,7 @@ impl Handlers<'_> {
             )?);
             return Ok(operation);
         }
-        if regenerate {
-            return Err(AppError::new(
-                ErrorCode::Conflict,
-                "Explicit regeneration requires a native speech owner.",
-            ));
-        }
-        let cached_attempt: Option<String> = self.tx.query_row(
-            "SELECT a.id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN messages m ON m.turn_id=o.turn_id WHERE m.id=?1 AND o.kind='persona_speech' AND o.state='succeeded' AND a.state='succeeded' ORDER BY a.rowid DESC LIMIT 1",
-            [&message_id], |r| r.get(0),
-        ).optional()?;
-        let resident = match &cached_attempt {
-            Some(attempt) => {
-                crate::ai::results::for_consumer(self.tx, attempt)?.is_some()
-                    || self.speech_delivery.contains(attempt)
-            }
-            None => false,
-        };
-        let operation =
-            crate::conversations::execution::request_speech(self.tx, &message_id, resident)?;
-        self.conversation_scope = Some(self.tx.query_row(
-            "SELECT conversation_id FROM messages WHERE id=?1",
-            [&message_id],
-            |r| r.get(0),
-        )?);
-        Ok(operation)
+        Err(missing_owner())
     }
 
     pub(super) fn cancel_message_speech(&mut self, operation_id: String) -> Result<String> {
@@ -107,9 +82,7 @@ impl Handlers<'_> {
             self.conversation_scope = Some(conversation);
             return Ok(operation_id);
         }
-        let operation = crate::conversations::execution::cancel_speech(self.tx, &operation_id)?;
-        self.conversation_scope = Some(self.tx.query_row("SELECT t.conversation_id FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.id=?1", [&operation], |r|r.get(0))?);
-        Ok(operation)
+        Err(missing_owner())
     }
 
     pub(super) fn request_suggestions(&mut self, message_id: String) -> Result<String> {
@@ -120,10 +93,7 @@ impl Handlers<'_> {
         )? {
             return Ok(operation);
         }
-        let (conversation, operation) =
-            crate::conversations::execution::request_suggestions(self.tx, &message_id)?;
-        self.conversation_scope = Some(conversation);
-        Ok(operation)
+        Err(missing_owner())
     }
 
     pub(super) fn request_explanations(&mut self, message_id: String) -> Result<String> {
@@ -134,10 +104,7 @@ impl Handlers<'_> {
         )? {
             return Ok(operation);
         }
-        let (conversation, operation) =
-            crate::conversations::execution::request_explanations(self.tx, &message_id)?;
-        self.conversation_scope = Some(conversation);
-        Ok(operation)
+        Err(missing_owner())
     }
     pub(super) fn retry_reply_help(
         &mut self,
@@ -153,17 +120,19 @@ impl Handlers<'_> {
         if let Some(operation) = self.native_help(&message_id, contract, true)? {
             return Ok(operation);
         }
-        let (conversation, operation) =
-            crate::conversations::execution::retry_reply_help(self.tx, &message_id, kind)?;
-        self.conversation_scope = Some(conversation);
-        Ok(operation)
+        Err(missing_owner())
     }
     pub(super) fn retry_gloss(&mut self, operation_id: String) -> Result<String> {
-        self.conversation_scope = Some(crate::conversations::execution::retry_gloss(
-            self.tx,
-            &operation_id,
-        )?);
-        Ok(operation_id)
+        if let Some(request) = self
+            .graph_runtime
+            .resolve_gloss_retry(self.tx, &operation_id)?
+        {
+            self.conversation_scope = Some(request.conversation.clone());
+            let operation = request.operation.clone();
+            self.graph_help = Some(request);
+            return Ok(operation);
+        }
+        Err(missing_owner())
     }
 
     pub(super) fn control_turn(&mut self, turn_id: String, control: TurnControl) -> Result<String> {
@@ -172,17 +141,16 @@ impl Handlers<'_> {
             self.graph_control=Some((turn_id.clone(),control));
             return Ok(turn_id);
         }
-        self.conversation_scope = Some(crate::conversations::execution::control_turn(
-            self.tx, &turn_id, control,
-        )?);
-        Ok(turn_id)
+        Err(missing_owner())
     }
 
     pub(super) fn set_paused(&mut self, paused: bool) -> Result<String> {
         self.tx
             .execute("UPDATE ai_config SET paused=?1 WHERE singleton=1", [paused])?;
-        self.tx
-            .execute("UPDATE operations SET permit=0 WHERE state='ready'", [])?;
         Ok("execution".into())
     }
+}
+
+fn missing_owner() -> AppError {
+    AppError::new(ErrorCode::NotFound, "Execution owner is unavailable.")
 }

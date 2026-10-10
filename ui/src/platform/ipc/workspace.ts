@@ -2,7 +2,7 @@ import { bindRewardOrigin, captureRewardOrigin, inheritRewardOrigin } from './re
 import { effortPublished } from './effort-events'
 import { errorMessage } from '../diagnostics/error-details'
 import { invoke } from './native'
-import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot, TurnHistoryPage, AttemptDetail } from '../../generated/contracts'
+import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot, TurnHistoryPage } from '../../generated/contracts'
 
 export function readWorkspace(): Promise<Snapshot> {
   return invoke<Snapshot>('get_snapshot')
@@ -52,7 +52,10 @@ export async function createContact(languageId: string, details: PersonaDetails)
 
 export function watchConversation(conversationId: string, afterRevision = -1, before: number | null = null): Promise<ConversationSnapshot> {
   return invoke<ConversationSnapshot>('watch_conversation', { conversationId, afterRevision, before }).then(snapshot => {
-    for (const turn of snapshot.turns) for (const operation of turn.operations) inheritRewardOrigin(operation.id, turn.id)
+    for (const turn of snapshot.turns) {
+      for (const source of turn.awardSources ?? []) inheritRewardOrigin(source, turn.id)
+      if (turn.speech) inheritRewardOrigin(turn.speech.id, turn.id)
+    }
     return snapshot
   })
 }
@@ -69,9 +72,4 @@ export function nativeError(error: unknown): string {
 /** Older turns keyed by turn, so history reaches turns that never produced a message. */
 export function listTurnHistory(conversationId: string, before: string | null, limit = 40): Promise<TurnHistoryPage> {
   return invoke<TurnHistoryPage>('list_turn_history', { conversationId, before, limit })
-}
-
-/** The request and response recorded for one attempt, fetched only on inspection. */
-export function readAttemptDetail(attemptId: string): Promise<AttemptDetail> {
-  return invoke<AttemptDetail>('get_attempt_detail', { attemptId })
 }

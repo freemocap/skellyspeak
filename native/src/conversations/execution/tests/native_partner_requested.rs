@@ -10,27 +10,11 @@ use std::sync::Arc;
 #[tokio::test]
 async fn native_requested_reply_helpers_publish_without_activating_assessment() {
     let (_dir, mut store, conversation) = setup();
+    store.connection.execute("UPDATE learner SET preferences=json_set(preferences,'$.execution.reading','on_demand','$.execution.replyBrief','on_demand','$.execution.assessment','on_demand')", []).unwrap();
     let turn = store
         .execute(send(&store, &conversation))
         .unwrap()
         .entity_id;
-    let tx = store.connection.transaction().unwrap();
-    tx.execute("DELETE FROM operations WHERE turn_id=?1", [&turn])
-        .unwrap();
-    tx.execute(
-        "DELETE FROM turn_execution_owners WHERE turn_id=?1",
-        [&turn],
-    )
-    .unwrap();
-    tx.execute("UPDATE turns SET context=json_set(context,'$.executionPreferences.reading','on_demand','$.executionPreferences.replyBrief','on_demand','$.executionPreferences.assessment','on_demand') WHERE id=?1", [&turn]).unwrap();
-    store
-        .graph_runtime
-        .admit(
-            tx,
-            &turn,
-            graph_runtime::Admission::Partner(context::Kind::Reply),
-        )
-        .unwrap();
     store.graph_runtime.partner.bind(Arc::new(|invocation| Box::pin(async move {
         let operation = &invocation.identity().operation;
         let text = if *operation == prose::operation_contract() { "Hola.".into() }
@@ -93,6 +77,14 @@ async fn native_requested_reply_helpers_publish_without_activating_assessment() 
         .unwrap()
         .unwrap();
     assert_eq!(view.nodes["assessment"], Disposition::Unrequested);
+    let learner = product
+        .messages
+        .iter()
+        .find(|message| message.role == "user")
+        .unwrap();
+    assert!(learner.assessment_state.is_none());
+    assert!(learner.assessment_error.is_none());
+
     assert_eq!(view.nodes["reply_gloss"], Disposition::Unrequested);
     assert_eq!(
         store
@@ -108,8 +100,11 @@ async fn native_requested_reply_helpers_publish_without_activating_assessment() 
     assert_eq!(
         store
             .connection
-            .query_row("SELECT count(*) FROM inference_executions", [], |r| r
-                .get::<_, i64>(0))
+            .query_row(
+                "SELECT count(*) FROM sqlite_master WHERE name='inference_executions'",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
             .unwrap(),
         0
     );

@@ -75,9 +75,14 @@ pub fn check_helper(
     let (target, sources) = captured(work)?;
     type Owner = (String, bool, bool, String);
     let owner: Option<Owner> = db.query_row(
-        "SELECT t.id,CASE WHEN o.channel='speech' THEN 0 ELSE t.paused END,t.refusal_hold IS NOT NULL,t.context FROM graph_conversation_runs o JOIN turns t ON t.id=o.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts contact ON contact.id=c.contact_id WHERE o.channel IN ('persona_reply','persona_opening','speech') AND o.engine_id=?1 AND o.run_id=?2 AND o.artifact_id=?3 AND o.scope=?4 AND c.archived=0 AND contact.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)",
+        "SELECT t.id,CASE WHEN o.channel IN ('speech','helper') THEN 0 ELSE t.paused END,t.refusal_hold IS NOT NULL,t.context FROM graph_conversation_runs o JOIN turns t ON t.id=o.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts contact ON contact.id=c.contact_id WHERE o.channel IN ('persona_reply','persona_opening','speech','helper') AND o.engine_id=?1 AND o.run_id=?2 AND o.artifact_id=?3 AND o.scope=?4 AND c.archived=0 AND contact.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)",
         params![engine,authority.run,authority.artifact,authority.scope], |r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?))).optional()?;
     let (turn, paused, held, raw) = owner.ok_or_else(|| rejected("owner_revoked"))?;
+    let superseded: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM graph_helper_requests h WHERE h.engine_id=?1 AND h.run_id=?2 AND (h.operation!=?3 OR EXISTS(SELECT 1 FROM graph_helper_requests newer WHERE newer.message_id=h.message_id AND newer.operation=h.operation AND newer.rowid>h.rowid)))",params![engine,authority.run,serde_json::to_string(&work.operation)?],|r|r.get(0))?;
+    if superseded {
+        return Err(rejected("helper_superseded"));
+    }
+
     if !matches!(phase, Phase::Adoption)
         && ((paused && !matches!(phase, Phase::SteppedDispatch))
             || held
@@ -97,7 +102,7 @@ pub fn check_helper(
     }
     let captured: serde_json::Value = serde_json::from_str(&raw)?;
     let auxiliary: bool = db.query_row(
-        "SELECT EXISTS(SELECT 1 FROM graph_speech_requests WHERE engine_id=?1 AND run_id=?2)",
+        "SELECT EXISTS(SELECT 1 FROM graph_speech_requests WHERE engine_id=?1 AND run_id=?2 UNION ALL SELECT 1 FROM graph_helper_requests WHERE engine_id=?1 AND run_id=?2)",
         params![engine, authority.run],
         |r| r.get(0),
     )?;

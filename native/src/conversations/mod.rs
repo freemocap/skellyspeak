@@ -13,4 +13,3 @@ mod reply_contract;
 pub(crate) mod revision;
 pub(crate) mod saved_reading;
 pub(crate) mod saved_topics;
-pub mod turn_plan;

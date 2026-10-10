@@ -9,22 +9,6 @@ async fn native_turn_retry_targets_reply_without_retrying_independent_assessment
         .execute(send(&store, &conversation))
         .unwrap()
         .entity_id;
-    let tx = store.connection.transaction().unwrap();
-    tx.execute("DELETE FROM operations WHERE turn_id=?1", [&turn])
-        .unwrap();
-    tx.execute(
-        "DELETE FROM turn_execution_owners WHERE turn_id=?1",
-        [&turn],
-    )
-    .unwrap();
-    store
-        .graph_runtime
-        .admit(
-            tx,
-            &turn,
-            graph_runtime::Admission::Partner(context::Kind::Reply),
-        )
-        .unwrap();
     store.graph_runtime.partner.bind(
         Arc::new(|_| {
             Box::pin(async {

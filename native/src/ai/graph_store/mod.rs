@@ -11,8 +11,48 @@ pub use reads::{BorrowedReadStore, ReadStore};
 
 #[derive(Clone)]
 pub struct Partition {
-    pub conversation: String,
+    pub owner: Owner,
     pub catalog: String,
+}
+
+/// Product ownership selects storage, never execution semantics or topology.
+#[derive(Clone)]
+pub enum Owner {
+    Conversation(String),
+    Workspace(String),
+}
+impl Owner {
+    pub fn key(&self) -> &str {
+        match self {
+            Self::Conversation(id) | Self::Workspace(id) => id,
+        }
+    }
+}
+impl Partition {
+    fn engines(&self) -> &'static str {
+        match self.owner {
+            Owner::Conversation(_) => "graph_engines",
+            Owner::Workspace(_) => "workspace_graph_engines",
+        }
+    }
+    fn records(&self) -> &'static str {
+        match self.owner {
+            Owner::Conversation(_) => "graph_records",
+            Owner::Workspace(_) => "workspace_graph_records",
+        }
+    }
+    fn archives(&self) -> &'static str {
+        match self.owner {
+            Owner::Conversation(_) => "graph_archives",
+            Owner::Workspace(_) => "workspace_graph_archives",
+        }
+    }
+    fn owner_column(&self) -> &'static str {
+        match self.owner {
+            Owner::Conversation(_) => "conversation_id",
+            Owner::Workspace(_) => "workspace_id",
+        }
+    }
 }
 
 /// Exact sorted artifact set, independent of registration order or app version.
@@ -111,12 +151,24 @@ where
             (self.owner)(&tx, &request)?;
             let stamp = encode(request.next.stamp(), "stamp")?;
             if request.expected.is_none() {
-                tx.execute("INSERT INTO graph_engines(id,conversation_id,catalog,stamp,checkpoint) VALUES(?1,?2,?3,?4,?5)",
-                    params![request.next.stamp().engine, self.partition.conversation, self.partition.catalog, stamp, request.next.bytes()])
-                    .map_err(|e| sql(e, "create"))?;
+                tx.execute(
+                    &format!(
+                        "INSERT INTO {}(id,{},catalog,stamp,checkpoint) VALUES(?1,?2,?3,?4,?5)",
+                        self.partition.engines(),
+                        self.partition.owner_column()
+                    ),
+                    params![
+                        request.next.stamp().engine,
+                        self.partition.owner.key(),
+                        self.partition.catalog,
+                        stamp,
+                        request.next.bytes()
+                    ],
+                )
+                .map_err(|e| sql(e, "create"))?;
             } else {
-                let changed = tx.execute("UPDATE graph_engines SET stamp=?1,checkpoint=?2 WHERE id=?3 AND conversation_id=?4 AND catalog=?5",
-                    params![stamp, request.next.bytes(), request.next.stamp().engine, self.partition.conversation, self.partition.catalog])
+                let changed = tx.execute(&format!("UPDATE {} SET stamp=?1,checkpoint=?2 WHERE id=?3 AND {}=?4 AND catalog=?5", self.partition.engines(), self.partition.owner_column()),
+                    params![stamp, request.next.bytes(), request.next.stamp().engine, self.partition.owner.key(), self.partition.catalog])
                     .map_err(|e| sql(e, "checkpoint"))?;
                 if changed != 1 {
                     return Err(fault("record_stamp", "checkpoint"));
@@ -128,12 +180,12 @@ where
                 {
                     return Err(fault("history_mismatch", "archive_parent"));
                 }
-                retain_archive(&tx, archive)?;
+                retain_archive(&tx, &self.partition, archive)?;
             }
             for row in request.records.iter() {
                 let key = encode(row.key(), "record_key")?;
                 let payload = row.bytes(self.record_bytes)?;
-                tx.execute("INSERT INTO graph_records(engine_id,key,payload) VALUES(?1,?2,?3) ON CONFLICT(engine_id,key) DO UPDATE SET payload=excluded.payload",
+                tx.execute(&format!("INSERT INTO {}(engine_id,key,payload) VALUES(?1,?2,?3) ON CONFLICT(engine_id,key) DO UPDATE SET payload=excluded.payload", self.partition.records()),
                     params![request.next.stamp().engine, key, payload]).map_err(|e| sql(e, "record_write"))?;
             }
             Ok(())
@@ -149,11 +201,14 @@ where
     }
 }
 
-fn retain_archive(db: &Connection, archive: &Checkpoint) -> Result<()> {
+fn retain_archive(db: &Connection, partition: &Partition, archive: &Checkpoint) -> Result<()> {
     let stamp = encode(archive.stamp(), "archive_stamp")?;
     let existing: Option<String> = db
         .query_row(
-            "SELECT stamp FROM graph_archives WHERE engine_id=?1 AND checksum=?2",
+            &format!(
+                "SELECT stamp FROM {} WHERE engine_id=?1 AND checksum=?2",
+                partition.archives()
+            ),
             params![archive.stamp().engine, archive.stamp().checksum],
             |r| r.get(0),
         )
@@ -162,7 +217,7 @@ fn retain_archive(db: &Connection, archive: &Checkpoint) -> Result<()> {
     if let Some(existing) = existing {
         let body = reads::blob(
             db,
-            "graph_archives",
+            partition.archives(),
             "payload",
             "engine_id=?1 AND checksum=?2",
             &[&archive.stamp().engine, &archive.stamp().checksum],
@@ -173,7 +228,7 @@ fn retain_archive(db: &Connection, archive: &Checkpoint) -> Result<()> {
         }
     } else {
         db.execute(
-            "INSERT INTO graph_archives VALUES(?1,?2,?3,?4)",
+            &format!("INSERT INTO {} VALUES(?1,?2,?3,?4)", partition.archives()),
             params![
                 archive.stamp().engine,
                 archive.stamp().checksum,
@@ -195,7 +250,7 @@ fn fault(code: &str, path: &str) -> Fault {
         path: path.into(),
     }
 }
-fn sql(error: rusqlite::Error, stage: &str) -> Fault {
+pub(crate) fn sql(error: rusqlite::Error, stage: &str) -> Fault {
     // Retain bounded SQLite codes, never SQL text, source values or raw errors.
     let code = match error.sqlite_error() {
         Some(e) => format!(

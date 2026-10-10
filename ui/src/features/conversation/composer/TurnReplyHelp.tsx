@@ -9,17 +9,17 @@ export async function requestReplyHelp(conversationId: string, messageId: string
   // Reconcile command uncertainty/another window before choosing a new request.
   const snapshot = await watchConversation(conversationId)
   const message = snapshot.messages.find(item => item.id === messageId)
-  const turn = snapshot.turns.find(item => item.id === message?.turnId)
-  const operation = turn?.operations.find(item => item.replyHelpKind === helpKind)
-  if (operation && (!retry || !['failed', 'unknown'].includes(operation.state))) return
+  if (!message) throw new Error('Reply help source is unavailable.')
+  const state = helpKind === 'brief' ? message.briefState : helpKind === 'grammar' ? message.explanationsState : message.suggestionsState
+  if (state && (!retry || !['failed', 'unknown'].includes(state))) return
   const workspace = await readWorkspace()
   if (helpKind === 'brief') {
     await executeAction(workspace, { kind: 'requestMessageHelp', messageId, help: 'reply_brief', retry })
-    return
+  } else {
+    await executeAction(workspace, retry
+      ? { kind: 'retryReplyHelp', messageId, helpKind }
+      : { kind: helpKind === 'grammar' ? 'requestExplanations' : 'requestSuggestions', messageId })
   }
-  await executeAction(workspace, operation
-    ? {kind:'retryReplyHelp', messageId, helpKind}
-    : {kind:helpKind === 'grammar' ? 'requestExplanations' : 'requestSuggestions', messageId})
 }
 
 export function TurnReplyHelp({ turn, conversationId, busy, onAsk, onUse, inline = false }: {

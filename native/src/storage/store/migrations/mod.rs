@@ -25,6 +25,10 @@ mod v64_graph_audio;
 mod v65_graph_audio_delivery;
 mod v66_compatibility;
 mod v67_graph_speech_requests;
+mod v68_workspace_graphs;
+mod v69_graph_helper_requests;
+mod v70_graph_assessment_owners;
+mod v71_cache;
 
 const MIN_VERSION: i32 = 45;
 const BASELINE: &str = include_str!("v45.sql");
@@ -146,6 +150,26 @@ const STEPS: &[Step] = &[
         from: 66,
         apply: v67_graph_speech_requests::apply,
         validate: v67_graph_speech_requests::validate,
+    },
+    Step {
+        from: 67,
+        apply: v68_workspace_graphs::apply,
+        validate: v68_workspace_graphs::validate,
+    },
+    Step {
+        from: 68,
+        apply: v69_graph_helper_requests::apply,
+        validate: v69_graph_helper_requests::validate,
+    },
+    Step {
+        from: 69,
+        apply: v70_graph_assessment_owners::apply,
+        validate: v70_graph_assessment_owners::validate,
+    },
+    Step {
+        from: 70,
+        apply: v71_cache::apply,
+        validate: v71_cache::validate,
     },
 ];
 

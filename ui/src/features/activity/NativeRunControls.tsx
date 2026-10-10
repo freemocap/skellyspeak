@@ -9,7 +9,10 @@ export function NativeRunControls({ turn, globallyPaused }: { turn: TurnView; gl
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const graph = turn.nativeGraph
-  if (!graph || turn.nativeExecutionAvailable === false || !['pending', 'assisting'].includes(turn.state)) return null
+  if (!graph || turn.nativeExecutionAvailable === false || turn.replacedBy || ['cancelled', 'invalidated'].includes(turn.state)) return null
+  const active = ['pending', 'assisting'].includes(turn.state)
+  const retryable = Object.values(graph.nodes ?? {}).some(state => state === 'Failed' || state === 'Unknown')
+  if (!active && !retryable) return null
   const control = async (action: TurnControl) => {
     setBusy(true); setError(null)
     try { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.id, control: action }) }
@@ -17,9 +20,10 @@ export function NativeRunControls({ turn, globallyPaused }: { turn: TurnView; gl
     finally { setBusy(false) }
   }
   return <div className="ai-view-actions">
-    <button type="button" className="ai-chip" disabled={busy} onClick={() => void control(turn.paused ? 'resume' : 'pause')}>{turn.paused ? tr('Resume exchange') : tr('Pause')}</button>
+    {active && <><button type="button" className="ai-chip" disabled={busy} onClick={() => void control(turn.paused ? 'resume' : 'pause')}>{turn.paused ? tr('Resume exchange') : tr('Pause')}</button>
     <button type="button" className="ai-chip" disabled={busy || !turn.paused || globallyPaused || !!turn.hold || !graph.step_available} onClick={() => void control('step')}>{tr('Step')}</button>
-    <button type="button" className="ai-chip" disabled={busy} onClick={() => void control('cancel')}>{tr('Cancel')}</button>
+    <button type="button" className="ai-chip" disabled={busy} onClick={() => void control('cancel')}>{tr('Cancel')}</button></>}
+    {retryable && <button type="button" className="ai-chip" disabled={busy} onClick={() => void control('retry')}>{tr('Retry')}</button>}
     {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
   </div>
 }

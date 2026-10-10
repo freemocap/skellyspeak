@@ -1,5 +1,9 @@
 //! Explicit reading consumers. Generated payloads are evictable local results;
 //! redacted execution receipts are durable. New text help can earn exploration, never skill XP.
+pub(crate) mod explanation_graph;
+pub(crate) mod guide_graph;
+pub(crate) mod native;
+pub(crate) mod native_cache;
 pub(crate) mod preloaded;
 mod receipts;
 pub(crate) mod saved;
@@ -9,8 +13,8 @@ mod tests;
 pub(crate) mod text;
 pub(crate) mod text_sources;
 use crate::{
-    ai::connections::access, ai::transport::text_request::TextRequest, language::gloss,
-    learning::coaching::conversation_support as support, model::*, storage::store::Store,
+    ai::connections::access, language::gloss, learning::coaching::conversation_support as support,
+    model::*, storage::store::Store,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -217,7 +221,7 @@ impl Request {
         }
         Ok(())
     }
-    fn validate_access(&self, store: &Store) -> Result<()> {
+    pub(crate) fn validate_access(&self, store: &Store) -> Result<()> {
         if self.install != store.snapshot()?.learner.id {
             return Err(self.stopped("workspace_changed"));
         }
@@ -264,90 +268,6 @@ impl Request {
             },
             text: self.input.text.clone(),
         }
-    }
-    /// The provider request for this aid, on the aid's routed model at the
-    /// task temperature conversation turns use.
-    fn text_request(
-        &self,
-        messages: Vec<crate::ai::transport::provider::PromptMessage>,
-    ) -> TextRequest {
-        let mut target = self.target.clone();
-        target.model = self.model.clone();
-        TextRequest {
-            decisions: None,
-            temperature: crate::ai::connections::model_routing::TASK_TEMPERATURE,
-            credential: self.target.credential.clone().unwrap_or_default(),
-            model: self.model.clone(),
-            route: self.target.route,
-            target,
-            attempt: self.attempt.clone(),
-            operation: self.operation.clone(),
-            install_id: self.install.clone(),
-            messages,
-        }
-    }
-    /// The captured language scope the conversation task contracts read.
-    fn captured(&self) -> serde_json::Value {
-        serde_json::json!({
-            "targetLanguage": self.input.language,
-            "translationLanguage": self.input.explanation,
-            "languageContext": self.context,
-        })
-    }
-    /// A grammar explanation request through the conversation support
-    /// contract: the same instruction, output schema, validation, task
-    /// temperature and model role that explanation turns send. The source text
-    /// is the explained message; it has no surrounding exchange or learner input.
-    pub(crate) fn explanations_dispatch(&self) -> Result<(TextRequest, serde_json::Value)> {
-        let mut captured = self.captured();
-        captured["messages"] = serde_json::json!([]);
-        let mut schema = support::schema_for_context(support::EXPLANATIONS, &captured);
-        let mut messages = support::prompt_for_exchange(
-            self.input.text.clone(),
-            None,
-            support::EXPLANATIONS,
-            &captured,
-        )?;
-        if sentence_blanks::contains(&self.input.text, self.input.aid == ReadingAid::Completions) {
-            schema["properties"]["cards"]["minItems"] = serde_json::json!(2);
-            schema["properties"]["cards"]["maxItems"] = serde_json::json!(3);
-            messages[0].content.push('\n');
-            messages[0].content.push_str(sentence_blanks::INSTRUCTION);
-        }
-        Ok((self.text_request(messages), schema))
-    }
-    /// A translation request through the conversation translation contract:
-    /// the same prompt, output schema, task temperature and model role that
-    /// translation turns send. Returns the dispatch and its output schema.
-    pub(crate) fn translation_dispatch(&self) -> Result<(TextRequest, serde_json::Value)> {
-        let captured = self.captured();
-        let schema = crate::language::translation::schema();
-        let messages = crate::language::translation::prompt(self.input.text.clone(), &captured)?;
-        Ok((self.text_request(messages), schema))
-    }
-    /// A word-meaning request through the conversation word-gloss contract:
-    /// the same source-bound prompt, output schema, task temperature and model
-    /// role that word-gloss turns send.
-    pub(crate) fn word_gloss_dispatch(
-        &self,
-    ) -> Result<(TextRequest, gloss::Source, serde_json::Value)> {
-        let source = self.source();
-        let prompt = crate::language::linguistics::adapter::build_word_gloss_prompt_with_context(
-            &source.identity,
-            &source.text,
-            &self.context,
-        )
-        .map_err(|_| {
-            AppError::new(
-                ErrorCode::Validation,
-                "This selection cannot be analyzed. Select a shorter passage.",
-            )
-        })?;
-        Ok((
-            self.text_request(prompt.messages),
-            source,
-            prompt.output_schema,
-        ))
     }
     /// A speech request through the persona speech contract: the same source
     /// limits, voice, language label and route validation.
@@ -416,6 +336,18 @@ impl Registry {
             return Err(request.stopped("already_claimed"));
         }
         Ok(request.clone())
+    }
+    /// Validate a live consumer without claiming it a second time.
+    pub(crate) fn validate_native(&self, store: &Store, id: &str) -> Result<()> {
+        let entries = self
+            .0
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
+        let request = entries.get(id).ok_or_else(|| {
+            AppError::new(ErrorCode::Conflict, "Reading consumer is no longer active.")
+        })?;
+        request.validate_source(store)?;
+        request.validate_execution(store)
     }
     pub fn cancel(&self, store: &Store, id: &str) -> Result<()> {
         let mut entries = self

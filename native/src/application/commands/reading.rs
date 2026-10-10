@@ -23,14 +23,30 @@ fn cached_reading_audio(
     }
     let request = reading::Request::capture(store, input)?;
     request.validate_source(store)?;
-    crate::ai::results::speech::lookup(
-        &store.connection,
-        &request.target,
-        &request.speech_input()?,
-        &request.install,
-    )?
-    .map(|saved| crate::speech::alignment::SpeechAudio::decode(&saved.payload))
-    .transpose()
+    let input = request.speech_input()?;
+    let native = crate::speech::synthesis_graph::Request {
+        source: crate::language::source_graph::SourceText {
+            id: request.id.clone(),
+            text: input.text.clone(),
+        },
+        settings: crate::speech::synthesis_graph::Settings {
+            target: request.target.clone(),
+            install_id: request.install.clone(),
+            language_tag: input.language_tag.clone(),
+            language: input.language.clone(),
+            voice: input.voice.clone(),
+        },
+    };
+    let tx = store.connection.unchecked_transaction()?;
+    let cached = crate::speech::graph_audio::lookup(&tx, &native)?;
+    tx.commit()?;
+    if let Some(cached) = cached {
+        return Ok(Some(crate::speech::alignment::SpeechAudio::new(
+            &cached.wav,
+            cached.alignment,
+        )));
+    }
+    Ok(None)
 }
 
 #[tauri::command]
@@ -199,3 +215,7 @@ mod tests;
 #[cfg(test)]
 #[path = "../tests/shared_reading.rs"]
 mod shared_tests;
+
+#[cfg(test)]
+#[path = "../tests/native_reading.rs"]
+mod native_tests;

@@ -19,6 +19,8 @@ pub struct PartnerHost {
     pub reply: Arc<Executable>,
     pub opening: Arc<Executable>,
     pub playback: Arc<Executable>,
+    pub gloss: Arc<Executable>,
+    pub feedback: Arc<Executable>,
     text: Arc<OnceLock<TextProvider>>,
     evidence: Arc<OnceLock<explanation_snapshot::Reader>>,
     speech: Arc<OnceLock<crate::speech::synthesis_graph::Provider>>,
@@ -116,7 +118,21 @@ impl PartnerHost {
             )
             .map_err(error)?,
         );
+        let gloss = Arc::new(
+            crate::language::gloss_graph::compile(
+                providers(&text, &evidence, &speech, &lookup).gloss,
+            )
+            .map_err(error)?,
+        );
+        let feedback = Arc::new(
+            crate::learning::coaching::feedback_graph::compile(
+                providers(&text, &evidence, &speech, &lookup).feedback,
+            )
+            .map_err(error)?,
+        );
         Ok(Self {
+            feedback,
+            gloss,
             playback,
             reply: Arc::new(
                 partner_graph::compile(

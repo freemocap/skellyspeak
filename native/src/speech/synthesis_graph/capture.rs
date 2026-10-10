@@ -70,35 +70,12 @@ pub fn decode(values: &Values) -> graph::Result<Request> {
     Ok(request)
 }
 pub fn register_types(registry: &mut Registry) -> graph::Result<()> {
-    let text = |keys: &[&str]| {
-        Shape::Record(
-            keys.iter()
-                .map(|key| ((*key).into(), Shape::Text))
-                .collect(),
-        )
-    };
     registry.define_type(
         contract("speech.captured-settings"),
         Shape::Record(BTreeMap::from([
             (
                 "target".into(),
-                Shape::Record(BTreeMap::from([
-                    (
-                        "audio_resolution".into(),
-                        Shape::Nullable(Box::new(text(&[
-                            "requested_model",
-                            "model",
-                            "provider",
-                            "language_code",
-                            "reason",
-                        ]))),
-                    ),
-                    ("route".into(), Shape::Text),
-                    ("revision".into(), Shape::Integer),
-                    ("url".into(), Shape::Text),
-                    ("model".into(), Shape::Text),
-                    ("credential".into(), Shape::Nullable(Box::new(Shape::Text))),
-                ])),
+                crate::ai::transport::graph_audio_target::shape(),
             ),
             ("installId".into(), Shape::Text),
             ("languageTag".into(), Shape::Text),

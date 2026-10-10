@@ -287,6 +287,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ai-graph .react-flow__edge.animated .react-flow__edge-path { animation: none; }
   .ai-node[data-phase=running]::after, [data-phase=running] > .ai-node-dot, .ai-node-dot[data-phase=running], .ai-timeline-bar[data-phase=running] { animation: none; }
   .ai-node[data-phase=running] { border-color: var(--interaction-ink); }
   .ai-node[data-phase=running]::after { display: none; }
@@ -360,3 +361,27 @@
 /* The stacked graph's edges leave a node from its lower start corner and run
    down the start side into each dependent, like a tree's branches. */
 .ai-graph[data-orientation=down] .react-flow__handle-bottom { left: var(--space-7); }
+
+/* Historical native states retain their colors without implying current execution. */
+.ai-node[data-animate=false]::after,
+.ai-node[data-animate=false] > .ai-node-dot { animation: none; }
+
+/* Activity settings are secondary controls; opening them does not shrink the graph. */
+.ai-view-head .ai-execution-settings { position: relative; padding: 0; }
+.ai-view-head .ai-execution-settings > summary { cursor: pointer; color: var(--ink-2); font-size: var(--type-meta); }
+.ai-view-head .ai-execution-fields {
+  position: absolute; inset-block-start: 100%; inset-inline-start: 0;
+  z-index: var(--z-modal); width: min(32rem, 80vw); max-height: 50vh; overflow: auto;
+  padding: var(--space-5); border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-md); background: var(--sheet); box-shadow: var(--shadow-floating);
+}
+.ai-exchanges .ai-chip { max-width: 24ch; overflow: hidden; text-overflow: ellipsis; }
+
+/* Vendor defaults are white even under the app's dark theme. Use app surfaces
+   and ink for canvas chrome and the selected node's binding labels. */
+.ai-graph .react-flow__controls-button { background: var(--sheet); color: var(--ink); border-color: var(--line); }
+.ai-graph .react-flow__controls-button:hover { background: var(--chrome); color: var(--ink); }
+.ai-graph .react-flow__attribution { background: var(--sheet); }
+.ai-graph .react-flow__edge-text { fill: var(--ink); font-size: var(--type-meta); }
+.ai-graph .react-flow__edge-textbg { fill: var(--sheet); }
+.ai-graph .react-flow__attribution a { color: var(--ink-2); }

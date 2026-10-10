@@ -225,9 +225,10 @@ impl Runtime {
         session: &str,
     ) -> Result<Option<Claim>> {
         let global_pause = crate::ai::connections::configuration::config(db)?.paused;
-        let rows=db.prepare("SELECT o.run_id,t.conversation_id,t.state,CASE WHEN o.channel='speech' THEN 0 ELSE t.paused END,t.refusal_hold IS NOT NULL FROM turns t JOIN graph_conversation_runs o ON o.turn_id=t.id ORDER BY t.rowid")?
+        let rows=db.prepare("SELECT o.run_id,t.conversation_id,t.state,CASE WHEN o.channel IN ('speech','helper') THEN 0 ELSE t.paused END,t.refusal_hold IS NOT NULL FROM turns t JOIN graph_conversation_runs o ON o.turn_id=t.id ORDER BY t.rowid")?
             .query_map([],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,bool>(3)?,r.get::<_,bool>(4)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
-        for (run, conversation, state, paused, held) in rows {
+        let mut pending: std::collections::VecDeque<_> = rows.into();
+        while let Some((run, conversation, state, paused, held)) = pending.pop_front() {
             let engine_id = self.owner_engine(db, &conversation, &run)?;
             let Some(engine) = self.engines.get(&engine_id) else {
                 continue;
@@ -258,12 +259,12 @@ impl Runtime {
                 continue;
             }
             let partner = status::partner(db, engine, &run)?;
-            let speech: bool = db.query_row(
-                "SELECT EXISTS(SELECT 1 FROM graph_speech_requests WHERE run_id=?1)",
+            let auxiliary: bool = db.query_row(
+                "SELECT EXISTS(SELECT 1 FROM graph_speech_requests WHERE run_id=?1 UNION ALL SELECT 1 FROM graph_helper_requests WHERE run_id=?1)",
                 [&run],
                 |r| r.get(0),
             )?;
-            if !partner && !speech && !matches!(state.as_str(), "pending" | "assisting") {
+            if !partner && !auxiliary && !matches!(state.as_str(), "pending" | "assisting") {
                 continue;
             }
             let pause = paused || held || global_pause;
@@ -304,6 +305,9 @@ impl Runtime {
                     None,
                     Some((registry, session)),
                 )?;
+                // Adoption can immediately unlock another node. Reinspect this run
+                // in the same pass instead of imposing another scheduler interval.
+                pending.push_front((run, conversation, state, paused, held));
                 continue;
             }
             if view.nodes.iter().any(|(node, state)| {
@@ -321,8 +325,15 @@ impl Runtime {
                     db,
                     &engine_id,
                     Event::Advance(Capacity {
-                        local: 1,
-                        provider: usize::from(provider),
+                        // Capacity is the total concurrent ceiling, not the number of
+                        // permits acquired for this single claim. The application still
+                        // owns one network permit for every dispatched provider.
+                        local: usize::MAX,
+                        provider: if provider {
+                            crate::ai::policy::admission::NETWORK_CAPACITY
+                        } else {
+                            0
+                        },
                     }),
                 )?;
             }
@@ -333,6 +344,11 @@ impl Runtime {
                     .filter(|a| {
                         matches!(a.state, AttemptState::Prepared)
                             && (!pause || view.stepping.as_ref() == Some(node))
+                            && (provider
+                                || view.artifact.operations
+                                    [&view.artifact.definition.nodes[node].operation]
+                                    .resource
+                                    == Resource::Local)
                     })
                     .map(|a| (node.clone(), a.id))
             });
@@ -404,9 +420,8 @@ impl Runtime {
         db: &mut Connection,
         conversation: &str,
         run: &str,
-        report: InvocationReport,
+        mut report: InvocationReport,
     ) -> Result<()> {
-        let failed = report.outcome.is_err();
         let engine_id = report.identity.engine.clone().ok_or_else(|| {
             AppError::new(
                 ErrorCode::Conflict,
@@ -423,6 +438,25 @@ impl Runtime {
             return Ok(());
         }
         let original_owner: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM turn_execution_owners WHERE executor='graph' AND engine_id=?1 AND run_id=?2)",params![engine_id, run],|r|r.get(0))?;
+        if original_owner && report.identity.operation == prose::operation_contract() {
+            self.maintain(db, &engine_id)?;
+            let engine = self.engines.get(&engine_id).ok_or_else(|| {
+                AppError::new(
+                    ErrorCode::Conflict,
+                    "Graph implementation is unavailable for this conversation.",
+                )
+            })?;
+            let view = engine.inspect(run).map_err(error)?;
+            if view
+                .attempts
+                .values()
+                .flatten()
+                .any(|attempt| attempt.execution == report.identity.execution)
+            {
+                super::reply_validation::validate(db, run, &mut report)?;
+            }
+        }
+        let failed = report.outcome.is_err();
         self.transition_terminal(
             db,
             &engine_id,

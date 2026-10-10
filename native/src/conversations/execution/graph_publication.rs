@@ -102,8 +102,7 @@ pub fn declare_reply(
 /// Publish only native Adopt values. The required authority callback rechecks
 /// current access/configuration in this same transaction; captured scope alone
 /// is never proof of current permission. The caller rolls back on every error.
-/// No legacy operation rows are created or consulted, and no turn success is
-/// inferred here: native graph facts own that projection.
+/// Native graph facts own the turn-state projection.
 pub fn publish_reply(
     db: &Connection,
     request: &CommitRequest<'_>,
@@ -129,6 +128,7 @@ pub fn publish_reply(
         .ok_or_else(|| AppError::new(ErrorCode::Validation,"Graph reply output must be text.")
             .with_diagnostics(serde_json::json!({"stage":"graph_publication","path":output_port,"expected":"string"})))?;
     crate::conversations::reply_contract::validate(text)?;
+    crate::conversations::phrase_start::validate(db, &turn, text)?;
     let message = source::message_id(db, &effect)?;
     db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'assistant',?4 FROM messages WHERE conversation_id=?2",
         params![message,conversation,turn,text])?;

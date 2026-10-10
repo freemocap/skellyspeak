@@ -82,7 +82,7 @@ pub fn publish_helper(
     )?;
     authorize(db, authority)?;
     // These remain opaque UI provenance strings. The engine/attempt identities
-    // are native, and no legacy operation or attempt is inserted.
+    // are native and retain exact producing execution identity.
     let operation = format!(
         "graph:{}",
         serde_json::to_string(&(&request.next.stamp().engine, authority.run, node))?

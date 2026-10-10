@@ -1,5 +1,5 @@
 //! Assessment receipts, disclosure ownership and deterministic learning effects
-//! borrow the same transaction as native adoption. No legacy execution is staged.
+//! borrow the same transaction as native adoption.
 use super::*;
 use crate::{
     ai::graph::Work,
@@ -75,8 +75,20 @@ pub fn publish_assessment(
         feedback_graph::decode(&work.inputs).map_err(super::super::graph_runtime::error)?;
         None
     };
-    db.execute("INSERT INTO conversation_graph_assessments(id,turn_id,node_key,attempt_id,execution_id,message_id,kind,result) VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",
-        params![receipt,owner.turn,owner.node,serde_json::to_string(attempt)?,serde_json::to_string(execution)?,source.id,kind,value.to_string()])?;
+    db.execute("INSERT INTO conversation_graph_assessments(id,turn_id,node_key,attempt_id,execution_id,message_id,kind,result,engine_id,run_id) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)",
+        params![receipt,owner.turn,owner.node,serde_json::to_string(attempt)?,serde_json::to_string(execution)?,source.id,kind,value.to_string(),request.next.stamp().engine,authority.run])?;
+    if kind == "coach_feedback" {
+        let captured =
+            feedback_graph::decode(&work.inputs).map_err(super::super::graph_runtime::error)?;
+        if let Some(note) = captured
+            .context
+            .feedback_context
+            .as_deref()
+            .filter(|n| !n.is_empty())
+        {
+            crate::learning::effort::exploration::graph_feedback(db, &owner.turn, note)?;
+        }
+    }
     if let Some((presence, expected, target, sequence)) = learning {
         practice::publish_graph(db, &owner.turn, &receipt, presence, &expected)?;
         db.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3) WHERE id=?1",params![owner.turn,value.to_string(),receipt])?;

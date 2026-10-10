@@ -185,16 +185,12 @@ fn connection_change_and_pause_revoke_reading_without_touching_messages() {
     assert_eq!(paused.diagnostics.as_ref().unwrap()["reason"], "paused");
 }
 #[test]
-fn recovery_preserves_unknown_billing_and_metadata() {
+fn recovery_cancels_unsubmitted_reading_requests() {
     let (_dir, store) = fixture();
     let registry = Registry::default();
     let pending = registry.begin(&store, input()).unwrap();
     let active = registry.begin(&store, input()).unwrap();
     registry.claim(&active).unwrap();
-    crate::ai::results::begin(&store.connection, "shared", "reading_gloss").unwrap();
-    crate::ai::results::dispatched(&store.connection, "shared").unwrap();
-    crate::ai::results::associate(&store.connection, &active, "shared").unwrap();
-    crate::ai::results::initialize(&store.connection).unwrap();
     recover(&store.connection).unwrap();
     let receipts = activity(&store).unwrap();
     assert!(
@@ -202,9 +198,11 @@ fn recovery_preserves_unknown_billing_and_metadata() {
             .iter()
             .any(|r| r["id"] == pending && r["state"] == "cancelled")
     );
-    assert!(receipts.iter().any(|r| r["id"] == active
-        && r["state"] == "cancelled"
-        && r["sourceExecution"]["state"] == "unknown"));
+    assert!(
+        receipts
+            .iter()
+            .any(|r| r["id"] == active && r["state"] == "cancelled")
+    );
 }
 
 #[test]
@@ -233,15 +231,18 @@ fn template_analysis_requests_completions_with_original_context() {
     source.aid = ReadingAid::Explanations;
     source.text = "Quiero __.".into();
     let request = Request::capture(&store, source).unwrap();
-    let prepared = request.prepare_text().unwrap();
-    assert_eq!(prepared.schema["properties"]["cards"]["minItems"], 2);
-    assert_eq!(prepared.schema["properties"]["cards"]["maxItems"], 3);
+    let (dispatch, schema) = explanation_graph::decode(&request.native_inputs().unwrap())
+        .unwrap()
+        .prepare(request.attempt.clone(), request.operation.clone())
+        .unwrap();
+    assert_eq!(schema["properties"]["cards"]["minItems"], 2);
+    assert_eq!(schema["properties"]["cards"]["maxItems"], 3);
     assert!(
-        prepared.dispatch.messages[0]
+        dispatch.messages[0]
             .content
             .contains(sentence_blanks::INSTRUCTION)
     );
-    assert!(prepared.dispatch.messages[1].content.contains("Quiero __."));
+    assert!(dispatch.messages[1].content.contains("Quiero __."));
 }
 
 #[test]
@@ -252,18 +253,17 @@ fn explicit_completion_aid_uses_template_syntax_and_requires_a_slot() {
     assert!(Request::capture(&store, source.clone()).is_err());
     source.text = "Quiero___hoy.".into();
     let request = Request::capture(&store, source).unwrap();
-    let prepared = request.prepare_text().unwrap();
+    let (dispatch, schema) = explanation_graph::decode(&request.native_inputs().unwrap())
+        .unwrap()
+        .prepare(request.attempt.clone(), request.operation.clone())
+        .unwrap();
     assert_eq!(request.input.aid.receipt_kind(), "reading_completions");
-    assert_eq!(prepared.schema["properties"]["cards"]["minItems"], 2);
-    assert_eq!(prepared.schema["properties"]["cards"]["maxItems"], 3);
+    assert_eq!(schema["properties"]["cards"]["minItems"], 2);
+    assert_eq!(schema["properties"]["cards"]["maxItems"], 3);
     assert!(
-        prepared.dispatch.messages[0]
+        dispatch.messages[0]
             .content
             .contains(sentence_blanks::INSTRUCTION)
     );
-    assert!(
-        prepared.dispatch.messages[1]
-            .content
-            .contains("Quiero___hoy.")
-    );
+    assert!(dispatch.messages[1].content.contains("Quiero___hoy."));
 }

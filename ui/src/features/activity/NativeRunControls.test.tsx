@@ -45,3 +45,19 @@ it('does not offer execution controls for retained graphs without executable cap
   render(<NativeRunControls turn={{ ...turn, nativeExecutionAvailable: false }} globallyPaused={false} />)
   expect(screen.queryByRole('button', { name: 'Step' })).toBeNull()
 })
+
+
+it('offers explicit retry for a failed native branch even after the exchange stopped', async () => {
+  render(<NativeRunControls turn={{ ...turn, state: 'failed', nativeGraph: { ...turn.nativeGraph!, nodes: { helper: 'Failed' } } }} globallyPaused={false} />)
+  expect(api.executeAction).not.toHaveBeenCalled()
+  expect(screen.queryByRole('button', { name: 'Step' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+  await waitFor(() => expect(api.executeAction).toHaveBeenCalledExactlyOnceWith({ sessionId: 'workspace' }, { kind: 'controlTurn', turnId: 'run', control: 'retry' }))
+})
+
+
+it.each(['cancelled', 'invalidated'])('does not offer retry for a %s source', state => {
+  render(<NativeRunControls turn={{ ...turn, state, nativeGraph: { ...turn.nativeGraph!, nodes: { helper: 'Failed' } } }} globallyPaused={false} />)
+  expect(screen.queryByRole('button')).toBeNull()
+  expect(api.executeAction).not.toHaveBeenCalled()
+})

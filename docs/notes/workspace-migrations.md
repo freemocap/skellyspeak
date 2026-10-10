@@ -4,7 +4,7 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **67**. Format 66 → 67 adds message-owned native playback requests and a read-only union of conversation run owners. Format 65 → 66 is a no-op compatibility marker retained for development workspaces that may already have opened at 66. It changes no data, checkpoint contracts or SQL ownership. Format 64 → 65 adds native consumer-owned audio delivery
+Current format: **71**. Format 70 → 71 makes cache payload ownership graph-only. Format 69 → 70 gives native assessment receipts explicit producer engine/run ownership. Format 68 → 69 adds message-owned native helper requests for explicit regeneration. Format 67 → 68 adds workspace-owned native engines and bounded reading projections. Format 66 → 67 adds message-owned native playback requests and a read-only union of conversation run owners. Format 65 → 66 is a no-op compatibility marker retained for development workspaces that may already have opened at 66. It changes no data, checkpoint contracts or SQL ownership. Format 64 → 65 adds native consumer-owned audio delivery
 evidence: the delivered audio digest, exact source message, adopted attempt and
 receipt. It adds no permanent audio copy and preserves all historical rows.
 Delivery records follow native engine, turn, message and receipt deletion; cache
@@ -338,3 +338,74 @@ The new request flag `regenerate` is optional and omitted when absent, preservin
 old serialized command receipts. Migration failure rollback and preservation are
 covered by the format-67 test; supported-start and repeated-startup coverage is
 part of the full native suite.
+
+
+## Format 68: workspace native execution
+
+Adds workspace-owned native engines, records, archives, transport identities and
+immutable product run ownership. These use the same graph storage adapter and
+native commit/replay contracts as conversation engines. Existing conversation
+engine identities and records are unchanged. No historical execution is rewritten
+or synthesized. The owner is the existing learner/workspace, without creating a
+fake conversation for standalone work.
+
+`workspace_reading_cache` is an evictable projection linked to its native run.
+Its payload uses the existing shared blob LRU and capacity setting. It can be
+removed without deleting native provenance, reading receipts or exploration
+awards. It is not a second execution ledger. Fresh requests get a new reuse scope;
+cache eviction ends reuse of that cache generation. Provider results already
+submitted may settle after their consumer closes, without publishing or crediting
+the closed consumer.
+
+The consecutive migration is additive and transaction-only. It retires no data
+and touches no audio files or credentials. The additive upgrade/rollback test
+preserves messages and checks schema equivalence; the supported-format chain and
+repeated-startup checks remain required before step-5 closure.
+
+## Format 69: fresh helper ownership
+
+Implemented and verified in step 5.11. The additive
+`graph_helper_requests` table binds each explicit fresh helper run to its native
+engine/artifact, existing turn/message, reuse scope and operation contract.
+The conversation-run view includes these owners, so scheduling, source checks,
+usage and source deletion use the existing native machinery. Ownership is
+immutable and constrained to the engine's conversation and message's turn.
+
+Ownership review: no message, result, evidence, award or execution is deleted or
+rewritten. The previous conversation-run view is reconstructible from its owner
+tables; replacing that view adds helper owners while preserving its earlier rows.
+Fresh and upgraded databases use the same definition. The migration is one
+transaction; rollback, all supported starting versions, history preservation and
+fresh/upgraded schema equivalence passed. See the production-integration note for
+the test-run evidence and corrected historical-target fixtures.
+
+## Format 70: explicit assessment producer ownership
+
+Implementation under verification in step 5.12. Assessment receipts now name the
+producing engine and run, so feedback from an explicit helper is not attributed
+to the original conversation graph. Attempt uniqueness is scoped to the native
+engine. Receipt IDs, sources, result JSON and disclosure IDs remain unchanged.
+
+Ownership review: the migration copies both assessment and disclosure tables in
+its transaction, reconstructs them with explicit ownership, and restores all
+rows. Existing producers are backfilled from their immutable turn execution
+owners. No result, disclosure, evidence or award is intentionally retired. Any
+missing/inconsistent ownership or uniqueness violation fails the migration and
+rolls back. The historical format-63 schema is retained for migration tests;
+fresh databases use the format-70 definition. Preservation, rollback and supported
+upgrade/restart checks are required before closure.
+
+## Format 71: graph-owned cache payloads
+
+The current cache stores shared blobs and learner-selected capacity separately
+from graph execution records. Reading and transcription projections belong to
+workspace graph runs; audio projections belong to graph audio receipts. Cache
+pruning cannot remove execution evidence.
+
+Ownership review: the user explicitly retired support for inference execution,
+consumer and result records. This step drops those three tables and their indexes.
+It preserves graph data, product messages, learning evidence, awards, settings and
+shared blobs. Normal cache maintenance reclaims unreferenced blobs after commit.
+The step changes transactional database structures only. Its regression verifies
+failure rollback and byte-for-byte preservation of graph cache rows and settings.
+The migration, rollback, schema-equivalence and supported-start regressions passed.

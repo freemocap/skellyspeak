@@ -1,5 +1,5 @@
 //! Speech transport for a native producer. Settlement retains its receipt and
-//! evictable payload atomically; this adapter never writes legacy executions.
+//! evictable payload atomically with native execution ownership.
 use super::*;
 use crate::{
     ai::{graph, transport::graph_evidence},
@@ -12,7 +12,7 @@ fn fault() -> graph::Fault {
         path: "speech".into(),
     }
 }
-fn evidence(
+pub(super) fn evidence(
     outcome: &audio::SpeechOutcome,
     model: &str,
     private: &[&str],

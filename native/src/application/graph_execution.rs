@@ -125,7 +125,16 @@ async fn provide_text(
     })
 }
 
-pub(super) fn schedule(state: &Arc<Application>, client: &reqwest::Client) -> Result<()> {
+pub(super) async fn schedule(state: &Arc<Application>, client: &reqwest::Client) -> Result<()> {
+    // Drain ready work without a node-count quota. Yield after each launch so
+    // completions and UI reads can run; this introduces no polling delay or cap.
+    while schedule_one(state, client)? {
+        tokio::task::yield_now().await;
+    }
+    Ok(())
+}
+
+fn schedule_one(state: &Arc<Application>, client: &reqwest::Client) -> Result<bool> {
     let mut permit = state.admission.try_chat();
     let (claim, session) = {
         let mut guard = state.lock()?;
@@ -185,7 +194,7 @@ pub(super) fn schedule(state: &Arc<Application>, client: &reqwest::Client) -> Re
         (claim, store.session_id.clone())
     };
     let Some(claim) = claim else {
-        return Ok(());
+        return Ok(false);
     };
     if claim.resource == graph::Resource::Local {
         permit.take();
@@ -233,5 +242,9 @@ pub(super) fn schedule(state: &Arc<Application>, client: &reqwest::Client) -> Re
             state.stop(error);
         }
     });
-    Ok(())
+    Ok(true)
 }
+
+#[cfg(test)]
+#[path = "tests/native_partner.rs"]
+mod tests;

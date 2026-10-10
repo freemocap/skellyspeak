@@ -6,3 +6,5 @@ pub(crate) mod recording;
 pub mod synthesis_graph;
 
 pub(crate) mod stream_delivery;
+
+pub(crate) mod transcription_graph;

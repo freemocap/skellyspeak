@@ -85,7 +85,7 @@ fn db() -> Connection {
 }
 fn partition(graph: &Executable, conversation: &str) -> Partition {
     Partition {
-        conversation: conversation.into(),
+        owner: crate::ai::graph_store::Owner::Conversation(conversation.into()),
         catalog: catalog_id([graph.identity()]).unwrap(),
     }
 }
@@ -436,5 +436,48 @@ fn invalid_storage_authority_is_rejected_and_sql_errors_keep_only_safe_codes() {
             .get::<_, i64>(0))
             .unwrap(),
         0
+    );
+}
+
+#[test]
+fn workspace_partition_uses_same_native_commit_protocol_without_conversation() {
+    let mut db = db();
+    db.execute_batch(
+        "CREATE TABLE learner(id TEXT PRIMARY KEY); INSERT INTO learner VALUES('workspace');",
+    )
+    .unwrap();
+    db.execute_batch(include_str!(
+        "../../storage/schemas/workspace_graph_runtime.sql"
+    ))
+    .unwrap();
+    let graph = graph();
+    let partition = Partition {
+        owner: Owner::Workspace("workspace".into()),
+        catalog: catalog_id([graph.identity()]).unwrap(),
+    };
+    let mut adapter = TransactionStore::new(
+        db.transaction().unwrap(),
+        partition.clone(),
+        limits().checkpoint.bytes,
+        |_: &Connection, _: &CommitRequest<'_>| Ok(()),
+    );
+    let engine =
+        DurableEngine::create_with_run([graph.clone()], limits(), begin(&graph), &mut adapter)
+            .unwrap();
+    drop(adapter);
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM graph_engines", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    let reader = ReadStore::new(&mut db, partition).unwrap();
+    assert_eq!(
+        reader
+            .checkpoint(limits().checkpoint)
+            .unwrap()
+            .unwrap()
+            .stamp(),
+        engine.stamp()
     );
 }

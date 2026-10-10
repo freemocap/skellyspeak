@@ -4,7 +4,6 @@ import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
 import { interruptSpeech } from '../../platform/audio/speech'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
-import { useAttemptStreamSync } from '../../state/session/attempt-streams'
 import type { CoachControl, ConversationStartConfig } from '../../generated/contracts'
 import { AskCoachContext } from '../../components/learning/AskCoachButton'
 import { useI18n } from '../../components/localization/i18n'
@@ -221,7 +220,6 @@ export default function ConversationPage({
   const selectedChatRef = useRef(currentChatId)
   selectedChatRef.current = currentChatId
   const details = useConversationDetails(currentChatId, snapshotRevision)
-  useAttemptStreamSync(currentChatId)
   const [creatingConversation, setCreatingConversation] = useState(false)
   const creatingContactConversation = useRef(false)
   const [contactError, setContactError] = useState<string | null>(null)
@@ -593,7 +591,7 @@ export default function ConversationPage({
     else pending.release(take.recordingId, 'transcribing')
   }, [takeKey])
   const takeFailed = take?.state === 'failed' ? take : null
-  const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
+  const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak), active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000, mic.recording || mic.transcribing)
   stopSpeechRef.current = () => { speech.stop(); interruptSpeech() }
   const toggleMic = () => { stopSpeechRef.current(); void mic.toggleMic() }
   // Tap or Hold: in Hold the microphone records while the pad is held down.

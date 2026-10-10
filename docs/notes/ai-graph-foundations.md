@@ -10,15 +10,14 @@ one executable source of truth; a short deterministic path from that source to
 visualization with no independently maintained semantic model. These constraints
 govern subsequent design and implementation work.
 
-**Implementation authorized; foundation incomplete:** the user approved proceeding
-with the architecture-first plan. The definitions below govern that work. An
-isolated [initial core profile](ai-graph-core-semantics.md) is implemented under
-`native/src/ai/graph/`; coach commands, application execution and native-artifact
-inspection are now connected in source. Their running-application acceptance and
-the remaining workflow conversions are unfinished. Detailed integration
-contracts and their verification remain open, and the application runtime does not
-yet satisfy this specification. See the [audit and staged plan](executable-ai-graphs-audit-and-plan-2026-10-08.md)
-for existing behavior, limitations and verification results.
+**Implementation status:** the native core, application workflow hosts and
+artifact-derived activity viewer are connected. The user accepted functional
+workflow conversion. Source cleanup, measured efficiency work and final application
+acceptance remain in progress. The [core profile](ai-graph-core-semantics.md)
+defines the implemented semantic scope; the
+[production integration note](ai-graph-production-integration.md) records current
+verification and outstanding work. These tests establish their documented cases
+and bounds, not a universal proof of the specification.
 
 The graph foundation must be designed and verified independently of a particular
 workflow or bug. Existing workflows supply requirements and migration tests;
@@ -162,12 +161,21 @@ outputs accepted under the producer's declared publication boundary. Provisional
 streaming output does not satisfy a completed-value port. Incremental consumption
 requires a separately specified stream port/protocol.
 
-Separate bounded local work, cache lookup and pending subscription from acquiring
+Separate local work, cache lookup and pending subscription from acquiring
 a provider permit. Consumer cancellation stops its adoption authority; it does not
 silently cancel another consumer or erase a dispatched producer's accounting.
 Crash recovery records unknown outcomes where evidence is missing. Exactly-once
 external execution cannot be assumed; enforce transactional/idempotent local
 adoption and preserve uncertain remote outcomes without speculative replay.
+
+**Application scheduling policy (agreed 2026-10-10):** provider-call admission
+limits apply to provider calls, not local native work or UI publication. Active
+application hosts impose no local slot quota or network-sized dispatch batch.
+Ready local work proceeds subject to its actual dependencies and controls;
+independent results publish without waiting for sibling completion. Cooperative
+executor yielding and atomic database transitions preserve responsiveness and
+correctness without adding a timed delay or an artificial concurrency ceiling.
+Data-size validation and retained-record storage bounds are separate concerns.
 
 Liveness claims require explicit assumptions: fair scheduling, available capacity,
 valid authority and eventual external response. No UI or scheduler may label work
@@ -256,49 +264,24 @@ be presented as the completed architecture.
 
 Future contributors must consult this contract and its staged plan before changing
 graph composition, execution, identity, result sharing or visualization semantics.
-During migration, identify legacy adapters explicitly and remove them at the
-relevant workflow's completion; do not maintain a permanent parallel semantic model.
+Keep runtime and presentation derived from executable artifacts. Workspace upgrades
+retain the supported migration chain and frozen persistence encodings.
 
-## Foundation completion gate
+## Verification scope
 
-The [initial semantic profile](ai-graph-core-semantics.md) specifies and implements
-typed DAGs, composition and the isolated transition machine. This is a bounded
-implementation checkpoint within stages 2–3, not completion of their exit gates.
+The core profile, durability, inspection, retention, history, state-bounds and
+record-storage contracts specify separate obligations. Their tests exercise typed
+composition, transitions, sharing, authority, settlement, recovery, bounded reads,
+retained evidence and explicit payload eviction. The refinement model covers a
+finite lifecycle; its reachable-state checks are bounded evidence, not a proof of
+all scheduling and storage interleavings.
 
-1. Extend the implemented [durable transaction boundary](ai-graph-durability.md)
-   and its reserved settlement/adoption/recovery capacity with bounded active state
-   and production migration treatment of historical evidence. The
-   [retention contract](ai-graph-retention.md) now implements formats 2/3/4 snapshots
-   and atomic archive compaction in the isolated foundation. Recovery still audits
-   the entire retained chain. [Historical attempt pages](ai-graph-history.md) now
-   use handler-free native replay and the shared projection. Explicit
-   [retained record ceilings](ai-graph-state-bounds.md) now prevent unbounded record
-   admission/reconstruction. Runs now reference independent attempt records; execution
-   and historical pages read those same records. The [record boundary](ai-graph-record-storage.md)
-   implements explicit payload eviction and verified cold continuation. Aggregate
-   memory budgets, disk-backed indexes, startup loading and production migration
-   remain open.
-2. Specify and verify current external authority and atomic domain adoption, without
-   product-specific exceptions in the core.
-3. Extend the implemented [redacted inspection snapshot](ai-graph-inspection.md)
-   with reviewed provider-metadata disclosure and stream events, including
-   snapshot/stream ordering. Typed bounded capture,
-   [native evidence persistence](ai-graph-durability.md#execution-evidence-and-report-settlement),
-   [provisional-content handoff](ai-graph-durability.md#provisional-content-handoff)
-   and [materialized live reads](ai-graph-inspection.md#implemented-protected-materialized-read)
-   are implemented in the isolated core; production adapter classification, host
-   delivery and viewer integration remain
-   open. The generated snapshot contract alone does not complete those obligations.
-4. Extend the [independent finite lifecycle model](ai-graph-refinement.md) beyond
-   two existing consumers of one shared producer. Its exhaustive reachable-state
-   checks are a first bounded conformance result; scheduling, retries, authority,
-   durable failures and storage loading still require independent model coverage.
-5. Verify these contracts before any production workflow reconstruction.
+Application hosts bind current source authority and transactional domain adoption.
+Generated inspection contracts preserve executable identities through layout and
+selection. Provider-metadata classification, provisional content and publication
+are checked through actual application command paths with controlled providers.
 
-This document establishes a reviewable foundation, not an already proven system.
-
-The [production integration checkpoint](ai-graph-production-integration.md) maps
-these outstanding contracts to actual admission, streaming, publication and viewer
-owners. The next delivery target is one complete production workflow after its
-shared foundation prerequisites, with explicit acceptance evidence and old-path
-removal. Additional isolated infrastructure is not itself that milestone.
+The [production integration note](ai-graph-production-integration.md) owns the
+workflow inventory, verification results and remaining delivery checklist. Current
+performance requires measurement of lock contention, repeated reads, hydration and
+rendering, followed by regression checks and running-application acceptance.

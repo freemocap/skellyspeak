@@ -1,4 +1,5 @@
 use super::*;
+use rusqlite::params;
 
 fn db() -> Connection {
     let db = Connection::open_in_memory().unwrap();
@@ -61,9 +62,10 @@ fn first_engine_reference_is_deferred_but_cross_conversation_ownership_is_reject
 fn ownership_is_complete_immutable_and_deleted_with_its_turn() {
     let db = db();
     assert!(validate_complete(&db).is_err());
-    legacy(&db, "turn", Channel::Coach).unwrap();
+    engine(&db, "one").unwrap();
+    graph_owner(&db).unwrap();
     validate_complete(&db).unwrap();
-    assert!(legacy(&db, "turn", Channel::PersonaReply).is_err());
+    assert!(graph_owner(&db).is_err());
     assert!(
         db.execute("UPDATE turns SET conversation_id='two' WHERE id='turn'", [])
             .is_err()
@@ -89,7 +91,7 @@ fn ownership_is_complete_immutable_and_deleted_with_its_turn() {
 fn malformed_executor_identity_cannot_be_stored() {
     let db = db();
     for row in [
-        "'legacy','coach','engine',NULL,NULL",
+        "'invalid','coach','engine',NULL,NULL",
         "'graph','coach',NULL,NULL,NULL",
         "'graph','unknown','engine','run','artifact'",
     ] {

@@ -46,7 +46,7 @@ fn read_checkpoint(
     };
     let body = blob(
         db,
-        "graph_engines",
+        partition.engines(),
         "checkpoint",
         "id=?1",
         &[&expected.engine],
@@ -102,8 +102,12 @@ impl HistoryStore for ReadStore<'_> {
 pub(super) fn stamp(db: &Connection, partition: &Partition) -> Result<Option<Stamp>> {
     let row: Option<(String, String)> = db
         .query_row(
-            "SELECT id,stamp FROM graph_engines WHERE conversation_id=?1 AND catalog=?2",
-            params![partition.conversation, partition.catalog],
+            &format!(
+                "SELECT id,stamp FROM {} WHERE {}=?1 AND catalog=?2",
+                partition.engines(),
+                partition.owner_column()
+            ),
+            params![partition.owner.key(), partition.catalog],
             |r| Ok((r.get(0)?, r.get(1)?)),
         )
         .optional()
@@ -128,7 +132,10 @@ pub(super) fn count(db: &Connection, partition: &Partition, expected: &Stamp) ->
     check_stamp(db, partition, expected)?;
     let count: i64 = db
         .query_row(
-            "SELECT count(*) FROM graph_records WHERE engine_id=?1",
+            &format!(
+                "SELECT count(*) FROM {} WHERE engine_id=?1",
+                partition.records()
+            ),
             [&expected.engine],
             |r| r.get(0),
         )
@@ -145,7 +152,7 @@ pub(super) fn record(
     check_stamp(db, partition, expected)?;
     blob(
         db,
-        "graph_records",
+        partition.records(),
         "payload",
         "engine_id=?1 AND key=?2",
         &[&expected.engine, &encode(key, "record_key")?],
@@ -164,7 +171,10 @@ pub(super) fn archive(
     }
     let stored: String = db
         .query_row(
-            "SELECT stamp FROM graph_archives WHERE engine_id=?1 AND checksum=?2",
+            &format!(
+                "SELECT stamp FROM {} WHERE engine_id=?1 AND checksum=?2",
+                partition.archives()
+            ),
             params![expected.engine, expected.checksum],
             |r| r.get(0),
         )
@@ -176,7 +186,7 @@ pub(super) fn archive(
     }
     blob(
         db,
-        "graph_archives",
+        partition.archives(),
         "payload",
         "engine_id=?1 AND checksum=?2",
         &[&expected.engine, &expected.checksum],

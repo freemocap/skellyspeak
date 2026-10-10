@@ -128,7 +128,7 @@ async fn synthesis_requires_demand_retains_evidence_and_rejects_foreign_receipts
         db.execute_batch(include_str!("../../storage/schemas/graph_runtime.sql"))
             .unwrap();
         let partition = Partition {
-            conversation: "conversation".into(),
+            owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
             catalog: graph_store::catalog_id([graph.identity()]).unwrap(),
         };
         let mut engine = DurableEngine::create_with_run(

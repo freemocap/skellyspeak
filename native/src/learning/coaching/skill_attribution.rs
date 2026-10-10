@@ -1,11 +1,7 @@
 //! Source-bound phrase attribution; never awards or changes skill credit.
 use crate::ai::transport::provider::{Completion, PromptMessage};
-use crate::learning::{
-    practice::Presence,
-    practice_assessment::{Answer, Instructions},
-};
+use crate::learning::{practice::Presence, practice_assessment::Answer};
 use crate::model::{AppError, ErrorCode, Result};
-use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
@@ -55,24 +51,6 @@ pub fn selected(captured: &Value) -> Result<BTreeSet<String>> {
 }
 pub fn schema(ids: &BTreeSet<String>) -> Value {
     json!({"type":"object","additionalProperties":false,"required":["skills"],"properties":{"skills":{"type":"array","minItems":ids.len(),"maxItems":ids.len(),"items":{"type":"object","additionalProperties":false,"required":["skill_id","spans"],"properties":{"skill_id":{"type":"string","enum":ids},"spans":{"type":"array","maxItems":8,"items":{"type":"object","additionalProperties":false,"required":["quote","occurrence"],"properties":{"quote":{"type":"string","minLength":1,"maxLength":4096},"occurrence":{"type":"integer","minimum":0,"maximum":4096}}}}}}}}})
-}
-pub fn prompt(db: &Connection, turn: &str, captured: &Value) -> Result<Vec<PromptMessage>> {
-    let source: String = db.query_row(
-        "SELECT text FROM messages WHERE turn_id=?1 AND role='user'",
-        [turn],
-        |r| r.get(0),
-    )?;
-    prompt_for_source(&source, captured)
-}
-
-pub(crate) fn prompt_for_source(source: &str, captured: &Value) -> Result<Vec<PromptMessage>> {
-    let config: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
-    prompt_for_selection(
-        source,
-        &selected(captured)?,
-        &super::assessment_adapter::skills(captured)?,
-        &config.attribution,
-    )
 }
 
 pub(crate) fn prompt_for_selection(
@@ -144,11 +122,6 @@ fn locate(source: &str, quote: &Quote) -> Option<Value> {
     Some(
         json!({"quote":quote.quote,"start":source[..start].encode_utf16().count(),"end":source[..end].encode_utf16().count()}),
     )
-}
-pub fn validate(db: &Connection, turn: &str, output: &Completion) -> Result<Value> {
-    let (source,raw): (String,String) = db.query_row("SELECT m.text,t.context FROM turns t JOIN messages m ON m.turn_id=t.id AND m.role='user' WHERE t.id=?1", [turn], |r|Ok((r.get(0)?,r.get(1)?)))?;
-    let captured: Value = serde_json::from_str(&raw)?;
-    validate_source(&source, &selected(&captured)?, output)
 }
 pub(crate) fn validate_source(
     source: &str,

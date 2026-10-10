@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { TurnView } from '../../generated/contracts'
-import type { DefinitionSnapshot, InspectionSnapshot, RunHistory } from '../../generated/graph-contracts'
+import type { AttemptPreview, DefinitionSnapshot, InspectionSnapshot, RunHistory } from '../../generated/graph-contracts'
 import { readGraphHistory } from '../../platform/ipc/window'
 import { nativeError } from '../../platform/ipc/workspace'
 import { useI18n } from '../../components/localization/i18n'
@@ -18,19 +18,28 @@ export function NativeRunView({ conversationId, turn, selected, onSelect, down, 
   conversationId: string; turn: TurnView; selected: string | null; onSelect: (node: string) => void
   down: boolean; globallyPaused: boolean
 }) {
+  const loadHistory = useCallback((before: string | null) => readGraphHistory(conversationId, turn.nativeGraph!.run, before), [conversationId, turn.nativeGraph!.run])
+  return <NativeGraphTimeline graph={turn.nativeGraph!} selected={selected} onSelect={onSelect} down={down} loadHistory={loadHistory}
+    preview={turn.nativePreview} response={turn.nativeResponse} controls={<NativeRunControls turn={turn} globallyPaused={globallyPaused} />} />
+}
+
+export function NativeGraphTimeline({ graph, selected, onSelect, down, loadHistory, preview, response, controls }: {
+  graph: InspectionSnapshot; selected: string | null; onSelect: (node: string) => void; down: boolean
+  loadHistory: (before: string | null) => Promise<RunHistory>; preview?: AttemptPreview; response?: unknown; controls?: ReactNode
+}) {
   const tr = useI18n()
-  const graph = turn.nativeGraph!
   const [selection, setSelection] = useState<Selection>('live')
   const [history, setHistory] = useState<RunHistory | null>(null)
   const [before, setBefore] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  // Streaming evidence revisions need not reload an unchanged graph-state history.
-  const stateKey = JSON.stringify([graph.nodes, graph.reasons, graph.activation, graph.attempts, graph.paused, graph.active, graph.stepping, graph.step_available])
+  const [historyRequest, setHistoryRequest] = useState(0)
+  // History is a deliberate read, never recomputed for every live node change.
   useEffect(() => {
+    if (!historyRequest) return
     let current = true
     setLoading(true); setError(null)
-    readGraphHistory(conversationId, graph.run, before).then(value => {
+    loadHistory(before).then(value => {
       if (!current) return
       if (value.engine !== graph.engine || value.run !== graph.run || value.frames.some(frame => frame.engine !== graph.engine || frame.run !== graph.run || frame.artifact_id !== graph.artifact_id)) {
         throw new Error('Graph history does not match the selected run.')
@@ -39,7 +48,7 @@ export function NativeRunView({ conversationId, turn, selected, onSelect, down, 
     }).catch(cause => { if (current) setError(nativeError(cause)) })
       .finally(() => { if (current) setLoading(false) })
     return () => { current = false }
-  }, [conversationId, graph.engine, graph.run, graph.artifact_id, stateKey, before])
+  }, [loadHistory, graph.engine, graph.run, graph.artifact_id, historyRequest, before])
   const live = selection === 'live'
   const shown: DefinitionSnapshot | InspectionSnapshot = selection === 'structure'
     ? { protocol: graph.protocol, artifact_id: graph.artifact_id, artifact: graph.artifact }
@@ -48,7 +57,7 @@ export function NativeRunView({ conversationId, turn, selected, onSelect, down, 
   const frames = history?.frames ?? []
   return <>
     <div className="ai-definition-toolbar">
-      <label>{tr('Run timeline')} <select className="field" aria-label={tr('Run timeline')} value={chosen} onChange={event => {
+      <label>{tr('Run timeline')} <select className="field" aria-label={tr('Run timeline')} value={chosen} onFocus={() => setHistoryRequest(value => value + 1)} onChange={event => {
         const value = event.target.value
         if (value === 'live' || value === 'structure') { setSelection(value); if (value === 'live') setBefore(null) }
         else { const frame = frames.find(item => item.revision === value); if (frame) setSelection(frame) }
@@ -58,13 +67,14 @@ export function NativeRunView({ conversationId, turn, selected, onSelect, down, 
         {typeof selection !== 'string' && !frames.some(frame => frame.revision === selection.revision) && <option value={selection.revision}>{tr('Revision')} {selection.revision}</option>}
         {frames.map(frame => <option key={frame.revision} value={frame.revision}>{tr('Revision')} {frame.revision}</option>)}
       </select></label>
+      {historyRequest > 0 && <button type="button" className="ai-chip" disabled={loading} onClick={() => setHistoryRequest(value => value + 1)}>{tr('Refresh')}</button>}
       {history?.before && <button type="button" className="ai-chip" disabled={loading} onClick={() => setBefore(history.before)}>{tr('Older')}</button>}
       {loading && <span>{tr('Loading…')}</span>}
-      {live && <NativeRunControls turn={turn} globallyPaused={globallyPaused} />}
+      {live && controls}
     </div>
     {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
-    <AiSplit inspector={<NativeInspector graph={shown} selected={selected} preview={live ? turn.nativePreview : undefined} response={live ? turn.nativeResponse : undefined} />}>
-      <div className="ai-view-main"><NativeGraph graph={shown} selected={selected} down={down} onSelect={onSelect} /></div>
+    <AiSplit inspector={<NativeInspector graph={shown} selected={selected} preview={live ? preview : undefined} response={live ? response : undefined} />}>
+      <div className="ai-view-main"><NativeGraph animate={live} graph={shown} selected={selected} down={down} onSelect={onSelect} /></div>
     </AiSplit>
   </>
 }

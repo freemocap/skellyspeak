@@ -19,30 +19,6 @@ pub(crate) struct Request {
 }
 
 impl Request {
-    pub(crate) fn from_capture(source: String, captured: &Value) -> Result<Self> {
-        Ok(Self {
-            source,
-            source_language: captured["targetLanguage"]
-                .as_str()
-                .ok_or_else(|| fail("missing source language"))?
-                .into(),
-            destination_language: captured["translationLanguage"]
-                .as_str()
-                .ok_or_else(|| fail("missing destination language"))?
-                .into(),
-            destination_writing: captured["languageContext"]["guidance"]["explanation_writing"]
-                .as_array()
-                .ok_or_else(|| fail("missing destination writing guidance"))?
-                .iter()
-                .map(|item| {
-                    item.as_str()
-                        .map(str::to_owned)
-                        .ok_or_else(|| fail("invalid destination writing guidance"))
-                })
-                .collect::<Result<_>>()?,
-        })
-    }
-
     pub(crate) fn messages(&self) -> Vec<PromptMessage> {
         let from = &self.source_language;
         let to = &self.destination_language;
@@ -75,10 +51,6 @@ pub(crate) fn schema() -> Value {
 
 fn fail(reason: &str) -> AppError {
     AppError::new(ErrorCode::Validation, format!("Translation: {reason}"))
-}
-
-pub(crate) fn prompt(source: String, captured: &Value) -> Result<Vec<PromptMessage>> {
-    Ok(Request::from_capture(source, captured)?.messages())
 }
 
 pub(crate) fn validate(source: &str, output: &Completion) -> Result<String> {
@@ -167,8 +139,13 @@ mod tests {
     #[test]
     fn shared_prompt_supplies_both_languages_and_an_uncertainty_path() {
         for language in ["malayalam", "hindi", "french"] {
-            let captured = json!({"targetLanguage":language,"translationLanguage":"english","languageContext":{"guidance":{"explanation_writing":["Use English."]}}});
-            let messages = prompt("source text".into(), &captured).unwrap();
+            let messages = Request {
+                source: "source text".into(),
+                source_language: language.into(),
+                destination_language: "english".into(),
+                destination_writing: vec!["Use English.".into()],
+            }
+            .messages();
             assert!(
                 messages[0]
                     .content
@@ -182,12 +159,12 @@ mod tests {
     #[test]
     fn typed_request_preserves_source_and_has_no_turn_or_speaker_dependency() {
         let source = "  cafe\u{301} العربية 日本語\n";
-        let captured = json!({
-            "targetLanguage":"mixed-source", "translationLanguage":"destination",
-            "languageContext":{"guidance":{"explanation_writing":["First.","Second."]}},
-            "turnId":"not-an-input", "speaker":"not-an-input"
-        });
-        let request = Request::from_capture(source.into(), &captured).unwrap();
+        let request = Request {
+            source: source.into(),
+            source_language: "mixed-source".into(),
+            destination_language: "destination".into(),
+            destination_writing: vec!["First.".into(), "Second.".into()],
+        };
         let encoded = serde_json::to_value(&request).unwrap();
         assert_eq!(encoded.as_object().unwrap().len(), 4);
         assert_eq!(encoded["source"], source);
@@ -198,10 +175,6 @@ mod tests {
         assert!(messages[0].content.ends_with(
             "\nDestination-language writing: First.\nDestination-language writing: Second."
         ));
-        assert_eq!(
-            serde_json::to_value(messages).unwrap(),
-            serde_json::to_value(prompt(source.into(), &captured).unwrap()).unwrap()
-        );
         let mut unexpected = encoded;
         unexpected["turnId"] = json!("hidden-dependency");
         assert!(serde_json::from_value::<Request>(unexpected).is_err());
@@ -211,12 +184,11 @@ mod tests {
     fn missing_or_malformed_semantic_inputs_are_errors() {
         for captured in [
             json!({}),
-            json!({"targetLanguage":"source"}),
-            json!({"targetLanguage":"source","translationLanguage":"destination"}),
-            json!({"targetLanguage":"source","translationLanguage":"destination",
-                "languageContext":{"guidance":{"explanation_writing":[1]}}}),
+            json!({"source":"passage"}),
+            json!({"source":"passage","sourceLanguage":"source","destinationLanguage":"destination"}),
+            json!({"source":"passage","sourceLanguage":"source","destinationLanguage":"destination","destinationWriting":[1]}),
         ] {
-            assert!(Request::from_capture("passage".into(), &captured).is_err());
+            assert!(serde_json::from_value::<Request>(captured).is_err());
         }
     }
 }

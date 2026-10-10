@@ -219,5 +219,39 @@ pub fn register(registry: &mut Registry, provider: Provider) -> graph::Result<()
     )
 }
 
+/// The same feedback operation can run as an explicit source-bound inquiry.
+pub fn compile(provider: Provider) -> graph::Result<Executable> {
+    let mut registry = Registry::default();
+    graph_text::register_types(&mut registry)?;
+    source_graph::register(&mut registry)?;
+    register(&mut registry, provider)?;
+    registry.compile(Definition {
+        contract: Contract::new("learning.feedback-inquiry", 1),
+        inputs: inputs(),
+        outputs: BTreeMap::from([("feedback".into(), required(result_contract()))]),
+        nodes: BTreeMap::from([(
+            "feedback".into(),
+            Node {
+                operation: operation_contract(),
+                inputs: inputs()
+                    .keys()
+                    .map(|name| (name.clone(), Source::Input(name.clone())))
+                    .collect(),
+                after: vec![],
+                guard: None,
+                activation: Activation::Automatic,
+            },
+        )]),
+        results: BTreeMap::from([(
+            "feedback".into(),
+            Source::Output {
+                node: "feedback".into(),
+                port: "feedback".into(),
+            },
+        )]),
+        compositions: BTreeMap::new(),
+    })
+}
+
 #[cfg(test)]
 mod tests;

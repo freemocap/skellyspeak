@@ -1,10 +1,8 @@
-import { useMemo } from 'react'
 import { AiStatusPill } from '../../../components/feedback/AiStatusPill'
 import { aiStatus } from '../../../domain/activity/ai-status'
 import type { TurnView } from '../../../generated/contracts'
 import { openAiActivity, useAiActivityOpen } from '../../../state/navigation/ai-activity'
 import { useAiAccess } from '../../../state/session/ai-access'
-import { useAttemptStreams } from '../../../state/session/attempt-streams'
 import { LatestTurnActivity } from '../messages/TurnActivityLine'
 
 /// The AI in Chat's composer status line: what the conversation's recording,
@@ -24,11 +22,7 @@ export function AiStatus({ transcribing, scheduling, turns, synthesizing, buffer
 }) {
   const access = useAiAccess()
   const open = useAiActivityOpen()
-  // Only the set of attempts whose text has begun changes the line, not each token.
-  const streamingKey = useAttemptStreams(state => Object.values(state.entries)
-    .filter(entry => entry.text && !entry.terminal).map(entry => entry.attemptId).sort().join(' '))
-  const streaming = useMemo(() => new Set(streamingKey ? streamingKey.split(' ') : []), [streamingKey])
-  const { busy, line } = aiStatus({ transcribing, scheduling, turns, streaming, audio: buffering ? 'buffering' : synthesizing ? 'partner' : null,
+  const { busy, line } = aiStatus({ transcribing, scheduling, turns, audio: buffering ? 'buffering' : synthesizing ? 'partner' : null,
     connection: access.status, models: access.models })
   return <AiStatusPill access={access} open={open} onOpen={() => openAiActivity(access.status)} busy={busy} line={line}
     fallback={latest ? <LatestTurnActivity execution={latest} onActivity={onInspectLatest} fallback={null} /> : null} />

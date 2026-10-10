@@ -38,9 +38,7 @@ pub(super) async fn exercise(store: &mut Store, message: &str) {
         })
         .unwrap();
     assert!(matches!(
-        store
-            .speech_audio(&cancelled, &store.speech_delivery)
-            .unwrap(),
+        store.speech_audio(&cancelled).unwrap(),
         SpeechAudioState::Unavailable {
             reason: SpeechUnavailableReason::Cancelled,
             ..
@@ -65,9 +63,7 @@ pub(super) async fn exercise(store: &mut Store, message: &str) {
                 audio_base64,
                 alignment,
                 ..
-            } = store
-                .speech_audio(&operation, &store.speech_delivery)
-                .unwrap()
+            } = store.speech_audio(&operation).unwrap()
             {
                 ready = Some((
                     attempt_id,
@@ -80,9 +76,7 @@ pub(super) async fn exercise(store: &mut Store, message: &str) {
             }
             if expected == 4
                 && matches!(
-                    store
-                        .speech_audio(&operation, &store.speech_delivery)
-                        .unwrap(),
+                    store.speech_audio(&operation).unwrap(),
                     SpeechAudioState::Unavailable {
                         reason: SpeechUnavailableReason::Failed,
                         ..
@@ -170,7 +164,7 @@ pub(super) async fn exercise(store: &mut Store, message: &str) {
         );
         let reused = store.execute(request(store, message)).unwrap().entity_id;
         assert!(matches!(
-            store.speech_audio(&reused, &store.speech_delivery).unwrap(),
+            store.speech_audio(&reused).unwrap(),
             SpeechAudioState::Ready { .. }
         ));
         let count: i64 = store
@@ -197,18 +191,15 @@ pub(super) async fn exercise(store: &mut Store, message: &str) {
             product
                 .turns
                 .iter()
-                .flat_map(|t| &t.operations)
-                .any(|o| o.kind == "persona_speech"
-                    && o.source_message_id.as_deref() == Some(message))
+                .filter_map(|t| t.speech.as_ref())
+                .any(|o| o.source_message_id == message)
         );
         if expected == 2 {
             continue;
         }
         crate::ai::results::set_capacity(&store.connection, 0).unwrap();
         assert!(matches!(
-            store
-                .speech_audio(&operation, &store.speech_delivery)
-                .unwrap(),
+            store.speech_audio(&operation).unwrap(),
             SpeechAudioState::Unavailable {
                 reason: SpeechUnavailableReason::Expired,
                 ..
@@ -224,9 +215,7 @@ pub(super) async fn exercise(store: &mut Store, message: &str) {
             store.graph_runtime = graph_runtime::Runtime::new().unwrap();
             store.graph_runtime.recover(&mut store.connection).unwrap();
             assert!(matches!(
-                store
-                    .speech_audio(&operation, &store.speech_delivery)
-                    .unwrap(),
+                store.speech_audio(&operation).unwrap(),
                 SpeechAudioState::Unavailable {
                     reason: SpeechUnavailableReason::Expired,
                     ..

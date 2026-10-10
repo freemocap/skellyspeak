@@ -7,7 +7,13 @@ use std::sync::Arc;
 
 pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
     store.config.language(target)?;
-    let mut result = snapshot_db(&store.connection, &store.config, &store.session_id, target)?;
+    let mut result = project(
+        &store.connection,
+        &store.config,
+        &store.session_id,
+        target,
+        Some(&store.graph_runtime),
+    )?;
     let raw: String = store
         .connection
         .query_row("SELECT preferences FROM learner", [], |r| r.get(0))?;
@@ -39,6 +45,16 @@ pub(crate) fn snapshot_db(
     session: &str,
     target: &str,
 ) -> Result<Value> {
+    project(db, registry, session, target, None)
+}
+
+fn project(
+    db: &Connection,
+    registry: &crate::configuration::Registry,
+    session: &str,
+    target: &str,
+    runtime: Option<&crate::conversations::execution::graph_runtime::Runtime>,
+) -> Result<Value> {
     let construct_hash = crate::learning::coaching::construct_hash(registry);
     let catalog_version = crate::learning::coaching::version_for(registry);
     let learner: String = db.query_row("SELECT id FROM learner", [], |r| r.get(0))?;
@@ -51,11 +67,41 @@ pub(crate) fn snapshot_db(
         .optional()?;
     let (revision, focus, excluded) = choice.unwrap_or((0, None, "[]".into()));
     let excluded: Vec<String> = serde_json::from_str(&excluded)?;
-    let rows=db.prepare("SELECT t.id,t.conversation_id,m.sequence,m.text,t.model,t.route,t.context,CAST(strftime('%s',m.created_at) AS INTEGER),o.state FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' JOIN operations o ON o.id=(SELECT candidate.id FROM operations candidate WHERE candidate.turn_id=t.id AND candidate.kind IN ('skill_assessment') LIMIT 1) WHERE c.language_id=?1 ORDER BY m.created_at,t.id")?.query_map([target],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,i32>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,i64>(7)?,r.get::<_,String>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    // Accepted observations and credit are domain records. Live node status is
+    // supplied only for the evidence view; transaction-time credit projection
+    // does not read an engine while its adoption is being committed.
+    let rows=db.prepare("SELECT t.id,t.conversation_id,m.sequence,m.text,t.model,t.route,t.context,CAST(strftime('%s',m.created_at) AS INTEGER),m.id FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' WHERE c.language_id=?1 AND (json_type(t.context,'$.skillAssessment')='object' OR (?2 AND EXISTS(SELECT 1 FROM turn_execution_owners o WHERE o.turn_id=t.id AND o.executor='graph' AND o.channel='persona_reply'))) ORDER BY m.created_at,t.id")?.query_map(params![target,runtime.is_some()],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,i32>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,i64>(7)?,r.get::<_,String>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let mut records = vec![];
-    for (turn, chat, sequence, source, model, route, context, time, state) in rows {
+    for (turn, chat, sequence, source, model, route, context, time, message) in rows {
         let context: Value = serde_json::from_str(&context)?;
-        let assessment = context.get("skillAssessment");
+        let assessment = context.get("skillAssessment").filter(|a| a.is_object());
+        let status = if assessment.is_none() {
+            runtime
+                .map(|runtime| {
+                    runtime.source_status(
+                        db,
+                        &turn,
+                        &crate::language::source_graph::SourceText {
+                            id: message,
+                            text: source.clone(),
+                        },
+                    )
+                })
+                .transpose()?
+                .unwrap_or_default()
+                .into_iter()
+                .rev()
+                .find(|item| {
+                    item.operation
+                        == crate::learning::coaching::assessment_graph::operation_contract()
+                })
+        } else {
+            None
+        };
+        let state = status.as_ref().and_then(|item| item.state.as_deref());
+        if assessment.is_none() && state.is_none() {
+            continue;
+        }
         let attempt = context
             .get("skillAssessmentAttempt")
             .and_then(Value::as_str)
@@ -66,15 +112,12 @@ pub(crate) fn snapshot_db(
             let quotes: Vec<_> = spans.iter().map(|s|s["quote"].clone()).collect();
             json!({"skill_id":id,"presence":assessment.unwrap()["presence"][id],"evidence_kind":if spans.is_empty(){"whole_message"}else{"quoted"},"answer":answer,"quotes":quotes,"spans":spans,"rationale":"","attribution_reason":evidence["reason"]})
         }).collect()).unwrap_or_default();
-        let attribution_state: Option<String> = db
-            .query_row(
-                "SELECT state FROM operations WHERE turn_id=?1 AND kind='skill_attribution'",
-                [&turn],
-                |r| r.get(0),
-            )
-            .optional()?;
+        let attribution_state = context
+            .get("skillAttribution")
+            .filter(|a| a.is_object())
+            .map(|_| "succeeded");
 
-        records.push(json!({"attribution_state":attribution_state,"attribution_error":context["skill_attributionError"],"attribution_attempt":context["skillAttributionAttempt"],"reward_credits":crate::learning::rewards::credits(&context)?,"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":Value::Null,"at_secs":time,"model":assessment.and_then(|a|a.get("model")).cloned().unwrap_or(json!(model)),"provider_mode":assessment.and_then(|a|a.get("providerMode")).cloned().unwrap_or(json!(route)),"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else if assessment.is_some() && context.get("gamePolicy").is_none(){json!("This observation predates the durable reward policy. Its evidence is retained; start a new exchange to earn current rewards.")}else{Value::Null},"assessment_adapter":assessment.and_then(|a|a.get("adapter")).cloned().unwrap_or(json!("jev_choice")),"decision_policy":assessment.and_then(|a|a.get("policy")).cloned().unwrap_or(Value::Null),"prompt_version":assessment.and_then(|a|a.get("promptVersion")).cloned().unwrap_or_else(||if context.get("skillAssessment").is_some(){context["skillAssessmentPromptVersion"].clone()}else{context["coachFeedbackPromptVersion"].clone()}),"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Skill presence unavailable: {state}."))} else {Value::Null}}));
+        records.push(json!({"attribution_state":attribution_state,"attribution_error":context["skill_attributionError"],"attribution_attempt":context["skillAttributionAttempt"],"reward_credits":crate::learning::rewards::credits(&context)?,"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":Value::Null,"at_secs":time,"model":assessment.and_then(|a|a.get("model")).cloned().unwrap_or(json!(model)),"provider_mode":assessment.and_then(|a|a.get("providerMode")).cloned().unwrap_or(json!(route)),"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else if assessment.is_some() && context.get("gamePolicy").is_none(){json!("This observation predates the durable reward policy. Its evidence is retained; start a new exchange to earn current rewards.")}else{Value::Null},"assessment_adapter":assessment.and_then(|a|a.get("adapter")).cloned().unwrap_or(json!("jev_choice")),"decision_policy":assessment.and_then(|a|a.get("policy")).cloned().unwrap_or(Value::Null),"prompt_version":assessment.and_then(|a|a.get("promptVersion")).cloned().unwrap_or_else(||if context.get("skillAssessment").is_some(){context["skillAssessmentPromptVersion"].clone()}else{context["coachFeedbackPromptVersion"].clone()}),"status":if assessment.is_some(){"complete"}else if !matches!(state,Some("ready"|"running"|"waiting_dependencies"|"held")){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state,Some("ready"|"running"|"waiting_dependencies"|"held")) {status.as_ref().and_then(|item| item.error.as_ref()).map(|error|json!(error)).unwrap_or_else(||json!(format!("Skill presence unavailable: {}.",state.unwrap_or("unknown"))))} else {Value::Null}}));
     }
     let source_catalog = registry.practice_catalog(target)?;
     let catalog = source_catalog;

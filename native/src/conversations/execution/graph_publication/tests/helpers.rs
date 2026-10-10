@@ -68,7 +68,7 @@ async fn translation_adoption_projects_actual_source_role_and_rejects_stale_or_f
                 finish_reason:"stop".into(),actual_model:"fixture".into(),provider_id:"provider".into(),input_tokens:Some(1),output_tokens:Some(2),diagnostics:None})
         }))).unwrap());
         let partition = Partition {
-            conversation: "conversation".into(),
+            owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
             catalog: catalog_id([graph.identity()]).unwrap(),
         };
         let mut engine = DurableEngine::create_with_run(

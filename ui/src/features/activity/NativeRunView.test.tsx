@@ -25,6 +25,7 @@ beforeEach(() => {
 
 it('uses the same artifact for structure, native historical frames and live state', async () => {
   render(<NativeRunView {...props} />)
+  fireEvent.focus(screen.getByRole('combobox'))
   await screen.findByRole('option', { name: 'Revision 2' })
   expect(api.readGraphHistory).toHaveBeenCalledWith('conversation', 'run', null)
   fireEvent.change(screen.getByRole('combobox'), { target: { value: '2' } })
@@ -43,6 +44,7 @@ it('uses the same artifact for structure, native historical frames and live stat
 it('pages through native revisions without changing the selected historical frame', async () => {
   api.readGraphHistory.mockResolvedValueOnce({ engine: 'engine', run: 'run', frames: [frame], before: '2' })
   render(<NativeRunView {...props} />)
+  fireEvent.focus(screen.getByRole('combobox'))
   await screen.findByRole('option', { name: 'Revision 2' })
   fireEvent.change(screen.getByRole('combobox'), { target: { value: '2' } })
   api.readGraphHistory.mockResolvedValueOnce({ engine: 'engine', run: 'run', frames: [{ ...frame, revision: '1' }], before: null })
@@ -56,7 +58,30 @@ it('pages through native revisions without changing the selected historical fram
 it('rejects history belonging to a different run and displays read errors', async () => {
   api.readGraphHistory.mockResolvedValueOnce({ engine: 'other', run: 'run', frames: [frame] })
   render(<NativeRunView {...props} />)
+  fireEvent.focus(screen.getByRole('combobox'))
   await waitFor(() => expect(screen.getByText(/Graph history does not match/)).toBeVisible())
   expect(screen.queryByRole('option', { name: 'Revision 2' })).toBeNull()
   expect(api.graph.mock.lastCall?.[0].graph).toEqual(graph)
+})
+
+
+it('keeps the chosen historical state fixed while live execution advances', async () => {
+  const view = render(<NativeRunView {...props} />)
+  fireEvent.focus(screen.getByRole('combobox'))
+  await screen.findByRole('option', { name: 'Revision 2' })
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: '2' } })
+  const advanced = { ...turn, nativeGraph: { ...graph, revision: '10', nodes: { first: 'Adopted', second: 'Running' } } } as unknown as TurnView
+  view.rerender(<NativeRunView {...props} turn={advanced} />)
+  expect(api.graph.mock.lastCall?.[0].graph).toEqual(frame)
+  expect(screen.queryByRole('button', { name: 'Step' })).toBeNull()
+  await waitFor(() => expect(api.readGraphHistory).toHaveBeenCalledTimes(1))
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'live' } })
+  expect(api.graph.mock.lastCall?.[0].graph).toEqual(advanced.nativeGraph)
+})
+
+
+it('does not replay history merely because live graph state changed', () => {
+  const view = render(<NativeRunView {...props} />)
+  view.rerender(<NativeRunView {...props} turn={{ ...turn, nativeGraph: { ...turn.nativeGraph!, revision: '10' } }} />)
+  expect(api.readGraphHistory).not.toHaveBeenCalled()
 })

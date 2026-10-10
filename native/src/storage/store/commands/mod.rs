@@ -4,6 +4,7 @@ mod assistance;
 mod conversations;
 mod guide_actions;
 mod learning;
+mod native_execution;
 mod partners;
 mod phrase;
 mod skill_start;
@@ -12,12 +13,14 @@ struct Handlers<'a> {
     graph_runtime: &'a crate::conversations::execution::graph_runtime::Runtime,
     graph_speech: Option<crate::conversations::execution::graph_runtime::SpeechCommand>,
     graph_help: Option<crate::conversations::execution::graph_runtime::HelpRequest>,
-    graph_admission: Option<String>,
+    graph_admission: Option<(
+        String,
+        crate::conversations::execution::graph_runtime::Admission,
+    )>,
     graph_control: Option<(String, TurnControl)>,
     tx: &'a Connection,
     config: &'a crate::configuration::Registry,
     snapshot: &'a Snapshot,
-    speech_delivery: &'a crate::speech::delivery::DeliveryBuffer,
     persona_scope: Option<String>,
     conversation_scope: Option<String>,
 }
@@ -50,6 +53,7 @@ impl Store {
             }
             return Ok(serde_json::from_str(&receipt)?);
         }
+        native_execution::check(&tx, &command.action)?;
         let snapshot = read_snapshot(&tx, &self.session_id, &self.config)?;
         let revision = snapshot
             .revision
@@ -64,7 +68,6 @@ impl Store {
             tx: &tx,
             config: &self.config,
             snapshot: &snapshot,
-            speech_delivery: &self.speech_delivery,
             persona_scope: None,
             conversation_scope: None,
         };
@@ -292,12 +295,8 @@ impl Store {
         let graph_control = handlers.graph_control;
         let graph_help = handlers.graph_help;
         let graph_speech = handlers.graph_speech;
-        if let Some(turn) = graph_admission {
-            self.graph_runtime.admit(
-                tx,
-                &turn,
-                crate::conversations::execution::graph_runtime::Admission::Coach,
-            )?;
+        if let Some((turn, admission)) = graph_admission {
+            self.graph_runtime.admit(tx, &turn, admission)?;
         } else if let Some((turn, control)) = graph_control {
             self.graph_runtime.control(tx, &turn, control)?;
         } else if let Some(request) = graph_help {

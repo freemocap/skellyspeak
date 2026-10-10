@@ -86,11 +86,11 @@ impl Store {
         crate::conversations::execution_owner::validate_complete(&connection)?;
         crate::language::reading::preloaded::install_bundled(&mut connection, &config)?;
         let mut store = Self {
+            workspace_graphs: Default::default(),
             graph_runtime: crate::conversations::execution::graph_runtime::Runtime::new()?,
             config,
             connection,
             session_id: id(),
-            speech_delivery: crate::speech::delivery::DeliveryBuffer::default(),
             audio_analysis: Default::default(),
             credential_writes: std::collections::HashSet::new(),
             credential_index: path.with_file_name("credentials.index"),
@@ -99,11 +99,11 @@ impl Store {
         };
         store.snapshot()?;
         crate::ai::results::recover(&store.connection)?;
-        store.reconcile_execution()?;
         store.graph_runtime.recover(&mut store.connection)?;
         crate::drill::sessions::recover(&store.connection)?;
         crate::ai::generation::generation_receipts::recover(&store.connection)?;
         crate::language::reading::recover(&store.connection)?;
+        crate::speech::recording::transcription::recover(&store.connection)?;
         // Audio an interrupted save or deletion left with no attempt to claim it.
         store.reconcile_drill_audio()?;
         store.prune_drill_audio()?;

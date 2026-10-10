@@ -255,7 +255,7 @@ describe('native conversation ownership', () => {
     const { result } = renderHook(() => useSubject())
     await waitFor(() => expect(watches).toHaveLength(1))
     const assisting = snapshot()
-    assisting.turns = [{ id: 'turn', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'assisting', paused: false, hold: null, operations: [], attempts: [] }]
+    assisting.turns = [{ id: 'turn', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'assisting', paused: false, hold: null,   }]
     await act(async () => watches[0].resolve(assisting))
     expect(result.current.pendingReply).toBe(false)
     await act(async () => watches[1].resolve({ ...assisting, revision: 2, turns: [{ ...assisting.turns[0], state: 'pending' }] }))
@@ -631,8 +631,8 @@ describe('native composer admission', () => {
     const landed = exchangeSnapshot()
     landed.revision = 32
     landed.messages.push({ ...landed.messages[0], id: 'sent', turnId: 'accepted', sequence: 3, text: 'Fui al mercado.' })
-    landed.turns = [{ id: 'accepted', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [],
-      operations: [{ id: 'accepted-reply', kind: 'persona_reply', state: 'running', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
+    landed.turns = [{ id: 'accepted', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null,
+       }]
     await act(async () => watches[1].resolve(landed))
     const sent = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].filter(bubble => bubble.textContent?.includes('Fui al mercado.'))
     expect(sent).toHaveLength(1)
@@ -832,7 +832,7 @@ it('allows editing and replacing a pending partner reply', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = exchangeSnapshot()
-  value.turns = [{ id: 'pending', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, operations: [], attempts: [] }]
+  value.turns = [{ id: 'pending', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null,   }]
   await act(async () => watches[0].resolve(value))
   openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
@@ -955,24 +955,25 @@ it('hides starters after accepting an opening and surfaces failure without a lea
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
   value.opening = { kind: 'partner' }
-  value.turns = [{ id: 'opening', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [], operations: [{ id: 'opening-operation', kind: 'persona_opening', state: 'ready', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
+  value.turns = [{ id: 'opening', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null,   }]
   await act(async () => watches[0].resolve(value))
   expect(screen.queryByRole('button', { name: / starts$/ })).toBeNull()
-  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Starting conversation')
+  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Replying')
   const paused = structuredClone(value)
   paused.revision++
   paused.connection.paused = true
   await act(async () => watches[1].resolve(paused))
   expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Conversation opening is paused.')
-  expect(screen.getByLabelText('Conversation opening')).not.toHaveTextContent('Starting conversation')
+  expect(screen.getByLabelText('Conversation opening')).not.toHaveTextContent('Replying')
   const resumed = structuredClone(paused)
   resumed.revision++
   resumed.connection.paused = false
   await act(async () => watches[2].resolve(resumed))
-  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Starting conversation')
+  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Replying')
   const failed = structuredClone(resumed)
   failed.revision++
   failed.turns[0].state = 'failed'
+  failed.turns[0].channel = 'persona_opening'
   failed.turns[0].hold = { code: 'credential', message: 'Opening provider refused access.', refusal: null }
   await act(async () => watches[3].resolve(failed))
   expect(screen.getByRole('alert')).toHaveTextContent('Opening provider refused access.')

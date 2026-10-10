@@ -1,4 +1,4 @@
-//! Application ownership of native coach engines. The native artifact/reducer
+//! Application ownership of native conversation engines. The native artifact/reducer
 //! remains the sole topology and scheduling authority.
 use super::{coach_graph, graph_authority, graph_publication, prose};
 use crate::ai::{
@@ -18,7 +18,9 @@ pub use admission::Admission;
 pub(super) use budget::outstanding;
 mod controls;
 mod evidence;
+mod feedback_requests;
 mod help;
+mod helper_requests;
 pub use help::HelpRequest;
 mod execution;
 mod message_view;
@@ -26,12 +28,14 @@ mod partner_host;
 mod playback;
 mod speech_requests;
 pub use speech_requests::SpeechCommand;
+mod reply_validation;
 mod routing;
 mod speech;
 mod status;
 mod text_authority;
 mod usage;
 pub use execution::Claim;
+pub use usage::Usage;
 
 pub struct Runtime {
     pub partner: partner_host::PartnerHost,
@@ -114,6 +118,8 @@ impl Runtime {
         runtime.register_artifact(runtime.partner.reply.clone())?;
         runtime.register_artifact(runtime.partner.opening.clone())?;
         runtime.register_artifact(runtime.partner.playback.clone())?;
+        runtime.register_artifact(runtime.partner.gloss.clone())?;
+        runtime.register_artifact(runtime.partner.feedback.clone())?;
         Ok(runtime)
     }
 

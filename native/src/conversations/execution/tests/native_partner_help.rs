@@ -4,6 +4,7 @@ use crate::ai::graph::Disposition;
 #[test]
 fn native_help_command_demands_exact_source_atomically_and_replays_without_legacy_rows() {
     let (dir, mut store, conversation) = setup();
+    store.connection.execute("UPDATE learner SET preferences=json_set(preferences,'$.execution.reading','on_demand')", []).unwrap();
     let turn = store
         .execute(send(&store, &conversation))
         .unwrap()
@@ -14,23 +15,6 @@ fn native_help_command_demands_exact_source_atomically_and_replays_without_legac
             "SELECT id FROM messages WHERE turn_id=?1 AND role='user'",
             [&turn],
             |r| r.get(0),
-        )
-        .unwrap();
-    let tx = store.connection.transaction().unwrap();
-    tx.execute("DELETE FROM operations WHERE turn_id=?1", [&turn])
-        .unwrap();
-    tx.execute(
-        "DELETE FROM turn_execution_owners WHERE turn_id=?1",
-        [&turn],
-    )
-    .unwrap();
-    tx.execute("UPDATE turns SET context=json_set(context,'$.executionPreferences.reading','on_demand') WHERE id=?1", [&turn]).unwrap();
-    store
-        .graph_runtime
-        .admit(
-            tx,
-            &turn,
-            graph_runtime::Admission::Partner(context::Kind::Reply),
         )
         .unwrap();
     let before = store

@@ -100,7 +100,7 @@ fn first_admission_rolls_back_declared_effect_with_native_records() {
     let mut db = db();
     let graph = executable();
     let partition = Partition {
-        conversation: "conversation".into(),
+        owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
         catalog: catalog_id([graph.identity()]).unwrap(),
     };
     let mut error = None;

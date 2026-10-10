@@ -98,6 +98,17 @@ pub fn finish(
     Ok(result)
 }
 
+/// A process restart cannot establish the outcome of an interrupted recording.
+pub(crate) fn recover(db: &Connection) -> Result<()> {
+    let tx = db.unchecked_transaction()?;
+    let changed = tx.execute("UPDATE transcription_attempts SET state='unknown',error='Recording interrupted; provider outcome is unknown.',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE state='running'", [])?;
+    if changed != 0 {
+        tx.execute("UPDATE metadata SET revision=revision+1", [])?;
+    }
+    tx.commit()?;
+    Ok(())
+}
+
 impl crate::storage::store::Store {
     #[cfg(test)]
     pub fn begin_transcription(
@@ -301,7 +312,7 @@ mod tests {
         (dir, store, owner, target)
     }
     #[test]
-    fn receipt_is_single_use_usage_is_unknown_and_text_is_not_retained() {
+    fn receipt_is_single_use_and_private_text_is_not_retained() {
         let (_dir, mut store, owner, target) = setup();
         store
             .begin_transcription("recording", &owner, &target)
@@ -338,8 +349,8 @@ mod tests {
                 .is_empty()
         );
         let stats = store.profile().unwrap();
-        assert_eq!(stats.global.attempts, 1);
-        assert_eq!(stats.global.unknown_usage, 1);
+        assert_eq!(stats.global.attempts, 0);
+        assert_eq!(stats.global.unknown_usage, 0);
         assert_eq!(stats.global.input_tokens, 0);
         let revision = store.snapshot().unwrap().conversations[0].revision;
         let conversation = owner.id().to_owned();

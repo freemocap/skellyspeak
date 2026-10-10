@@ -78,9 +78,10 @@ pub(super) fn db() -> Connection {
         include_str!("../../../../storage/schemas/turn_execution_owners.sql"),
         include_str!("../../../../storage/schemas/graph_publications.sql"),
         include_str!("../../../../storage/schemas/graph_reply_sources.sql"),
-        include_str!("../../../../storage/schemas/graph_assessments.sql"),
+        include_str!("../../../../storage/schemas/graph_assessment_owners.sql"),
         include_str!("../../../../storage/schemas/graph_transport.sql"),
         include_str!("../../../../storage/schemas/graph_speech_requests.sql"),
+        include_str!("../../../../storage/schemas/graph_helper_requests.sql"),
     ] {
         db.execute_batch(schema).unwrap();
     }
@@ -159,7 +160,7 @@ pub(super) async fn prepared(text: &str) -> (Connection, Partition, DurableEngin
     let mut db = db();
     let graph = executable();
     let partition = Partition {
-        conversation: "conversation".into(),
+        owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
         catalog: catalog_id([graph.identity()]).unwrap(),
     };
     let mut error = None;

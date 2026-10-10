@@ -92,7 +92,7 @@ pub(in crate::conversations::execution) fn outstanding(db: &Connection) -> Resul
         let mut reader = graph_store::BorrowedReadStore::new(
             db,
             Partition {
-                conversation,
+                owner: crate::ai::graph_store::Owner::Conversation(conversation),
                 catalog,
             },
         )

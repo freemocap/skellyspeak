@@ -1,23 +1,7 @@
 //! Typed reading contracts and validated, evictable results. No view ownership.
 use super::*;
 use crate::ai::{results, transport::provider};
-use serde_json::{Value, json};
-
-pub struct Prepared {
-    pub dispatch: TextRequest,
-    pub source: Option<gloss::Source>,
-    pub schema: Value,
-    pub key: String,
-}
-impl Prepared {
-    pub fn output(&self) -> provider::RequestOutput<'_> {
-        if self.source.is_some() {
-            gloss::request_output(self.source.as_ref(), &self.schema)
-        } else {
-            provider::structured_output(&self.schema)
-        }
-    }
-}
+use serde_json::json;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Stored {
@@ -45,102 +29,6 @@ impl Stored {
 impl Request {
     pub fn text_scope(&self) -> Result<String> {
         access_scope(&self.install, &self.target, &self.model, &self.config_hash)
-    }
-
-    pub fn prepare_text(&self) -> Result<Prepared> {
-        let (dispatch, source, schema) = match self.input.aid {
-            ReadingAid::WordGloss => {
-                let (request, source, schema) = self.word_gloss_dispatch()?;
-                (request, Some(source), schema)
-            }
-            ReadingAid::Translation => {
-                let (request, schema) = self.translation_dispatch()?;
-                (request, None, schema)
-            }
-            ReadingAid::Explanations | ReadingAid::Completions => {
-                let (request, schema) = self.explanations_dispatch()?;
-                (request, None, schema)
-            }
-            ReadingAid::Speech => {
-                return Err(AppError::new(
-                    ErrorCode::Validation,
-                    "Speech is not a text result.",
-                ));
-            }
-        };
-        let mut prepared = Prepared {
-            dispatch,
-            source,
-            schema,
-            key: String::new(),
-        };
-        prepared.key = self.text_key(&prepared)?;
-        Ok(prepared)
-    }
-
-    pub(crate) fn text_key(&self, prepared: &Prepared) -> Result<String> {
-        results::text::request_key(
-            &prepared.dispatch,
-            prepared.output(),
-            &format!("{}-shared-v2", self.input.aid.receipt_kind()),
-            &json!([self.context, self.config_hash]),
-        )
-    }
-    pub fn validate_text(
-        &self,
-        prepared: &Prepared,
-        completion: &provider::Completion,
-        metadata: &mut Value,
-        previous: Option<&Stored>,
-    ) -> Result<Stored> {
-        let mut stored = Stored {
-            scope: ReadingScope {
-                language: self.context.language_id.clone(),
-                variety: Some(self.context.variety_id.clone()),
-                explanation: self.context.explanation_language_id.clone(),
-                explanation_variety: Some(self.context.explanation_variety_id.clone()),
-            },
-            text: self.input.text.clone(),
-            access_scope: self.text_scope()?,
-            gloss: None,
-            translation: None,
-            explanations: None,
-            completion: Some(completion.clone()),
-        };
-        match self.input.aid {
-            ReadingAid::WordGloss => {
-                let (mut value, report) = gloss::recover_with_context(
-                    prepared.source.as_ref().unwrap(),
-                    completion,
-                    &prepared.dispatch.operation,
-                    &prepared.dispatch.attempt,
-                    &self.context,
-                )?;
-                metadata["wordGlossValidation"] = report;
-                if let Some(old) = previous.and_then(|p| p.gloss.as_ref()) {
-                    value = gloss::merge_repair(old, value)?;
-                }
-                stored.gloss = Some(value);
-            }
-            ReadingAid::Translation => {
-                stored.translation = Some(crate::language::translation::validate(
-                    &self.input.text,
-                    completion,
-                )?)
-            }
-            ReadingAid::Explanations | ReadingAid::Completions => {
-                let explanations =
-                    serde_json::from_value(support::validate(support::EXPLANATIONS, completion)?)?;
-                super::sentence_blanks::validate(
-                    &self.input.text,
-                    self.input.aid == ReadingAid::Completions,
-                    &explanations,
-                )?;
-                stored.explanations = Some(explanations);
-            }
-            ReadingAid::Speech => unreachable!(),
-        }
-        Ok(stored)
     }
 }
 

@@ -1,6 +1,7 @@
 //! Reviewable proposal ownership, separate from shared provider execution.
 //! Persona proposals stay volatile; durable Drill candidates belong to previews.
 pub(crate) mod generation_receipts;
+pub(crate) mod graph;
 use crate::ai::connections::access;
 use crate::model::*;
 use crate::storage::store::Store;
@@ -181,6 +182,20 @@ pub struct Registry {
     requests: Mutex<HashMap<String, Arc<Request>>>,
 }
 impl Registry {
+    pub(crate) fn native_request(&self, id: &str) -> Result<Arc<Request>> {
+        self.requests
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?
+            .get(id)
+            .cloned()
+            .ok_or_else(|| {
+                AppError::new(
+                    ErrorCode::Conflict,
+                    "Proposal ownership is no longer active.",
+                )
+            })
+    }
+
     /// Return expired ownership for the caller's durable terminal receipts.
     pub fn expire(&self) -> Result<Vec<Arc<Request>>> {
         let mut requests = self

@@ -60,6 +60,18 @@ fn every_historical_cut_uses_native_states_and_complete_topology_without_handler
             })
             .collect();
         assert_eq!(all, expected_attempts);
+        for (id, producer) in expected.state.executions.iter() {
+            let receipt = history.producer_receipt(*id).unwrap();
+            assert_eq!(receipt.dispatched, producer.dispatched);
+            assert_eq!(receipt.unknown, producer.unknown);
+            assert_eq!(
+                receipt.outcome,
+                producer
+                    .outcome
+                    .as_ref()
+                    .map(|v| v.as_ref().map(|_| ()).map_err(Clone::clone))
+            );
+        }
     }
     drop(engine);
     drop(expected);

@@ -41,6 +41,31 @@ pub fn prepare(work: &Work, wire: WireIdentity) -> Result<Prepared> {
                 .text_request(wire.attempt, wire.operation),
             None,
         )
+    } else if let Some(kind) = [
+        crate::ai::generation::graph::Kind::Persona,
+        crate::ai::generation::graph::Kind::Drill,
+    ]
+    .into_iter()
+    .find(|kind| kind.operation() == work.operation)
+    {
+        let request =
+            crate::ai::generation::graph::decode(kind, input).map_err(graph_runtime::error)?;
+        tokens = request.max_output_tokens;
+        let (request, schema, schema_name) = request.prepare(wire.attempt, wire.operation);
+        name = schema_name;
+        (request, Some(schema))
+    } else if work.operation == crate::language::reading::guide_graph::operation() {
+        let request =
+            crate::language::reading::guide_graph::decode(input).map_err(graph_runtime::error)?;
+        let (request, schema) = request.prepare(wire.attempt, wire.operation);
+        name = "skill_guide_translation";
+        tokens = 8192;
+        (request, Some(schema))
+    } else if work.operation == crate::language::reading::explanation_graph::operation() {
+        let request = crate::language::reading::explanation_graph::decode(input)
+            .map_err(graph_runtime::error)?;
+        let (request, schema) = request.prepare(wire.attempt, wire.operation)?;
+        (request, Some(schema))
     } else if work.operation == translation_graph::operation_contract() {
         let request = translation_graph::decode(input).map_err(graph_runtime::error)?;
         (

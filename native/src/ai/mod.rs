@@ -10,3 +10,7 @@ pub(crate) mod generation;
 
 pub(crate) mod identity;
 pub(crate) mod results;
+
+pub(crate) mod workspace_graph;
+
+pub(crate) mod inspection;

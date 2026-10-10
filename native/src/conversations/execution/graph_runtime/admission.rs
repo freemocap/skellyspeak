@@ -4,13 +4,6 @@ use rusqlite::OptionalExtension;
 
 pub enum Admission {
     Coach,
-    #[cfg_attr(
-        not(test),
-        expect(
-            dead_code,
-            reason = "Partner host admission is tested before the speech/control-gated command cutover."
-        )
-    )]
     Partner(context::Kind),
 }
 
@@ -86,7 +79,7 @@ impl Runtime {
             policy,
         };
         let partition = Partition {
-            conversation: conversation.clone(),
+            owner: crate::ai::graph_store::Owner::Conversation(conversation.clone()),
             catalog: if channel == "coach" {
                 self.catalog.clone()
             } else {
@@ -160,7 +153,7 @@ impl Runtime {
             .prepare("SELECT conversation_id,catalog FROM graph_engines ORDER BY rowid")?
             .query_map([], |r| {
                 Ok(Partition {
-                    conversation: r.get(0)?,
+                    owner: crate::ai::graph_store::Owner::Conversation(r.get(0)?),
                     catalog: r.get(1)?,
                 })
             })?
@@ -169,7 +162,7 @@ impl Runtime {
             let Some(graphs) = self.catalogs.get(&partition.catalog).cloned() else {
                 continue; // Retained inspection does not require executable capabilities.
             };
-            let conversation = partition.conversation.clone();
+            let conversation = partition.owner.key().to_owned();
             let checkpoint = {
                 let reader = graph_store::ReadStore::new(db, partition.clone()).map_err(error)?;
                 reader

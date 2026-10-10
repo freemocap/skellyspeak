@@ -19,6 +19,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         std::fs::write(path, expected)?;
     }
+    let demo_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../ui/src/generated/coach-graph.json");
+    let demo_graph = skellyspeak_core::conversations::execution::coach_graph::compile(
+        std::sync::Arc::new(|_, _| {
+            Box::pin(async {
+                Err(skellyspeak_core::ai::graph::Fault {
+                    code: "inspection_only".into(),
+                    path: "provider".into(),
+                })
+            })
+        }),
+    )
+    .map_err(|fault| format!("Demo artifact: {fault:?}"))?;
+    let demo = demo_graph
+        .inspection_definition(skellyspeak_core::ai::graph::ExportLimits {
+            bytes: 4 * 1024 * 1024,
+            attempts: 4096,
+        })
+        .map_err(|fault| format!("Demo definition: {fault:?}"))?;
+    let demo = format!("{}\n", serde_json::to_string_pretty(&demo)?);
+    if std::env::args().any(|arg| arg == "--check") {
+        if std::fs::read_to_string(demo_path)? != demo {
+            return Err("Generated demo artifact is stale; run npm run contracts".into());
+        }
+    } else {
+        std::fs::write(demo_path, demo)?;
+    }
     let catalog_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../ui/src/generated/skill-catalogs/catalog.json");
     let catalog = format!(

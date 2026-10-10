@@ -19,7 +19,12 @@ impl Handlers<'_> {
                 ));
             }
         };
-        let id = crate::conversations::openers::accept(
+        let kind = if learner_message.is_some() {
+            crate::conversations::execution::context::Kind::Reply
+        } else {
+            crate::conversations::execution::context::Kind::Opening
+        };
+        let id = crate::conversations::openers::accept_native(
             self.tx,
             self.snapshot,
             self.config,
@@ -29,6 +34,10 @@ impl Handlers<'_> {
             expected_revision,
         )?;
         self.conversation_scope = Some(conversation_id);
+        self.graph_admission = Some((
+            id.clone(),
+            crate::conversations::execution::graph_runtime::Admission::Partner(kind),
+        ));
         Ok(id)
     }
 
@@ -51,6 +60,12 @@ impl Handlers<'_> {
             expected_revision,
         )?;
         self.conversation_scope = Some(conversation_id);
+        self.graph_admission = Some((
+            result.clone(),
+            crate::conversations::execution::graph_runtime::Admission::Partner(
+                crate::conversations::execution::context::Kind::Reply,
+            ),
+        ));
         Ok(result)
     }
 
@@ -61,7 +76,7 @@ impl Handlers<'_> {
         text: String,
         expected_revision: i32,
     ) -> Result<String> {
-        let turn_id = crate::conversations::execution::accept_send(
+        let turn_id = crate::conversations::execution::capture_native_send(
             self.tx,
             self.config,
             self.snapshot,
@@ -80,6 +95,12 @@ impl Handlers<'_> {
             params![turn_id, serde_json::to_string(&input)?],
         )?;
         self.conversation_scope = Some(conversation_id);
+        self.graph_admission = Some((
+            turn_id.clone(),
+            crate::conversations::execution::graph_runtime::Admission::Partner(
+                crate::conversations::execution::context::Kind::Reply,
+            ),
+        ));
         Ok(turn_id)
     }
 

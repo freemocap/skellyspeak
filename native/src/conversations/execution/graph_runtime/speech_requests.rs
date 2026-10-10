@@ -203,11 +203,11 @@ impl Runtime {
         ))
     }
 
-    pub fn speech_product_operation(
+    pub fn speech_request_view(
         &self,
         db: &Connection,
         turn: &str,
-    ) -> Result<Option<crate::model::OperationView>> {
+    ) -> Result<Option<crate::model::SpeechRequestView>> {
         let message: Option<String> = db
             .query_row(
                 "SELECT id FROM messages WHERE turn_id=?1 AND role='assistant'",
@@ -237,23 +237,10 @@ impl Runtime {
             return Ok(None);
         }
         let state = message_view::state(&view.nodes[&node]).unwrap_or_else(|| "unrequested".into());
-        Ok(Some(crate::model::OperationView {
+        Ok(Some(crate::model::SpeechRequestView {
             id: operation,
-            kind: "persona_speech".into(),
-            contract_version: i32::try_from(
-                view.artifact.definition.nodes[&node].operation.version,
-            )
-            .map_err(|_| {
-                AppError::new(
-                    ErrorCode::Validation,
-                    "Speech contract version out of range.",
-                )
-            })?,
-            dependencies: vec![],
-            role: "speech".into(),
             state,
-            source_message_id: Some(message),
-            reply_help_kind: None,
+            source_message_id: message,
         }))
     }
 
@@ -272,7 +259,7 @@ impl Runtime {
             } => {
                 let graph = self.partner.playback.clone();
                 let partition = Partition {
-                    conversation: conversation.clone(),
+                    owner: crate::ai::graph_store::Owner::Conversation(conversation.clone()),
                     catalog: graph_store::catalog_id([graph.identity()]).map_err(error)?,
                 };
                 let existing: Option<String> = tx

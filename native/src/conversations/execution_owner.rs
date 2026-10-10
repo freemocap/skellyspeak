@@ -1,34 +1,9 @@
 //! Domain ownership and channel identity, independent of graph scheduling state.
 use crate::model::{AppError, ErrorCode, Result};
-use rusqlite::{Connection, params};
+use rusqlite::Connection;
 
 #[cfg(test)]
 mod tests;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum Channel {
-    Coach,
-    PersonaReply,
-    PersonaOpening,
-}
-impl Channel {
-    fn key(self) -> &'static str {
-        match self {
-            Self::Coach => "coach",
-            Self::PersonaReply => "persona_reply",
-            Self::PersonaOpening => "persona_opening",
-        }
-    }
-}
-
-/// Borrow the command transaction. Ownership commits with its turn and receipt.
-pub(crate) fn legacy(db: &Connection, turn: &str, channel: Channel) -> Result<()> {
-    db.execute(
-        "INSERT INTO turn_execution_owners(turn_id,executor,channel) VALUES(?1,'legacy',?2)",
-        params![turn, channel.key()],
-    )?;
-    Ok(())
-}
 
 pub(crate) fn validate_complete(db: &Connection) -> Result<()> {
     let missing: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM turns t LEFT JOIN turn_execution_owners o ON o.turn_id=t.id WHERE o.turn_id IS NULL)", [], |r| r.get(0))?;

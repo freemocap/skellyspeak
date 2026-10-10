@@ -9,7 +9,10 @@ fn shape() -> Shape {
 fn sample() -> Values {
     BTreeMap::from([(
         "value".into(),
-        json!({"measurements":{"a":0.125,"b":2},"label":null}),
+        // Non-binary decimal timings must survive the checkpoint reader bit for
+        // bit; an approximate JSON float reader rejects its own checksum.
+        json!({"measurements":{"a":0.125,"b":2,"timing":916.3588435374149,
+            "negative":-1759.9096371882085,"small":0.0000017599096371882085},"label":null}),
     )])
 }
 fn graph() -> Arc<Executable> {

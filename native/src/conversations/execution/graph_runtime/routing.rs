@@ -3,6 +3,31 @@
 use super::*;
 
 impl Runtime {
+    /// Current authoritative persisted state, without replaying historical events.
+    /// The caller holds a domain read transaction; every record is stamp-checked.
+    pub(crate) fn persisted_inspection(
+        &self,
+        db: &Connection,
+        engine: &str,
+        run: &str,
+    ) -> Result<Option<InspectionSnapshot>> {
+        let Some(host) = self.engines.get(engine) else {
+            return Ok(None);
+        };
+        let mut reader =
+            graph_store::BorrowedReadStore::new(db, self.partition(engine)?).map_err(error)?;
+        host.read_inspection(
+            run,
+            ExportLimits {
+                bytes: 4 * 1024 * 1024,
+                attempts: 4096,
+            },
+            &mut reader,
+        )
+        .map(Some)
+        .map_err(error)
+    }
+
     pub fn history(
         &self,
         db: &Connection,
@@ -37,7 +62,7 @@ impl Runtime {
         let mut reader = graph_store::ReadStore::from_transaction(
             db.unchecked_transaction()?,
             Partition {
-                conversation: conversation.into(),
+                owner: crate::ai::graph_store::Owner::Conversation(conversation.into()),
                 catalog,
             },
         );
@@ -78,7 +103,7 @@ impl Runtime {
         let mut reader = graph_store::ReadStore::from_transaction(
             db.unchecked_transaction()?,
             Partition {
-                conversation: conversation.into(),
+                owner: crate::ai::graph_store::Owner::Conversation(conversation.into()),
                 catalog,
             },
         );

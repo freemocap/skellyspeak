@@ -3,7 +3,7 @@ import { requestReplyHelp } from './TurnReplyHelp'
 const backend = vi.hoisted(() => ({ executeAction: vi.fn(), readWorkspace: vi.fn(), watchConversation: vi.fn() }))
 vi.mock('../../../platform/ipc/workspace', () => backend)
 function snapshot(state?: string) {
-  return {messages:[{id:'m',turnId:'t'}],turns:[{id:'t',operations:state ? [{id:'op',replyHelpKind:'grammar',kind:'native-owned',state}] : []}]}
+  return {messages:[{id:'m',turnId:'t',explanationsState:state}],turns:[{id:'t'}]}
 }
 beforeEach(() => {
   vi.clearAllMocks()

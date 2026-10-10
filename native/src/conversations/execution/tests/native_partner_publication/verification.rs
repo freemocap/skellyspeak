@@ -44,6 +44,35 @@ pub(super) fn verify_product(
             assert_eq!(message.explanations_state.as_deref(), Some("succeeded"));
         }
     }
+    let evidence = crate::learning::learner::progression::snapshot(store, "spanish").unwrap();
+    let record = evidence["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|record| record["chat_id"] == conversation)
+        .expect("published assessment appears in learner evidence");
+    assert_eq!(record["status"], "complete");
+    assert!(
+        record["attempt_id"]
+            .as_str()
+            .unwrap()
+            .starts_with("graph-assessment:")
+    );
+    assert!(evidence["profile"]["xp"].as_u64().unwrap() > 0);
+    let message = product
+        .messages
+        .iter()
+        .find(|message| message.role == "user")
+        .unwrap();
+    let history = store.message_history(conversation, &message.id).unwrap();
+    assert!(
+        history.versions[0]
+            .assessments
+            .iter()
+            .any(|assessment| assessment.kind == "skill_assessment"
+                && assessment.state == "succeeded"
+                && assessment.attempt_id.is_some())
+    );
     let context = crate::conversations::assessments::context(&store.connection, turn).unwrap();
     assert_eq!(context["coachValidationOmissions"], 1);
     assert_eq!(context["coachDecision"]["keptGoing"], true);

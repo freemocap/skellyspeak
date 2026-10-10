@@ -65,7 +65,7 @@ async fn admitted_reply_identity_is_the_published_message_identity() {
     })
     .unwrap();
     let partition = Partition {
-        conversation: "conversation".into(),
+        owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
         catalog: catalog_id([graph.identity()]).unwrap(),
     };
     let policy = graph
@@ -185,7 +185,7 @@ fn reply_effect_declarations_reject_missing_nodes_ports_and_non_text_contracts()
         let mut db = db();
         let graph = executable();
         let partition = Partition {
-            conversation: "conversation".into(),
+            owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
             catalog: catalog_id([graph.identity()]).unwrap(),
         };
         let mut adapter = TransactionStore::new(
@@ -281,7 +281,7 @@ async fn all_reply_channels_publish_once_with_channel_specific_credit_and_atomic
         let mut db = db();
         let graph = executable();
         let partition = Partition {
-            conversation: "conversation".into(),
+            owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
             catalog: catalog_id([graph.identity()]).unwrap(),
         };
         let mut engine = DurableEngine::create_with_run(

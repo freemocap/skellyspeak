@@ -15,7 +15,7 @@ pub(crate) fn suffix_counts(
         .map(|m| m.turn_id.as_str())
         .collect();
     // One ordered scan computes suffix totals; only the bounded visible page is returned.
-    Ok(db.prepare("WITH active AS (SELECT t.id,t.rowid AS ordering,EXISTS(SELECT 1 FROM turn_execution_owners WHERE turn_id=t.id AND executor='legacy' AND channel='persona_reply') AS exchange FROM turns t WHERE conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)), counts AS (SELECT id,exchange,coalesce(sum(exchange) OVER (ORDER BY ordering ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING),0) AS exchanges FROM active) SELECT id,exchanges,0 FROM counts WHERE exchange AND id IN (SELECT value FROM json_each(?2))")?.query_map(params![conversation,serde_json::to_string(&targets)?], |r| Ok(RevisionSuffixCount { turn_id:r.get(0)?, exchange_count:r.get(1)?, coach_turn_count:r.get(2)? }))?.collect::<rusqlite::Result<Vec<_>>>()?)
+    Ok(db.prepare("WITH active AS (SELECT t.id,t.rowid AS ordering,EXISTS(SELECT 1 FROM turn_execution_owners WHERE turn_id=t.id AND channel='persona_reply') AS exchange FROM turns t WHERE conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)), counts AS (SELECT id,exchange,coalesce(sum(exchange) OVER (ORDER BY ordering ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING),0) AS exchanges FROM active) SELECT id,exchanges,0 FROM counts WHERE exchange AND id IN (SELECT value FROM json_each(?2))")?.query_map(params![conversation,serde_json::to_string(&targets)?], |r| Ok(RevisionSuffixCount { turn_id:r.get(0)?, exchange_count:r.get(1)?, coach_turn_count:r.get(2)? }))?.collect::<rusqlite::Result<Vec<_>>>()?)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -29,7 +29,7 @@ pub(crate) fn accept(
     mut input: InputEvidence,
     _expected: i32,
 ) -> Result<String> {
-    let order: Option<i64> = db.query_row("SELECT rowid FROM turns t WHERE id=?1 AND conversation_id=?2 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM turn_execution_owners WHERE turn_id=t.id AND executor='legacy' AND channel='persona_reply')", params![turn,conversation], |r| r.get(0)).optional()?;
+    let order: Option<i64> = db.query_row("SELECT rowid FROM turns t WHERE id=?1 AND conversation_id=?2 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM turn_execution_owners WHERE turn_id=t.id AND channel='persona_reply')", params![turn,conversation], |r| r.get(0)).optional()?;
     let order = order.ok_or_else(|| {
         AppError::new(
             ErrorCode::Conflict,
@@ -46,9 +46,6 @@ pub(crate) fn accept(
     }
     // Superseded native history may remain. Removing product ownership below
     // revokes publication; graph archives are not rewritten by message edits.
-    // Mark attempts first: a late provider result cannot publish. Suffix deletion cascades through messages, operations and attempts.
-    db.execute("UPDATE attempts SET state='invalidated',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Source revised.' WHERE state='running' AND operation_id IN (SELECT id FROM operations WHERE turn_id=?1)", [turn])?;
-    db.execute("UPDATE operations SET state='invalidated',permit=0 WHERE turn_id=?1 AND state IN ('ready','running','waiting_dependencies','unknown','failed')", [turn])?;
     db.execute("UPDATE turns SET state='invalidated' WHERE id=?1", [turn])?;
     // Capture one removal set for receipts, evidence choices and turns. Private
     // coach dialogue is history, not part of the regenerated persona exchange.

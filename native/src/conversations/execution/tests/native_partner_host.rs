@@ -1,5 +1,5 @@
 //! Host admission, claims, provider preparation and publication using an actual
-//! command capture. Production admission remains gated on the remaining branches.
+//! command admission. The missing-criteria case injects a captured-content fault.
 use super::*;
 mod requested;
 use crate::{
@@ -22,30 +22,66 @@ async fn exercise(speech: bool, missing_criteria: bool) {
     if speech {
         store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.readAloud',json('true')) WHERE conversation_id=?1",[&conversation]).unwrap();
     }
-    let turn = store
-        .execute(send(&store, &conversation))
-        .unwrap()
-        .entity_id;
-    let tx = store.connection.transaction().unwrap();
-    tx.execute("DELETE FROM operations WHERE turn_id=?1", [&turn])
-        .unwrap();
-    tx.execute(
-        "DELETE FROM turn_execution_owners WHERE turn_id=?1",
-        [&turn],
-    )
-    .unwrap();
-    tx.execute("UPDATE turns SET context=json_set(context,'$.executionPreferences.reading','automatic','$.executionPreferences.replyBrief','automatic','$.executionPreferences.assessment','automatic') WHERE id=?1",[&turn]).unwrap();
-    if missing_criteria {
-        tx.execute("UPDATE turns SET context=json_set(context,'$.presenceSkills',NULL,'$.presenceContentError',json(?2)) WHERE id=?1",params![turn,serde_json::json!({"code":"validation","message":"Captured skill criteria unavailable"}).to_string()]).unwrap();
-    }
-    store
-        .graph_runtime
-        .admit(
-            tx,
-            &turn,
-            graph_runtime::Admission::Partner(context::Kind::Reply),
+    let turn = if missing_criteria {
+        // Deliberately damaged captured material is a component fault fixture.
+        let snapshot = store.snapshot().unwrap();
+        let tx = store.connection.transaction().unwrap();
+        let turn = capture_native_send(
+            &tx,
+            &store.config,
+            &snapshot,
+            &conversation,
+            "Hola, ¿cómo estás?",
+            snapshot.conversations[0].revision,
         )
         .unwrap();
+        tx.execute(
+            "UPDATE turns SET context=json_set(context,'$.input',json(?2)) WHERE id=?1",
+            params![
+                turn,
+                serde_json::to_string(&crate::learning::coaching::InputEvidence::default())
+                    .unwrap()
+            ],
+        )
+        .unwrap();
+        tx.execute("UPDATE turns SET context=json_set(context,'$.presenceSkills',NULL,'$.presenceContentError',json(?2)) WHERE id=?1",params![turn,serde_json::json!({"code":"validation","message":"Captured skill criteria unavailable"}).to_string()]).unwrap();
+        store
+            .graph_runtime
+            .admit(
+                tx,
+                &turn,
+                graph_runtime::Admission::Partner(context::Kind::Reply),
+            )
+            .unwrap();
+        turn
+    } else {
+        let command = send(&store, &conversation);
+        let receipt = store.execute(command.clone()).unwrap();
+        assert_eq!(store.execute(command).unwrap().entity_id, receipt.entity_id);
+        receipt.entity_id
+    };
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT count(*) FROM operations WHERE turn_id=?1",
+                [&turn],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT executor FROM turn_execution_owners WHERE turn_id=?1",
+                [&turn],
+                |r| r.get::<_, String>(0)
+            )
+            .unwrap(),
+        "graph"
+    );
     let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
     store.graph_runtime.partner.bind(
         Arc::new(move |context| {
@@ -227,8 +263,11 @@ async fn exercise(speech: bool, missing_criteria: bool) {
     assert_eq!(
         store
             .connection
-            .query_row("SELECT count(*) FROM inference_executions", [], |r| r
-                .get::<_, i64>(0))
+            .query_row(
+                "SELECT count(*) FROM sqlite_master WHERE name='inference_executions'",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
             .unwrap(),
         0
     );
@@ -271,8 +310,7 @@ async fn exercise(speech: bool, missing_criteria: bool) {
         product
             .turns
             .iter()
-            .flat_map(|t| &t.operations)
-            .filter(|o| o.kind == "persona_speech")
+            .filter_map(|t| t.speech.as_ref())
             .count(),
         usize::from(speech)
     );
@@ -342,9 +380,7 @@ async fn exercise(speech: bool, missing_criteria: bool) {
         "graph:{}",
         serde_json::to_string(&(&snapshot.engine, &turn, node)).unwrap()
     );
-    let state = store
-        .speech_audio(&operation, &store.speech_delivery)
-        .unwrap();
+    let state = store.speech_audio(&operation).unwrap();
     if speech {
         let SpeechAudioState::Ready {
             attempt_id,
@@ -374,9 +410,7 @@ async fn exercise(speech: bool, missing_criteria: bool) {
         );
         crate::ai::results::set_capacity(&store.connection, 0).unwrap();
         assert!(matches!(
-            store
-                .speech_audio(&operation, &store.speech_delivery)
-                .unwrap(),
+            store.speech_audio(&operation).unwrap(),
             SpeechAudioState::Unavailable {
                 reason: SpeechUnavailableReason::Expired,
                 ..
@@ -390,9 +424,7 @@ async fn exercise(speech: bool, missing_criteria: bool) {
         drop(store);
         let mut reopened = Store::open(&_dir.path().join("test.sqlite3")).unwrap();
         assert!(matches!(
-            reopened
-                .speech_audio(&operation, &reopened.speech_delivery)
-                .unwrap(),
+            reopened.speech_audio(&operation).unwrap(),
             SpeechAudioState::Unavailable {
                 reason: SpeechUnavailableReason::Expired,
                 ..
@@ -416,11 +448,7 @@ async fn exercise(speech: bool, missing_criteria: bool) {
             .connection
             .execute("UPDATE turns SET state='invalidated' WHERE id=?1", [&turn])
             .unwrap();
-        assert!(
-            reopened
-                .speech_audio(&operation, &reopened.speech_delivery)
-                .is_err()
-        );
+        assert!(reopened.speech_audio(&operation).is_err());
         assert!(
             reopened
                 .delivered_speech_owner(&operation, &attempt_id, &audio)

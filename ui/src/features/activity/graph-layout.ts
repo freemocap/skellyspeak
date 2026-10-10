@@ -1,27 +1,7 @@
-import type { AttemptView, OperationView, TurnView } from '../../generated/contracts'
-import { latestAttempt, operationPhase, type OperationPhase } from '../../domain/conversation/activity-summary'
-
 export const NODE_WIDTH = 216
 export const NODE_HEIGHT = 32
 const COLUMN_GAP = 256
 const ROW_GAP = 42
-
-export interface GraphNode {
-  operation: OperationView
-  attempt: AttemptView | null
-  phase: OperationPhase | null
-  depth: number
-  x: number
-  y: number
-}
-
-export interface GraphEdge {
-  id: string
-  source: string
-  target: string
-  /// The target's phase: an edge is live while the work it feeds runs.
-  phase: OperationPhase | null
-}
 
 /// Place a turn's operations by dependency depth. Everything comes from the
 /// turn's own operations and their recorded dependencies; nothing here knows
@@ -100,21 +80,4 @@ export function layoutOperationsDown<T extends { id: string; kind: string; depen
   }
   roots.forEach(place)
   return { nodes, edges: across.edges }
-}
-
-export function layoutTurn(turn: Pick<TurnView, 'operations' | 'attempts'>, orientation: 'across' | 'down' = 'across'): { nodes: GraphNode[]; edges: GraphEdge[] } {
-  const layout = orientation === 'down' ? layoutOperationsDown(turn.operations) : layoutOperations(turn.operations)
-  const phases = new Map(turn.operations.map(operation => [operation.id, operationPhase(operation.state)]))
-  return {
-    nodes: layout.nodes.map(node => ({ ...node, attempt: latestAttempt(turn, node.operation.id), phase: operationPhase(node.operation.state) })),
-    edges: layout.edges.map(edge => ({ ...edge, phase: phases.get(edge.target) ?? null })),
-  }
-}
-
-/// Milliseconds an attempt has run: to its finish, or to `now` while running.
-export function attemptDuration(attempt: AttemptView | null, now: number): number | null {
-  if (!attempt) return null
-  const start = Date.parse(attempt.startedAt)
-  const end = attempt.finishedAt ? Date.parse(attempt.finishedAt) : now
-  return Number.isFinite(start) && Number.isFinite(end) ? Math.max(0, end - start) : null
 }

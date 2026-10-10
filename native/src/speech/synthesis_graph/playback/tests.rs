@@ -47,7 +47,7 @@ async fn one_artifact_covers_cache_hit_miss_and_explicit_regeneration() {
         db.execute_batch(include_str!("../../../storage/schemas/graph_runtime.sql"))
             .unwrap();
         let partition = Partition {
-            conversation: "conversation".into(),
+            owner: crate::ai::graph_store::Owner::Conversation("conversation".into()),
             catalog: catalog_id([graph.identity()]).unwrap(),
         };
         let mut inputs = values();

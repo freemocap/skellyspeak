@@ -1,6 +1,6 @@
 import { isTauri } from './tauri'
 import { invoke } from './native'
-import type { AiViewSelection, AiWindowState, AiGraphDefinition } from '../../generated/contracts'
+import type { AiViewSelection, AiWindowState } from '../../generated/contracts'
 import type { RunHistory } from '../../generated/graph-contracts'
 
 /// The label of the webview this bundle runs in, or null outside Tauri.
@@ -56,11 +56,6 @@ export async function onAiWindowEvent(handler: (event: AiWindowEvent) => void): 
   return () => unlisten.forEach(stop => stop())
 }
 
-/** Static native declarations; this command cannot dispatch work. */
-export function getAiGraphDefinitions(): Promise<AiGraphDefinition[]> {
-  return invoke<AiGraphDefinition[]>('get_ai_graph_definitions')
-}
-
 export function readGraphHistory(conversationId: string, runId: string, before: string | null = null): Promise<RunHistory> {
   return invoke<RunHistory>('read_graph_history', { conversationId, runId, before, limit: 32 })
 }
@@ -78,4 +73,21 @@ export async function onReadingQuestion(handler: (question: string) => void): Pr
     if (typeof event.payload !== 'string' || event.payload.length > 16000) throw new Error('Invalid reading question.')
     handler(event.payload)
   })
+}
+
+
+/** Deliberate read of one native attempt at an exact historical revision. */
+export function readNativeGraphAttempt(engine: string, run: string, revision: string, node: string, attempt: string): Promise<import('../../generated/contracts').NativeAttemptInspection> {
+  return invoke('read_native_graph_attempt', { engine, run, revision, node, attempt })
+}
+
+export function listNativeWorkspaceRuns(before: string | null = null): Promise<import('../../generated/contracts').NativeRunPage> {
+  return invoke('list_native_workspace_runs', { before })
+}
+export function readNativeRunHistory(engine: string, run: string, before: string | null = null): Promise<RunHistory> {
+  return invoke('read_native_run_history', { engine, run, before })
+}
+
+export function readNativeWorkspaceGraph(engine: string, run: string, after: string | null): Promise<import('../../generated/graph-contracts').InspectionSnapshot | null> {
+  return invoke('read_native_workspace_graph', { engine, run, after })
 }

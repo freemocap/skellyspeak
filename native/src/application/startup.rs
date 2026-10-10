@@ -106,7 +106,6 @@ pub fn run() {
             }
             app.manage(state.clone());
             tauri::async_runtime::spawn(scheduler(state.clone(), app.handle().clone()));
-            tauri::async_runtime::spawn(streams::stream_pump(state, app.handle().clone()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -231,13 +230,14 @@ pub fn run() {
             commands::workspace::set_practice_view,
             commands::workspace::list_turn_history,
             commands::workspace::read_graph_history,
-            commands::workspace::get_attempt_detail,
-            commands::workspace::read_attempt_streams,
+            commands::workspace::read_native_graph_attempt,
+            commands::workspace::list_native_workspace_runs,
+            commands::workspace::read_native_run_history,
+            commands::workspace::read_native_workspace_graph,
             commands::workspace::ai_window_state,
             commands::workspace::dock_ai_window,
             commands::workspace::set_ai_view_selection,
             commands::workspace::get_ai_view_selection,
-            commands::workspace::get_ai_graph_definitions,
         ])
         .run(tauri::generate_context!())
         .expect("SkellySpeak could not start; no reset or fallback was performed");

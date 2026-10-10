@@ -1,5 +1,5 @@
 //! Admission projection from finalized application capture to typed graph inputs.
-//! No settings lookup, source discovery, provider call or legacy dispatch occurs here.
+//! Inputs carry the captured source and settings; refinement is local and deterministic.
 use super::*;
 use crate::{ai::connections::model_routing, language::source_graph::SourceText};
 use serde::de::DeserializeOwned;

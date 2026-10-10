@@ -28,7 +28,6 @@ import { StableTurn } from './StableTurn'
 import { PendingLearner, WAITING_REPLY } from './PendingTurn'
 import type { PendingMessage } from '../session/usePendingMessage'
 import { retainedReplyText } from '../../../domain/conversation/activity-summary'
-import { useReplyStream } from '../../../state/session/attempt-streams'
 import { TranslationStatus, translationPending } from '../../../components/reading/TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
@@ -44,6 +43,9 @@ import type { CoachControl, CoachDecision, CoachObservationView } from '../../..
 
 export interface TurnShape {
   userMessageId?: string
+  assessmentState?: string | null
+  assessmentError?: string | null
+  feedbackState?: string | null
   replyState?: import('../../../domain/conversation/reply-state').ReplyState
   execution?: import('../../../generated/contracts').TurnView
   turnId?: string
@@ -151,7 +153,7 @@ function TurnContents({
 }: TurnViewProps) {
   const tr = useI18n()
   const messageTools = useMessageToolDefinitions()
-  const replyStream = useReplyStream(turn.execution)
+  const replyStream = turn.execution?.nativePreview?.capture ?? null
   const arrivedPending = useRef(!turn.assistant)
   useEffect(() => { if (!turn.assistant || pendingEdit) arrivedPending.current = true }, [turn.assistant, pendingEdit])
   const replyText = turn.assistant?.reply || replyStream?.text || retainedReplyText(turn.execution) || ''
@@ -188,10 +190,9 @@ function TurnContents({
   })
   const assistant = turn.assistant
   const eligible = !turn.replacedBy && !['cancelled', 'invalidated'].includes(turn.execution?.state ?? '')
-  const coaching = turn.execution?.operations.find(operation => operation.kind === 'coach_feedback')
   // Jev can finish before coaching. Its result must not hide the error check.
-  const coachingPending = eligible && !turn.coachError && (coaching
-    ? ['ready', 'running', 'waiting_dependencies'].includes(coaching.state)
+  const coachingPending = eligible && !turn.coachError && (turn.feedbackState
+    ? ['ready', 'running', 'waiting_dependencies'].includes(turn.feedbackState)
     : reviewing && !turn.coach)
   const userReading = useDeferredReading(eligible ? turn.userMessageId : undefined, turn.userTranslationState, turn.userGlossState)
   const partnerReading = useDeferredReading(eligible ? assistant?.messageId : undefined, assistant?.translationState, assistant?.glossState)
@@ -229,7 +230,7 @@ function TurnContents({
         <div className="learner-turn">
           {editing && <span className="learner-turn-editing"><ToolbarIcon name="edit" size={12} />{tr("Fixing this message")}</span>}
           {pendingEdit ? <PendingLearner message={pendingEdit} rtl={rtl} /> : <>
-          <MessageFeedback requests={turn.userMessageId && !turn.replacedBy && !['cancelled', 'invalidated'].includes(turn.execution?.state ?? '') ? <MessageAssessmentRequests messageId={turn.userMessageId} execution={turn.execution} assessed={Boolean(turn.conversationFeedback)} coached={Boolean(turn.coach)} /> : undefined} onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={coachingPending} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
+          <MessageFeedback requests={turn.userMessageId && !turn.replacedBy && !['cancelled', 'invalidated'].includes(turn.execution?.state ?? '') ? <MessageAssessmentRequests messageId={turn.userMessageId} execution={turn.execution} assessmentState={turn.assessmentState} assessmentError={turn.assessmentError} feedbackState={turn.feedbackState} feedbackError={turn.coachError} assessed={Boolean(turn.conversationFeedback)} coached={Boolean(turn.coach)} /> : undefined} onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={coachingPending} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
             reward={<>{(turn.fixes ?? 0) > 0 && <FixCount count={turn.fixes!} />}<MessageXpButton messageId={turn.id} source={turn.user} /></>}
             bubble={coachTool => (
               <div

@@ -4,12 +4,13 @@ pub(crate) struct Application {
     /// Protected reports whose storage acknowledgement failed. Never diagnostics
     /// and never automatically resubmitted; reset explicitly clears this buffer.
     pub(super) graph_reports: Mutex<Vec<crate::ai::graph::InvocationReport>>,
-    pub(super) coaching_pending:
-        crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) reading_pending: crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) transcription_pending:
         crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) speech_streams: Mutex<crate::speech::stream_delivery::Registry>,
+    pub(super) native_transcription_hosts: Mutex<super::native_transcription::Hosts>,
+    pub(super) native_speech_hosts: Mutex<super::native_speech::Hosts>,
+    pub(super) native_audio_slots: tokio::sync::Semaphore,
     pub(super) speech_pending: crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) reading: crate::language::reading::Registry,
     pub(crate) admission: admission::Admission,
@@ -33,11 +34,6 @@ pub(crate) struct Application {
     pub(super) auth_epoch: std::sync::atomic::AtomicU64,
     /// The AI View's place, kept while it moves between the panel and its window.
     pub(super) ai_view_selection: Mutex<Option<crate::model::AiViewSelection>>,
-    /// Streamed text of running attempts, between the transport and windows.
-    pub(super) streams: Mutex<super::streams::StreamRegistry>,
-    /// Whether each grouped target (URL, connection revision) speaks protocol
-    /// version 2. Only successful answers are kept; a failed probe is retried.
-    pub(super) delta_support: Mutex<std::collections::HashMap<(String, i32), bool>>,
 }
 pub(crate) struct StoreGuard<'a>(MutexGuard<'a, Option<Store>>);
 impl Deref for StoreGuard<'_> {
@@ -52,6 +48,13 @@ impl DerefMut for StoreGuard<'_> {
     }
 }
 impl Application {
+    pub(crate) fn clear_graph_reports(&self) {
+        self.graph_reports
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner())
+            .clear();
+    }
+
     /// Open the workspace without ever aborting the launch. A refused database is
     /// an ordinary outcome, and it has to reach a screen that can reset it.
     /// `cleanup` is the failure, if any, of finishing a previous reset; the caller
@@ -69,9 +72,13 @@ impl Application {
             graph_reports: Mutex::new(Vec::new()),
             speech_streams: Default::default(),
             speech_pending: Default::default(),
+            native_transcription_hosts: Default::default(),
+            native_speech_hosts: Default::default(),
+            native_audio_slots: tokio::sync::Semaphore::new(
+                crate::speech::delivery::DELIVERY_ENTRIES,
+            ),
             transcription_pending: Default::default(),
             reading_pending: Default::default(),
-            coaching_pending: Default::default(),
             admission: admission::Admission::new(),
             reading: Default::default(),
             generations: generation::Registry::default(),
@@ -88,15 +95,6 @@ impl Application {
             signing_in: tokio::sync::Mutex::new(()),
             auth_epoch: std::sync::atomic::AtomicU64::new(0),
             ai_view_selection: Mutex::new(None),
-            // Seconds since the epoch: a later launch always has a higher
-            // generation, so windows adopt it and drop anything older.
-            streams: Mutex::new(super::streams::StreamRegistry::new(
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|elapsed| elapsed.as_secs() as u32)
-                    .unwrap_or(1),
-            )),
-            delta_support: Mutex::new(std::collections::HashMap::new()),
         })
     }
     fn snapshot_error(slot: &Mutex<Option<AppError>>) -> Option<AppError> {

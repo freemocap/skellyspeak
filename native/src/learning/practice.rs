@@ -2,7 +2,7 @@
 //! The caller supplies validated observations inside its completion transaction.
 //! Invoked by skill-assessment publication before the owning attempt completes.
 use crate::model::{AppError, ErrorCode, Result};
-use rusqlite::{Connection, OptionalExtension, Transaction, params};
+use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -59,21 +59,6 @@ pub fn credits(
             }
         })
         .collect()
-}
-
-/// Persist once in the caller's transaction, binding the result to its current
-/// running operation and learner turn. No separate commit or legacy award occurs.
-pub fn publish(
-    tx: &Transaction<'_>,
-    turn: &str,
-    attempt: &str,
-    presence: BTreeMap<String, Presence>,
-    expected_skills: &BTreeSet<String>,
-) -> Result<Observation> {
-    publish_checked(tx, turn, attempt, presence, expected_skills, || {
-        let eligible:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1 AND t.id=?2 AND a.state='running' AND o.state='running' AND o.kind='skill_assessment' AND t.state IN ('pending','assisting') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id))",params![attempt,turn],|r|r.get(0))?;
-        Ok(eligible)
-    })
 }
 
 /// Native receipt publication already checked the current source and adopted

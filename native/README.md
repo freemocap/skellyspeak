@@ -29,10 +29,21 @@ with receipt-owned disclosure and transactional learning credit (workspace forma
 63). Format 64 adds native audio receipts separately from evictable payloads under
 the existing shared cache budget. Format 65 records delivered-audio identity
 against native consumers without retaining another audio copy. Format 66 is a no-op compatibility marker; it changes no persisted data.
+Format 70 records each native assessment receipt's producer engine and run,
+preserving prior results and disclosures.
+Format 69 adds message-owned native helper requests for explicit fresh runs.
+Existing results and source identities remain intact.
+Format 68 adds workspace-owned native execution and bounded reading projections.
+Standalone text reading commands use those engines; transcription, standalone
+speech and proposal conversion remain in progress (migration step 5).
 Format 67 adds message-owned native playback requests, without duplicating audio
 or conversation turns. Explicit playback uses the shared speech graph.
-Partner host and speech playback cutover remain
-in progress; see the [production checklist](../docs/notes/ai-graph-production-integration.md).
+Ordinary partner Send and every opening entry point now admit native graphs through
+the application command transaction. The application host binds their text,
+structured-response, evidence and speech capabilities. Conversation controls and
+revisions also use native ownership. Other AI entry points and running-app
+acceptance remain on the
+[production checklist](../docs/notes/ai-graph-production-integration.md).
 
 ## Source folder map
 
@@ -71,89 +82,49 @@ embedding language behavior in feature code.
 
 ### Executable graph foundation
 
-`ai/graph/` owns the isolated typed DAG compiler, bound operation registry,
-composition, execution state machine and direct inspection. It has no product,
-database or provider dependencies. Production workflows still use their existing
-execution paths; this module does not yet replace them. Follow the
-[architectural foundations](../docs/notes/ai-graph-foundations.md) and
-[initial semantic profile](../docs/notes/ai-graph-core-semantics.md) before extending
-it. Graph topology belongs to the executable artifact; run state overlays that
-artifact. Do not add an independently maintained visualization graph definition.
-`graph::DurableEngine` wraps that same reducer with the
-[checkpoint and owner-transaction contract](../docs/notes/ai-graph-durability.md).
-`ai/graph_store/` supplies the SQLite storage adapter outside the pure graph core.
-Workspace migration 57 adds conversation/catalog-owned engines, primary records
-and immutable archives; historical operations and awards are unchanged. The
-adapter consumes an owned transaction and requires the domain owner to check
-authority and stage publication before its single commit. Protected reads use a
-stable transaction and native byte/stamp/integrity checks. Coach commands use this
-adapter through application admission and scheduling; partner and remaining
-workflow conversion is incomplete. See the [workspace integration status](../docs/notes/ai-graph-workspace-integration.md).
-Format 58 adds `turn_execution_owners`. Current commands declare the legacy executor
-and channel atomically with the turn; migration preserves unknown historical
-channels and rejects conflicting primary-operation evidence. Startup validates
-ownership completeness. The SQL adapter's owner callback receives the borrowed
-native commit request, including the exact new engine identity, so first admission
-can stage the deferred association before inserting the engine.
-Format 59 adds stable conversation effects and accepted-publication provenance.
-Format 61 extends those effects to partner replies and openings without changing
-existing publication, message or credit identities. Format 62 adds optional
-reply-source reservations owned by those effects. New source-bound replies publish
-the ID admitted by their executable source-binding operation; historical effects
-without reservations keep their established identities and behavior.
-`conversations/execution/graph_publication.rs` declares a channel-owned reply effect at
-Begin and publishes matching native Adopt values with a required current-authority
-callback. Message, exact attempt/producer provenance, existing-policy one-time
-exploration credit for coach inquiries and revisions share the native storage
-transaction. Ordinary partner replies/openings do not earn coach exploration credit. The host
-must retain returned domain diagnostics when rejecting a commit. Prompt history, message
-channel selection/pagination, version-history entry and revision coach preservation
-now read `turn_execution_owners` rather than operation kinds. Missing historical
-channel evidence remains unknown. Persona revision is still legacy-only and
-allows removal of graph-owned suffixes while retaining superseded native history.
-Converted coach commands use `execution/graph_runtime/` for admission, native
-status/control, recovery, publication and usage reads. `application/graph_execution.rs`
-supplies shared admission, credentials, transport, bounded streaming capture and
-post-await authority checks. Single-step and full inspection acceptance remain open;
-see the [integration checklist](../docs/notes/ai-graph-production-integration.md).
-`conversations/execution/context.rs` owns the shared prompt-context refinement
-used by legacy dispatch and the registered local native graph operation. Captured
-and validated context have distinct versioned port contracts. Validation preserves
-text and source IDs; source authorization remains the transaction owner's job and
-must also run when a validated context is reused. Production coach graph admission
-and provider execution are not wired by this registration alone.
-`conversations/execution/coach_graph.rs` compiles the coach artifact from this
-context operation and the typed prose operation in `execution/prose.rs`. Their
-dependency is the validated-context output binding. The provider callback receives
-native producer identity and evidence/preview sinks; the host must supply current
-authority, durable wire IDs, credentials and classified response information.
-The SQL publication tests use this executable with a fixture provider. Actual
-command admission and application provider-host binding now use this same artifact.
-Format 60 adds `graph_transport_identities`. The adapter in
-`ai/transport/graph_identity.rs` stages immutable wire request IDs per native
-producer inside the Dispatch transaction and loads them by exact invocation
-identity. Recovery retains them; explicit retry gets a new producer and new IDs.
-Missing bindings fail rather than minting replacements. This association neither
-authorizes external work nor proves dispatch/billing. It shares the engine's
-conversation lifetime and contains no source text, credentials or learner credit.
-`conversations/execution/graph_authority.rs` checks current coach ownership,
-sources, pauses/holds and destination/credential in the owner transaction. It
-shares access comparison with the existing scheduler and source membership with
-legacy dispatch. Adoption checks current authority separately from dispatch;
-pausing alone does not revoke an available result. The host must also recheck
-native cancellation/current-consumer state after asynchronous boundaries. The
-application graph scheduler performs these rechecks. `ai/transport/graph_evidence.rs`
-classifies partial diagnostics, completions and errors with the shared redaction
-policy and retains their nested structure in native execution evidence. Callers
-must supply prompt/source/credential strings for exact redaction. This adapter
-performs no I/O; the application provider host calls it at each response boundary. Structured
-evidence uses checkpoint format 7 and execution-record format 4; older encodings
-remain readable and unchanged. Evidence does not enter the public graph projection.
-`ai/transport/graph_request.rs` connects an authorized producer to the existing
-grouped streaming transport and native evidence/provisional capture. It retains
-item, enclosing-stream and capture outcomes separately. Permits, committed IDs,
-secret/protocol waits and post-await authority checks remain the host's job;
-the bridge commits nothing; the application host persists its native reports.
+`ai/graph/` owns the typed DAG compiler, bound operation registry, composition,
+execution state machine and inspection. It has no product, database or provider
+dependencies. All application AI workflows execute through graph hosts. Follow the
+[foundations](../docs/notes/ai-graph-foundations.md) and
+[semantic profile](../docs/notes/ai-graph-core-semantics.md) when extending it.
+The executable artifact owns topology; run state overlays that artifact.
+
+`graph::DurableEngine` implements the reducer's
+[owner-transaction contract](../docs/notes/ai-graph-durability.md).
+`ai/graph_store/` supplies SQLite storage. A partition belongs to a conversation
+or workspace and an exact executable catalog. Protected reads verify native
+bytes, stamps and integrity. The domain owner checks authority and stages
+publication in the adapter's single transaction.
+
+`turn_execution_owners` declares each turn's channel, engine, run and artifact.
+`conversations/execution/graph_publication/` publishes replies, assessment receipts,
+reading results and stable learning effects from adopted graph values. Exact source,
+attempt and producing execution identify publication. One-time credit and product
+state commit together. Revisions preserve predecessor wording and coach history,
+remove the dependent partner suffix and revoke replaced-source authority.
+
+`conversations/execution/graph_runtime/` owns admission, source status, controls,
+recovery and usage. `application/graph_execution.rs` binds credentials, provider
+admission, transport, bounded provisional text and checks after asynchronous work.
+`application/native_reading.rs`, `native_speech.rs`, `native_transcription.rs` and
+`commands/proposal_execution/native.rs` connect workspace-owned workflows.
+The [integration checklist](../docs/notes/ai-graph-production-integration.md) records
+implementation, verification and running-app acceptance separately.
+
+`execution/context.rs` validates captured prompt context while preserving exact
+text and source identity. `coach_graph.rs` binds its validated output to the typed
+prose operation; `partner_graph/` composes reply, opening and helper artifacts.
+Shared language, learning and speech operations own their typed contracts.
+
+`ai/transport/graph_identity.rs` stages immutable wire request IDs per producer
+inside Dispatch. Recovery retains those IDs; explicit retry creates a new producer.
+`graph_authority.rs` checks captured sources, ownership, holds, destination and
+credentials. Adoption checks authority independently of dispatch; pause alone does
+not revoke an available result. `ai/transport/graph_evidence.rs` retains classified,
+redacted metadata and partial outcomes. `graph_request.rs` connects an authorized
+producer to transport and native evidence/provisional capture. The application host
+persists reports and owns admission and asynchronous authority checks.
+
 `DurableLimits` requires an explicit maximum serialized settlement-event size.
 Admission reserves checkpoint space for running outcomes, consumer adoption and
 recovery. Oversized outcomes fail without truncation; callers must retain them.
@@ -161,7 +132,7 @@ Reservations do not guarantee that a storage commit succeeds.
 The [inspection export](../docs/notes/ai-graph-inspection.md) preserves these same
 graph types while replacing sensitive constant values with explicit omissions.
 Generate its TypeScript contracts with the normal `npm run contracts` command;
-do not add a frontend graph catalog. Its protocol is not yet wired to an IPC command.
+do not add a frontend graph catalog. Activity IPC exposes live snapshots, timeline pages and revision-bound attempt evidence.
 Saved checkpoints expose the same definition projection without executable
 handlers through `Checkpoint::inspection_definition`. This reads historical
 evidence; live recovery still requires compatible implementations. The
@@ -441,27 +412,11 @@ Transport tests use local loopback servers; allow localhost binding when running
 inside a sandbox. They do not need live AI providers. The UI registration check
 reads `src/application/startup.rs`, where the `generate_handler!` list lives.
 
-`ai/policy/retry.rs` owns bounded automatic retries for eligible provider
-requests, transcription, read-aloud, reading help and persona generation. All use
-one runner with typed outcomes and owner-specific authority/persistence callbacks:
-three retries, 1/2/4-second exponential delays plus up to 250ms jitter, and a
-30-second cumulative wait budget. Numeric and HTTP-date `Retry-After` values are
-minimum waits; values outside the budget stop automatic retry. Only explicit
-HTTP/embedded/empty-stream 429 refusals qualify, including a server 502 containing
-an explicit upstream 429. Quota exhaustion, ambiguous transport failures, partial
-output, credentials and validation failures are not replayed.
-
-The admission permit stays held. Cancellation, pause and destination authority
-are checked in flight, during waits and before each submission. Each scheduled
-retry's redacted refusal, timestamp and delay is persisted before sleeping and
-retained on success, failure or cancellation. Audio's typed outcomes preserve
-partial metadata even when a response is not retryable.
-
-Grouped operations are retried individually by `server/app/inference/retry.py`
-inside their existing claim; native code never replays a group or completed sibling.
-The Python executor implements the same limits because those requests execute in
-a separate runtime and each round needs its own server ledger reservation. Adapters
-remain single-submission transports. See the [audit](../docs/notes/ai-retry-audit-2026-09-21.md).
+Native provider submissions use graph-owned execution identity. Uncertain outcomes
+remain explicit and require requested retry. `ai/policy/retry.rs` retains retry
+metadata reported by the service. Server-side rate-limit retries are bounded by
+`server/app/inference/retry.py`; completed siblings and entire groups are not replayed.
+Response diagnostics retain attempt timing, refusal reasons and retry history.
 
 The root Tauri launcher selects this directory explicitly. Moving the native
 project root can invalidate cached build-script paths;
@@ -495,10 +450,9 @@ explanations and speech requests outside conversation turns.
 `application/commands/reading.rs` registers begin, run, cancel and receipt inspection.
 Requests reuse conversation aid contracts and validate captured connection/workspace
 authority. Accepted fresh text help earns exploration effort, never skill XP;
-saved results, speech playback and failed requests earn none. `application/reading_results.rs` owns
-shared generated-text execution; `ai/results/` retains evictable validated
-payloads and durable content-free execution receipts. `reading_attempts` records
-independent consumers and links to those executions. Closing a card cannot cancel
+saved results, speech playback and failed requests earn none. `application/native_reading.rs` owns graph execution; `reading_attempts` records
+source-owned product receipts. Graph records retain producing execution evidence;
+validated reading payloads use bounded caches. Closing a card cannot cancel
 another consumer or abandon accounting for submitted work.
 
 Text identity includes the exact prompt, output contract, model, configuration,
@@ -512,8 +466,8 @@ Speech and Drill reference playback use the shared local speech result lifecycle
 
 ### Shared transcription execution
 
-`application/transcription_results.rs` owns recognizer admission, credentials,
-transport, bounded retries and shared execution settlement. Exact audio bytes,
+`application/native_transcription.rs` owns recognizer graph admission and settlement.
+The shared host supplies credentials, transport and classified response evidence. Exact audio bytes,
 model, endpoint/account/workspace, captured language/variety/tag and prompt context
 identify a result. No text normalization, audio preprocessing or recognition
 settings change accompanies reuse. Validated text and timing are evictable local
@@ -550,8 +504,7 @@ transcripts, comparisons and usage receipts remain. References use a separate
 and interrupted cleanup is retried on startup. In-progress replay owns loaded
 bytes rather than a file handle. SQLite incremental vacuum reclaims freed media
 pages after pruning, file publication and phrase deletion. Export includes the
-database and `drill-audio`; explicit Factory Reset removes both. Development data may be deleted when its feature format changes; do not build
-legacy format conversion to retain it.
+database and `drill-audio`; explicit Factory Reset removes both. Persisted format changes follow the complete workspace migration chain.
 
 ### Transcription boundary
 
@@ -577,11 +530,8 @@ model or route fallback after provider failure. New workspaces default to
 saved v3 speech selections to v4 once; later learner choices are preserved.
 Shared declared capabilities select alternatives before dispatch when needed.
 
-Only the current schema is supported. Desktop credentials use
-`com.freemocap.skellyspeak.credentials`. There is no fallback read or relocation
-from the retired provider namespace; existing sessions can be re-established.
-Deletion uses only the current namespace. Retired Keychain entries are left untouched
-so cleanup cannot provoke authorization for a removed access route.
+Workspace formats migrate through the supported consecutive chain. Desktop
+credential access and deletion use `com.freemocap.skellyspeak.credentials`.
 
 ### Persona generation
 
@@ -598,7 +548,7 @@ the language of generated prose.
 Drill and persona proposals use `application/commands/proposal_execution.rs` for
 structured completion, admission, cancellation checks and refusal handling.
 `ai/generation/` owns their proposal registry and `generation_attempts` consumer
-receipts; `ai/results/` retains independent execution receipts. Each feature owns
+receipts; workspace graph records retain producing execution receipts. Each feature owns
 its prompt and response projection. Every Generate action dispatches fresh work;
 there is no prompt deduplication or reusable proposal cache. Closing a submitted
 proposal cannot abandon its execution accounting or authorize late adoption.
@@ -615,7 +565,7 @@ revalidates their source before adoption. Schema 36 uses fresh development data.
 
 ### Workspace migrations
 
-Workspace format **54** upgrades supported files from baseline **45**. The format
+Workspace format **71** upgrades supported files from baseline **45**. The format
 covers SQL and persisted JSON; application release numbers are independent.
 `storage/store/migrations/` owns consecutive steps and frozen historical contracts.
 `storage/schemas/` owns the current schema, including settings and result tables

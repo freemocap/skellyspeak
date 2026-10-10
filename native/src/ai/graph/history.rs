@@ -195,7 +195,30 @@ impl Checkpoint {
     }
 }
 
+/// Producer facts at an immutable cut, independent of consumer cancellation/adoption.
+pub struct ProducerReceipt {
+    pub dispatched: bool,
+    pub unknown: bool,
+    pub outcome: Option<Result<()>>,
+}
 impl HistoricalInspection {
+    pub fn producer_receipt(&self, execution: ExecutionId) -> Result<ProducerReceipt> {
+        let producer = self
+            .engine
+            .state
+            .executions
+            .get(&execution)
+            .ok_or_else(|| fault(CoreFaultCode::UnknownExecution, "execution"))?;
+        Ok(ProducerReceipt {
+            dispatched: producer.dispatched,
+            unknown: producer.unknown,
+            outcome: producer
+                .outcome
+                .as_ref()
+                .map(|v| v.as_ref().map(|_| ()).map_err(Clone::clone)),
+        })
+    }
+
     /// The same bounded native projection used by live inspection. No executable
     /// capability is needed to inspect an unavailable or superseded artifact.
     pub fn snapshot(&self, run: &str, limits: ExportLimits) -> Result<InspectionSnapshot> {

@@ -38,12 +38,12 @@ export function CoachAnalysisPanel({ chatId, targetLanguageName, conversationBus
   }, [chatId])
   const currentSnapshot = snapshot?.conversationId === chatId ? snapshot : null
   const thread = currentSnapshot?.coachMessages ?? []
-  const coachTurns = currentSnapshot?.turns.filter(turn => turn.channel === 'coach' || turn.operations.some(operation => operation.kind === 'coach_reply')) ?? []
+  const coachTurns = currentSnapshot?.turns.filter(turn => turn.channel === 'coach') ?? []
   const running = coachTurns.some(turn => turn.state === 'pending' || turn.state === 'assisting')
   const busy = submitting || running
   const lastCoachTurn = coachTurns[0]
   const executionError = lastCoachTurn?.hold?.message ?? (lastCoachTurn?.state === 'failed' || lastCoachTurn?.state === 'unknown' || lastCoachTurn?.state === 'unknown_outcome'
-    ? lastCoachTurn.attempts.filter(attempt => attempt.error).at(-1)?.error ?? 'Coach request failed. Open AI activity for details.' : null)
+    ? 'Coach request failed. Open AI activity for details.' : null)
   useEffect(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, [thread, busy])
   const ask = async (text = input): Promise<void> => {
     const question = text.trim()

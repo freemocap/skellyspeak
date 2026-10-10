@@ -85,7 +85,17 @@ pub fn retain(
         ));
     }
     let raw_alignment = alignment.map(serde_json::to_string).transpose()?;
-    db.execute("INSERT INTO graph_audio_receipts(id,engine_id,execution_id,audio_digest,audio_bytes,alignment) VALUES(?1,?2,?3,?4,?5,?6)", params![receipt.id,receipt.engine,receipt.execution,receipt.digest,receipt.bytes as i64,raw_alignment])?;
+    let conversation_engine: bool = db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM graph_engines WHERE id=?1)",
+        [&receipt.engine],
+        |r| r.get(0),
+    )?;
+    let prefix = if conversation_engine {
+        ""
+    } else {
+        "workspace_"
+    };
+    db.execute(&format!("INSERT INTO {prefix}graph_audio_receipts(id,engine_id,execution_id,audio_digest,audio_bytes,alignment) VALUES(?1,?2,?3,?4,?5,?6)"), params![receipt.id,receipt.engine,receipt.execution,receipt.digest,receipt.bytes as i64,raw_alignment])?;
     let payload = serde_json::to_vec(&SpeechAudio::new(wav, alignment.cloned()))?;
     if payload.len() as u64 <= results::settings(db)?.capacity_bytes {
         let digest = results::digest(&payload);
@@ -95,7 +105,7 @@ pub fn retain(
             "INSERT OR IGNORE INTO inference_blobs(digest,payload) VALUES(?1,?2)",
             params![digest, payload],
         )?;
-        db.execute("INSERT INTO graph_audio_cache(receipt_id,request_key,blob_digest,last_used) VALUES(?1,?2,?3,?4)", params![receipt.id,key,digest,results::tick(db)?])?;
+        db.execute(&format!("INSERT INTO {prefix}graph_audio_cache(receipt_id,request_key,blob_digest,last_used) VALUES(?1,?2,?3,?4)"), params![receipt.id,key,digest,results::tick(db)?])?;
         super::analysis::signal_cache::retain(db, "inference", &receipt.id, wav)?;
     }
     results::prune(db)?;
@@ -106,7 +116,7 @@ pub fn retain(
 /// verify it against the exact output and producer, not just an opaque ID.
 pub fn verify(db: &Connection, expected: &Receipt) -> Result<()> {
     transaction(db)?;
-    let found: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM graph_audio_receipts WHERE id=?1 AND engine_id=?2 AND execution_id=?3 AND audio_digest=?4 AND audio_bytes=?5)", params![expected.id,expected.engine,expected.execution,expected.digest,i64::try_from(expected.bytes).map_err(|_| invalid("Invalid audio byte count."))?], |r| r.get(0))?;
+    let found: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM native_graph_audio_receipts WHERE id=?1 AND engine_id=?2 AND execution_id=?3 AND audio_digest=?4 AND audio_bytes=?5)", params![expected.id,expected.engine,expected.execution,expected.digest,i64::try_from(expected.bytes).map_err(|_| invalid("Invalid audio byte count."))?], |r| r.get(0))?;
     if !found {
         return Err(invalid("Native audio receipt is missing or mismatched."));
     }
@@ -123,14 +133,25 @@ pub fn lookup(db: &Connection, request: &Request) -> Result<Option<CachedAudio>>
     transaction(db)?;
     let scope = results::speech::scope(&request.settings.target, &request.settings.install_id)?;
     let key = results::speech::request_key(&scope, &request.speech_input())?;
-    let id: Option<String> = db.query_row("SELECT receipt_id FROM graph_audio_cache WHERE request_key=?1 ORDER BY last_used DESC,receipt_id LIMIT 1", [key], |r| r.get(0)).optional()?;
+    let id: Option<String> = db.query_row("SELECT receipt_id FROM native_graph_audio_cache WHERE request_key=?1 ORDER BY last_used DESC,receipt_id LIMIT 1", [key], |r| r.get(0)).optional()?;
     id.map(|id| read(db, &id)).transpose().map(Option::flatten)
 }
 pub fn read(db: &Connection, id: &str) -> Result<Option<CachedAudio>> {
     transaction(db)?;
-    type SavedAudio = (String, String, String, u32, Option<String>, String, Vec<u8>);
-    let saved: Option<SavedAudio> = db.query_row("SELECT r.engine_id,r.execution_id,r.audio_digest,r.audio_bytes,r.alignment,c.blob_digest,b.payload FROM graph_audio_receipts r JOIN graph_audio_cache c ON c.receipt_id=r.id JOIN inference_blobs b ON b.digest=c.blob_digest WHERE r.id=?1", [id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?))).optional()?;
-    let Some((engine, execution, digest, bytes, alignment, blob_digest, payload)) = saved else {
+    type SavedAudio = (
+        String,
+        String,
+        String,
+        u32,
+        Option<String>,
+        String,
+        Vec<u8>,
+        bool,
+    );
+    let saved: Option<SavedAudio> = db.query_row("SELECT r.engine_id,r.execution_id,r.audio_digest,r.audio_bytes,r.alignment,c.blob_digest,b.payload,r.workspace FROM native_graph_audio_receipts r JOIN native_graph_audio_cache c ON c.receipt_id=r.id JOIN inference_blobs b ON b.digest=c.blob_digest WHERE r.id=?1", [id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?))).optional()?;
+    let Some((engine, execution, digest, bytes, alignment, blob_digest, payload, workspace)) =
+        saved
+    else {
         return Ok(None);
     };
     if results::digest(&payload) != blob_digest {
@@ -148,7 +169,11 @@ pub fn read(db: &Connection, id: &str) -> Result<Option<CachedAudio>> {
         return Err(invalid("Graph audio does not match its durable receipt."));
     }
     db.execute(
-        "UPDATE graph_audio_cache SET last_used=?2 WHERE receipt_id=?1",
+        if workspace {
+            "UPDATE workspace_graph_audio_cache SET last_used=?2 WHERE receipt_id=?1"
+        } else {
+            "UPDATE graph_audio_cache SET last_used=?2 WHERE receipt_id=?1"
+        },
         params![id, results::tick(db)?],
     )?;
     super::analysis::signal_cache::retain(db, "inference", id, &wav)?;

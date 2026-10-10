@@ -173,10 +173,27 @@ fn adapter<'a>(
 #[tokio::test]
 async fn native_partner_results_publish_without_legacy_attempts_and_preserve_credit_on_restart() {
     let (_dir, mut store, conversation) = setup();
-    let turn = store
-        .execute(send(&store, &conversation))
-        .unwrap()
-        .entity_id;
+    let snapshot = store.snapshot().unwrap();
+    let turn = capture_native_send(
+        &store.connection,
+        &store.config,
+        &snapshot,
+        &conversation,
+        "Hola, ¿cómo estás?",
+        snapshot.conversations[0].revision,
+    )
+    .unwrap();
+    store
+        .connection
+        .execute(
+            "UPDATE turns SET context=json_set(context,'$.input',json(?2)) WHERE id=?1",
+            params![
+                turn,
+                serde_json::to_string(&crate::learning::coaching::InputEvidence::default())
+                    .unwrap()
+            ],
+        )
+        .unwrap();
     let (raw, install): (String, String) = store
         .connection
         .query_row(
@@ -207,22 +224,9 @@ async fn native_partner_results_publish_without_legacy_attempts_and_preserve_cre
         install,
     )
     .unwrap();
-    // Keep production routing unchanged until the complete host exists. This
-    // disposable fixture adopts its actual command capture into the native host.
-    store
-        .connection
-        .execute("DELETE FROM operations WHERE turn_id=?1", [&turn])
-        .unwrap();
-    store
-        .connection
-        .execute(
-            "DELETE FROM turn_execution_owners WHERE turn_id=?1",
-            [&turn],
-        )
-        .unwrap();
     let graph = Arc::new(partner_graph::compile(context::Kind::Reply, providers()).unwrap());
     let partition = Partition {
-        conversation: conversation.clone(),
+        owner: crate::ai::graph_store::Owner::Conversation(conversation.clone()),
         catalog: graph_store::catalog_id([graph.identity()]).unwrap(),
     };
     let policy = graph
